@@ -56,3 +56,17 @@ Dynamics.advance(voters, graph, active_effects, rng) -> VoterState[]
 `step` is deterministic for equal validated config, seed hierarchy, initial
 state, and action sequence. It returns a new state or uses an explicitly
 documented validate-then-commit boundary; it never partially mutates on error.
+
+## Week 3 implementation clarifications
+
+- `GameState` snapshots also retain immutable initial voters, a cached graph
+  summary, the boundary contribution vector (zero outside a step transaction),
+  trace records, and safe/public plus internal event tuples. The engine uses a
+  provisional immutable snapshot for resource debit/effect application; it
+  publishes only after the transition succeeds.
+- `Observation.legal_actions` includes eligible public node IDs for the
+  targeted action so clients can form valid targets. IDs have no associated
+  support, susceptibility, or graph-edge data.
+- The JSON-safe `StepResponse` includes `result` only for an accepted terminal
+  step. Rejected responses omit result metadata; the observation itself never
+  contains seeds or authoritative state.

@@ -1,8 +1,8 @@
 # Week 2 API Notes
 
-These executable foundations implement the frozen M0 contracts. They do not
-implement the Game Engine, observation projection, strategy API, or logic
-evaluator.
+These executable foundations implement the frozen M0 contracts. The Game
+Engine and observation projection are now implemented in Week 3. Strategy and
+logic evaluators remain future work.
 
 ## Modules and ownership
 

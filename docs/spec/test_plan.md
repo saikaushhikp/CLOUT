@@ -14,9 +14,9 @@ GPU tests are optional and skip cleanly when unavailable.
 | GRAPH-001 | Graph invariants | Generator/property tests | Week 2 | Valid mapping; no forbidden loops/duplicates |
 | MAS-001 | Dynamics are bounded/finite | Hand-computable path/isolate tests | Week 2 | Synchronous update and isolate rule match spec |
 | CAMP-001 | Ledger is atomic | Invalid and insufficient-budget tests | Week 2 | No debit/state mutation on rejection |
-| INFO-001 | No private-data leak | Serialize observation and mutation-alias test | Week 2 | No hidden fields or state reference |
-| ENG-001 | Round order/results | Fixed action-sequence integration test | Week 2 | Effects, expiry, horizon, result are ordered |
-| REPRO-001 | Repeatability | Two identical seeded episodes | Week 2 | Equal graph/state/events/results |
+| INFO-001 | No private-data leak | Recursive serialization and mutation-alias tests | Week 3 | No hidden fields or state reference |
+| ENG-001 | Round order/results | Fixed action-sequence integration test | Week 3 | Effects, expiry, horizon, result are ordered |
+| REPRO-001 | Repeatability | Two identical seeded episodes | Week 3 | Equal graph/state/events/results |
 | LOGIC-001 | Predicates are meaningful | Valid/invalid trace fixtures | Week 2 | Declared bounded-LTL checks agree |
 | GPU-001 | CPU/GPU agreement | Marked CUDA test | Later | Within approved tolerance or skipped |
 | SCALE-001 | Resource use | Representative-size benchmark | Later | Record wall time/memory; no unmeasured claim |

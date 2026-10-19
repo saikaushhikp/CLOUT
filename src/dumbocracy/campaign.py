@@ -72,6 +72,12 @@ class CampaignCommit:
 def validate_action(context: ActionContext, action: CampaignAction, config: ActionConfig) -> ActionValidation:
     """Validate without changing the supplied context, ledger, or action."""
     zero = tuple(0.0 for _ in context.node_ids)
+    if not isinstance(action, CampaignAction) or not isinstance(action.action_id, str):
+        return ActionValidation(False, ErrorCode.INVALID_ACTION, CampaignAction("invalid"), Decimal("0.00"), zero)
+    if not isinstance(action.target_ids, tuple) or any(not isinstance(target, str) for target in action.target_ids):
+        return ActionValidation(False, ErrorCode.INVALID_ACTION, action, Decimal("0.00"), zero)
+    if action.parameters:
+        return ActionValidation(False, ErrorCode.INVALID_ACTION, action, Decimal("0.00"), zero)
     if action.action_id not in ("targeted_contact", "broadcast", "no_op"):
         return ActionValidation(False, ErrorCode.INVALID_ACTION, action, Decimal("0.00"), zero)
     if action.action_id == "no_op":

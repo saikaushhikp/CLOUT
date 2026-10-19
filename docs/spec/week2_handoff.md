@@ -1,6 +1,7 @@
 # Week 2 Hand-off for the Game Engine
 
-**Status:** ready for Week 2 human review; no engine has been implemented.
+**Status:** original Week 2 hand-off; the engine has since been implemented in
+Week 3. See [week3_handoff.md](week3_handoff.md).
 
 ## Stable inputs available to Week 3
 
