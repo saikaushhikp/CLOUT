@@ -1,0 +1,8 @@
+{
+  "schema_version": "m0-proposal-1",
+  "seed_provenance": 20261019,
+  "directed": false,
+  "allow_self_loops": false,
+  "nodes": ["v0", "v1", "v2"],
+  "edges": [["v0", "v1"], ["v1", "v2"]]
+}

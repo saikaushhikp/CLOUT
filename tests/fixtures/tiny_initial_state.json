@@ -1,0 +1,11 @@
+{
+  "schema_version": "m0-proposal-1",
+  "round_index": 0,
+  "horizon_rounds": 3,
+  "ledger": {"initial_budget": "10.00", "remaining_budget": "10.00", "spent": "0.00"},
+  "voters": [
+    {"voter_id": "v0", "support": 0.20, "susceptibility": 0.50, "campaign_exposure": 0.0},
+    {"voter_id": "v1", "support": 0.50, "susceptibility": 0.50, "campaign_exposure": 0.0},
+    {"voter_id": "v2", "support": 0.80, "susceptibility": 0.50, "campaign_exposure": 0.0}
+  ]
+}
