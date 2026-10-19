@@ -7,7 +7,7 @@ GPU tests are optional and skip cleanly when unavailable.
 | ID | Requirement | Test / fixture | Phase | Expected result |
 | --- | --- | --- | --- | --- |
 | DOC-001 | Required M0 sections exist | Markdown heading/link audit | M0 | Spec, contracts, decisions, handoff, report exist |
-| DOC-002 | No hidden proposal is presented as approved | Decision-label review | M0 | DEC-002–009 marked proposal/blocking |
+| DOC-002 | Frozen decisions are traceable | Decision-label review | M0 | DEC-002–009 marked approved/frozen |
 | FIX-001 | Tiny graph has valid IDs/edges | Parse `tiny_path_graph.json` | M0 | 3 nodes, 2 edges, no loops/duplicates |
 | FIX-002 | Tiny state has valid domains | Parse `tiny_initial_state.json` | M0 | Support/susceptibility ranges, nonnegative ledger |
 | CFG-001 | Invalid config rejected | Config unit tests | Week 2 | Bad horizons/ranges/seeds fail clearly |

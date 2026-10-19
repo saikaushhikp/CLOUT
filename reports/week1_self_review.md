@@ -8,8 +8,8 @@ the team-reported five-person approval are recorded.
 - Repository at start: documentation-only, no commits, source package,
   dependency manifest, package configuration, CI, or pre-existing tests.
 - Environment: `conda activate mas`(miniconda environment named `mas`) at `/data/ai23btech11017/miniconda3/envs/mas/bin/python`.
-  PyTorch is not installed. 
-- Added specification, contract, decisions, test plan, handoff, two deterministic
+  PyTorch has been sucessfully installed in the `mas` environment. The environment is ready for development.
+- Contract, decisions, test plan, handoff, two deterministic
   JSON fixtures, and a standard-library artifact check.
 
 ## Commands and results
