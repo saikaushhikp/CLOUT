@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "round_index": 0,
+  "remaining_budget": "10.00",
+  "aggregate_support": 0.5,
+  "graph_summary": {
+    "node_count": 3,
+    "edge_count": 2,
+    "density": 0.6666666666666666,
+    "min_degree": 1,
+    "max_degree": 2,
+    "mean_degree": 1.3333333333333333,
+    "component_count": 1
+  },
+  "legal_actions": [
+    {
+      "action_id": "targeted_contact",
+      "cost": "1.00 per target",
+      "target_requirement": "one or more unique public voter IDs",
+      "parameters": {"delta_target": 0.2},
+      "eligible_target_ids": ["v0", "v1", "v2"]
+    },
+    {
+      "action_id": "broadcast",
+      "cost": "5.00",
+      "target_requirement": "no target; at most once per round",
+      "parameters": {"delta_broadcast": 0.1},
+      "eligible_target_ids": []
+    },
+    {
+      "action_id": "no_op",
+      "cost": "0.00",
+      "target_requirement": "no target",
+      "parameters": {},
+      "eligible_target_ids": []
+    }
+  ],
+  "terminal_status": false,
+  "public_events": []
+}

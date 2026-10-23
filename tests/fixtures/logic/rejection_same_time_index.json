@@ -1,0 +1,11 @@
+{
+  "horizon": 1,
+  "states": [
+    {"Terminal": false, "Victory": null, "BudgetNonnegative": true, "StateValid": true, "ActionAtomic": true},
+    {"Terminal": true, "Victory": true, "BudgetNonnegative": true, "StateValid": true, "ActionAtomic": null}
+  ],
+  "audit_events": [
+    {"sequence": 2, "round_index": 0, "event_type": "action_proposed", "action_id": "targeted_contact", "error_code": null},
+    {"sequence": 3, "round_index": 0, "event_type": "action_rejected", "action_id": "targeted_contact", "error_code": "INVALID_TARGET"}
+  ]
+}
