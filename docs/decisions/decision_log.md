@@ -1,8 +1,6 @@
 # Dumbocracy Decision Register
 
-On 2026-10-19 the project owner reported approval of every Week 1 blocker by
-all five team members. Names were not supplied and are deliberately not
-fabricated here.
+On 2026-10-19 the project owner reported approval of every Week 1 blocker by all five team members. Names were not supplied and are deliberately not fabricated here.
 
 | ID | Topic | Decision | Status | Approved by | Date |
 | --- | --- | --- | --- | --- | --- |
@@ -17,9 +15,8 @@ fabricated here.
 | DEC-009 | Logic semantics | Bounded-LTL completed traces; same-round observation equality | Approved | All five team members | 2026-10-19 |
 | DEC-010 | Reproducibility | Root seed by subsystem; capture config/revision/environment/backend | Approved constraint | Project owner/team | Ongoing |
 | DEC-011 | M0 review process | Five individual reviews required before freeze | Approved | All five team members | 2026-10-19 |
+| DEC-012 | Observation profile experiment | Keep v1 aggregate-only; exact richer-profile question remains in proposal | Approved | All five reviewers | 2026-10-23 |
 
 ## Frozen contract rule
 
-DEC-002 through DEC-009 are frozen M0 requirements. A later change requires a
-new decision record and compatibility review. Week 2 may implement them without
-guessing.
+DEC-002 through DEC-009 are frozen M0 requirements. A later change requires a new decision record and compatibility review. Week 2 may implement them without guessing.

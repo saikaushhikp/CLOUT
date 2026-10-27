@@ -1,0 +1,40 @@
+{
+  "command": "/data/ai23btech11017/miniconda3/envs/mas/bin/python examples/week5_run_experiments.py --experiment all --backend cpu --nodes 1000 --seeds 11 23 37 41 53 67 71 83 97 101 113 127 139 149 163 173 181 193 199 211 --rounds 5 --strategies no_op first_legal seeded_random_legal uniform_budget greedy_public_model --output-dir reports/results/week5/main",
+  "started_at_utc": "2026-10-27T13:44:13.354999+00:00",
+  "ended_at_utc": "2026-10-27T13:45:05.167696+00:00",
+  "exit_status": 0,
+  "experiment": "all",
+  "backend": "cpu",
+  "nodes": [
+    1000
+  ],
+  "seeds": [
+    11,
+    23,
+    37,
+    41,
+    53,
+    67,
+    71,
+    83,
+    97,
+    101,
+    113,
+    127,
+    139,
+    149,
+    163,
+    173,
+    181,
+    193,
+    199,
+    211
+  ],
+  "rounds": 5,
+  "revision": "uncommitted",
+  "information_profile": "aggregate_v1",
+  "row_count": 200,
+  "failed": 0,
+  "skipped": 0,
+  "results_file": "reports/results/week5/main/all.jsonl"
+}

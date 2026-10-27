@@ -4,22 +4,13 @@
 
 ## Implemented
 
-- Added immutable authoritative `GameState`, `GameResult`, `TraceRecord`,
-  `StepResponse`, and `GameEngine` lifecycle.
-- Added detached `Observation`, public action descriptors, event allowlist,
-  explicit JSON serialization, and safe error codes.
-- Implemented accepted/rejected transactions, one dynamics update per accepted
-  action, per-round effect/guard reset, horizon scoring, terminal guard, reset,
-  and replay.
-- Added explicit CUDA transition path using PyTorch tensor/index-add operations;
-  sparse edge indices/degrees stay device-resident per game; CPU remains
-  available as a reference and fallback.
-- Replaced quadratic trial-per-edge ER sampling with geometric skip sampling for
-  sparse scale initialization.
-- Added engine, recursive privacy, fixture episode, and optional GPU parity test
-  artifacts; added a GPU-capable episode and scale benchmark harness.
-- Added Week 3 API and hand-off documentation with a user/reviewer runbook and
-  recorded benchmark results.
+- Added immutable authoritative `GameState`, `GameResult`, `TraceRecord`, `StepResponse`, and `GameEngine` lifecycle.
+- Added detached `Observation`, public action descriptors, event allowlist, explicit JSON serialization, and safe error codes.
+- Implemented accepted/rejected transactions, one dynamics update per accepted action, per-round effect/guard reset, horizon scoring, terminal guard, reset, and replay.
+- Added explicit CUDA transition path using PyTorch tensor/index-add operations; sparse edge indices/degrees stay device-resident per game; CPU remains available as a reference and fallback.
+- Replaced quadratic trial-per-edge ER sampling with geometric skip sampling for sparse scale initialization.
+- Added engine, recursive privacy, fixture episode, and optional GPU parity test artifacts; added a GPU-capable episode and scale benchmark harness.
+- Added Week 3 API and hand-off documentation with a user/reviewer runbook and recorded benchmark results.
 
 ## Files
 
@@ -44,12 +35,7 @@
 | Diff whitespace check | PASS (reviewer; also clean on handoff inspection) |
 | Standalone mock-client CLI smoke | Not recorded; mock-client unit tests passed |
 
-Exact commands and output are in [week3_api_notes.md](../docs/spec/week3_api_notes.md). Reviewer GPU details: NVIDIA
-RTX A5000, 24,245.5 MiB total, 23,992.5 MiB free at episode start, PyTorch
-2.5.1 with CUDA runtime 12.1, Python 3.11.17. The output transcript contains
-the exact benchmark measurements and action/victory results; benchmark rows
-do not themselves perform a CPU/GPU correctness comparison, which was run
-separately and passed.
+Exact commands and output are in [week3_api_notes.md](../docs/spec/week3_api_notes.md). Reviewer GPU details: NVIDIA RTX A5000, 24,245.5 MiB total, 23,992.5 MiB free at episode start, PyTorch 2.5.1 with CUDA runtime 12.1, Python 3.11.17. The output transcript contains the exact benchmark measurements and action/victory results; benchmark rows do not themselves perform a CPU/GPU correctness comparison, which was run separately and passed.
 
 ## Read-only environment inventory
 
@@ -66,25 +52,13 @@ separately and passed.
 
 ## Static implementation notes and limitations
 
-- No observation path serializes `GameState`; public serialization uses a fixed
-  field allowlist and fresh nested dict/list values.
-- Internal events can include target IDs, but public event summaries only
-  include fixed summary text, action IDs, and stable rejection codes.
-- The GPU transition is a real PyTorch CUDA path when requested. It keeps sparse
-  edge indices/degrees device-resident but transfers voter support/susceptibility
-  vectors at each transition boundary because the canonical state API is an
-  immutable CPU tuple. No performance result or speedup is claimed.
-- CUDA compatibility and 100k resource use were exercised successfully on the
-  reviewer's reported hardware. The sample is a functional smoke/scale run,
-  not evidence of a speedup versus CPU.
+- No observation path serializes `GameState`; public serialization uses a fixed field allowlist and fresh nested dict/list values.
+- Internal events can include target IDs, but public event summaries only include fixed summary text, action IDs, and stable rejection codes.
+- The GPU transition is a real PyTorch CUDA path when requested. It keeps sparse edge indices/degrees device-resident but transfers voter support/susceptibility vectors at each transition boundary because the canonical state API is an immutable CPU tuple. No performance result or speedup is claimed.
+- CUDA compatibility and 100k resource use were exercised successfully on the reviewer's reported hardware. The sample is a functional smoke/scale run, not evidence of a speedup versus CPU.
 - M0 semantics and decision records were not changed.
-- The ER sampling algorithm now uses NumPy geometric skips. A fixed seed is
-  reproducible with the recorded code/dependency versions; edge sets are not
-  promised to match older sampler implementations across revisions.
+- The ER sampling algorithm now uses NumPy geometric skips. A fixed seed is reproducible with the recorded code/dependency versions; edge sets are not promised to match older sampler implementations across revisions.
 
 ## Human review gate
 
-All five members inspected the source, tests, public payloads, example output,
-and benchmark evidence. The five-person review gate is complete, and Week 4
-readiness is confirmed. The mock-client CLI smoke and current live driver
-availability are also confirmed.
+All five members inspected the source, tests, public payloads, example output, and benchmark evidence. The five-person review gate is complete, and Week 4 readiness is confirmed. The mock-client CLI smoke and current live driver availability are also confirmed.

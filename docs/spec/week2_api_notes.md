@@ -1,8 +1,6 @@
 # Week 2 API Notes
 
-These executable foundations implement the frozen M0 contracts. The Game
-Engine and observation projection are now implemented in Week 3. Strategy and
-logic evaluators remain future work.
+These executable foundations implement the frozen M0 contracts. The Game Engine and observation projection are now implemented in Week 3. Strategy and logic evaluators remain future work.
 
 ## Modules and ownership
 
@@ -15,25 +13,13 @@ logic evaluators remain future work.
 
 ## Campaign hand-off
 
-`ActionContext` carries ordered node IDs, immutable `ResourceLedger`, and the
-round-local `broadcast_used` flag. The Week 3 engine creates a fresh context at
-each round boundary, so it owns resetting that flag and clearing contributions
-after calling `advance_support`. A `CampaignCommit` supplies a contribution
-tuple aligned exactly to graph node order. Duplicate targeted IDs are rejected
-with `INVALID_TARGET`; they are never normalized or double charged.
+`ActionContext` carries ordered node IDs, immutable `ResourceLedger`, and the round-local `broadcast_used` flag. The Week 3 engine creates a fresh context at each round boundary, so it owns resetting that flag and clearing contributions after calling `advance_support`. A `CampaignCommit` supplies a contribution tuple aligned exactly to graph node order. Duplicate targeted IDs are rejected with `INVALID_TARGET`; they are never normalized or double charged.
 
-`no_op` shares the action union for convenience but is an engine-level zero-cost
-action. It produces no contribution and does not implement round advancement;
-that belongs to Week 3.
+`no_op` shares the action union for convenience but is an engine-level zero-cost action. It produces no contribution and does not implement round advancement; that belongs to Week 3.
 
 ## Errors and observation boundary
 
-Configuration/graph/dynamics failures use `DumbocracyError` with stable
-`ErrorCode`. Rejected campaign actions return `ActionValidation(accepted=False,
-error_code=...)`; they do not mutate inputs. No `Observation` constructor is
-implemented in Week 2. Observation serialization and hidden-state leakage tests
-remain a Week 3 integration gate. None of these modules imports a future engine,
-UI, or strategy layer.
+Configuration/graph/dynamics failures use `DumbocracyError` with stable `ErrorCode`. Rejected campaign actions return `ActionValidation(accepted=False, error_code=...)`; they do not mutate inputs. No `Observation` constructor is implemented in Week 2. Observation serialization and hidden-state leakage tests remain a Week 3 integration gate. None of these modules imports a future engine, UI, or strategy layer.
 
 ## Commands
 
@@ -44,5 +30,4 @@ PYTHONPATH=src /data/ai23btech11017/miniconda3/envs/mas/bin/python -m unittest d
 /data/ai23btech11017/miniconda3/envs/mas/bin/python examples/week2_gpu_smoke.py
 ```
 
-The smoke demo selects CUDA only when PyTorch reports it usable; otherwise it
-runs the CPU reference and reports that state.
+The smoke demo selects CUDA only when PyTorch reports it usable; otherwise it runs the CPU reference and reports that state.

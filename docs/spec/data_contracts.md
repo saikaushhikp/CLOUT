@@ -1,7 +1,6 @@
 # Dumbocracy Data Contracts (M0)
 
-**Status:** approved by DEC-002–DEC-009. These names describe the Week 2
-interfaces; they are not implemented classes.
+**Status:** approved by DEC-002–DEC-009. These names describe the Week 2 interfaces; they are not implemented classes.
 
 ## Ownership and schemas
 
@@ -23,20 +22,11 @@ interfaces; they are not implemented classes.
 
 ## Graph invariants
 
-The baseline graph is a fixed, sparse, undirected graph. Edges use
-canonical `(min_index, max_index)` ordering, contain no self-loops or duplicate
-pairs, and reference valid node indices. Isolates and disconnected components
-are legal and logged. Compute node/edge count, density, degree summary, and
-component count at initialization; spectral metrics are opt-in diagnostics.
+The baseline graph is a fixed, sparse, undirected graph. Edges use canonical `(min_index, max_index)` ordering, contain no self-loops or duplicate pairs, and reference valid node indices. Isolates and disconnected components are legal and logged. Compute node/edge count, density, degree summary, and component count at initialization; spectral metrics are opt-in diagnostics.
 
 ## Action and error contract
 
-`validate_action(observation_or_state, action) -> ActionValidation` is pure.
-`commit_action(state, validation) -> state` may run only for an accepted
-validation. Rejections return one stable code—`INVALID_CONFIGURATION`,
-`INVALID_ACTION`, `INVALID_TARGET`, `INSUFFICIENT_BUDGET`, `MALFORMED_OBSERVATION`,
-`NUMERICAL_INSTABILITY`, or `INTERNAL_FAILURE`—and leave state and ledger
-unchanged. Currency uses `Decimal`, never binary float.
+`validate_action(observation_or_state, action) -> ActionValidation` is pure. `commit_action(state, validation) -> state` may run only for an accepted validation. Rejections return one stable code—`INVALID_CONFIGURATION`, `INVALID_ACTION`, `INVALID_TARGET`, `INSUFFICIENT_BUDGET`, `MALFORMED_OBSERVATION`, `NUMERICAL_INSTABILITY`, or `INTERNAL_FAILURE`—and leave state and ledger unchanged. Currency uses `Decimal`, never binary float.
 
 ## Conceptual APIs
 
@@ -59,14 +49,6 @@ documented validate-then-commit boundary; it never partially mutates on error.
 
 ## Week 3 implementation clarifications
 
-- `GameState` snapshots also retain immutable initial voters, a cached graph
-  summary, the boundary contribution vector (zero outside a step transaction),
-  trace records, and safe/public plus internal event tuples. The engine uses a
-  provisional immutable snapshot for resource debit/effect application; it
-  publishes only after the transition succeeds.
-- `Observation.legal_actions` includes eligible public node IDs for the
-  targeted action so clients can form valid targets. IDs have no associated
-  support, susceptibility, or graph-edge data.
-- The JSON-safe `StepResponse` includes `result` only for an accepted terminal
-  step. Rejected responses omit result metadata; the observation itself never
-  contains seeds or authoritative state.
+- `GameState` snapshots also retain immutable initial voters, a cached graph summary, the boundary contribution vector (zero outside a step transaction), trace records, and safe/public plus internal event tuples. The engine uses a provisional immutable snapshot for resource debit/effect application; it publishes only after the transition succeeds.
+- `Observation.legal_actions` includes eligible public node IDs for the targeted action so clients can form valid targets. IDs have no associated support, susceptibility, or graph-edge data.
+- The JSON-safe `StepResponse` includes `result` only for an accepted terminal step. Rejected responses omit result metadata; the observation itself never contains seeds or authoritative state.

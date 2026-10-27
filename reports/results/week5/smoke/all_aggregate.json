@@ -1,0 +1,172 @@
+[
+  {
+    "experiment": "strategies",
+    "strategy": "no_op",
+    "topology": "er",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.28888888888888886,
+    "score_population_sd": 0.0415739709641549,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 0.0,
+    "mean_score_delta_per_spend_vs_no_op": null
+  },
+  {
+    "experiment": "strategies",
+    "strategy": "first_legal",
+    "topology": "er",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.28888888888888886,
+    "score_population_sd": 0.0415739709641549,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 3.0,
+    "mean_score_delta_per_spend_vs_no_op": 0.0
+  },
+  {
+    "experiment": "strategies",
+    "strategy": "seeded_random_legal",
+    "topology": "er",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.3,
+    "score_population_sd": 0.04714045207910316,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 4.666666666666667,
+    "mean_score_delta_per_spend_vs_no_op": 0.0010101010101010099
+  },
+  {
+    "experiment": "strategies",
+    "strategy": "uniform_budget",
+    "topology": "er",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.36666666666666664,
+    "score_population_sd": 0.027216552697590886,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 15.0,
+    "mean_score_delta_per_spend_vs_no_op": 0.005185185185185185
+  },
+  {
+    "experiment": "strategies",
+    "strategy": "greedy_public_model",
+    "topology": "er",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.36666666666666664,
+    "score_population_sd": 0.027216552697590886,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 15.0,
+    "mean_score_delta_per_spend_vs_no_op": 0.005185185185185185
+  },
+  {
+    "experiment": "budget",
+    "strategy": "greedy_public_model",
+    "topology": "er",
+    "budget": "10.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.3222222222222222,
+    "score_population_sd": 0.01571348402636772,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 10.0,
+    "mean_score_delta_per_spend_vs_no_op": null
+  },
+  {
+    "experiment": "budget",
+    "strategy": "greedy_public_model",
+    "topology": "er",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.36666666666666664,
+    "score_population_sd": 0.027216552697590886,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 15.0,
+    "mean_score_delta_per_spend_vs_no_op": null
+  },
+  {
+    "experiment": "budget",
+    "strategy": "greedy_public_model",
+    "topology": "er",
+    "budget": "40.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.36666666666666664,
+    "score_population_sd": 0.027216552697590886,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 15.0,
+    "mean_score_delta_per_spend_vs_no_op": null
+  },
+  {
+    "experiment": "topology",
+    "strategy": "greedy_public_model",
+    "topology": "er",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.36666666666666664,
+    "score_population_sd": 0.027216552697590886,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 15.0,
+    "mean_score_delta_per_spend_vs_no_op": null
+  },
+  {
+    "experiment": "topology",
+    "strategy": "greedy_public_model",
+    "topology": "ring_lattice",
+    "budget": "20.00",
+    "sample_count": 3,
+    "failed": 0,
+    "mean_score": 0.4,
+    "score_population_sd": 0.09813067629253164,
+    "victory_rate": 0.0,
+    "victory_wilson_95": [
+      0,
+      0.5615060804490177
+    ],
+    "mean_budget_used": 15.0,
+    "mean_score_delta_per_spend_vs_no_op": null
+  }
+]

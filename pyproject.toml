@@ -11,6 +11,21 @@ dependencies = ["numpy>=1.24"]
 
 [project.optional-dependencies]
 gpu = ["torch>=2.1"]
+web = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]
+analysis = ["matplotlib>=3.7"]
+test = ["httpx>=0.27"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# The browser app has its own npm manifest and lockfile under web/. These
+# settings document the supported frontend runtime without mixing JavaScript
+# packages into the Python optional-dependency groups above.
+[tool.clout.frontend]
+directory = "web"
+node = ">=22.12.0"
+npm = ">=10.0.0"
+install_command = "npm ci"
+test_command = "npm test"
+build_command = "npm run build"
+production_assets = "web/dist"

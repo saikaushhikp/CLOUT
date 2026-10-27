@@ -1,0 +1,50 @@
+{
+  "possible_and_guaranteed": {
+    "possible_victory": "TRUE",
+    "guaranteed_victory": "TRUE",
+    "inevitable_defeat": "FALSE",
+    "knows_guaranteed_victory": "TRUE",
+    "knows_inevitable_defeat": "FALSE",
+    "world_count": 1,
+    "action_abstraction": "broadcast/no_op; first 8 lexicographic singleton targets",
+    "horizon": 1,
+    "explored_nodes": 4,
+    "node_limit": 10000,
+    "horizon_limit": 128,
+    "world_limit": 256,
+    "scope": "exact only over supplied finite worlds and enumerated actions",
+    "evaluation_mode": "finite_model"
+  },
+  "inevitable_defeat": {
+    "possible_victory": "FALSE",
+    "guaranteed_victory": "FALSE",
+    "inevitable_defeat": "TRUE",
+    "knows_guaranteed_victory": "FALSE",
+    "knows_inevitable_defeat": "TRUE",
+    "world_count": 1,
+    "action_abstraction": "broadcast/no_op; first 8 lexicographic singleton targets",
+    "horizon": 1,
+    "explored_nodes": 4,
+    "node_limit": 10000,
+    "horizon_limit": 128,
+    "world_limit": 256,
+    "scope": "exact only over supplied finite worlds and enumerated actions",
+    "evaluation_mode": "finite_model"
+  },
+  "mixed_indistinguishable": {
+    "possible_victory": "TRUE",
+    "guaranteed_victory": "FALSE",
+    "inevitable_defeat": "FALSE",
+    "knows_guaranteed_victory": "FALSE",
+    "knows_inevitable_defeat": "FALSE",
+    "world_count": 2,
+    "action_abstraction": "broadcast/no_op; first 8 lexicographic singleton targets",
+    "horizon": 1,
+    "explored_nodes": 9,
+    "node_limit": 10000,
+    "horizon_limit": 128,
+    "world_limit": 256,
+    "scope": "exact only over supplied finite worlds and enumerated actions",
+    "evaluation_mode": "finite_model"
+  }
+}

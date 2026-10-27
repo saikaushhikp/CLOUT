@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "seed": 20261019,
+  "backend": "cuda:2",
+  "strategy": "greedy_public_model",
+  "node_count": 1000,
+  "horizon": 5,
+  "graph_summary": {
+    "node_count": 1000,
+    "edge_count": 3973,
+    "density": 0.007953953953953954,
+    "mean_degree": 7.946,
+    "component_count": 1
+  },
+  "actions": [
+    {
+      "action_id": "broadcast",
+      "target_ids": [],
+      "accepted": true,
+      "error_code": null
+    },
+    {
+      "action_id": "broadcast",
+      "target_ids": [],
+      "accepted": true,
+      "error_code": null
+    },
+    {
+      "action_id": "broadcast",
+      "target_ids": [],
+      "accepted": true,
+      "error_code": null
+    },
+    {
+      "action_id": "broadcast",
+      "target_ids": [],
+      "accepted": true,
+      "error_code": null
+    },
+    {
+      "action_id": "no_op",
+      "target_ids": [],
+      "accepted": true,
+      "error_code": null
+    }
+  ],
+  "aggregate_support_trajectory": [
+    0.5042640394317272,
+    0.512976284614798,
+    0.5210798430878547,
+    0.5287826767125433,
+    0.5361956605727499,
+    0.5336518088499473
+  ],
+  "remaining_budget_trajectory": [
+    "20.00",
+    "15.00",
+    "10.00",
+    "5.00",
+    "0.00",
+    "0.00"
+  ],
+  "result": {
+    "terminal_reason": "fixed_horizon",
+    "player_votes": 637,
+    "electorate_size": 1000,
+    "vote_share": 0.637,
+    "victory": true,
+    "score": 0.637,
+    "budget_used": "20.00",
+    "metadata": {
+      "root_seed": "20261019",
+      "graph_seed": "17072753691655277729",
+      "initial_state_seed": "11112793045448091444",
+      "transition_seed": "16807813951749623666",
+      "strategy_seed": "16878377257174786736",
+      "python": "3.12.15",
+      "numpy": "2.5.2",
+      "torch": "2.7.1+cu118",
+      "cuda_runtime": "11.8",
+      "backend": "cuda:2",
+      "device_name": "NVIDIA RTX A5000",
+      "revision": "uncommitted",
+      "config": "{\"alpha\":0.5,\"broadcast_cost\":\"5.00\",\"delta_broadcast\":0.02,\"delta_target\":0.05,\"edge_probability\":0.008008008008008008,\"epsilon_mode\":\"none\",\"graph_kind\":\"erdos_renyi\",\"horizon_rounds\":5,\"initial_budget\":\"20.00\",\"node_count\":1000,\"support_threshold\":0.5,\"targeted_cost\":\"1.00\"}",
+      "graph_nodes": "1000",
+      "graph_edges": "3973",
+      "graph_density": "0.007953953953953954"
+    }
+  },
+  "trace_diagnostics": {
+    "G(BudgetNonnegative and StateValid)": {
+      "name": "G(BudgetNonnegative and StateValid)",
+      "formula": "G((BudgetNonnegative and StateValid))",
+      "status": "SATISFIED",
+      "checked_interval": [
+        0,
+        5
+      ],
+      "witness_index": null,
+      "counterexample_index": null,
+      "message": "The formula holds on the supplied finite trace."
+    },
+    "F_<=H Terminal (H=5)": {
+      "name": "F_<=H Terminal (H=5)",
+      "formula": "F_<= 5(Terminal)",
+      "status": "SATISFIED",
+      "checked_interval": [
+        0,
+        5
+      ],
+      "witness_index": 5,
+      "counterexample_index": null,
+      "message": "The formula holds on the supplied finite trace."
+    },
+    "Terminal -> (Victory or not Victory)": {
+      "name": "Terminal -> (Victory or not Victory)",
+      "formula": "G((Terminal -> (Victory or not Victory)))",
+      "status": "SATISFIED",
+      "checked_interval": [
+        0,
+        5
+      ],
+      "witness_index": null,
+      "counterexample_index": null,
+      "message": "The formula holds on the supplied finite trace."
+    }
+  },
+  "verification": {
+    "trace": {
+      "evaluation_mode": "trace_only",
+      "scope": "the supplied completed fixed-horizon episode only",
+      "horizon": 5,
+      "diagnostics": {
+        "G(BudgetNonnegative and StateValid)": {
+          "name": "G(BudgetNonnegative and StateValid)",
+          "formula": "G((BudgetNonnegative and StateValid))",
+          "status": "SATISFIED",
+          "checked_interval": [
+            0,
+            5
+          ],
+          "witness_index": null,
+          "counterexample_index": null,
+          "message": "The formula holds on the supplied finite trace."
+        },
+        "F_<=H Terminal (H=5)": {
+          "name": "F_<=H Terminal (H=5)",
+          "formula": "F_<= 5(Terminal)",
+          "status": "SATISFIED",
+          "checked_interval": [
+            0,
+            5
+          ],
+          "witness_index": 5,
+          "counterexample_index": null,
+          "message": "The formula holds on the supplied finite trace."
+        },
+        "Terminal -> (Victory or not Victory)": {
+          "name": "Terminal -> (Victory or not Victory)",
+          "formula": "G((Terminal -> (Victory or not Victory)))",
+          "status": "SATISFIED",
+          "checked_interval": [
+            0,
+            5
+          ],
+          "witness_index": null,
+          "counterexample_index": null,
+          "message": "The formula holds on the supplied finite trace."
+        }
+      }
+    },
+    "finite_model": {
+      "evaluation_mode": "finite_model",
+      "status": "NOT_SUPPLIED",
+      "scope": "no finite world set supplied; no branching claim made"
+    }
+  },
+  "revision": "uncommitted",
+  "command": "/data/ai23btech11017/miniconda3/envs/mas/bin/python examples/week5_run_demo.py --backend cuda:2 --nodes 1000 --seed 20261019 --rounds 5 --strategy greedy_public_model --output reports/results/week5/demo_episode.json",
+  "python": "3.12.15",
+  "information_profile": "aggregate_v1"
+}

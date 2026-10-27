@@ -1,8 +1,6 @@
 # M0 Test Plan
 
-This plan distinguishes M0 documentation/fixture checks from tests that await
-the approved Week 2 implementation. CPU is mandatory for correctness tests;
-GPU tests are optional and skip cleanly when unavailable.
+This plan distinguishes M0 documentation/fixture checks from tests that await the approved Week 2 implementation. CPU is mandatory for correctness tests; GPU tests are optional and skip cleanly when unavailable.
 
 | ID | Requirement | Test / fixture | Phase | Expected result |
 | --- | --- | --- | --- | --- |
@@ -23,17 +21,11 @@ GPU tests are optional and skip cleanly when unavailable.
 
 ## M0 validation command
 
-Run `python tests/validate_week1_artifacts.py`. It uses only the standard
-library, validates fixture values and required documentation headings, and does
-not claim to validate unimplemented dynamics. Future packages should use the
-repository test runner once a stack is approved.
+Run `python tests/validate_week1_artifacts.py`. It uses only the standard library, validates fixture values and required documentation headings, and does not claim to validate unimplemented dynamics. Future packages should use the repository test runner once a stack is approved.
 
 ## Future edge cases
 
-Test isolates, empty edge sets, disconnected components, minimum/maximum
-support, zero susceptibility, zero budget, invalid targets, action order,
-terminal boundary, exact 0.5 support, numerical non-finiteness, and data
-leakage. Record seeds/configuration/backend/revision for every experiment.
+Test isolates, empty edge sets, disconnected components, minimum/maximum support, zero susceptibility, zero budget, invalid targets, action order, terminal boundary, exact 0.5 support, numerical non-finiteness, and data leakage. Record seeds/configuration/backend/revision for every experiment.
 
 ## Week 4 checks (coding-agent run 2026-10-23; reviewer rerun requested)
 
@@ -46,10 +38,26 @@ leakage. Record seeds/configuration/backend/revision for every experiment.
 | Full suite and M0 fixture validation | `tests/` | `python tests/validate_week1_artifacts.py` then `PYTHONPATH=src python -m unittest discover -s tests -v` | Validator passed; 69 passed, CUDA tests passed |
 | Matched backend sample | `examples/week4_backend_comparison.py` | See [week4_handoff.md](week4_handoff.md) | N=1k CPU/CUDA comparison passed in upgraded `mas`; optional reviewer rerun |
 
-Week 3 reviewer-reported results remain historical evidence in
-`docs/spec/reviewer_runbook_outputs.txt`; they are not evidence that any Week 4
-check passed. The Week 4 coding agent executed the checks listed above in a
-GPU-visible `mas` context. A restricted command sandbox hid NVIDIA devices and
-caused CPU fallback during an initial attempt; this was resolved by rerunning
-with GPU-visible access. Reviewers should use a GPU-enabled shell/context for
-CUDA stages and record the actual selected backend.
+Week 3 reviewer-reported results remain historical evidence in `docs/spec/reviewer_runbook_outputs.txt`; they are not evidence that any Week 4 check passed. The Week 4 coding agent executed the checks listed above in a GPU-visible `mas` context. A restricted command sandbox hid NVIDIA devices and caused CPU fallback during an initial attempt; this was resolved by rerunning with GPU-visible access. Reviewers should use a GPU-enabled shell/context for CUDA stages and record the actual selected backend.
+
+## Week 5 coding-agent checks (updated 2026-10-27)
+
+Use `conda run -n mas` when the shell has not activated the approved project environment; the system Python may not contain NumPy/PyTorch.
+
+```bash
+conda run -n mas python tests/validate_week1_artifacts.py
+conda run -n mas python -m unittest discover -s tests -v
+conda run -n mas python -m unittest tests.unit.test_epistemic tests.unit.test_graph_experiments tests.unit.test_strategies tests.integration.test_web_api -v
+conda run -n mas python -m unittest tests.unit.test_verification tests.integration.test_epistemic_episode -v
+conda run -n mas npm ci --prefix web
+conda run -n mas npm --prefix web audit
+conda run -n mas npm --prefix web test
+conda run -n mas npm --prefix web run build
+conda run -n mas python -m compileall -q src/dumbocracy tests examples
+conda run -n mas python examples/week5_model_check.py
+conda run -n mas python examples/week5_run_experiments.py --experiment all --backend cpu --nodes 1000 --seeds 11 23 37 41 53 67 71 83 97 101 113 127 139 149 163 173 181 193 199 211 --rounds 5 --strategies no_op first_legal seeded_random_legal uniform_budget greedy_public_model --output-dir reports/results/week5/main
+conda run -n mas python examples/week5_plot_results.py --input-dir reports/results/week5/main --output-dir reports/figures/week5
+conda run -n mas python examples/week5_gpu_scale_benchmark.py --device cuda:0 --nodes 1000 10000 100000 --seed 20261019 --rounds 5 --repeats 3 --output reports/results/week5/gpu_scale.jsonl
+```
+
+On 2026-10-27 the full suite passed 82 tests (0 failures/errors/skips), and the requested focused epistemic/graph/strategy/API suite passed 18 tests. The M0 validator, frontend tests (3), frontend build, API integration test and compile check also passed. The first API integration run exposed an obsolete 560px breakpoint assertion; it was updated to match the current 640px mobile layout. See `reports/week5_self_review.md` and `reports/week5_ui_walkthrough.md` for the defect/fix and remaining manual browser review limitation. DEC-012 is approved to keep aggregate-only v1; richer profile tests/results remain out of scope pending a new decision.

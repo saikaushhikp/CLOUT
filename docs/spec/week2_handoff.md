@@ -1,7 +1,6 @@
 # Week 2 Hand-off for the Game Engine
 
-**Status:** original Week 2 hand-off; the engine has since been implemented in
-Week 3. See [week3_handoff.md](week3_handoff.md).
+**Status:** original Week 2 hand-off; the engine has since been implemented in Week 3. See [week3_handoff.md](week3_handoff.md).
 
 ## Stable inputs available to Week 3
 
@@ -18,13 +17,8 @@ Week 3. See [week3_handoff.md](week3_handoff.md).
 
 ## Integration constraints
 
-The engine owns `GameState`, event history, terminal outcome, and Observation
-projection. It must not send `VoterState`, supports, susceptibilities, seed
-config, or `ActionContext` to public/strategy interfaces. The Week 2 package
-has no engine/UI/strategy imports, so it is safe to orchestrate from above.
+The engine owns `GameState`, event history, terminal outcome, and Observation projection. It must not send `VoterState`, supports, susceptibilities, seed config, or `ActionContext` to public/strategy interfaces. The Week 2 package has no engine/UI/strategy imports, so it is safe to orchestrate from above.
 
 ## Deferred items
 
-Observation leakage tests, complete round/terminal lifecycle tests, result
-aggregation, bounded-LTL/epistemic evaluation, optimization, and GPU parity
-remain later work.
+Observation leakage tests, complete round/terminal lifecycle tests, result aggregation, bounded-LTL/epistemic evaluation, optimization, and GPU parity remain later work.

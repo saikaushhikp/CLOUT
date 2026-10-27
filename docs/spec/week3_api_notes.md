@@ -19,38 +19,19 @@ Observation.to_public_dict() -> fresh JSON-safe allowlist
 public_json(observation) -> stable JSON string
 ```
 
-`GameState` is authoritative and private to engine-side code. A service adapter
-must serialize `Observation`, `StepResponse.to_public_dict()`, and
-`GameResult.to_public_dict()` only; it must never serialize `GameState`.
+`GameState` is authoritative and private to engine-side code. A service adapter must serialize `Observation`, `StepResponse.to_public_dict()`, and `GameResult.to_public_dict()` only; it must never serialize `GameState`.
 
-`TraceRecord.predicates()` exposes the M0 names `Terminal`, `Victory`,
-`BudgetNonnegative`, `StateValid`, and `ActionAtomic` for future trace tooling.
-It does not evaluate temporal operators or epistemic knowledge.
+`TraceRecord.predicates()` exposes the M0 names `Terminal`, `Victory`, `BudgetNonnegative`, `StateValid`, and `ActionAtomic` for future trace tooling. It does not evaluate temporal operators or epistemic knowledge.
 
 ## Public schemas
 
-Observation fields are `schema_version`, `round_index`, `remaining_budget`
-(decimal string), `aggregate_support`, `graph_summary`, `legal_actions`,
-`terminal_status`, and `public_events`. The graph summary carries node/edge
-counts, density, min/max/mean degree, and connected-component count.
+Observation fields are `schema_version`, `round_index`, `remaining_budget` (decimal string), `aggregate_support`, `graph_summary`, `legal_actions`, `terminal_status`, and `public_events`. The graph summary carries node/edge counts, density, min/max/mean degree, and connected-component count.
 
-An action descriptor carries `action_id`, public `cost`, `target_requirement`,
-public effect parameters, and eligible public node identifiers for targeting.
-Identifiers carry no voter attributes; graph edges remain private. An action
-submission carries `action_id`, optional
-`target_ids`, optional parameters, and optional `client_action_id`. Target IDs
-are accepted only for targeted contact. Duplicate or unknown IDs reject.
+An action descriptor carries `action_id`, public `cost`, `target_requirement`, public effect parameters, and eligible public node identifiers for targeting. Identifiers carry no voter attributes; graph edges remain private. An action submission carries `action_id`, optional `target_ids`, optional parameters, and optional `client_action_id`. Target IDs are accepted only for targeted contact. Duplicate or unknown IDs reject.
 
-Step response fields are `accepted`, `error_code`, `observation`, `terminal`,
-`action_id`, and `result` (present only on an accepted terminal step). Rejected
-responses never include result metadata. Stable response codes include all M0 error codes plus
-`TERMINAL_STATE`. A rejected response does not debit, change voters, consume a
-round, or change the result. The audit history adds a proposed/rejected event.
+Step response fields are `accepted`, `error_code`, `observation`, `terminal`, `action_id`, and `result` (present only on an accepted terminal step). Rejected responses never include result metadata. Stable response codes include all M0 error codes plus `TERMINAL_STATE`. A rejected response does not debit, change voters, consume a round, or change the result. The audit history adds a proposed/rejected event.
 
-Terminal result fields are `terminal_reason`, `player_votes`,
-`electorate_size`, `vote_share`, `victory`, `score`, `budget_used` (decimal
-string), and reproducibility metadata. The only terminal reason in v1 is
-`fixed_horizon`.
+Terminal result fields are `terminal_reason`, `player_votes`, `electorate_size`, `vote_share`, `victory`, `score`, `budget_used` (decimal string), and reproducibility metadata. The only terminal reason in v1 is `fixed_horizon`.
 
 ## Lifecycle state machine
 
@@ -63,23 +44,11 @@ terminal
   └─ any submission ─> terminal unchanged + TERMINAL_STATE audit
 ```
 
-Each accepted request advances exactly one round. The context broadcast guard
-and contribution vector are round-scoped; the engine starts the next round with
-an unused guard and no lingering effects. `no_op` runs voter dynamics too.
-`reset` regenerates seeded initial values (or restores explicit initial fixture
-voters) and starts a fresh event/trace history. `replay` accepts an ordered
-sequence and returns each snapshot, including rejected submissions if present.
-The canonical state trajectory is defined by accepted actions; replaying
-rejected submissions too reproduces their audit events without advancing time.
-Submissions after terminal are retained as rejected terminal attempts.
+Each accepted request advances exactly one round. The context broadcast guard and contribution vector are round-scoped; the engine starts the next round with an unused guard and no lingering effects. `no_op` runs voter dynamics too. `reset` regenerates seeded initial values (or restores explicit initial fixture voters) and starts a fresh event/trace history. `replay` accepts an ordered sequence and returns each snapshot, including rejected submissions if present. The canonical state trajectory is defined by accepted actions; replaying rejected submissions too reproduces their audit events without advancing time. Submissions after terminal are retained as rejected terminal attempts.
 
 ## Public event allowlist
 
-Public events expose sequence, event type, round, fixed summary text, action ID
-for accepted actions, and stable error code for rejections. Internal events may
-retain target IDs and resource details for audit, but public projection strips
-them. Public payloads never contain voter data, susceptibility, seeds,
-contribution arrays, or internal state references.
+Public events expose sequence, event type, round, fixed summary text, action ID for accepted actions, and stable error code for rejections. Internal events may retain target IDs and resource details for audit, but public projection strips them. Public payloads never contain voter data, susceptibility, seeds, contribution arrays, or internal state references.
 
 ## Example public transcript (shape)
 
@@ -119,56 +88,23 @@ contribution arrays, or internal state references.
 }
 ```
 
-The public event array above is abbreviated; runtime output includes safe event
-summaries available at that state. The targeted descriptor's identifier list
-contains public IDs only, with no voter state or graph edges.
+The public event array above is abbreviated; runtime output includes safe event summaries available at that state. The targeted descriptor's identifier list contains public IDs only, with no voter state or graph edges.
 
 ## UI/mock client and compatibility
 
-No frontend was present in the Week 2 checkout. `examples/week3_mock_client.py`
-reads a serialized observation and returns an action payload without importing
-`GameState` or engine code. The engine is independent of HTTP/React and accepts
-`CampaignAction`; a transport adapter can use the public dict schemas above.
-`schema_version` is `1.0`. Additive public fields require a
-minor schema bump; changed meanings or removed fields require a major bump and
-compatibility note. Hidden state is not part of any public version.
+No frontend was present in the Week 2 checkout. `examples/week3_mock_client.py` reads a serialized observation and returns an action payload without importing `GameState` or engine code. The engine is independent of HTTP/React and accepts `CampaignAction`; a transport adapter can use the public dict schemas above. `schema_version` is `1.0`. Additive public fields require a minor schema bump; changed meanings or removed fields require a major bump and compatibility note. Hidden state is not part of any public version.
 
 ## GPU behavior and limits
 
-`GameEngine("cuda:N")` requires compatible PyTorch/CUDA and fails clearly when
-unavailable. `week3_gpu_episode.py --device auto` chooses CUDA when PyTorch
-reports an available device and announces CPU fallback otherwise. The GPU MAS
-path transfers immutable voter vectors at each transition boundary, computes
-neighbor aggregation/update on the selected GPU, and returns compact support
-values to the engine. Sparse edge indices and degrees are prepared once per game
-and remain on the selected GPU. The canonical engine state remains CPU-backed;
-the benchmark will determine whether persistent device-resident voter state is
-warranted before claiming throughput benefits. GPU reductions may differ in
-low-order floating bits; parity tolerance is `1e-10` for the small fixture and
-discrete outcomes/actions must match.
+`GameEngine("cuda:N")` requires compatible PyTorch/CUDA and fails clearly when unavailable. `week3_gpu_episode.py --device auto` chooses CUDA when PyTorch reports an available device and announces CPU fallback otherwise. The GPU MAS path transfers immutable voter vectors at each transition boundary, computes neighbor aggregation/update on the selected GPU, and returns compact support values to the engine. Sparse edge indices and degrees are prepared once per game and remain on the selected GPU. The canonical engine state remains CPU-backed; the benchmark will determine whether persistent device-resident voter state is warranted before claiming throughput benefits. GPU reductions may differ in low-order floating bits; parity tolerance is `1e-10` for the small fixture and discrete outcomes/actions must match.
 
-The benchmark expects mean degree 8: p is `8/(N-1)` (clamped to 1). At N=100k,
-expected E is about 400k. The graph is stored as sparse pairs; edge indices use
-approximately 6.4 MiB as int64 endpoint pairs on device, excluding framework
-workspace and voter tensors. This is a planning estimate, not measured VRAM.
+The benchmark expects mean degree 8: p is `8/(N-1)` (clamped to 1). At N=100k, expected E is about 400k. The graph is stored as sparse pairs; edge indices use approximately 6.4 MiB as int64 endpoint pairs on device, excluding framework workspace and voter tensors. This is a planning estimate, not measured VRAM.
 
 ## User/reviewer runbook — commands not executed by the agent, but executed by a human reviewer below
 
-Use the project environment, for example `conda activate mas`, and verify it
-contains Python >=3.11, NumPy, and a PyTorch build compatible with the installed
-GPU driver. Install the local package with `python -m pip install -e .` if needed.
-Do not change system drivers as part of this repository run. `auto` prints the
-selected backend/fallback. Record GPU model, total/free VRAM, PyTorch/CUDA
-versions, and driver version before performance runs.
-The mock-client stdin command requires a JSON observation captured from a
-transport adapter or `public_json`; the client emits only an action submission.
+Use the project environment, for example `conda activate mas`, and verify it contains Python >=3.11, NumPy, and a PyTorch build compatible with the installed GPU driver. Install the local package with `python -m pip install -e .` if needed. Do not change system drivers as part of this repository run. `auto` prints the selected backend/fallback. Record GPU model, total/free VRAM, PyTorch/CUDA versions, and driver version before performance runs. The mock-client stdin command requires a JSON observation captured from a transport adapter or `public_json`; the client emits only an action submission.
 
-The reviewer run reported Python 3.11.17, NumPy 2.0.1, and PyTorch 2.5.1 built
-for CUDA 12.1, and successfully executed CUDA workloads on an RTX A5000. During
-the current hand-off, `nvidia-smi` failed to communicate on three attempts
-over about 70 seconds; this does not invalidate the saved reviewer run, but
-live GPU availability in this shell is not confirmed. No driver changes were
-made.
+The reviewer run reported Python 3.11.17, NumPy 2.0.1, and PyTorch 2.5.1 built for CUDA 12.1, and successfully executed CUDA workloads on an RTX A5000. During the current hand-off, `nvidia-smi` failed to communicate on three attempts over about 70 seconds; this does not invalidate the saved reviewer run, but live GPU availability in this shell is not confirmed. No driver changes were made.
 
 ### Stage 1: preserved and new correctness checks
 
@@ -178,8 +114,7 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 git diff --check
 ```
 
-Expected: M0 validator success, zero test failures/errors (CUDA-dependent test
-may skip), and no whitespace output from `git diff --check`.
+Expected: M0 validator success, zero test failures/errors (CUDA-dependent test may skip), and no whitespace output from `git diff --check`.
 
 ### Stage 2: Week 2 smoke and Week 3 episodes
 
@@ -191,14 +126,7 @@ python examples/week3_gpu_episode.py --device auto --nodes 10000 --seed 20261019
 python examples/week3_gpu_episode.py --device auto --nodes 100000 --seed 20261019
 ```
 
-The Week 2 smoke prints its fixture support transition, Decimal ledger, rejected
-target code, and metadata. Each Week 3 command prints one JSON line with backend,
-device, N/E/density/average degree, p/seed, rounds, initialization time, median
-round time, episode time, action sequence, peak allocated and reserved GPU MiB
-(or null on CPU), final vote share, and victory. If `auto` falls back to CPU,
-the reviewer may reduce rounds or skip the 100k run with a recorded
-memory/resource reason. CUDA output includes both peak allocated and reserved
-memory, plus free/total memory at start.
+The Week 2 smoke prints its fixture support transition, Decimal ledger, rejected target code, and metadata. Each Week 3 command prints one JSON line with backend, device, N/E/density/average degree, p/seed, rounds, initialization time, median round time, episode time, action sequence, peak allocated and reserved GPU MiB (or null on CPU), final vote share, and victory. If `auto` falls back to CPU, the reviewer may reduce rounds or skip the 100k run with a recorded memory/resource reason. CUDA output includes both peak allocated and reserved memory, plus free/total memory at start.
 
 ### Stage 3: GPU/CPU parity and scale benchmark
 
@@ -207,10 +135,7 @@ PYTHONPATH=src python -m unittest tests.integration.test_gpu_cpu_equivalence -v
 python examples/benchmark_week3.py --device auto --nodes 1000 10000 100000 --seed 20261019 --rounds 5
 ```
 
-Expected parity: support differences no larger than `1e-10`, with equal discrete
-outcomes and ledger. Benchmark outputs one JSON row per size; include its exact
-output and execution status in the report. It warms a transition, synchronizes
-CUDA timing, and reports median/spread. It does not claim multi-GPU performance.
+Expected parity: support differences no larger than `1e-10`, with equal discrete outcomes and ledger. Benchmark outputs one JSON row per size; include its exact output and execution status in the report. It warms a transition, synchronizes CUDA timing, and reports median/spread. It does not claim multi-GPU performance.
 
 ### Stage 4: final evidence
 
@@ -219,8 +144,7 @@ git diff --check
 git status --short
 ```
 
-Record each actual exit code, test pass/fail/skip count, GPU details, memory,
-runtime, and deviations. Expected outcomes are not execution evidence.
+Record each actual exit code, test pass/fail/skip count, GPU details, memory, runtime, and deviations. Expected outcomes are not execution evidence.
 
 ### Reviewer execution record
 
@@ -291,45 +215,8 @@ OK
 {"E": 3973, "GPU/device": "NVIDIA RTX A5000", "N": 1000, "action_sequence": ["no_op", "no_op", "no_op", "no_op", "no_op"], "backend": "cuda:0", "correctness_check": "not run \u2014 awaiting user/reviewer", "cuda_runtime": "12.1", "episode_seconds": 0.03217898868024349, "final_vote_share": 0.515, "free_GPU_memory_start_MiB": 23992.5, "init_seconds": 0.011575568467378616, "median_step_ms": 3.8012899458408356, "p": 0.008008008008008008, "peak_GPU_memory_MiB": 0.130859375, "peak_GPU_reserved_memory_MiB": 2.0, "revision": "uncommitted", "rounds": 5, "seed": 20261019, "step_spread_ms": 1.7626211047172546, "torch": "2.5.1", "total_GPU_memory_MiB": 24245.5, "victory": true}
 {"E": 39714, "GPU/device": "NVIDIA RTX A5000", "N": 10000, "action_sequence": ["no_op", "no_op", "no_op", "no_op", "no_op"], "backend": "cuda:0", "correctness_check": "not run \u2014 awaiting user/reviewer", "cuda_runtime": "12.1", "episode_seconds": 0.34232003800570965, "final_vote_share": 0.4994, "free_GPU_memory_start_MiB": 23956.5, "init_seconds": 0.12332133390009403, "median_step_ms": 31.691212207078934, "p": 0.0008000800080008001, "peak_GPU_memory_MiB": 1.29296875, "peak_GPU_reserved_memory_MiB": 2.0, "revision": "uncommitted", "rounds": 5, "seed": 20261019, "step_spread_ms": 61.015065759420395, "torch": "2.5.1", "total_GPU_memory_MiB": 24245.5, "victory": false}
 {"E": 399252, "GPU/device": "NVIDIA RTX A5000", "N": 100000, "action_sequence": ["no_op", "no_op", "no_op", "no_op", "no_op"], "backend": "cuda:0", "correctness_check": "not run \u2014 awaiting user/reviewer", "cuda_runtime": "12.1", "episode_seconds": 3.7389749623835087, "final_vote_share": 0.50272, "free_GPU_memory_start_MiB": 23956.5, "init_seconds": 1.7119837552309036, "median_step_ms": 405.07123433053493, "p": 8.000080000800008e-05, "peak_GPU_memory_MiB": 12.95458984375, "peak_GPU_reserved_memory_MiB": 28.0, "revision": "uncommitted", "rounds": 5, "seed": 20261019, "step_spread_ms": 22.77173101902008, "torch": "2.5.1", "total_GPU_memory_MiB": 24245.5, "victory": true}
-(mas) ai23btech11017@aiganesh1:~/MAS/CLOUT$ git diff --check
-(mas) ai23btech11017@aiganesh1:~/MAS/CLOUT$ git status --short
- M docs/spec/data_contracts.md
- M docs/spec/test_plan.md
- M docs/spec/week2_api_notes.md
- M docs/spec/week2_handoff.md
- M pyproject.toml
- M src/dumbocracy/__init__.py
- M src/dumbocracy/campaign.py
- M src/dumbocracy/errors.py
- M src/dumbocracy/graph.py
- M src/dumbocracy/mas.py
-?? docs/plans/Implim_Week3.md
-?? docs/spec/week3_api_notes.md
-?? docs/spec/week3_handoff.md
-?? examples/__init__.py
-?? examples/benchmark_week3.py
-?? examples/week3_gpu_episode.py
-?? examples/week3_mock_client.py
-?? reports/week3_self_review.md
-?? src/dumbocracy/engine.py
-?? src/dumbocracy/information.py
-?? tests/integration/test_game_episode.py
-?? tests/integration/test_gpu_cpu_equivalence.py
-?? tests/unit/test_engine.py
-?? tests/unit/test_information.py
-?? tests/unit/test_mock_client.py
 
 ```
-It records a successful M0 validator; 30 passing tests (including CUDA availability and
-CPU/GPU parity, with no skips); successful Week 2 smoke; successful 1k/10k/100k
-CUDA episodes; the separate parity test passing; three benchmark rows; and
-clean `git diff --check` results. The benchmark's `correctness_check` field
-means that the benchmark process itself does not compare CPU and CUDA results;
-correctness was checked separately by the passing parity test above. Older
-captured benchmark rows may still contain the pre-review “awaiting
-user/reviewer” wording and should be interpreted with this run record. The
-transcript shows successful command output but does not separately record
-numeric exit codes.
+It records a successful M0 validator; 30 passing tests (including CUDA availability and CPU/GPU parity, with no skips); successful Week 2 smoke; successful 1k/10k/100k CUDA episodes; the separate parity test passing; three benchmark rows; and clean `git diff --check` results. The benchmark's `correctness_check` field means that the benchmark process itself does not compare CPU and CUDA results; correctness was checked separately by the passing parity test above. Older captured benchmark rows may still contain the pre-review “awaiting user/reviewer” wording and should be interpreted with this run record. The transcript shows successful command output but does not separately record numeric exit codes.
 
-The standalone `week3_mock_client.py` stdin example is not present in the
-transcript. Its unit tests passed as part of the full suite, and the CLI smoke is also verified;
+The standalone `week3_mock_client.py` stdin example is not present in the transcript. Its unit tests passed as part of the full suite, and the CLI smoke is also verified;

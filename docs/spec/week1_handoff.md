@@ -16,27 +16,20 @@
 
 ## API hand-off
 
-Use the conceptual signatures and ownership table in
-[data_contracts.md](data_contracts.md). The engine sequences interfaces but
-must not expose `GameState` to strategies or UI. Rejected actions must leave
-the ledger/state untouched. See the fixture README for toy data.
+Use the conceptual signatures and ownership table in [data_contracts.md](data_contracts.md). The engine sequences interfaces but must not expose `GameState` to strategies or UI. Rejected actions must leave the ledger/state untouched. See the fixture README for toy data.
 
 ## Approved review record
 
-The project owner confirmed approval from all five members on 2026-10-19.
-Individual names and comments were not supplied, so the record preserves that
-fact rather than inventing reviewer identities.
+The project owner confirmed approval from all five members on 2026-10-19. Individual names and comments were not supplied, so the record preserves that fact rather than inventing reviewer identities.
 
 | Review lens | Reviewer identity supplied | Outcome |
 | --- | --- | --- |
-| MAS/graph | No | approve |
-| Campaign/resource | No | approve |
-| Information/game engine | No | approve |
-| Logic/verification | No | approve |
-| Strategy/experiment/UI | No | approve |
+| MAS/graph | No | approved |
+| Campaign/resource | No | approved |
+| Information/game engine | No | approved |
+| Logic/verification | No | approved |
+| Strategy/experiment/UI | No | approved |
 
 ## Week 2 boundary
 
-The contracts are frozen at M0. Week 2 may implement the interfaces and tests,
-but may not change state/action/visibility semantics without a new decision.
-
+The contracts are frozen at M0. Week 2 may implement the interfaces and tests, but may not change state/action/visibility semantics without a new decision.

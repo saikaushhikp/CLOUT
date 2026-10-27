@@ -1,0 +1,23 @@
+{
+  "command": "/data/ai23btech11017/miniconda3/envs/mas/bin/python examples/week5_run_experiments.py --experiment all --backend cpu --nodes 30 --seeds 11 23 37 --rounds 3 --output-dir reports/results/week5/smoke",
+  "started_at_utc": "2026-10-23T16:08:32.658619+00:00",
+  "ended_at_utc": "2026-10-23T16:08:34.929058+00:00",
+  "exit_status": 0,
+  "experiment": "all",
+  "backend": "cpu",
+  "nodes": [
+    30
+  ],
+  "seeds": [
+    11,
+    23,
+    37
+  ],
+  "rounds": 3,
+  "revision": "uncommitted",
+  "information_profile": "aggregate_v1",
+  "row_count": 30,
+  "failed": 0,
+  "skipped": 0,
+  "results_file": "reports/results/week5/smoke/all.jsonl"
+}

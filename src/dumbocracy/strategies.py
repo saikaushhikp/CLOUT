@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import random
+from decimal import Decimal
 from typing import Protocol, Sequence
 
 from .campaign import CampaignAction
@@ -107,3 +108,86 @@ class SeededRandomLegalStrategy:
         if not descriptors:
             raise StrategyError("no supported legal action was supplied")
         return _proposal(rng.choice(descriptors), rng)
+
+
+@dataclass(frozen=True, slots=True)
+class UniformBudgetStrategy:
+    """Spend at a steady pace, reserving enough for later rounds where possible."""
+
+    horizon_rounds: int = 5
+    name: str = "uniform_budget"
+    version: str = "1"
+
+    def choose(self, observation: Observation, history: tuple[HistoryEntry, ...], legal_actions: tuple[ActionDescriptor, ...], rng: random.Random) -> CampaignAction:
+        del history
+        descriptors = _supported_descriptors(legal_actions)
+        remaining_rounds = max(1, self.horizon_rounds - observation.round_index)
+        budget = Decimal(observation.remaining_budget)
+        affordable = [item for item in descriptors if Decimal(item.cost.split()[0]) <= budget]
+        target = next((item for item in affordable if item.action_id == "targeted_contact"), None)
+        broadcast = next((item for item in affordable if item.action_id == "broadcast"), None)
+        if broadcast and budget >= Decimal(broadcast.cost) * remaining_rounds:
+            return _proposal(broadcast)
+        if target and budget >= Decimal(target.cost.split()[0]) * remaining_rounds:
+            return _proposal(target, rng)
+        no_op = next((item for item in descriptors if item.action_id == "no_op"), None)
+        if budget == 0 and no_op:
+            return _proposal(no_op)
+        candidates = [item for item in (broadcast, target, no_op) if item]
+        if not candidates:
+            raise StrategyError("no affordable supported action was supplied")
+        return _proposal(candidates[0], rng)
+
+
+@dataclass(frozen=True, slots=True)
+class GreedyPublicModelStrategy:
+    """Small aggregate-only scenario-prior policy; intentionally not an optimizer proof."""
+
+    model_seed: int = 0
+    name: str = "greedy_public_model"
+    version: str = "1"
+
+    def choose(self, observation: Observation, history: tuple[HistoryEntry, ...], legal_actions: tuple[ActionDescriptor, ...], rng: random.Random) -> CampaignAction:
+        del history
+        descriptors = _supported_descriptors(legal_actions)
+        budget = Decimal(observation.remaining_budget)
+        samples = random.Random(self.model_seed ^ (observation.round_index * 0x9E3779B1))
+        candidates: list[tuple[float, tuple[int, str], CampaignAction]] = []
+        for descriptor in descriptors:
+            if descriptor.action_id == "targeted_contact":
+                cost = Decimal(descriptor.cost.split()[0])
+                if cost > budget or not descriptor.eligible_target_ids:
+                    continue
+                action = _proposal(descriptor, rng)
+                delta = dict(descriptor.parameters).get("delta_target", 0.0)
+            elif descriptor.action_id == "broadcast":
+                cost = Decimal(descriptor.cost)
+                if cost > budget:
+                    continue
+                action = _proposal(descriptor)
+                delta = dict(descriptor.parameters).get("delta_broadcast", 0.0)
+            else:
+                action = _proposal(descriptor)
+                delta = 0.0
+                cost = Decimal("0.00")
+            # Declared synthetic exchangeable prior: 64 scenarios, 256 voters,
+            # Beta concentration 4 around the public aggregate; no real graph or
+            # voter features. One action affects all (broadcast) or a uniformly
+            # random singleton (targeted), with neutral mean-field drift.
+            n = min(256, observation.graph_summary.node_count)
+            mean = min(.999, max(.001, observation.aggregate_support))
+            shape_a, shape_b = mean * 4, (1 - mean) * 4
+            wins = 0
+            for _ in range(64):
+                supports = [samples.betavariate(shape_a, shape_b) for _ in range(n)]
+                if descriptor.action_id == "broadcast":
+                    supports = [min(1.0, value + delta) for value in supports]
+                elif descriptor.action_id == "targeted_contact" and supports:
+                    target_index = samples.randrange(n)
+                    supports[target_index] = min(1.0, supports[target_index] + delta)
+                wins += sum(value > .5 for value in supports) / n
+            estimated = wins / 64 - (float(cost / max(budget, Decimal("1.00"))) * 1e-4)
+            candidates.append((estimated, (-int(cost * 100), descriptor.action_id), action))
+        if not candidates:
+            raise StrategyError("no supported affordable action was supplied")
+        return max(candidates, key=lambda row: (row[0], row[1]))[2]

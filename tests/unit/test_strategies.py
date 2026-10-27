@@ -6,6 +6,7 @@ from dumbocracy.information import ActionDescriptor, Observation
 from dumbocracy.strategies import (
     FirstLegalStrategy, HistoryEntry, NoOpStrategy, PublicActionSummary,
     SeededRandomLegalStrategy, StrategyError,
+    UniformBudgetStrategy, GreedyPublicModelStrategy,
 )
 from dumbocracy.graph import GraphSummary
 
@@ -62,6 +63,18 @@ class StrategyTests(unittest.TestCase):
     def test_empty_legal_list_fails_clearly(self):
         with self.assertRaises(StrategyError):
             FirstLegalStrategy().choose(observation(()), (), (), random.Random(1))
+
+    def test_uniform_and_greedy_are_deterministic_legal_public_policies(self):
+        legal = (ActionDescriptor("targeted_contact", "1.00 per target", "one", (("delta_target", .2),), ("v1", "v0")),
+                 ActionDescriptor("broadcast", "5.00", "all", (("delta_broadcast", .1),)), descriptor("no_op"))
+        obs = observation(legal)
+        greedy = GreedyPublicModelStrategy(model_seed=7)
+        self.assertEqual(greedy.choose(obs, (), legal, random.Random(3)), greedy.choose(obs, (), legal, random.Random(3)))
+        for policy in (UniformBudgetStrategy(5), greedy):
+            result = policy.choose(obs, (), legal, random.Random(3))
+            self.assertIn(result.action_id, {item.action_id for item in legal})
+            if result.action_id == "targeted_contact":
+                self.assertIn(result.target_ids[0], ("v0", "v1"))
 
     def test_history_is_prior_public_data_and_has_no_engine_state_field(self):
         obs = observation((descriptor("no_op"),))
