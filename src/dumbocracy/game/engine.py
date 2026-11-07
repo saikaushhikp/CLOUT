@@ -1,0 +1,284 @@
+"""Player-keyed game engine: phase machine, information, round resolution, election (spec §6–§9).
+
+``SURVEY → ROUND(1..T) → DONE`` (the ELECTION is resolved automatically after round T).
+``GameEngine.apply`` is a pure state transition: rejected actions return the *same* state object.
+
+Round resolution uses exactly the per-round generator keying of :func:`dumbocracy.simulate.simulate_world`
+(``seeds.generator(name, t, player)`` with 0-based campaign round t for ``workers``/``cascade``/``media``
+and ``seeds.generator("election", player)``), so an engine game reproduces ``simulate_world`` exactly.
+"""
+from __future__ import annotations
+
+import uuid
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass, replace
+from typing import Any
+
+import torch
+
+from ..config import GameConfig, resolve_device
+from ..dynamics.campaign import Allocation, CampaignOutcome, campaign_round
+from ..dynamics.social import aggregate
+from ..dynamics.update import step_preferences
+from ..electorate import Electorate, generate_electorate
+from ..information.knowledge import KnowledgeEntry
+from ..information.survey import global_top3_pct, query_pct, run_poll
+from ..sectors import NUM_REGIONS, REGIONS, SECTORS
+from ..voting import run_election, similarity, vote_probability
+from .actions import (
+    Action, Allocate, Commit, ErrorCode, Forfeit, Query, Rejection, action_from_dict, allocation_cost, validate,
+)
+from .ledger import Ledger, money_str
+from .state import GameState, PlayerState
+
+ALIGNMENT_BINS = 5
+NO_ALLOCATION = Allocate((0,) * NUM_REGIONS, 0, (False,) * NUM_REGIONS)
+
+
+@dataclass(frozen=True, eq=False)
+class StepResult:
+    """Outcome of :meth:`GameEngine.apply`. ``answer``/``round_report`` are JSON-safe dicts or None."""
+
+    accepted: bool
+    error_code: str | None
+    message: str | None
+    state: GameState
+    answer: dict[str, Any] | None = None
+    round_report: dict[str, Any] | None = None
+
+
+# ------------------------------------------------------------------------------- hidden helpers
+
+def _manifesto_tensor(state: GameState, player: PlayerState) -> torch.Tensor:
+    return torch.tensor(player.manifesto, dtype=state.preferences.dtype, device=state.device)
+
+
+def _true_share(state: GameState, v: torch.Tensor, manifesto: torch.Tensor) -> float:
+    """Expected share E = mean_i P_i (spec §5), identical to ``simulate.current_share``."""
+    voting = state.config.voting
+    return float(vote_probability(similarity(v, manifesto), voting.sensitivity, voting.threshold).mean())
+
+
+def alignment_bins(v: torch.Tensor, manifesto: torch.Tensor) -> torch.Tensor:
+    """Similarity to the manifesto binned into 5 equal bins over [0, 1] (4 = closest), uint8 [N] on CPU."""
+    bins = (similarity(v, manifesto) * ALIGNMENT_BINS).floor().clamp(0, ALIGNMENT_BINS - 1)
+    return bins.to(torch.uint8).cpu()
+
+
+# ------------------------------------------------------------------------- information updates
+
+def _log(player: PlayerState, kind: str, round: int, payload: dict[str, Any]) -> PlayerState:
+    return replace(player, knowledge=player.knowledge.append(KnowledgeEntry.make(kind, round, payload)))
+
+
+def _add_free_stat(state: GameState, round: int) -> GameState:
+    """Spec §6.2: append the exact global top-3 statistic to every player's knowledge log."""
+    stat = global_top3_pct(state.preferences)
+    for player in state.players:
+        state = state.with_player(_log(player, "free_stat", round, {"top3_pct": stat}))
+    return state
+
+
+def _add_poll(state: GameState, player: PlayerState, poll_round: int) -> PlayerState:
+    """Spec §6.4: free poll keyed ``("poll", round, player)``; round T+1 = pre-election."""
+    cfg = state.config
+    gen = cfg.seeds().generator("poll", poll_round, player.player_id, device=state.device)
+    size = min(cfg.survey.poll_size, state.electorate.num_voters)
+    estimate, moe = run_poll(state.preferences, _manifesto_tensor(state, player), cfg.voting.sensitivity,
+                             cfg.voting.threshold, size, gen)
+    return _log(player, "poll", poll_round, {"estimate": estimate, "moe": moe, "sample_size": size})
+
+
+def _snapshot(state: GameState, player: PlayerState) -> PlayerState:
+    """Append hidden trajectory/alignment snapshots for the current v (debrief + graph reveal)."""
+    b = _manifesto_tensor(state, player)
+    return replace(player, share_trajectory=player.share_trajectory + (_true_share(state, state.preferences, b),),
+                   alignment=player.alignment + (alignment_bins(state.preferences, b),))
+
+
+def _start_round(state: GameState, round: int) -> GameState:
+    """Enter ROUND ``round``: reset readiness/query keys, add free stat, poll per player (§6.2, §6.4)."""
+    state = replace(state, phase="ROUND", round=round)
+    state = _add_free_stat(state, round)
+    for player in state.players:
+        player = replace(player, ready=False, pending=None, query_keys=frozenset())
+        state = state.with_player(_add_poll(state, player, round))
+    return state.with_event("round_start", f"Round {round} of {state.config.rounds} begins")
+
+
+# ------------------------------------------------------------------------------ action effects
+
+def _apply_query(state: GameState, player: PlayerState, action: Query) -> tuple[GameState, dict[str, Any]]:
+    cost = state.config.survey.query_cost
+    pct = query_pct(state.preferences, state.electorate.region_of, SECTORS.index(action.sector_a),
+                    SECTORS.index(action.sector_b), REGIONS.index(action.region))
+    answer = {"round": state.round, "phase": state.phase, "sector_a": action.sector_a, "sector_b": action.sector_b,
+              "region": action.region, "pct_b_over_a": pct, "cost": money_str(cost)}
+    player = replace(player, ledger=player.ledger.debit(cost), query_keys=player.query_keys | {action.key})
+    player = _log(player, "query", state.round, answer)
+    state = state.with_player(player).with_event(
+        "query", f"Query {action.sector_b} > {action.sector_a} in {action.region}: {pct:.1f}%", player.player_id)
+    return state, answer
+
+
+def _apply_commit(state: GameState, player: PlayerState, action: Commit) -> GameState:
+    manifesto = tuple(float(x) for x in action.manifesto)
+    player = _log(replace(player, manifesto=manifesto, ready=True), "commit", 0, {"manifesto": list(manifesto)})
+    state = state.with_player(player).with_event("commit", "Manifesto committed", player.player_id)
+    if not all(p.ready for p in state.players):
+        return state
+    state = _start_round(state, 1)
+    for p in state.players:
+        state = state.with_player(_snapshot(state, p))
+    return state
+
+
+def _apply_allocate(state: GameState, player: PlayerState, action: Allocate, forfeit: bool = False) -> GameState:
+    cfg = state.config
+    cost = allocation_cost(action, state.sizes, cfg.workers.extra_worker_cost, cfg.media.base_cost)
+    record = {"workers_by_region": list(action.workers_by_region), "extra_workers": action.extra_workers,
+              "media_regions": list(action.media_regions), "cost": money_str(cost)}
+    player = replace(player, ledger=player.ledger.debit(cost), ready=True, pending=action,
+                     allocations=player.allocations + (action,))
+    player = _log(player, "allocation", state.round, record)
+    message = f"Round {state.round} forfeited" if forfeit else f"Round {state.round} plan locked in (cost {money_str(cost)})"
+    return state.with_player(player).with_event("forfeit" if forfeit else "allocate", message, player.player_id)
+
+
+# ---------------------------------------------------------------------------- round resolution
+
+def _campaign(state: GameState, player: PlayerState) -> CampaignOutcome:
+    """One player's §3 campaign for the current round, keyed exactly like ``simulate_world``."""
+    t = state.round - 1  # simulate_world's 0-based round index
+    seeds = state.config.seeds()
+    gens = {name: seeds.generator(name, t, player.player_id, device=state.device) for name in ("workers", "cascade", "media")}
+    action = player.pending or NO_ALLOCATION
+    allocation = Allocation(tuple(action.workers_by_region), action.extra_workers, tuple(action.media_regions))
+    return campaign_round(state.electorate, allocation, player.media_airings, state.config.workers, state.config.media, gens)
+
+
+def _round_report(round: int, outcome: CampaignOutcome, election_held: bool) -> dict[str, Any]:
+    return {"round": round, "cost": money_str(outcome.cost), "direct_contacts": outcome.direct_contacts,
+            "word_of_mouth_reached": outcome.word_of_mouth_reached, "media_exposed": outcome.media_exposed,
+            "election_held": election_held}
+
+
+def _resolve_round(state: GameState) -> tuple[GameState, dict[str, dict[str, Any]]]:
+    """Spec §4/§7: all players' campaigns → one synchronous update → next round or election."""
+    cfg, e, t = state.config, state.electorate, state.round
+    outcomes = [_campaign(state, p) for p in state.players]
+    manifestos = torch.stack([_manifesto_tensor(state, p) for p in state.players])
+    intensity = torch.stack([o.intensity for o in outcomes])                       # [P, N]
+    aggregated = aggregate(state.preferences, e.graph, cfg.dynamics.social_rule, cfg.dynamics.wmsr_trim)
+    social_weight = cfg.dynamics.social_step * e.susceptibility.social
+    v = step_preferences(state.preferences, aggregated, social_weight, intensity, manifestos, e.susceptibility.zealot)
+    state = replace(state, preferences=v)
+    final = t >= cfg.rounds
+    reports: dict[str, dict[str, Any]] = {}
+    for player, outcome, action in zip(state.players, outcomes, (p.pending or NO_ALLOCATION for p in state.players)):
+        airings = tuple(a + int(m) for a, m in zip(player.media_airings, action.media_regions))
+        report = _round_report(t, outcome, final)
+        reports[player.player_id] = report
+        player = _log(replace(player, media_airings=airings), "round_report", t, report)
+        state = state.with_player(_snapshot(state, player))
+        state = state.with_event("round_resolved", f"Round {t} resolved: {outcome.direct_contacts} voters contacted, "
+                                 f"{outcome.word_of_mouth_reached} reached by word of mouth, "
+                                 f"{outcome.media_exposed} saw your media", player.player_id)
+    if final:
+        return _run_election(state), reports
+    return _start_round(state, t + 1), reports
+
+
+def _run_election(state: GameState) -> GameState:
+    """Spec §5/§7: pre-election poll (round T+1), official election per player, then DONE."""
+    cfg = state.config
+    seeds = cfg.seeds()
+    for player in state.players:
+        player = _add_poll(state, player, cfg.rounds + 1)
+        result = run_election(state.preferences, _manifesto_tensor(state, player), cfg.voting.sensitivity,
+                              cfg.voting.threshold, seeds.generator("election", player.player_id, device=state.device))
+        player = replace(_log(player, "result", cfg.rounds + 1, public_result(result)), result=result,
+                         ready=False, pending=None)
+        state = state.with_player(player).with_event(
+            "election", f"Election held: {result.votes} of {result.num_voters} votes "
+                        f"({'victory' if result.victory else 'defeat'})", player.player_id)
+    return replace(state, phase="DONE", round=cfg.rounds)
+
+
+def public_result(result) -> dict[str, Any] | None:
+    """Contract ``result`` object (drops ``expected_sd``)."""
+    if result is None:
+        return None
+    return {"votes": result.votes, "num_voters": result.num_voters, "vote_share": result.vote_share,
+            "victory": result.victory, "expected_share": result.expected_share}
+
+
+# ------------------------------------------------------------------------------------- engine
+
+def _reject(state: GameState, rejection: Rejection) -> StepResult:
+    return StepResult(False, rejection.code, rejection.message, state)
+
+
+class GameEngine:
+    """Stateless transition functions over immutable :class:`GameState` snapshots (spec §7–§8)."""
+
+    @staticmethod
+    def new_game(config: GameConfig, player_ids: Sequence[str] = ("p0",), *, game_id: str | None = None,
+                 electorate: Electorate | None = None, device: torch.device | str | None = None) -> GameState:
+        """Generate (or adopt) the electorate and open the SURVEY phase with free stat #0."""
+        ids = tuple(player_ids)
+        if not ids or len(set(ids)) != len(ids) or not all(isinstance(p, str) and p for p in ids):
+            raise ValueError("player_ids must be distinct non-empty strings")
+        if electorate is None:
+            target = resolve_device(config.device) if device is None else torch.device(device)
+            electorate = generate_electorate(config, device=target)
+        players = tuple(PlayerState(pid, Ledger(config.budget)) for pid in ids)
+        state = GameState(game_id or uuid.uuid4().hex[:12], config, electorate, electorate.census(),
+                          electorate.preferences, "SURVEY", 0, ids, players)
+        state = _add_free_stat(state, 0)
+        return state.with_event("game_created", f"New game: {electorate.num_voters} voters, {config.rounds} rounds")
+
+    @staticmethod
+    def apply(state: GameState, player_id: str, action: Action | Mapping[str, Any]) -> StepResult:
+        """Validate then apply one action; rejected actions return ``state`` itself, unchanged."""
+        if not state.has_player(player_id):
+            return _reject(state, Rejection(ErrorCode.UNKNOWN_PLAYER, f"unknown player {player_id!r}"))
+        if isinstance(action, Mapping):
+            try:
+                action = action_from_dict(action)
+            except (KeyError, TypeError, ValueError) as exc:
+                return _reject(state, Rejection(ErrorCode.INVALID_ACTION, f"malformed action: {exc}"))
+        player = state.player(player_id)
+        rejection = validate(state, player, action)
+        if rejection:
+            return _reject(state, rejection)
+        new_state, answer, reports = GameEngine._effect(state, player, action)
+        new_state = replace(new_state, history=state.history + ((player_id, action),))
+        return StepResult(True, None, None, new_state, answer, reports.get(player_id) if reports else None)
+
+    @staticmethod
+    def _effect(state: GameState, player: PlayerState, action: Action):
+        if isinstance(action, Query):
+            new_state, answer = _apply_query(state, player, action)
+            return new_state, answer, None
+        if isinstance(action, Commit):
+            return _apply_commit(state, player, action), None, None
+        forfeit = isinstance(action, Forfeit)
+        new_state = _apply_allocate(state, player, NO_ALLOCATION if forfeit else action, forfeit)
+        if all(p.ready for p in new_state.players):
+            new_state, reports = _resolve_round(new_state)
+            return new_state, None, reports
+        return new_state, None, None
+
+    @staticmethod
+    def replay(config: GameConfig, actions: Iterable[tuple[str, Action | Mapping[str, Any]]],
+               player_ids: Sequence[str] = ("p0",), *, electorate: Electorate | None = None,
+               device: torch.device | str | None = None) -> GameState:
+        """Re-apply recorded actions from a fresh game; raises if any action is rejected."""
+        state = GameEngine.new_game(config, player_ids, game_id="replay", electorate=electorate, device=device)
+        for player_id, action in actions:
+            step = GameEngine.apply(state, player_id, action)
+            if not step.accepted:
+                raise ValueError(f"replay rejected {action!r}: {step.error_code} {step.message}")
+            state = step.state
+        return state

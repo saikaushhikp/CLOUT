@@ -1,1 +1,0 @@
-"""Dumbocracy test package."""

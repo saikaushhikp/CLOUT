@@ -1,0 +1,109 @@
+{
+  "experiment": "P1 electorate scale",
+  "seed": 20261107,
+  "revision": "e3f7760+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "gpu": "NVIDIA RTX A5000",
+  "rows": [
+    {
+      "num_voters": 10000,
+      "device": "cuda:2",
+      "generation_seconds": [
+        0.36655623465776443,
+        0.012296948581933975,
+        0.012051723897457123
+      ],
+      "median_seconds": 0.012296948581933975,
+      "peak_allocated_gib": 0.06213188171386719,
+      "edges": 80343,
+      "mean_degree": 16.0686,
+      "intra_edge_fraction": 0.7876728526442877,
+      "isolated_voters": 0,
+      "sparsity_factor": 0.00632306123593463,
+      "region_sizes": [
+        3179,
+        1469,
+        1398,
+        3954
+      ],
+      "region_lambda_max": [
+        12.882374620141505,
+        6.755281705086998,
+        6.155892746372872,
+        19.808746362265214
+      ],
+      "components": 1,
+      "algebraic_connectivity": 0.847960982308436,
+      "robustness_upper_bound": {
+        "r_upper": 1,
+        "witness": "singleton {4358} vs any disjoint set (min degree)",
+        "min_degree": 1
+      }
+    },
+    {
+      "num_voters": 100000,
+      "device": "cuda:2",
+      "generation_seconds": [
+        0.04462522268295288,
+        0.014548763632774353,
+        0.01414087787270546
+      ],
+      "median_seconds": 0.014548763632774353,
+      "peak_allocated_gib": 0.18417596817016602,
+      "edges": 798526,
+      "mean_degree": 15.97052,
+      "intra_edge_fraction": 0.7874834382349479,
+      "isolated_voters": 5,
+      "sparsity_factor": 0.0006347159997474274,
+      "region_sizes": [
+        32316,
+        14500,
+        14149,
+        39035
+      ],
+      "region_lambda_max": [
+        12.979327472427336,
+        6.708623081751343,
+        6.285260784643587,
+        19.518531398861935
+      ],
+      "components": 6,
+      "algebraic_connectivity": 0.0,
+      "robustness_upper_bound": {
+        "r_upper": 0,
+        "witness": "singleton {36187} vs any disjoint set (min degree)",
+        "min_degree": 0
+      }
+    },
+    {
+      "num_voters": 1000000,
+      "device": "cuda:2",
+      "generation_seconds": [
+        0.05645499378442764,
+        0.05333120375871658,
+        0.05226636677980423
+      ],
+      "median_seconds": 0.05333120375871658,
+      "peak_allocated_gib": 1.7682499885559082,
+      "edges": 8002869,
+      "mean_degree": 16.005738,
+      "intra_edge_fraction": 0.7866771279150014,
+      "isolated_voters": 32,
+      "sparsity_factor": 6.354749344799161e-05,
+      "region_sizes": [
+        324837,
+        144410,
+        142000,
+        388753
+      ],
+      "region_lambda_max": [
+        13.082887441705672,
+        6.70035079056402,
+        6.313797962847137,
+        19.49992216737671
+      ]
+    }
+  ]
+}

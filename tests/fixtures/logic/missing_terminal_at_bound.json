@@ -1,8 +1,0 @@
-{
-  "horizon": 1,
-  "states": [
-    {"Terminal": false, "Victory": null, "BudgetNonnegative": true, "StateValid": true, "ActionAtomic": null},
-    {"Terminal": false, "Victory": null, "BudgetNonnegative": true, "StateValid": true, "ActionAtomic": null}
-  ],
-  "audit_events": []
-}

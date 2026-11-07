@@ -4,28 +4,31 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clout"
-version = "0.1.0"
-description = "An Election-Campaign Resource Allocation Game"
+version = "2.0.0.dev0"
+description = "Dumbocracy v2 - an election-campaign game on a GPU-simulated multi-agent electorate"
 requires-python = ">=3.11"
-dependencies = ["numpy>=1.24"]
+dependencies = ["numpy>=1.24", "torch>=2.1"]
 
 [project.optional-dependencies]
-gpu = ["torch>=2.1"]
 web = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]
-analysis = ["matplotlib>=3.7"]
-test = ["httpx>=0.27"]
+analysis = ["matplotlib>=3.7", "scipy>=1.10"]
+test = ["pytest>=8", "httpx>=0.27"]
+llm = ["litellm>=1.40"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-# The browser app has its own npm manifest and lockfile under web/. These
-# settings document the supported frontend runtime without mixing JavaScript
-# packages into the Python optional-dependency groups above.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+markers = [
+    "gpu: needs a CUDA device (skipped when unavailable)",
+    "slow: long-running statistical or scale test",
+]
+
+# The browser app has its own npm manifest under web/ (React 19 + Vite).
 [tool.clout.frontend]
 directory = "web"
 node = ">=22.12.0"
 npm = ">=10.0.0"
-install_command = "npm ci"
-test_command = "npm test"
-build_command = "npm run build"
-production_assets = "web/dist"

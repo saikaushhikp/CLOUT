@@ -1,0 +1,54 @@
+# Dumbocracy v2 — Decision Register
+
+Decisions U1–U17 were taken by the project owner on 2026-11-07 during v2 planning. The technical
+spec cites them. Changing one requires a new row here and a spec update.
+
+| ID | Topic | Decision |
+|---|---|---|
+| U1 | Repo | v1 archived (git tag `v1-final`, `docs/archive/v1`, `reports/archive/v1`); fresh package in place on branch `v2-revamp` |
+| U2 | Manifesto | Player designs a 5-sector budget manifesto b **once**, after surveying |
+| U3 | Players | Single player now; engine is player-keyed; `Player` protocol with a LiteLLM-style stub for a future opponent |
+| U4 | Graph | Intra-region pairs much likelier to connect than inter-region pairs (superseded in detail by R4/R5) |
+| U5 | Dynamics | Preferences v_i evolve via weighted consensus on the simplex; campaigns pull v_i toward b |
+| U6 | Voting | Seeded Bernoulli vote with P = σ(β(S − z)), S = 1 − TV(v,b); win iff votes > N/2 |
+| U7 | Flow | Survey → commit b → T campaign rounds (default 5, range 1–10) → election |
+| U8 | Paid query | (S1, S2, Region) → exact region % preferring S2 over S1, current state, cost 5 |
+| U9 | Workers | Fixed free workers per round + paid extra workers; player assigns them to regions |
+| U10 | Media | Single channel, region-targetable, cost scales with region size |
+| U11 | Archetypes | 6 hand-designed archetypes; 4 drawn without replacement, one per region |
+| U12 | Voter attributes | Social α, media β, campaign γ susceptibilities; zealots |
+| U13 | Lectures | Consensus + resilient consensus, SI/SIR, prox/ADMM, temporal + epistemic logic are all in scope |
+| U14 | Economy | One treasury per player for the whole game |
+| U15 | Round info | Free noisy poll each round; paid queries available throughout |
+| U16 | UI | 4-region map + WebGL sampled graph; optional round timer |
+| U17 | Scale | Interactive N = 10k; batched GPU experiments to 1e5 (required), 1e6 (stretch) |
+
+## Implementation decisions (made by the implementer under U1's freedom)
+
+| ID | Decision | Rationale |
+|---|---|---|
+| I1 | torch is the single numeric code path (CPU torch = reference) | Avoids the duplicated NumPy/torch paths of v1; CPU↔GPU parity is checked within one implementation |
+| I2 | pytest replaces unittest | Fixtures, markers (`gpu`, `slow`) |
+| I3 | Region-personality library (4 personalities, permuted) | Implements ChatGPT "community personalities"; gives the hidden discrete type θ = (σ, τ) |
+| I4 | Free global top-3 stat refreshed every round | It is free and exact in the source design; refreshing makes drift visible |
+| I5 | Logic evaluated on expected share E | Deterministic per world; the official sampled vote is reported alongside |
+
+## Parameter changes after calibration (P2)
+| ID | Change | Evidence |
+|---|---|---|
+| C1 | κ 20→60, ω 0.5→0.15, η_w 0.30→0.50, η_wom 0.10→0.15, m0 20→50, η_m0 0.15→0.25, β_v 12→20, z 0.75→0.825; τ_c fixed at 0.03 (R10) | spec §14; `reports/v2/balance_gate_v2.1.json` — all five §12 criteria pass |
+
+## Owner review of spec v2.0 (2026-11-07)
+| ID | Decision |
+|---|---|
+| R1 | Archetype + personality libraries (spec §2.3–2.4) approved |
+| R2 | Starting treasury B = 500.00 (other costs re-scaled in P2 calibration) |
+| R3 | Graph view during play shows structure/regions only; per-voter alignment revealed at DONE |
+| R4 | p_r / p_g are ER connection probabilities (not weights); edges unweighted |
+| R6 | Mean degree k̄ = 30 friends per voter (max requested) |
+| R7 | Region sizes arbitrary with every region ≥ 15% of N; Σ = N |
+| R8 | Electorate drawn from CPU seed streams by default (bit-identical across devices), then moved to GPU |
+| R9 | The player chooses N (num_voters) and the seed at game creation; (N, seed) recreates the initial electorate |
+| R11 | The game is a **web game only** (Next.js + React in `web/`, served on 127.0.0.1:61007); no CLI. Python engine = FastAPI on 127.0.0.1:61008 behind Next rewrites; contract `docs/v2/web_api_v2.md`; launcher `scripts/run_game.sh` |
+| R10 | Word-of-mouth transmission τ_c calibrated near the SIR threshold ρ/λ_max(A_rr) (provisional 0.03; final value from P2) |
+| R5 | ER-SBM with one global sparsity factor s: P_rr = s·p_r, P_rs = s·p_g, s set for mean degree k̄ = 16 ⚙; ranges p_r ∈ [0.5,0.9], p_g ∈ [0.01,0.2] |

@@ -1,32 +1,40 @@
 {
   "name": "dumbocracy-web",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
-  "type": "module",
   "engines": {
-    "node": ">=22.12.0",
-    "npm": ">=10.0.0"
+    "node": ">=20.9.0"
   },
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1",
+    "dev": "next dev -p 61007 -H 127.0.0.1",
+    "build": "next build",
+    "start": "next start -p 61007 -H 127.0.0.1",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "lucide-react": "^1.62.0",
+    "graphology": "^0.26.0",
+    "graphology-layout-forceatlas2": "^0.10.1",
+    "lucide-react": "^1.70.0",
+    "next": "^16.4.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "sigma": "^4.0.4"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@vitejs/plugin-react": "^6.1.2",
-    "jsdom": "^27.1.0",
-    "vite": "^8.3.5",
-    "vitest": "^4.1.12"
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "graphology-types": "^0.24.8",
+    "jsdom": "^31.0.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
   }
 }
