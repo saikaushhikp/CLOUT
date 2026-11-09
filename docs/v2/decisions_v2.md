@@ -50,5 +50,14 @@ spec cites them. Changing one requires a new row here and a spec update.
 | R8 | Electorate drawn from CPU seed streams by default (bit-identical across devices), then moved to GPU |
 | R9 | The player chooses N (num_voters) and the seed at game creation; (N, seed) recreates the initial electorate |
 | R11 | The game is a **web game only** (Next.js + React in `web/`, served on 127.0.0.1:61007); no CLI. Python engine = FastAPI on 127.0.0.1:61008 behind Next rewrites; contract `docs/v2/web_api_v2.md`; launcher `scripts/run_game.sh` |
+| R12 | Paid queries are **sampled surveys**: a fresh 10% random sample of the region per query, answer = sample % ± 95% MoE; repeats allowed and pooled within the same round (supersedes U8's exact answers; owner, 2026-11-08) |
+| R13 | Information model kept as is after R12 (free exact top-3 stat; 10% sampled queries; distinct archetypes). Archetypes are cheap to learn (≈2 queries); P5's information-sufficiency analysis focuses on what stays hidden: region personalities τ, zealots and the network (owner, 2026-11-08) |
+| R14 | P5 logic surfaces in BOTH the web debrief (post-game per-round epistemic timeline, computed once at DONE) and the research layer (scenario table, information-sufficiency curve, reports) (owner, 2026-11-08) |
+| R15 | Debrief network colouring bins each voter's vote probability P_i (edges 10/40/60/90%) instead of equal similarity fifths (which showed ~100% "supportive" even in heavy losses) (lead, after the P6 browser walkthrough, 2026-11-08) |
+| R16 | Hired party workers are **permanent**: a one-time fee (₫4.00) when hired, then they work every later round like the 10 free workers (owner, 2026-11-09). Balance gate and P7 experiments were measured under the old per-round hires (spec v2.1) and will be re-run after further mechanics changes (owner) |
+| R17 | The player chooses the starting treasury at setup: ₫500–₫1000 (default 500) |
+| R18 | The sampled network graph is fetched and rendered only in the post-election debrief, not during rounds (saves frontend rendering) |
+| R19 | Observation carries `round_reports` and `workers`; the UI lets the player tap any past round to review its poll, orders, spend and outcomes |
+| R20 | "Blend my hunches" lets the player pick which regions (2–4) to blend, weighted by voters |
 | R10 | Word-of-mouth transmission τ_c calibrated near the SIR threshold ρ/λ_max(A_rr) (provisional 0.03; final value from P2) |
 | R5 | ER-SBM with one global sparsity factor s: P_rr = s·p_r, P_rs = s·p_g, s set for mean degree k̄ = 16 ⚙; ranges p_r ∈ [0.5,0.9], p_g ∈ [0.01,0.2] |

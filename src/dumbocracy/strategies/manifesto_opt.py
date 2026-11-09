@@ -94,3 +94,70 @@ def optimise_manifesto(v: torch.Tensor, sensitivity: float, threshold: float, *,
     with torch.no_grad():
         residual = float(torch.linalg.vector_norm(best_b - project_simplex(best_b + step * grad)) / step)
     return ManifestoSolution(best_b.detach(), float(exact[best]), residual, used)
+
+
+# --------------------------------------------------------------------------------------------------
+# Consensus ADMM across regions (spec §11; lecture: ADMM for distributed decision making)
+# --------------------------------------------------------------------------------------------------
+@dataclass(frozen=True)
+class ADMMSolution:
+    manifesto: torch.Tensor          # consensus z ∈ Δ  [5]
+    share: float                     # exact expected share of z over all voters
+    local: torch.Tensor              # final local copies x_r  [R, 5]
+    primal_residuals: list[float]    # ‖x − 1⊗z‖ per iteration
+    dual_residuals: list[float]      # ρ √R ‖z − z_prev‖ per iteration
+    iterations: int
+
+
+def admm_manifesto(v: torch.Tensor, region_of: torch.Tensor, sensitivity: float, threshold: float, *,
+                   rho: float = 5.0, iterations: int = 300, inner_steps: int = 10, inner_step: float = 0.05,
+                   smoothing: float = 0.02, start: torch.Tensor | None = None, tol: float = 1e-6,
+                   num_regions: int = 4) -> ADMMSolution:
+    """Consensus ADMM:  min Σ_r f_r(x_r) + I_Δ(z)  s.t.  x_r = z,  with f_r(x) = −(n_r/N)·F_r(x).
+
+    F_r is region r's (smoothed) expected share, so Σ_r f_r = −(overall expected share) and the
+    consensus solution coincides with the centralised projected-gradient problem.
+
+    Scaled-form updates (u = λ/ρ):
+      x_r ← argmin_x f_r(x) + ρ/2 ‖x − z + u_r‖²      (local; inexact: ``inner_steps`` gradient steps)
+      z   ← P_Δ( mean_r (x_r + u_r) )                  (prox of I_Δ = projection; the consensus step)
+      u_r ← u_r + x_r − z                               (dual ascent: accumulated disagreement)
+    The local objective is non-convex, so ADMM reaches a stationary point; callers may multi-start.
+    Non-convex ADMM needs ρ above the curvature of f_r: with the sharp surrogate (δ = 1e-3) the iterates
+    oscillate, so the default uses δ = 0.02 and ρ = 5 (converges in ≈ 40 iterations on 3k voters,
+    within ≈ 1e-3 expected share of the centralised optimum; the gap is the smoothing bias).
+    """
+    v = v.detach()
+    dtype, device = v.dtype, v.device
+    region_of = region_of.to(device)
+    weights = torch.stack([(region_of == r).sum() for r in range(num_regions)]).to(dtype) / v.shape[0]
+    groups = [v[region_of == r] for r in range(num_regions)]
+    z = (torch.full((v.shape[-1],), 1.0 / v.shape[-1], dtype=dtype, device=device)
+         if start is None else project_simplex(start.to(v)))
+    x = z.expand(num_regions, -1).clone()
+    u = torch.zeros_like(x)
+    primal, dual = [], []
+    used = 0
+    for used in range(1, iterations + 1):
+        anchor = z - u                                   # x_r is pulled towards z − u_r
+        for r, group in enumerate(groups):
+            if group.shape[0] == 0:
+                x[r] = anchor[r]
+                continue
+            xr = x[r].clone()
+            for _ in range(inner_steps):
+                xr.requires_grad_(True)
+                loss = -weights[r] * expected_share(group, xr, sensitivity, threshold, smoothing) \
+                    + 0.5 * rho * torch.sum((xr - anchor[r]) ** 2)
+                (grad,) = torch.autograd.grad(loss, xr)
+                xr = (xr - inner_step * grad).detach()
+            x[r] = xr
+        z_prev = z
+        z = project_simplex((x + u).mean(0))
+        u = u + x - z
+        primal.append(float(torch.linalg.vector_norm(x - z)))
+        dual.append(float(rho * num_regions ** 0.5 * torch.linalg.vector_norm(z - z_prev)))
+        if primal[-1] < tol and dual[-1] < tol:
+            break
+    share = float(expected_share(v, z, sensitivity, threshold, 0.0))
+    return ADMMSolution(z, share, x, primal, dual, used)

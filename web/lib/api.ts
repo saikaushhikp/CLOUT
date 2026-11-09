@@ -10,6 +10,7 @@ import type {
   CreateGameRequest,
   CreateGameResponse,
   Debrief,
+  EpistemicTimeline,
   GraphSample,
   Health,
   Observation,
@@ -31,6 +32,8 @@ export interface DumbocracyClient {
   forfeit(gameId: string, playerId: string): Promise<ActionResponse>;
   graphSample(gameId: string, maxNodes?: number): Promise<GraphSample>;
   debrief(gameId: string, playerId: string): Promise<Debrief>;
+  /** P5 epistemic timeline (DONE only; first call may take ~10 s on the engine, then cached). */
+  epistemic(gameId: string, playerId: string): Promise<EpistemicTimeline>;
   deleteGame(gameId: string): Promise<{ deleted: boolean }>;
 }
 
@@ -94,6 +97,7 @@ export function createHttpClient(base = "", fetchImpl?: FetchLike): DumbocracyCl
     forfeit: (g, p) => call<ActionResponse>("POST", `${playerPath(g, p)}/forfeit`),
     graphSample: (g, maxNodes = 1500) => call<GraphSample>("GET", `/api/games/${enc(g)}/graph_sample?max_nodes=${maxNodes}`),
     debrief: (g, p) => call<Debrief>("GET", `${playerPath(g, p)}/debrief`),
+    epistemic: (g, p) => call<EpistemicTimeline>("GET", `${playerPath(g, p)}/epistemic`),
     deleteGame: (g) => call<{ deleted: boolean }>("DELETE", `/api/games/${enc(g)}`),
   };
 }

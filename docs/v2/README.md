@@ -6,6 +6,7 @@
 | Decisions (owner U1–U17, implementer I1–I5, calibration changes) | [decisions_v2.md](decisions_v2.md) |
 | Phase plans P0–P7 (tasks, tests, exit criteria, handoffs) | [plans/](plans/) |
 | Original design inputs | [sources/](sources/) |
+| Player FAQ (blending, hiring) | [faq.md](faq.md) |
 | v1 (archived) | `docs/archive/v1/`, `reports/archive/v1/`, git tag `v1-final` |
 
 ```bash

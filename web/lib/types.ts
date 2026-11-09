@@ -17,7 +17,6 @@ export type ErrorCode =
   | "INVALID_ALLOCATION"
   | "INVALID_QUERY"
   | "INSUFFICIENT_FUNDS"
-  | "DUPLICATE_QUERY"
   | "TERMINAL_STATE"
   | (string & {});
 
@@ -27,8 +26,18 @@ export type QueryAnswer = {
   sector_a: string;
   sector_b: string;
   region: string;
-  /** % of region voters with v[b] > v[a] (0-100) */
+  /** % of THIS query's random sample with v[b] > v[a] (0-100) (R12) */
   pct_b_over_a: number;
+  /** m = round(0.10 · region voters) */
+  sample_size: number;
+  /** 95% margin of error of pct_b_over_a, percentage points (finite-population corrected) */
+  moe: number;
+  /** pooled over every repeat of (a, b, region) this phase/round */
+  pooled_pct: number;
+  pooled_sample_size: number;
+  pooled_moe: number;
+  /** 1 for the first ask of this triple this round, 2, 3, … */
+  repeat_index: number;
   cost: string;
 };
 
@@ -60,9 +69,17 @@ export type Observation = {
   rounds: number;
   num_voters: number;
   seed: number;
+  /** remaining money */
   treasury: string;
+  /** the treasury chosen at setup (R17) */
+  initial_budget: string;
+  /** R16: hired = permanent hires so far; available = free + hired */
+  workers: { free: number; hired: number; available: number };
+  /** R19: one per resolved round, oldest first (for the round look-back) */
+  round_reports: RoundReport[];
   costs: {
     query: string;
+    /** one-time hiring fee per permanent worker (R16) */
     extra_worker: string;
     free_workers: number;
     contacts_per_worker: number;
@@ -133,11 +150,39 @@ export type Debrief = {
   your_manifesto_no_campaign_share: number;
 };
 
+/** One decision point t (start of round t, after that round's poll; manifesto already committed). */
+export type EpistemicRound = {
+  round: number;
+  treasury: string;
+  knowledge: { queries: number; polls: number; posterior_entropy: number; consistent_worlds: number };
+  /** ∃π ∃w Victory — M_p ◇Victory: winning was considered possible */
+  possible_victory: boolean;
+  /** ∃π ∀w Victory — knowing HOW: one plan wins in every consistent world */
+  guaranteed_victory: boolean;
+  /** ∀w ∃π Victory — knowing THAT: every world has some winning plan (maybe different ones) */
+  knows_win_exists: boolean;
+  /** ∀π ∀w ¬Victory — K_p □¬Victory within the plan set */
+  inevitable_defeat: boolean;
+  /** ∃π Victory in the TRUE world (ground truth, not knowledge) */
+  truth_victory_possible: boolean;
+  best_plan: { label: string; /** fraction of W_t it wins */ win_fraction: number; mean_share: number };
+};
+
+/** GET /api/games/{g}/players/{p}/epistemic (P5, decision R14) — DONE only. */
+export type EpistemicTimeline = {
+  scope: { worlds_per_round: number; policies_per_round: number; world_voters: number; note: string };
+  rounds: EpistemicRound[];
+  actual: { victory: boolean; vote_share: number; expected_share: number };
+  headline: string;
+};
+
 export type Health = { status: "ok"; device: string; active_games: number; max_games: number };
 
-export type CreateGameRequest = { num_voters?: number; seed?: number; rounds?: number };
+/** `budget`: starting treasury, 2-dp decimal string "500.00".."1000.00" (R17). */
+export type CreateGameRequest = { num_voters?: number; seed?: number; rounds?: number; budget?: string };
 export type CreateGameResponse = { game_id: string; player_id: string; observation: Observation };
 
 export type QueryRequest = { sector_a: string; sector_b: string; region: string };
 export type CommitRequest = { manifesto: number[] };
+/** `extra_workers` = NEW permanent hires this round (R16); sum(workers_by_region) ≤ workers.available + extra_workers. */
 export type AllocateRequest = { workers_by_region: number[]; extra_workers: number; media_regions: boolean[] };

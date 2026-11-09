@@ -1,21 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Activity, ClipboardList, Map as MapIcon, Network, Newspaper, Search, Target, TrendingDown, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { Activity, ClipboardList, Lock, Map as MapIcon, Newspaper, Search, Stamp, Target, TrendingDown, TrendingUp } from "lucide-react";
 import { useGame, useObservation } from "@/lib/game";
 import { emptyDraft, type AllocationDraft } from "@/lib/allocation";
-import { REGION_META, sectorLabel } from "@/lib/constants";
+import { REGION_META, SECTOR_META, sectorLabel } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { fmtCompact, fmtInt } from "@/lib/format";
+import { formatEstimate, groupAnswers } from "@/lib/survey";
 import type { Observation, RegionId } from "@/lib/types";
-import { REGION_IDS } from "@/lib/types";
+import { REGION_IDS, SECTOR_IDS } from "@/lib/types";
+import { toIntegerSimplex } from "@/lib/simplex";
+import { reviewableRounds } from "@/lib/rounds";
 import { AllocationPanel } from "./AllocationPanel";
 import { RegionMap } from "./RegionMap";
 import { PollChart } from "./PollChart";
 import { RoundTimer } from "./RoundTimer";
-import { NetworkView } from "./NetworkView";
 import { KnowledgeLedger, QueryBuilder } from "./Intel";
-import { Panel, StackBar, Stat } from "./ui";
+import { Donut } from "./Donut";
+import { RoundLookback } from "./RoundLookback";
+import { Panel, SectorSwatch, StackBar, Stat } from "./ui";
 
 function PollHud({ obs }: { obs: Observation }) {
   const latest = obs.polls[obs.polls.length - 1];
@@ -42,16 +46,80 @@ function PollHud({ obs }: { obs: Observation }) {
   );
 }
 
-function RoundDots({ obs }: { obs: Observation }) {
+/**
+ * Round tracker. Past rounds are buttons that open the read-only look-back (R19); the current round's chip
+ * returns to planning; future rounds are inert.
+ */
+function RoundDots({ obs, reviewing, onReview }: { obs: Observation; reviewing: number | null; onReview: (t: number | null) => void }) {
+  const past = new Set(reviewableRounds(obs));
   return (
-    <ol className="round-dots list-plain" aria-label="Campaign rounds">
-      {Array.from({ length: obs.rounds }, (_, k) => k + 1).map((t) => (
-        <li key={t} className={`round-dot ${t < obs.round ? "done" : t === obs.round ? "now" : ""}`} aria-current={t === obs.round ? "step" : undefined}>
-          R{t}
-        </li>
-      ))}
-      <li className="round-dot">🗳</li>
+    <ol className="round-dots list-plain" aria-label="Campaign rounds — tap a past round to review it">
+      {Array.from({ length: obs.rounds }, (_, k) => k + 1).map((t) => {
+        const cls = `round-dot ${t < obs.round ? "done" : t === obs.round ? "now" : ""} ${reviewing === t ? "reviewing" : ""}`;
+        return (
+          <li key={t}>
+            {past.has(t) ? (
+              <button
+                type="button"
+                className={cls}
+                aria-label={`Review round ${t}`}
+                aria-pressed={reviewing === t}
+                title={`Review round ${t}`}
+                onClick={() => onReview(reviewing === t ? null : t)}
+              >
+                R{t}
+              </button>
+            ) : t === obs.round ? (
+              <button
+                type="button"
+                className={cls}
+                aria-current="step"
+                aria-label={`Round ${t} — planning now`}
+                title="Back to planning this round"
+                onClick={() => onReview(null)}
+              >
+                R{t}
+              </button>
+            ) : (
+              <span className={cls}>R{t}</span>
+            )}
+          </li>
+        );
+      })}
+      <li>
+        <span className="round-dot" role="img" aria-label="Election">
+          🗳
+        </span>
+      </li>
     </ol>
+  );
+}
+
+/** The committed manifesto, always visible during the rounds (owner request). */
+export function ManifestoSummary({ manifesto }: { manifesto: number[] }) {
+  const pcts = toIntegerSimplex(manifesto);
+  const order = SECTOR_IDS.map((s, i) => ({ s, i })).sort((a, b) => pcts[b.i] - pcts[a.i]);
+  return (
+    <div className="manifesto-mini" data-testid="manifesto-summary">
+      <div className="donut-wrap manifesto-mini-donut">
+        <Donut values={pcts} size={128} thickness={22} />
+        <div className="donut-center">
+          <Lock size={16} aria-hidden className="muted" />
+        </div>
+      </div>
+      <ul className="list-plain manifesto-mini-list" aria-label="Committed manifesto shares">
+        {order.map(({ s, i }) => (
+          <li key={s}>
+            <SectorSwatch id={s} />
+            <span>{SECTOR_META[s].label}</span>
+            <span className="manifesto-mini-bar" aria-hidden>
+              <span style={{ width: `${pcts[i]}%`, background: SECTOR_META[s].color }} />
+            </span>
+            <b className="num">{pcts[i]}%</b>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -59,7 +127,7 @@ function RegionDetail({ obs, region, draft }: { obs: Observation; region: Region
   const { hunches } = useGame();
   const info = obs.regions.find((r) => r.id === region);
   const i = REGION_IDS.indexOf(region);
-  const answers = obs.queries.filter((q) => q.region === region).slice(-3).reverse();
+  const answers = groupAnswers(obs.queries.filter((q) => q.region === region)).slice(-3).reverse();
   const sent = obs.allocations.reduce((a, al) => a + (al.workers_by_region[i] ?? 0), 0);
   const hunch = obs.archetype_library.find((a) => a.id === hunches[region]);
   if (!info) return null;
@@ -83,9 +151,11 @@ function RegionDetail({ obs, region, draft }: { obs: Observation; region: Region
       </div>
       {answers.length ? (
         <ul className="list-plain stat-sub">
-          {answers.map((q, k) => (
-            <li key={k}>
-              {q.phase === "SURVEY" ? "Survey" : `R${q.round}`}: {q.pct_b_over_a.toFixed(1)}% prefer {sectorLabel(q.sector_b)} over {sectorLabel(q.sector_a)}
+          {answers.map((g) => (
+            <li key={g.key}>
+              {g.latest.phase === "SURVEY" ? "Survey" : `R${g.latest.round}`}: {formatEstimate(g.pct, g.moe, g.sampleSize)} prefer{" "}
+              {sectorLabel(g.latest.sector_b)} over {sectorLabel(g.latest.sector_a)}
+              {g.answers.length > 1 ? ` (pooled ×${g.answers.length})` : ""}
             </li>
           ))}
         </ul>
@@ -98,16 +168,16 @@ function RegionDetail({ obs, region, draft }: { obs: Observation; region: Region
 
 export function CampaignScreen() {
   const obs = useObservation();
-  const { allocate, forfeit, busy, lastReport, graph, graphError } = useGame();
-  const [draft, setDraft] = useState<AllocationDraft>(emptyDraft());
+  const { allocate, forfeit, busy, lastReport, reviewRound, setReviewRound } = useGame();
+  // The draft belongs to one round: a new round starts from an empty plan in the same render (no stale frame
+  // where last round's new hires would be counted on top of the now-larger permanent team).
+  const [drafted, setDrafted] = useState<{ round: number; draft: AllocationDraft }>(() => ({ round: obs.round, draft: emptyDraft() }));
+  const draft = drafted.round === obs.round ? drafted.draft : emptyDraft();
+  const setDraft = (d: AllocationDraft) => setDrafted({ round: obs.round, draft: d });
   const [selected, setSelected] = useState<RegionId | null>("N");
   const [timerOn, setTimerOn] = useState(false);
   const [timerSecs, setTimerSecs] = useState(60);
   const [intelTab, setIntelTab] = useState<"ask" | "ledger">("ask");
-
-  useEffect(() => {
-    setDraft(emptyDraft());
-  }, [obs.round]);
 
   const events = obs.events.slice(-30).reverse();
   return (
@@ -119,7 +189,7 @@ export function CampaignScreen() {
             Round {obs.round} of {obs.rounds}
           </h1>
         </div>
-        <RoundDots obs={obs} />
+        <RoundDots obs={obs} reviewing={reviewRound} onReview={setReviewRound} />
       </div>
 
       <div className="grid-campaign">
@@ -166,9 +236,11 @@ export function CampaignScreen() {
             {selected ? <RegionDetail obs={obs} region={selected} draft={draft} /> : null}
           </Panel>
 
-          <Panel title="Social network (sample)" className="o-net" icon={Network} hint="regions only during play">
-            <NetworkView sample={graph} error={graphError} totalVoters={obs.num_voters} />
-          </Panel>
+          {obs.manifesto ? (
+            <Panel title="Your manifesto" className="o-manifesto" icon={Stamp} hint="committed · locked">
+              <ManifestoSummary manifesto={obs.manifesto} />
+            </Panel>
+          ) : null}
         </div>
 
         <div className="stack">
@@ -213,6 +285,10 @@ export function CampaignScreen() {
           </Panel>
         </div>
       </div>
+
+      {reviewRound !== null && reviewableRounds(obs).includes(reviewRound) ? (
+        <RoundLookback obs={obs} round={reviewRound} onClose={() => setReviewRound(null)} onNavigate={setReviewRound} />
+      ) : null}
     </div>
   );
 }

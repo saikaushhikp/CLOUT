@@ -49,9 +49,13 @@ class PlayerState:
     knowledge: KnowledgeLog = field(default_factory=KnowledgeLog)
     allocations: tuple[Allocate, ...] = ()             # resolved + pending, one per round
     media_airings: tuple[int, int, int, int] = (0, 0, 0, 0)
+    hired_workers: int = 0                              # R16: permanent hires so far (incl. a pending round's)
     ready: bool = False                                 # committed (SURVEY) / allocated (ROUND)
     pending: Allocate | None = None                     # this round's allocation awaiting resolution
-    query_keys: frozenset[tuple[str, str, str]] = frozenset()  # used this phase/round
+    query_count: int = 0                                # paid queries asked so far in the game (survey-stream key)
+    # R12 pooling accumulators for THIS phase/round: (sector_a, sector_b, region) -> (Σyes, Σm, repeats).
+    # Replaced (never mutated) on every query; reset when a new round starts.
+    query_pools: dict[tuple[str, str, str], tuple[int, int, int]] = field(default_factory=dict)
     result: ElectionResult | None = None
     share_trajectory: tuple[float, ...] = ()            # HIDDEN: true E before round 1 and after each round
     alignment: tuple[torch.Tensor, ...] = ()            # HIDDEN: uint8 [N] similarity bins per round 0..T (CPU)

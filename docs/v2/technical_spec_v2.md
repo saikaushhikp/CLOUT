@@ -159,10 +159,16 @@ edge count per region and inter-region edge count per pair (NOT the edges, NOT p
 At survey start and at the start of every round: for each sector k, the percentage of ALL voters whose
 top-3 sectors (by v_i, ties broken by sector index) include k. (Sums to 300%.) Exact, current state.
 
-### 6.3 Paid query (U8)
-`Query(s1, s2, r)` with s1 ≠ s2, cost 5.00 ⚙: returns the **exact** percentage of voters in region r
-with `v_i[s2] > v_i[s1]` at the current state. Allowed in the survey phase and in every campaign round.
-Repeating an identical query in the same round is rejected as `DUPLICATE_QUERY` (no charge).
+### 6.3 Paid query — sampled survey (R12, supersedes U8's exact answers)
+`Query(s1, s2, r)` with s1 ≠ s2, cost 5.00: surveys a fresh uniform random sample (without replacement)
+of `m = max(1, round(f · n_r))` voters of region r, f = 0.10 (`SurveyConfig.query_sample_fraction`),
+at the current state, and returns the sample percentage `p̂ = 100·#{i ∈ sample : v_i[s2] > v_i[s1]}/m` with a
+95% margin of error `MoE = 1.96·100·sqrt(p̃(1−p̃)/m · (n_r − m)/(n_r − 1))` (finite-population correction;
+p̃ = (yes + 1)/(m + 2) so the MoE is never 0). Allowed in SURVEY and every ROUND. **Repeats are allowed**
+and each draws an independent new sample (seed stream `survey`, keys (round, player, query index)); answers
+to the same (s1, s2, r) in the same phase/round are also **pooled** (Σyes/Σm with MoE from Σm, without
+FPC), reported alongside. Pooling resets each round because preferences drift. The free top-3 statistic
+(§6.2) stays exact.
 
 ### 6.4 Free poll (U15)
 After commit, at the start of each round and before the election: sample n_poll = 400 ⚙ voters
@@ -185,7 +191,7 @@ Phases: `SETUP → SURVEY → ROUND(1..T) → ELECTION → DONE`.
 
 | Action | Phase | Cost | Effect |
 |---|---|---|---|
-| `query(s1,s2,r)` | SURVEY, ROUND | 5.00 | exact answer appended to K_p |
+| `query(s1,s2,r)` | SURVEY, ROUND | 5.00 | sampled answer (10% of region, ± MoE, pooled repeats; §6.3) appended to K_p |
 | `commit(b)` | SURVEY | 0 | fixes b_p (validated ∈ Δ, |Σ−1|<1e-6); player ready |
 | `allocate(workers_by_region, extra_workers, media_regions)` | ROUND | 4.00·extra + Σ media | player ready for this round |
 | `forfeit_round` | ROUND | 0 | = allocate with nothing |
@@ -195,7 +201,7 @@ Phases: `SETUP → SURVEY → ROUND(1..T) → ELECTION → DONE`.
   ELECTION runs automatically, then DONE.
 - Validation is pure; rejected actions change nothing and cost nothing (stable error codes:
   `INVALID_ACTION, INVALID_PHASE, INVALID_MANIFESTO, INVALID_ALLOCATION, INSUFFICIENT_FUNDS,
-  DUPLICATE_QUERY, UNKNOWN_PLAYER, TERMINAL_STATE`).
+  UNKNOWN_PLAYER, TERMINAL_STATE`; DUPLICATE_QUERY removed by R12).
 - Treasury: one pool per player, B = 500.00 ⚙ (U14; owner set 500 on 2026-11-07). Unspent money has no value.
 - Optional per-round timer is a UI/API concern: on timeout the client sends `forfeit_round`.
 
@@ -301,3 +307,10 @@ media on 47 and depends on the largest region's personality (media-savvy → med
 Calibration insight: social averaging alone raises the expected share of a well-chosen manifesto a lot over
 the five rounds (voters converge to regional means), so manifestos must be optimised against the
 *anticipated* electorate (social-only dynamics), not against v(0). The oracle and informed baselines do this.
+
+## 15. Rule changes after v2.1 (owner, 2026-11-09)
+- **R16 permanent hires.** §3.1 is amended: `extra_workers` in an allocation are new hires paid once (4.00 each);
+  the player's available workers each round = W_free + all hires so far. Previously hires lasted one round.
+- **R17 treasury choice.** B ∈ [500.00, 1000.00] chosen at game creation (default 500.00).
+- The §12/§14 balance results and the P7 experiments were measured under the v2.1 rules (per-round hires, B = 500)
+  and will be re-run once the owner's further mechanics changes are complete.

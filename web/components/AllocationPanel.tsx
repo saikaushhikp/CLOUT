@@ -1,13 +1,45 @@
 "use client";
 
-import { Eraser, Loader2, Megaphone, Radio, Send, Users } from "lucide-react";
+import { Eraser, HelpCircle, Loader2, Megaphone, Radio, Send, Users } from "lucide-react";
 import type { Observation, RegionId } from "@/lib/types";
 import { REGION_IDS } from "@/lib/types";
-import { REGION_META } from "@/lib/constants";
+import { REGION_META, WOM_HOPS } from "@/lib/constants";
 import { checkAllocation, setExtraWorkers, setRegionWorkers, type AllocationDraft, emptyDraft } from "@/lib/allocation";
 import { formatMoney } from "@/lib/money";
-import { fmtInt } from "@/lib/format";
+import { fmtCompact, fmtInt } from "@/lib/format";
 import { RegionPip, Stepper } from "./ui";
+
+/** "How it works": how a (new) worker is chosen and used — public rules only (owner request). */
+export function WorkerHelp({ obs }: { obs: Observation }) {
+  const perWorker = obs.costs.contacts_per_worker;
+  return (
+    <details className="help-pop">
+      <summary>
+        <HelpCircle size={14} aria-hidden /> How it works
+      </summary>
+      <div className="help-pop-body" role="note" aria-label="How workers are hired and used">
+        <p>
+          <b>If I hire a worker now, how is he/she chosen and used?</b>
+        </p>
+        <ul>
+          <li>
+            A hire joins your <b>permanent team</b>: you pay the {formatMoney(obs.costs.extra_worker)} fee once and they work
+            every remaining round, alongside your {obs.costs.free_workers} free workers.
+          </li>
+          <li>Each round you assign every worker to a region. Workers you leave unassigned sit idle that round.</li>
+          <li>
+            Each worker canvasses about 0.25% of the {fmtCompact(obs.num_voters)} voters ({fmtInt(perWorker)} doorsteps), picked
+            uniformly at random from that region (with replacement, so the same door can be knocked twice).
+          </li>
+          <li>Voters with more campaign susceptibility move further toward your manifesto.</li>
+          <li>
+            Contacted voters can spread your message by word of mouth over friendship ties, for up to {WOM_HOPS} hops.
+          </li>
+        </ul>
+      </div>
+    </details>
+  );
+}
 
 export function AllocationPanel({
   obs,
@@ -24,7 +56,10 @@ export function AllocationPanel({
 }) {
   const check = checkAllocation(obs, draft);
   const free = obs.costs.free_workers;
-  const pool = free + draft.extra;
+  /** team before this round's hires: free + every earlier permanent hire (R16) */
+  const base = check.workersBase;
+  const hiredBefore = Math.max(0, base - free);
+  const pool = base + draft.extra;
   const canAct = obs.legal_actions.includes("allocate");
   const isLast = obs.round >= obs.rounds;
 
@@ -68,9 +103,16 @@ export function AllocationPanel({
         </span>
         <span className="stat-sub">{fmtInt(obs.costs.contacts_per_worker)} doorsteps each</span>
       </div>
+      <div className="row-between" style={{ alignItems: "flex-start" }}>
+        <span className="stat-sub" data-testid="team-line">
+          Team: {free} free{hiredBefore ? ` + ${hiredBefore} hired` : ""}
+          {draft.extra ? ` + ${draft.extra} new hire${draft.extra > 1 ? "s" : ""}` : ""} = {pool} available
+        </span>
+        <WorkerHelp obs={obs} />
+      </div>
       <div className="workers-pool" aria-hidden>
         {Array.from({ length: pool }, (_, k) => (
-          <span key={k} className={`worker-dot ${k >= free ? "paid" : ""} ${k < check.workersAssigned ? "used" : ""}`} />
+          <span key={k} className={`worker-dot ${k >= base ? "paid" : k >= free ? "hired" : ""} ${k < check.workersAssigned ? "used" : ""}`} />
         ))}
       </div>
       <div className="row" style={{ margin: "6px 0 4px" }}>
@@ -103,7 +145,7 @@ export function AllocationPanel({
               label={`Workers in ${REGION_META[r as RegionId].label}`}
               value={draft.workers[i]}
               max={Math.max(draft.workers[i], pool - others)}
-              onChange={(v) => onChange(setRegionWorkers(draft, free, i, v))}
+              onChange={(v) => onChange(setRegionWorkers(draft, base, i, v))}
             />
             <button
               type="button"
@@ -123,21 +165,23 @@ export function AllocationPanel({
 
       <div className="row-between" style={{ marginTop: 12 }}>
         <div>
-          <span className="field-label">Hire extra workers</span>
-          <div className="stat-sub">{formatMoney(obs.costs.extra_worker)} each, this round only</div>
+          <span className="field-label" id="hire-label">Hire extra workers</span>
+          <div className="stat-sub" id="hire-help">
+            {formatMoney(obs.costs.extra_worker)} each · one-time fee, works every remaining round
+          </div>
         </div>
         <Stepper
-          label="Extra workers"
+          label="New hires"
           value={draft.extra}
           max={Math.max(draft.extra, check.maxAffordableExtra)}
-          onChange={(v) => onChange(setExtraWorkers(draft, free, v))}
+          onChange={(v) => onChange(setExtraWorkers(draft, base, v))}
         />
       </div>
 
       <table className="cost-table">
         <tbody>
           <tr>
-            <td>Extra workers × {draft.extra}</td>
+            <td>New hires × {draft.extra} (one-time)</td>
             <td>{formatMoney(check.workerCostCents)}</td>
           </tr>
           <tr>
@@ -171,7 +215,7 @@ export function AllocationPanel({
         </div>
       ) : check.workersIdle > 0 ? (
         <p className="stat-sub" style={{ marginTop: 8 }}>
-          {check.workersIdle} worker{check.workersIdle > 1 ? "s" : ""} unassigned — unassigned free workers are wasted.
+          {check.workersIdle} worker{check.workersIdle > 1 ? "s" : ""} unassigned — they sit idle this round (they stay on the team).
         </p>
       ) : null}
 

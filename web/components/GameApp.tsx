@@ -21,22 +21,41 @@ export function GameApp({ client, initialObservation }: { client?: DumbocracyCli
 }
 
 function PhaseTrack({ obs }: { obs: Observation }) {
-  const steps: { key: string; label: string; state: "done" | "current" | "todo" }[] = [];
+  const { reviewRound, setReviewRound } = useGame();
+  const steps: { key: string; label: string; state: "done" | "current" | "todo"; round?: number }[] = [];
   const surveyState = obs.phase === "SURVEY" ? "current" : "done";
   steps.push({ key: "survey", label: "Survey & manifesto", state: surveyState });
   for (let t = 1; t <= obs.rounds; t++) {
     const state = obs.phase === "DONE" ? "done" : obs.phase === "ROUND" ? (t < obs.round ? "done" : t === obs.round ? "current" : "todo") : "todo";
-    steps.push({ key: `r${t}`, label: `R${t}`, state });
+    steps.push({ key: `r${t}`, label: `R${t}`, state, round: t });
   }
   steps.push({ key: "election", label: "Election", state: obs.phase === "DONE" ? "current" : "todo" });
   return (
     <ol className="phase-track list-plain" aria-label="Game progress">
-      {steps.map((s) => (
-        <li key={s.key} className={`phase-step is-${s.state}`} aria-current={s.state === "current" ? "step" : undefined}>
-          <span className="phase-dot" aria-hidden />
-          {s.label}
-        </li>
-      ))}
+      {steps.map((s) => {
+        // While campaigning, past rounds open the read-only look-back (R19); the current round returns to planning.
+        const clickable = obs.phase === "ROUND" && s.round !== undefined && s.state !== "todo";
+        return (
+          <li key={s.key} className={`phase-step is-${s.state} ${reviewRound === s.round ? "is-reviewing" : ""}`} aria-current={s.state === "current" ? "step" : undefined}>
+            {clickable ? (
+              <button
+                type="button"
+                className="phase-step-btn"
+                aria-label={s.state === "current" ? `Round ${s.round} — back to planning` : `Review round ${s.round}`}
+                onClick={() => setReviewRound(s.state === "current" || reviewRound === s.round ? null : (s.round as number))}
+              >
+                <span className="phase-dot" aria-hidden />
+                {s.label}
+              </button>
+            ) : (
+              <>
+                <span className="phase-dot" aria-hidden />
+                {s.label}
+              </>
+            )}
+          </li>
+        );
+      })}
     </ol>
   );
 }

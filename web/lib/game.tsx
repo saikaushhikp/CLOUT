@@ -44,6 +44,9 @@ type GameContextValue = {
   forfeit: () => Promise<ActionResponse | null>;
   leaveGame: () => void;
   refreshGraph: () => Promise<void>;
+  /** Round look-back (R19): the past round under review, or null while planning the current round. */
+  reviewRound: number | null;
+  setReviewRound: (round: number | null) => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -89,6 +92,7 @@ export function GameProvider({
   const [debrief, setDebrief] = useState<Debrief | null>(null);
   const [hunches, setHunches] = useState<Record<string, string | undefined>>({});
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [reviewRound, setReviewRound] = useState<number | null>(null);
   const toastId = useRef(0);
   const busyRef = useRef<Busy>(null);
 
@@ -155,10 +159,11 @@ export function GameProvider({
     (async () => {
       setBusy("load");
       try {
-        const g = await client.createGame({ num_voters: 10_000, seed: 2026, rounds: 5 });
+        const g = await client.createGame({ num_voters: 10_000, seed: 2026, rounds: 5, budget: "750.00" });
         let o = g.observation;
         const ask = async (a: string, b: string, r: string) => (o = (await client.query(g.game_id, g.player_id, { sector_a: a, sector_b: b, region: r })).observation);
         await ask("Edu", "Agri", "N");
+        await ask("Edu", "Agri", "N"); // a repeat: pooled with the first sample
         await ask("Industry", "Env", "E");
         await ask("Welfare", "Edu", "S");
         if (demo !== "survey") {
@@ -219,12 +224,18 @@ export function GameProvider({
     }
   }, [client, gameId]);
 
-  // Graph sample: once per game during play, again at DONE (alignment revealed).
+  // Graph sample (R18): fetched and rendered ONLY in the post-election debrief — never during the survey or the
+  // campaign rounds (saves the download and the WebGL layout while playing).
+  const graphStage = gameId && phase === "DONE" ? "revealed" : null;
   useEffect(() => {
-    if (!gameId || phase === "SURVEY") return;
+    if (!graphStage) {
+      setGraph(null);
+      setGraphError(null);
+      return;
+    }
     setGraph(null);
     void refreshGraph();
-  }, [gameId, phase === "DONE", refreshGraph]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [graphStage, refreshGraph]);
 
   useEffect(() => {
     if (!obs || obs.phase !== "DONE") {
@@ -243,6 +254,7 @@ export function GameProvider({
 
   useEffect(() => {
     setLastAnswer(null);
+    setReviewRound(null);
   }, [roundKey]);
 
   const run = useCallback(
@@ -355,6 +367,9 @@ export function GameProvider({
     setLastAnswer(null);
   }, [client, obs]);
 
+  // After a refresh the last round report comes from the observation's history (R19).
+  const latestReport = lastReport ?? (obs?.round_reports?.length ? obs.round_reports[obs.round_reports.length - 1] : null);
+
   const value: GameContextValue = {
     client,
     health,
@@ -362,7 +377,7 @@ export function GameProvider({
     obs,
     busy,
     lastAnswer,
-    lastReport,
+    lastReport: latestReport,
     graph,
     graphError,
     debrief,
@@ -378,6 +393,8 @@ export function GameProvider({
     forfeit,
     leaveGame,
     refreshGraph,
+    reviewRound,
+    setReviewRound,
   };
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }

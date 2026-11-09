@@ -11,7 +11,8 @@
     "start": "next start -p 61007 -H 127.0.0.1",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "e2e": "node e2e/run.mjs"
   },
   "dependencies": {
     "graphology": "^0.26.0",
@@ -24,6 +25,7 @@
     "sigma": "^4.0.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

@@ -18,6 +18,9 @@ describe("mock engine", () => {
     expect(sizes.reduce((x, y) => x + y, 0)).toBe(12_345);
     sizes.forEach((s) => expect(s).toBeGreaterThanOrEqual(Math.ceil(0.15 * 12_345)));
     expect(a.observation.treasury).toBe("500.00");
+    expect(a.observation.initial_budget).toBe("500.00");
+    expect(a.observation.workers).toEqual({ free: 10, hired: 0, available: 10 });
+    expect(a.observation.round_reports).toEqual([]);
     expect(a.observation.phase).toBe("SURVEY");
     expect(a.observation.legal_actions).toEqual(["query", "commit"]);
     const top3 = Object.values(a.observation.free_stats[0].top3_pct).reduce((x, y) => x + y, 0);
@@ -39,15 +42,16 @@ describe("mock engine", () => {
     const { game_id: g, player_id: p, observation } = await c.createGame({ num_voters: 5000, seed: 123, rounds: 3 });
     expect(p).toBe("p0");
 
-    // SURVEY: queries, duplicates, bad queries, wrong-phase allocate
+    // SURVEY: queries, repeats (allowed, R12), bad queries, wrong-phase allocate
     const q1 = await c.query(g, p, { sector_a: "Edu", sector_b: "Agri", region: "N" });
     expect(q1.accepted).toBe(true);
     expect(q1.answer?.pct_b_over_a).toBeGreaterThanOrEqual(0);
     expect(q1.answer?.pct_b_over_a).toBeLessThanOrEqual(100);
     expect(q1.observation.treasury).toBe("495.00");
-    const dup = await c.query(g, p, { sector_a: "Edu", sector_b: "Agri", region: "N" });
-    expect(dup).toMatchObject({ accepted: false, error_code: "DUPLICATE_QUERY" });
-    expect(dup.observation.treasury).toBe("495.00");
+    const rep = await c.query(g, p, { sector_a: "Edu", sector_b: "Agri", region: "N" });
+    expect(rep).toMatchObject({ accepted: true, error_code: null });
+    expect(rep.answer?.repeat_index).toBe(2);
+    expect(rep.observation.treasury).toBe("490.00");
     expect((await c.query(g, p, { sector_a: "Edu", sector_b: "Edu", region: "N" })).error_code).toBe("INVALID_QUERY");
     expect((await c.allocate(g, p, none)).error_code).toBe("INVALID_PHASE");
     await expect(c.debrief(g, p)).rejects.toMatchObject({ status: 409 });
@@ -110,6 +114,44 @@ describe("mock engine", () => {
     });
     expect(observation.game_id).toBe(g);
     expect(await c.deleteGame(g)).toEqual({ deleted: true });
+  });
+
+  it("accepts a starting treasury of 500.00..1000.00 (R17)", async () => {
+    const c = createMockClient();
+    const g = await c.createGame({ num_voters: 2000, seed: 1, budget: "750.00" });
+    expect(g.observation.treasury).toBe("750.00");
+    expect(g.observation.initial_budget).toBe("750.00");
+    expect((await c.createGame({ num_voters: 2000, seed: 1, budget: "1000.00" })).observation.treasury).toBe("1000.00");
+    for (const bad of ["499.99", "1000.01", "abc", "750.123"]) {
+      await expect(c.createGame({ num_voters: 2000, seed: 1, budget: bad })).rejects.toMatchObject({ status: 422 });
+    }
+  });
+
+  it("hires are permanent: one-time fee, then they join the pool every later round (R16) + round_reports (R19)", async () => {
+    const c = createMockClient();
+    const { game_id: g, player_id: p } = await c.createGame({ num_voters: 5000, seed: 11, rounds: 3 });
+    const committed = await c.commit(g, p, { manifesto: [0.2, 0.2, 0.2, 0.2, 0.2] });
+    const t0 = toCents(committed.observation.treasury);
+    const r1 = await c.allocate(g, p, { ...none, workers_by_region: [5, 5, 3, 0], extra_workers: 3 });
+    expect(r1.accepted).toBe(true);
+    expect(toCents(r1.observation.treasury)).toBe(t0 - 1200);
+    expect(r1.observation.workers).toEqual({ free: 10, hired: 3, available: 13 });
+    expect(r1.observation.round_reports).toHaveLength(1);
+    expect(r1.observation.round_reports[0]).toEqual(r1.round_report);
+
+    // round 2: 13 workers at no cost; 14 needs a new hire
+    expect((await c.allocate(g, p, { ...none, workers_by_region: [14, 0, 0, 0] })).error_code).toBe("INVALID_ALLOCATION");
+    const r2 = await c.allocate(g, p, { ...none, workers_by_region: [13, 0, 0, 0] });
+    expect(r2.accepted).toBe(true);
+    expect(r2.round_report?.cost).toBe("0.00");
+    expect(r2.observation.treasury).toBe(r1.observation.treasury);
+    expect(r2.observation.workers.available).toBe(13);
+    const r3 = await c.allocate(g, p, { ...none, workers_by_region: [10, 4, 0, 0], extra_workers: 1 });
+    expect(r3.accepted).toBe(true);
+    expect(r3.observation.phase).toBe("DONE");
+    expect(r3.observation.workers).toEqual({ free: 10, hired: 4, available: 14 });
+    expect(r3.observation.round_reports.map((r) => r.round)).toEqual([1, 2, 3]);
+    expect(r3.observation.round_reports[2].election_held).toBe(true);
   });
 
   it("never leaks hidden fields in observations", async () => {

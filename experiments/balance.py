@@ -3,7 +3,8 @@
 Usage:
   python experiments/balance.py --seeds 200 --n 10000 --device cuda:2 [--set workers.transmission=0.03 ...]
 
-Policies (all use the free workers; they differ in how the *paid* budget is spent):
+Policies (all use the available workers = free + permanent hires so far, R16; they differ in how the
+*paid* budget is spent — every extra worker bought is a one-time hire that keeps working in later rounds):
   none          no campaign at all (free workers idle)
   free_even     free workers split evenly, no spending
   pay_workers   budget paced evenly over rounds, all on extra workers (split by region size)
@@ -99,12 +100,12 @@ def policy_none(ctx: RoundContext) -> Allocation:
 
 
 def policy_free_even(ctx: RoundContext) -> Allocation:
-    return Allocation(split_by_weight(ctx.config.workers.free_workers, [1, 1, 1, 1]), 0, NO_MEDIA)
+    return Allocation(split_by_weight(ctx.available_workers, [1, 1, 1, 1]), 0, NO_MEDIA)
 
 
 def _workers_with(ctx: RoundContext, cap: Decimal, weights: list[float]) -> Allocation:
     extra = int(cap // ctx.config.workers.extra_worker_cost)
-    return Allocation(split_by_weight(ctx.config.workers.free_workers + extra, weights), extra, NO_MEDIA)
+    return Allocation(split_by_weight(ctx.available_workers + extra, weights), extra, NO_MEDIA)
 
 
 def policy_pay_workers(ctx: RoundContext) -> Allocation:
@@ -114,7 +115,7 @@ def policy_pay_workers(ctx: RoundContext) -> Allocation:
 def policy_pay_media(ctx: RoundContext) -> Allocation:
     order = sorted(range(4), key=lambda r: -sizes_of(ctx)[r])
     media = media_within(ctx, round_cap(ctx), order)
-    return Allocation(split_by_weight(ctx.config.workers.free_workers, [1, 1, 1, 1]), 0, media)
+    return Allocation(split_by_weight(ctx.available_workers, [1, 1, 1, 1]), 0, media)
 
 
 def policy_pay_split(ctx: RoundContext) -> Allocation:
@@ -157,7 +158,7 @@ def policy_planner(ctx: RoundContext) -> Allocation:
             remaining -= cost
     extra = int(remaining // cost_w)
     weights = [max(v, 0.0) ** 2 for v in worker_value]  # concentrate on the best regions
-    return Allocation(split_by_weight(cfg.workers.free_workers + extra, weights), extra, tuple(media))
+    return Allocation(split_by_weight(ctx.available_workers + extra, weights), extra, tuple(media))
 
 
 POLICIES = {"none": policy_none, "free_even": policy_free_even, "pay_workers": policy_pay_workers,

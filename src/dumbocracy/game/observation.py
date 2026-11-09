@@ -67,7 +67,14 @@ def _from_knowledge(player: PlayerState) -> dict[str, Any]:
         "queries": [e.payload for e in log.of_kind("query")],
         "polls": [{"round": e.round, **e.payload} for e in log.of_kind("poll")],
         "allocations": [{"round": e.round, **e.payload} for e in log.of_kind("allocation")],
+        "round_reports": [dict(e.payload) for e in log.of_kind("round_report")],   # R19, oldest first
     }
+
+
+def _workers(state: GameState, player: PlayerState) -> dict[str, int]:
+    """R16/R19: free workers, permanent hires so far, and available = free + hired (before new hires)."""
+    free = state.config.workers.free_workers
+    return {"free": free, "hired": player.hired_workers, "available": free + player.hired_workers}
 
 
 def observation_for(state: GameState, player_id: str) -> dict[str, Any]:
@@ -87,6 +94,8 @@ def observation_for(state: GameState, player_id: str) -> dict[str, Any]:
         "num_voters": int(census["num_voters"]),
         "seed": cfg.seed,
         "treasury": money_str(player.ledger.balance),
+        "initial_budget": money_str(cfg.budget),
+        "workers": _workers(state, player),
         "costs": _costs(state),
         **_libraries(),
         "regions": _regions(state),

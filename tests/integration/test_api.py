@@ -52,6 +52,10 @@ def test_full_flow_through_the_api(client, finished):
     assert created["player_id"] == "p0" and obs["schema_version"] == "2.0" and obs["phase"] == "SURVEY"
     assert obs["seed"] == 42 and obs["num_voters"] == N and obs["rounds"] == ROUNDS and obs["treasury"] == "500.00"
     assert query["accepted"] and query["answer"]["cost"] == "5.00" and "round_report" not in query
+    assert set(query["answer"]) == {"round", "phase", "sector_a", "sector_b", "region", "pct_b_over_a", "sample_size",
+                                    "moe", "pooled_pct", "pooled_sample_size", "pooled_moe", "repeat_index", "cost"}
+    voters_n = next(r["voters"] for r in obs["regions"] if r["id"] == "N")
+    assert query["answer"]["sample_size"] == max(1, int(0.10 * voters_n + 0.5)) and query["answer"]["repeat_index"] == 1
     assert commit["accepted"] and commit["observation"]["phase"] == "ROUND" and "answer" not in commit
     assert len(commit["observation"]["polls"]) == 1 and len(commit["observation"]["free_stats"]) == 2
     assert allocate["accepted"] and allocate["round_report"]["round"] == 1 and not allocate["round_report"]["election_held"]
@@ -59,8 +63,46 @@ def test_full_flow_through_the_api(client, finished):
     final = forfeit["observation"]
     assert final["phase"] == "DONE" and final["round"] == ROUNDS and final["result"]["num_voters"] == N
     assert [a["cost"] for a in final["allocations"]] == [allocate["round_report"]["cost"], "0.00"]
+    # R19: round_reports grow by one per resolved round and equal the reports returned by allocate/forfeit
+    assert commit["observation"]["round_reports"] == []
+    assert allocate["observation"]["round_reports"] == [allocate["round_report"]]
+    assert final["round_reports"] == [allocate["round_report"], forfeit["round_report"]]
+    # R16: the one hire of round 1 persists
+    assert obs["workers"] == {"free": 10, "hired": 0, "available": 10}
+    assert allocate["observation"]["workers"] == {"free": 10, "hired": 1, "available": 11}
+    assert final["workers"] == {"free": 10, "hired": 1, "available": 11}
+    assert obs["initial_budget"] == final["initial_budget"] == "500.00"
     again = client.get(url(game, "observation")).json()
     assert again == final
+
+
+@pytest.mark.parametrize("budget,expected", [("500.00", "500.00"), ("1000.00", "1000.00"), ("750.5", "750.50"),
+                                             ("1000", "1000.00")])
+def test_budget_choice_accepted(client, budget, expected):
+    game = new_game(client, budget=budget)
+    obs = game["observation"]
+    assert obs["initial_budget"] == expected and obs["treasury"] == expected
+    commit = client.post(url(game, "commit"), json={"manifesto": [0.2] * 5}).json()
+    step = client.post(url(game, "allocate"), json={"workers_by_region": [3, 3, 3, 3], "extra_workers": 2,
+                                                      "media_regions": [False] * 4}).json()
+    assert commit["accepted"] and step["accepted"]
+    from decimal import Decimal
+    assert Decimal(step["observation"]["treasury"]) == Decimal(expected) - Decimal("8.00")
+    assert step["observation"]["initial_budget"] == expected
+    client.delete(f"/api/games/{game['game_id']}")
+
+
+@pytest.mark.parametrize("budget", ["499.99", "1000.01", "abc", "", "500.001", "NaN", "Infinity", 500, 750.0, "-600"])
+def test_budget_out_of_range_or_malformed_is_422(client, budget):
+    response = client.post("/api/games", json={"num_voters": N, "seed": 42, "rounds": ROUNDS, "budget": budget})
+    assert response.status_code == 422, response.text
+
+
+@pytest.mark.parametrize("body", [{}, {"budget": None}])
+def test_budget_defaults_to_500(client, body):
+    game = new_game(client, **body)
+    assert game["observation"]["initial_budget"] == "500.00" and game["observation"]["treasury"] == "500.00"
+    client.delete(f"/api/games/{game['game_id']}")
 
 
 def test_debrief_after_done(client, finished):
@@ -113,6 +155,18 @@ def test_debrief_409_before_done_and_rejections_are_200(client):
     assert bad["error_code"] == "INVALID_ALLOCATION"
     bad = client.post(url(game, "allocate"), json={**ALLOC, "extra_workers": 500}).json()
     assert bad["error_code"] == "INSUFFICIENT_FUNDS"
+
+
+def test_repeated_query_is_accepted_charged_and_pooled(client):
+    game = new_game(client)
+    body = {"sector_a": "Agri", "sector_b": "Env", "region": "W"}
+    first = client.post(url(game, "query"), json=body).json()
+    second = client.post(url(game, "query"), json=body).json()
+    assert first["accepted"] and second["accepted"] and second["error_code"] is None
+    assert second["answer"]["repeat_index"] == 2
+    assert second["answer"]["pooled_sample_size"] == 2 * first["answer"]["sample_size"]
+    assert second["observation"]["treasury"] == "490.00" and len(second["observation"]["queries"]) == 2
+    assert second["observation"]["queries"][-1] == second["answer"]
 
 
 def test_http_errors(client):

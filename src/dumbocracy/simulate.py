@@ -30,6 +30,12 @@ class RoundContext:
     manifesto: torch.Tensor
     prior_airings: tuple[int, int, int, int]
     config: GameConfig
+    hired: int = 0                 # R16: permanent hires from earlier rounds (available = free + hired)
+
+    @property
+    def available_workers(self) -> int:
+        """Workers usable this round before new hires: ``free_workers + hired`` (R16)."""
+        return self.config.workers.free_workers + self.hired
 
 
 Policy = Callable[[RoundContext], Allocation]
@@ -61,15 +67,18 @@ def simulate_world(electorate: Electorate, config: GameConfig, manifesto: torch.
     airings = [0, 0, 0, 0]
     trajectory = [current_share(v, manifesto, config)]
     allocations: list[Allocation] = []
+    hired = 0   # R16: permanent hires accumulate exactly as in the engine
     for t in range(config.rounds):
-        ctx = RoundContext(t, config.rounds, budget, v, electorate, manifesto, tuple(airings), config)
+        ctx = RoundContext(t, config.rounds, budget, v, electorate, manifesto, tuple(airings), config, hired)
         allocation = policy(ctx)
-        allocation.validate(config.workers.free_workers)
+        allocation.validate(config.workers.free_workers, hired)
         generators = {name: seeds.generator(name, t, player, device=device) for name in ("workers", "cascade", "media")}
-        outcome = campaign_round(electorate, allocation, tuple(airings), config.workers, config.media, generators)
+        outcome = campaign_round(electorate, allocation, tuple(airings), config.workers, config.media, generators,
+                                 hired_workers=hired)
         if outcome.cost > budget:
             raise ValueError(f"policy overspent in round {t}: cost {outcome.cost} > budget {budget}")
         budget -= outcome.cost
+        hired += allocation.extra_workers
         airings = [a + int(aired) for a, aired in zip(airings, allocation.media_regions)]
         aggregated = aggregate(v, electorate.graph, config.dynamics.social_rule, config.dynamics.wmsr_trim)
         v = step_preferences(v, aggregated, social_weight, outcome.intensity.unsqueeze(0), manifesto.unsqueeze(0), sus.zealot)

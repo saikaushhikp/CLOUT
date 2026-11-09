@@ -1,0 +1,260 @@
+{
+ "experiment": "E7 scale",
+ "rows": [
+  {
+   "num_voters": 10000,
+   "device": "cuda:2",
+   "generation_canonical_s": [
+    0.4907225891947746,
+    0.4189394451677799,
+    0.41770922765135765
+   ],
+   "edges": 149545,
+   "generation_device_s": [
+    0.2668489031493664,
+    0.011033773422241211,
+    0.010668601840734482
+   ],
+   "peak_gpu_generation_gib": 0.04626131057739258,
+   "new_game_s": 0.02029414474964142,
+   "round_s": [
+    0.007627598941326141,
+    0.004952918738126755,
+    0.004842199385166168,
+    0.004596296697854996,
+    0.0046622976660728455
+   ],
+   "phase_after": "DONE",
+   "full_game": {
+    "top3": {
+     "seconds": 0.027076154947280884,
+     "actions": 6,
+     "phase": "DONE"
+    },
+    "bayes": {
+     "seconds": 3.4101087115705013,
+     "actions": 8,
+     "phase": "DONE"
+    }
+   },
+   "peak_gpu_engine_gib": 0.014032840728759766,
+   "peak_gpu_gib": 0.04626131057739258,
+   "peak_host_rss_gib": 1.5599136352539062,
+   "wall_s": 7.294701367616653
+  },
+  {
+   "num_voters": 100000,
+   "device": "cuda:2",
+   "generation_canonical_s": [
+    0.44382932409644127,
+    0.3979496508836746,
+    0.38882021978497505
+   ],
+   "edges": 1498340,
+   "generation_device_s": [
+    0.25571296736598015,
+    0.015699833631515503,
+    0.015300951898097992
+   ],
+   "peak_gpu_generation_gib": 0.3252277374267578,
+   "new_game_s": 0.02170242741703987,
+   "round_s": [
+    0.011897645890712738,
+    0.006625600159168243,
+    0.00642719492316246,
+    0.0062009356915950775,
+    0.005576811730861664
+   ],
+   "phase_after": "DONE",
+   "full_game": {
+    "top3": {
+     "seconds": 0.034876029938459396,
+     "actions": 6,
+     "phase": "DONE"
+    },
+    "bayes": {
+     "seconds": 3.266450949013233,
+     "actions": 8,
+     "phase": "DONE"
+    }
+   },
+   "peak_gpu_engine_gib": 0.1429753303527832,
+   "peak_gpu_gib": 0.3252277374267578,
+   "peak_host_rss_gib": 1.5976676940917969,
+   "wall_s": 6.975049834698439
+  },
+  {
+   "num_voters": 1000000,
+   "device": "cuda:2",
+   "generation_canonical_s": [
+    6.5342679284513,
+    6.267498541623354,
+    6.328607093542814
+   ],
+   "edges": 14995208,
+   "generation_device_s": [
+    0.25346556305885315,
+    0.07523341104388237,
+    0.0744331106543541
+   ],
+   "peak_gpu_generation_gib": 3.2021327018737793,
+   "new_game_s": 0.0359906405210495,
+   "round_s": [
+    0.029823243618011475,
+    0.027313996106386185,
+    0.028003763407468796,
+    0.02776879072189331,
+    0.01987414062023163
+   ],
+   "phase_after": "DONE",
+   "full_game": {
+    "top3": {
+     "seconds": 0.1439969502389431,
+     "actions": 6,
+     "phase": "DONE"
+    },
+    "bayes": {
+     "seconds": 3.2364577427506447,
+     "actions": 8,
+     "phase": "DONE"
+    }
+   },
+   "peak_gpu_engine_gib": 1.4104318618774414,
+   "peak_gpu_gib": 3.2021327018737793,
+   "peak_host_rss_gib": 3.1846084594726562,
+   "wall_s": 25.20735900476575
+  },
+  {
+   "num_voters": 10000,
+   "device": "cpu",
+   "generation_canonical_s": [
+    0.4992343708872795,
+    0.4292110837996006,
+    0.3916838616132736
+   ],
+   "edges": 149545,
+   "new_game_s": 0.0024114511907100677,
+   "round_s": [
+    0.017792031168937683,
+    0.01619160920381546,
+    0.01606040820479393,
+    0.016302302479743958,
+    0.01603706181049347
+   ],
+   "phase_after": "DONE",
+   "full_game": {
+    "top3": {
+     "seconds": 0.08533672243356705,
+     "actions": 6,
+     "phase": "DONE"
+    },
+    "bayes": {
+     "seconds": 3.20267478749156,
+     "actions": 8,
+     "phase": "DONE"
+    }
+   },
+   "peak_gpu_engine_gib": null,
+   "peak_gpu_gib": null,
+   "peak_host_rss_gib": 1.0558319091796875,
+   "wall_s": 6.538354642689228
+  },
+  {
+   "num_voters": 100000,
+   "device": "cpu",
+   "generation_canonical_s": [
+    0.44209546223282814,
+    0.36281299591064453,
+    0.3566037267446518
+   ],
+   "edges": 1498340,
+   "new_game_s": 0.014655239880084991,
+   "round_s": [
+    0.1381666399538517,
+    0.15266866981983185,
+    0.14938486367464066,
+    0.1514345072209835,
+    0.148297481238842
+   ],
+   "phase_after": "DONE",
+   "full_game": {
+    "top3": {
+     "seconds": 0.7426686398684978,
+     "actions": 6,
+     "phase": "DONE"
+    },
+    "bayes": {
+     "seconds": 3.7628332674503326,
+     "actions": 8,
+     "phase": "DONE"
+    }
+   },
+   "peak_gpu_engine_gib": null,
+   "peak_gpu_gib": null,
+   "peak_host_rss_gib": 1.1348533630371094,
+   "wall_s": 8.283311013132334
+  },
+  {
+   "num_voters": 1000000,
+   "device": "cpu",
+   "generation_canonical_s": [
+    5.37419056147337,
+    5.332394931465387,
+    5.289939735084772
+   ],
+   "edges": 14995208,
+   "new_game_s": 0.29406607896089554,
+   "round_s": [
+    2.059746526181698,
+    2.0863940976560116,
+    2.0760462507605553,
+    2.053310927003622,
+    2.0494627505540848
+   ],
+   "phase_after": "DONE",
+   "full_game": {
+    "top3": {
+     "seconds": 10.522538397461176,
+     "actions": 6,
+     "phase": "DONE"
+    },
+    "bayes": {
+     "seconds": 13.4585095718503,
+     "actions": 8,
+     "phase": "DONE"
+    }
+   },
+   "peak_gpu_engine_gib": null,
+   "peak_gpu_gib": null,
+   "peak_host_rss_gib": 3.4934959411621094,
+   "wall_s": 52.876747380942106
+  }
+ ],
+ "provenance": {
+  "git": "d9f74c9+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:2",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 1,
+  "threads_per_worker": 4,
+  "seconds": 107.17662602290511,
+  "args": {
+   "n": [
+    10000,
+    100000,
+    1000000
+   ],
+   "device": "cuda:2",
+   "cpu_too": true,
+   "repeats": 3,
+   "seed": 20261107,
+   "seeds": 1,
+   "no_bayes": false,
+   "child": null,
+   "out": "reports/v2/e7_scale.json"
+  },
+  "command": "python experiments/e7_scale.py --n 10000 100000 1000000 --device cuda:2 --cpu-too --repeats 3 --out reports/v2/e7_scale.json"
+ }
+}

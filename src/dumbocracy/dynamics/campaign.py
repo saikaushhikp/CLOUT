@@ -270,27 +270,34 @@ def worker_cost(extra_workers: int, unit_cost: Decimal) -> Decimal:
 
 @dataclass(frozen=True)
 class Allocation:
-    """One player's campaign allocation for one round (spec §3, §7).
+    """One player's campaign allocation for one round (spec §3, §7; R16).
 
-    ``workers_by_region`` counts free + extra workers assigned per region; unassigned workers are
-    allowed and simply wasted.
+    ``extra_workers`` are NEW permanent hires made this round (paid once; they keep working in every
+    later round). ``workers_by_region`` counts the workers assigned this round, drawn from the free
+    workers, every earlier hire and this round's new hires; unassigned workers are allowed and idle.
     """
 
     workers_by_region: tuple[int, int, int, int]
     extra_workers: int = 0
     media_regions: tuple[bool, bool, bool, bool] = (False, False, False, False)
 
-    def validate(self, free_workers: int) -> None:
-        """Raise ``ValueError`` for wrong lengths, negative counts or over-assignment."""
+    def validate(self, free_workers: int, hired: int = 0) -> None:
+        """Raise ``ValueError`` for wrong lengths, negative counts or over-assignment.
+
+        ``hired`` = permanent hires made in EARLIER rounds (R16); the assignable total is
+        ``free_workers + hired + extra_workers``.
+        """
         if not _is_int(free_workers) or free_workers < 0:
             raise ValueError("free_workers must be a non-negative integer")
+        if not _is_int(hired) or hired < 0:
+            raise ValueError("hired must be a non-negative integer")
         workers = _non_negative_ints(self.workers_by_region, "workers_by_region")
         if not _is_int(self.extra_workers) or self.extra_workers < 0:
             raise ValueError("extra_workers must be a non-negative integer")
         _flags(self.media_regions, "media_regions")
-        if sum(workers) > free_workers + self.extra_workers:
-            raise ValueError(f"assigned {sum(workers)} workers but only {free_workers} free + "
-                             f"{self.extra_workers} extra are available")
+        if sum(workers) > free_workers + hired + self.extra_workers:
+            raise ValueError(f"assigned {sum(workers)} workers but only {free_workers} free + {hired} hired + "
+                             f"{self.extra_workers} new hires are available")
 
 
 @dataclass(frozen=True, eq=False)
@@ -310,13 +317,16 @@ class CampaignOutcome:
 
 def campaign_round(electorate: Electorate, allocation: Allocation, prior_airings: Sequence[int],
                    worker_cfg: WorkerConfig, media_cfg: MediaConfig,
-                   generators: dict[str, torch.Generator]) -> CampaignOutcome:
+                   generators: dict[str, torch.Generator], *, hired_workers: int = 0) -> CampaignOutcome:
     """Compose workers → SIR cascade → media into one player's intensity ``c^p`` (spec §3).
+
+    ``hired_workers`` = the player's permanent hires from earlier rounds (R16), used only to validate
+    the worker count; the cost covers this round's new hires and media only.
 
     ``generators`` must provide ``"workers"``, ``"cascade"`` and ``"media"`` on the electorate's
     device. Cascade seeds are the directly contacted voters; zealots cannot spread and are frozen.
     """
-    allocation.validate(worker_cfg.free_workers)
+    allocation.validate(worker_cfg.free_workers, hired_workers)
     missing = {"workers", "cascade", "media"} - set(generators)
     if missing:
         raise ValueError(f"missing generators: {sorted(missing)}")

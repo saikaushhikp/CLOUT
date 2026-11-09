@@ -14,7 +14,7 @@ import torch
 
 SEED_STREAMS: tuple[str, ...] = (
     "regions", "graph", "block_probs", "preferences", "attributes", "zealots",
-    "workers", "cascade", "media", "poll", "election", "strategy", "worlds",
+    "workers", "cascade", "media", "poll", "election", "strategy", "worlds", "survey",
 )
 
 
@@ -130,11 +130,13 @@ class VotingConfig:
 @dataclass(frozen=True, slots=True)
 class SurveyConfig:
     query_cost: Decimal = Decimal("5.00")                 # U8
+    query_sample_fraction: float = 0.10                   # R12: share of the region sampled per query
     poll_size: int = 400                                  # ⚙ §6.4
     consistency_tolerance: float = 0.02                   # ⚙ ε §10.1 (fraction, not %)
 
     def __post_init__(self) -> None:
         _money(self.query_cost, "query_cost")
+        _check(0.0 < _finite(self.query_sample_fraction, "query_sample_fraction") <= 1.0, "query_sample_fraction must lie in (0, 1]")
         _check(isinstance(self.poll_size, int) and self.poll_size >= 1, "poll_size must be an integer >= 1")
         _prob(self.consistency_tolerance, "consistency_tolerance")
 

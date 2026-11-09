@@ -47,3 +47,34 @@ def test_optimiser_finds_the_cluster_and_satisfies_kkt():
     assert sol.kkt_residual < 1e-3
     assert float((sol.manifesto - centre).abs().sum()) < 0.15
     assert sol.share > float(expected_share(v, torch.full((5,), 0.2, dtype=torch.float64), 12.0, 0.75))
+
+
+def _two_cluster_electorate(n=3000, seed=4):
+    gen = torch.Generator().manual_seed(seed)
+    centres = torch.tensor([[0.4, 0.1, 0.1, 0.25, 0.15], [0.15, 0.2, 0.4, 0.1, 0.15],
+                            [0.25, 0.1, 0.1, 0.15, 0.4], [0.2, 0.2, 0.2, 0.2, 0.2]], dtype=torch.float64)
+    region_of = torch.arange(4).repeat_interleave(n // 4)
+    alpha = 60 * centres[region_of]
+    from dumbocracy.rng import dirichlet
+    return dirichlet(alpha, gen), region_of
+
+
+def test_admm_matches_centralised_projected_gradient():
+    from dumbocracy.strategies.manifesto_opt import admm_manifesto
+    v, region_of = _two_cluster_electorate()
+    central = optimise_manifesto(v, 20.0, 0.825)
+    admm = admm_manifesto(v, region_of, 20.0, 0.825, start=central.manifesto)
+    assert abs(admm.share - central.share) < 2e-3
+    assert float((admm.manifesto - central.manifesto).abs().sum()) < 0.05
+    assert admm.primal_residuals[-1] < 1e-3          # local copies agree with the consensus
+    assert torch.allclose(admm.manifesto.sum(), torch.tensor(1.0, dtype=torch.float64))
+
+
+def test_admm_from_uniform_start_improves_and_converges():
+    from dumbocracy.strategies.manifesto_opt import admm_manifesto
+    v, region_of = _two_cluster_electorate(seed=5)
+    uniform = torch.full((5,), 0.2, dtype=torch.float64)
+    admm = admm_manifesto(v, region_of, 20.0, 0.825)
+    assert admm.share >= float(expected_share(v, uniform, 20.0, 0.825)) - 1e-9
+    assert admm.primal_residuals[-1] < admm.primal_residuals[0] + 1e-12 or admm.primal_residuals[-1] < 1e-3
+    assert admm.dual_residuals[-1] < 1e-2

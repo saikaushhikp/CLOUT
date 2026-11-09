@@ -4,7 +4,8 @@
  * It is a tiny fake engine, not the real model: each region is represented by a few hundred
  * "representative voters" (Dirichlet preferences around a hidden archetype, Beta susceptibilities
  * from a hidden personality, 5% zealots). Rules, costs, phases, rejection codes, polls, round
- * resolution, the election, the debrief and the graph sample follow the contract so the UI can be
+ * resolution, the election, the debrief, the epistemic timeline (a cheap heuristic stand-in for the
+ * P5 possible-worlds computation) and the graph sample follow the contract so the UI can be
  * built and tested without the Python backend. Enabled with NEXT_PUBLIC_DUMBOCRACY_MOCK=1.
  */
 import type { DumbocracyClient } from "./api";
@@ -14,6 +15,8 @@ import type {
   AllocateRequest,
   CreateGameRequest,
   Debrief,
+  EpistemicRound,
+  EpistemicTimeline,
   ErrorCode,
   GraphSample,
   Observation,
@@ -23,6 +26,7 @@ import type {
 } from "./types";
 import { REGION_IDS, SECTOR_IDS } from "./types";
 import { centsToString, toCents } from "./money";
+import { poolKey, pooledMoe, querySampleSize, sampleMoe } from "./survey";
 
 // ---------------------------------------------------------------- public libraries (spec §2.3–2.4, §14)
 const ARCHETYPES = [
@@ -43,7 +47,9 @@ const SECTOR_LABELS = ["Education", "Welfare", "Agriculture", "Industry", "Envir
 const REGION_LABELS = ["North", "South", "East", "West"];
 
 const P = {
-  budget: "500.00",
+  budget: "500.00", // default starting treasury (R17: the player may choose 500.00..1000.00)
+  budgetMin: 50000, // cents
+  budgetMax: 100000,
   query: "5.00",
   extraWorker: "4.00",
   freeWorkers: 10,
@@ -119,6 +125,20 @@ function shuffle<T>(rng: Rng, xs: T[]): T[] {
   }
   return a;
 }
+/** Successes in m draws without replacement from a population of n containing k successes. */
+function hypergeometric(rng: Rng, n: number, k: number, m: number): number {
+  let good = Math.max(0, Math.min(n, k));
+  let left = n;
+  let yes = 0;
+  for (let t = 0; t < m && left > 0; t++) {
+    if (rng() * left < good) {
+      yes++;
+      good--;
+    }
+    left--;
+  }
+  return yes;
+}
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 const tv = (a: number[], b: number[]) => a.reduce((s, x, i) => s + Math.abs(x - b[i]), 0) / 2;
 const clone = <T,>(x: T): T => JSON.parse(JSON.stringify(x)) as T;
@@ -140,6 +160,8 @@ type MockGame = {
   initialReps: number[][];
   eventSeq: number;
   lastTouched: number;
+  /** pooled query tallies per (triple, phase, round) — hidden counts behind the public pooled estimate */
+  pools: Map<string, { yes: number; m: number; count: number }>;
 };
 
 function regionSizes(n: number, rng: Rng): number[] {
@@ -250,6 +272,25 @@ function oracleManifesto(game: MockGame): number[] {
 }
 
 // ---------------------------------------------------------------- engine
+/** One-sentence summary of a timeline (mirrors the engine's headline style). */
+export function epistemicHeadline(rounds: EpistemicRound[], victory: boolean): string {
+  const first = (k: keyof EpistemicRound) => rounds.find((r) => r[k] === true)?.round;
+  const truthAll = rounds.every((r) => r.truth_victory_possible);
+  const truthLost = rounds.find((r) => !r.truth_victory_possible)?.round;
+  const how = first("guaranteed_victory");
+  const that = first("knows_win_exists");
+  const doom = first("inevitable_defeat");
+  const a = truthAll ? "Victory was possible throughout" : truthLost === 1 ? "Victory was out of reach from the start" : `Victory slipped out of reach in round ${truthLost}`;
+  const b = how
+    ? `you knew a winning plan from round ${how}`
+    : that
+      ? `you knew a win existed from round ${that}, but never which single plan would deliver it`
+      : doom
+        ? `you could tell defeat was inevitable from round ${doom}`
+        : "you never knew a plan that would surely win";
+  return `${a}; ${b}${victory ? " — and you won." : "."}`;
+}
+
 export type MockOptions = { latencyMs?: number; maxGames?: number };
 
 export function createMockClient(options: MockOptions = {}): DumbocracyClient {
@@ -309,6 +350,11 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     if (!Number.isInteger(rounds) || rounds < 1 || rounds > 10) throw new ApiError(422, "rounds must be 1..10");
     const seed = req.seed ?? Math.floor(Math.random() * 2 ** 31);
     if (!Number.isInteger(seed) || seed < 0) throw new ApiError(422, "seed must be a non-negative integer");
+    const budget = req.budget ?? P.budget;
+    if (typeof budget !== "string" || !/^\d+(\.\d{1,2})?$/.test(budget.trim()))
+      throw new ApiError(422, "budget must be a decimal string with at most 2 dp");
+    const budgetCents = toCents(budget);
+    if (budgetCents < P.budgetMin || budgetCents > P.budgetMax) throw new ApiError(422, "budget must be 500.00..1000.00");
 
     if (games.size >= maxGames) {
       const oldest = [...games.values()].sort((a, b) => a.lastTouched - b.lastTouched)[0];
@@ -364,7 +410,10 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       rounds,
       num_voters: n,
       seed,
-      treasury: P.budget,
+      treasury: centsToString(budgetCents),
+      initial_budget: centsToString(budgetCents),
+      workers: { free: P.freeWorkers, hired: 0, available: P.freeWorkers },
+      round_reports: [],
       costs: {
         query: P.query,
         extra_worker: P.extraWorker,
@@ -412,6 +461,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       initialReps: reps.map((r) => r.v.slice()),
       eventSeq: 0,
       lastTouched: Date.now() + counter++,
+      pools: new Map(),
     };
     refreshMediaPrices(game);
     obs.free_stats.push({ round: 0, top3_pct: top3Pct(game) });
@@ -429,23 +479,43 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     const ir = REGION_IDS.indexOf(region as never);
     if (ia < 0 || ib < 0 || ir < 0 || ia === ib) return reject(game, "INVALID_QUERY", "Pick two different sectors and a valid region.");
     const phase = o.phase as "SURVEY" | "ROUND";
-    if (o.queries.some((q) => q.round === o.round && q.phase === phase && q.sector_a === a && q.sector_b === b && q.region === region))
-      return reject(game, "DUPLICATE_QUERY", "Identical query already asked this round.");
     if (toCents(o.treasury) < toCents(o.costs.query)) return reject(game, "INSUFFICIENT_FUNDS", "Treasury too low for a query.");
+    // R12: a fresh uniform sample (without replacement) of m = round(0.1·n_r) voters. The mock region is
+    // a few hundred representatives; scale it to n_r voters and draw a hypergeometric sample.
     const idxs = game.repsByRegion[ir];
-    const yes = idxs.filter((i) => game.reps[i].v[ib] > game.reps[i].v[ia]).length;
+    const repYes = idxs.filter((i) => game.reps[i].v[ib] > game.reps[i].v[ia]).length;
+    const nr = game.sizes[ir];
+    const m = querySampleSize(nr);
+    const yes = hypergeometric(streamOf(o.seed, `survey:${o.round}:${phase}:${o.queries.length}`), nr, Math.round((repYes / idxs.length) * nr), m);
+    const key = poolKey({ sector_a: a, sector_b: b, region, phase, round: o.round });
+    const pool = game.pools.get(key) ?? { yes: 0, m: 0, count: 0 };
+    pool.yes += yes;
+    pool.m += m;
+    pool.count += 1;
+    game.pools.set(key, pool);
     const answer: QueryAnswer = {
       round: o.round,
       phase,
       sector_a: a,
       sector_b: b,
       region,
-      pct_b_over_a: r2((100 * yes) / idxs.length),
+      pct_b_over_a: r2((100 * yes) / m),
+      sample_size: m,
+      moe: r2(sampleMoe(yes, m, nr)),
+      pooled_pct: r2((100 * pool.yes) / pool.m),
+      pooled_sample_size: pool.m,
+      pooled_moe: r2(pooledMoe(pool.yes, pool.m)),
+      repeat_index: pool.count,
       cost: o.costs.query,
     };
     o.treasury = centsToString(toCents(o.treasury) - toCents(o.costs.query));
     o.queries.push(answer);
-    event(game, "query", `Query: ${answer.pct_b_over_a.toFixed(1)}% of ${REGION_LABELS[ir]} prefer ${b} over ${a}.`);
+    event(
+      game,
+      "query",
+      `Query: ${answer.pct_b_over_a.toFixed(1)}% ± ${answer.moe.toFixed(1)} of a ${m}-voter ${REGION_LABELS[ir]} sample prefer ${b} over ${a}` +
+        (pool.count > 1 ? ` (pooled ${answer.pooled_pct.toFixed(1)}% ± ${answer.pooled_moe.toFixed(1)}, n = ${pool.m}).` : "."),
+    );
     return { accepted: true, error_code: null, message: null, observation: clone(o), answer: clone(answer) };
   }
 
@@ -488,8 +558,9 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       req.media_regions.length === 4 &&
       req.media_regions.every((x) => typeof x === "boolean");
     if (!okShape) return reject(game, "INVALID_ALLOCATION", "Malformed allocation.");
-    if (w.reduce((s, x) => s + x, 0) > o.costs.free_workers + req.extra_workers)
-      return reject(game, "INVALID_ALLOCATION", "More workers assigned than free + extra.");
+    // R16: hires are permanent — the pool is free + every earlier hire + this round's new hires.
+    if (w.reduce((s, x) => s + x, 0) > o.workers.available + req.extra_workers)
+      return reject(game, "INVALID_ALLOCATION", "More workers assigned than available + new hires.");
     const costCents =
       req.extra_workers * toCents(o.costs.extra_worker) +
       REGION_IDS.reduce((s, r, i) => (req.media_regions[i] ? s + toCents(o.costs.media_by_region[r]) : s), 0);
@@ -538,6 +609,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       if (req.media_regions[i]) o.media_airings[r] += 1;
     });
     o.treasury = centsToString(toCents(o.treasury) - costCents);
+    o.workers = { free: o.workers.free, hired: o.workers.hired + req.extra_workers, available: o.workers.available + req.extra_workers };
     o.allocations.push({
       round: t,
       workers_by_region: w.slice(),
@@ -563,6 +635,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       media_exposed: mediaExposed,
       election_held: false,
     };
+    o.round_reports.push(report);
     if (t < o.rounds) {
       o.round = t + 1;
       o.free_stats.push({ round: t + 1, top3_pct: top3Pct(game) });
@@ -579,7 +652,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       event(game, "election", `Election held: ${votes.toLocaleString("en-US")} votes (${((100 * votes) / n).toFixed(1)}%). ${votes > n / 2 ? "VICTORY" : "DEFEAT"}.`);
     }
     legal(game);
-    return { accepted: true, error_code: null, message: null, observation: clone(o), round_report: report };
+    return { accepted: true, error_code: null, message: null, observation: clone(o), round_report: clone(report) };
   }
 
   function graphSample(game: MockGame, maxNodes: number): GraphSample {
@@ -627,8 +700,9 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       const b = game.obs.manifesto;
       alignment = game.vHistory.map((snap) =>
         repOf.map((ri) => {
-          const s = 1 - tv(snap[ri], b);
-          return s >= 0.9 ? 4 : s >= 0.85 ? 3 : s >= 0.8 ? 2 : s >= 0.72 ? 1 : 0;
+          // R15: bin each voter's vote probability at 10/40/60/90% (same as engine.alignment_bins).
+          const p = sigmoid(P.betaV * (1 - tv(snap[ri], b) - P.z));
+          return p > 0.9 ? 4 : p > 0.6 ? 3 : p > 0.4 ? 2 : p > 0.1 ? 1 : 0;
         }),
       );
     }
@@ -660,6 +734,80 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     };
   }
 
+  /**
+   * Mock P5 timeline. Not the real Kripke computation: each decision point samples W worlds whose
+   * share sits around the true trajectory with a spread that shrinks as knowledge (queries + polls)
+   * accumulates, then evaluates a small fixed plan set in each. Deterministic per seed; it respects
+   * the contract invariants (guaranteed ⇒ knows-that ⇒ possible; inevitable_defeat = ¬possible).
+   */
+  function epistemic(game: MockGame): EpistemicTimeline {
+    const o = game.obs;
+    const T = o.rounds;
+    const W = 16;
+    const rng = streamOf(o.seed, "epistemic");
+    const plans = [
+      { label: "Hold back (no campaign)", lift: 0 },
+      { label: "Free workers, spread evenly", lift: 0.006 },
+      { label: "Canvass the swing region", lift: 0.011 },
+      { label: "Workers + media blitz", lift: 0.016 },
+    ];
+    const win = (share: number) => share > 0.5;
+    const spentBefore = (t: number) =>
+      o.queries.filter((q) => q.round < t).reduce((a, q) => a + toCents(q.cost), 0) +
+      o.allocations.filter((a) => a.round < t).reduce((a, al) => a + toCents(al.cost), 0);
+    const rounds: EpistemicRound[] = [];
+    for (let t = 1; t <= T; t++) {
+      const left = T - t + 1;
+      const truthNow = game.trajectory[t - 1] ?? game.trajectory[0] ?? 0.5;
+      const queries = o.queries.filter((q) => q.round < t).length;
+      const polls = o.polls.filter((p) => p.round <= t).length;
+      const spread = 0.07 / Math.sqrt(1 + 0.5 * queries + polls);
+      const bias = (rng() - 0.5) * spread;
+      const worlds = Array.from({ length: W }, () => truthNow + bias + spread * gauss(rng));
+      const finals = plans.map((pl) => worlds.map((w) => w + pl.lift * left));
+      const winFrac = finals.map((f) => f.filter(win).length / W);
+      let best = 0;
+      winFrac.forEach((f, i) => {
+        const mean = (k: number) => finals[k].reduce((a, x) => a + x, 0) / W;
+        if (f > winFrac[best] || (f === winFrac[best] && mean(i) > mean(best))) best = i;
+      });
+      const possible = winFrac.some((f) => f > 0);
+      const knowsThat = worlds.every((_, w) => finals.some((f) => win(f[w])));
+      const guaranteed = winFrac.some((f) => f === 1);
+      // entropy (bits) of the posterior over W worlds, discretised into 0.5-pt share bins
+      const bins = new Map<number, number>();
+      worlds.forEach((w) => bins.set(Math.round(w * 200), (bins.get(Math.round(w * 200)) ?? 0) + 1));
+      const entropy = [...bins.values()].reduce((h, c) => h - (c / W) * Math.log2(c / W), 0);
+      rounds.push({
+        round: t,
+        treasury: centsToString(toCents(o.initial_budget) - spentBefore(t)),
+        knowledge: { queries, polls, posterior_entropy: Math.round(entropy * 1000) / 1000, consistent_worlds: W },
+        possible_victory: possible,
+        guaranteed_victory: guaranteed,
+        knows_win_exists: knowsThat || guaranteed,
+        inevitable_defeat: !possible,
+        truth_victory_possible: win(truthNow + plans[plans.length - 1].lift * left),
+        best_plan: {
+          label: plans[best].label,
+          win_fraction: winFrac[best],
+          mean_share: finals[best].reduce((a, x) => a + x, 0) / W,
+        },
+      });
+    }
+    const r = o.result!;
+    return {
+      scope: {
+        worlds_per_round: W,
+        policies_per_round: plans.length,
+        world_voters: 1600,
+        note: "MOCK: heuristic stand-in for the possible-worlds computation; finite worlds and plans only.",
+      },
+      rounds,
+      actual: { victory: r.victory, vote_share: r.vote_share, expected_share: r.expected_share },
+      headline: epistemicHeadline(rounds, r.victory),
+    };
+  }
+
   const guard = <T,>(fn: () => T): Promise<T> => {
     try {
       return wait(fn());
@@ -685,6 +833,12 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
         const game = getGame(g, p);
         if (game.obs.phase !== "DONE") throw new ApiError(409, "Debrief is available only after the election.");
         return debrief(game);
+      }),
+    epistemic: (g, p) =>
+      guard(() => {
+        const game = getGame(g, p);
+        if (game.obs.phase !== "DONE") throw new ApiError(409, "The epistemic timeline is available only after the election.");
+        return epistemic(game);
       }),
     deleteGame: (g) =>
       guard(() => {

@@ -1,13 +1,104 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BarChart3, Lock, LockOpen, Loader2, Shuffle, Stamp, Wand2 } from "lucide-react";
+import { BarChart3, ChevronDown, ChevronUp, Info, Lock, LockOpen, Loader2, Shuffle, Stamp, Wand2 } from "lucide-react";
 import { useGame, useObservation } from "@/lib/game";
-import { SECTOR_META, sectorLabel } from "@/lib/constants";
+import { BLEND_MAX, BLEND_MIN, REGION_META, SECTOR_META, sectorLabel } from "@/lib/constants";
 import { percentToManifesto, rebalance, similarity, toIntegerSimplex } from "@/lib/simplex";
-import { blendGuesses } from "@/lib/insight";
+import { blendSelected, largestHunchRegions, regionsWithHunch } from "@/lib/insight";
+import { fmtInt } from "@/lib/format";
+import type { Observation, RegionId } from "@/lib/types";
 import { SECTOR_IDS } from "@/lib/types";
-import { Panel, SectorSwatch } from "./ui";
+import { Panel, RegionPip, SectorSwatch, StackBar } from "./ui";
+
+export const BLEND_HELP =
+  "Takes the archetype you picked for each chosen region and averages their budget profiles, weighted by how many voters live there.";
+
+/**
+ * "Blend my hunches" picker (R20): choose WHICH regions (2–4) to blend. Regions without a hunch are disabled.
+ * Applying sets the sliders to the voter-weighted average of the chosen regions' hunch archetypes.
+ */
+export function BlendPicker({
+  obs,
+  hunches,
+  onApply,
+}: {
+  obs: Pick<Observation, "regions" | "archetype_library">;
+  hunches: Record<string, string | undefined>;
+  onApply: (blend: number[], regions: string[]) => void;
+}) {
+  const eligible = regionsWithHunch(obs, hunches);
+  const [chosen, setChosen] = useState<string[]>(() => eligible.slice(0, BLEND_MAX));
+  // drop regions whose hunch was cleared
+  const picked = chosen.filter((r) => eligible.includes(r));
+  const blend = blendSelected(obs, hunches, picked, BLEND_MIN, BLEND_MAX);
+  const totalVoters = picked.reduce((a, r) => a + (obs.regions.find((x) => x.id === r)?.voters ?? 0), 0);
+  const toggle = (id: string) =>
+    setChosen((c) => (c.includes(id) ? c.filter((x) => x !== id) : c.length >= BLEND_MAX ? c : [...c, id]));
+  const tooFew = picked.length < BLEND_MIN;
+  return (
+    <fieldset className="blend-picker" aria-describedby="blend-help">
+      <legend>Blend which regions?</legend>
+      <p id="blend-help" className="stat-sub blend-help">
+        <Info size={13} aria-hidden style={{ verticalAlign: "-2px", marginRight: 4 }} />
+        {BLEND_HELP} Pick {BLEND_MIN}–{BLEND_MAX} regions; set a hunch in the region dossiers to enable a region.
+      </p>
+      <div className="row" style={{ gap: 6 }}>
+        <span className="stat-sub">Shortcuts:</span>
+        {[2, 3].map((k) => (
+          <button
+            key={k}
+            type="button"
+            className="btn btn-sm"
+            disabled={eligible.length < k}
+            onClick={() => setChosen(largestHunchRegions(obs, hunches, k))}
+          >
+            {k} largest
+          </button>
+        ))}
+      </div>
+      <ul className="list-plain blend-list">
+        {obs.regions.map((r) => {
+          const arch = obs.archetype_library.find((a) => a.id === hunches[r.id]);
+          const on = picked.includes(r.id);
+          const id = `blend-${r.id}`;
+          const weight = on && totalVoters > 0 ? (100 * r.voters) / totalVoters : null;
+          return (
+            <li key={r.id} className={`blend-row ${arch ? "" : "is-disabled"}`}>
+              <input
+                id={id}
+                type="checkbox"
+                checked={on}
+                disabled={!arch || (!on && picked.length >= BLEND_MAX)}
+                onChange={() => toggle(r.id)}
+                aria-describedby={`${id}-sub`}
+              />
+              <label htmlFor={id} className="blend-label">
+                <RegionPip id={r.id} size={20} />
+                <span>
+                  <b>{REGION_META[r.id as RegionId]?.label ?? r.id}</b>
+                  <small id={`${id}-sub`} className="stat-sub">
+                    {fmtInt(r.voters)} voters · {arch ? `hunch: ${arch.name}` : "no hunch yet"}
+                    {weight !== null ? ` · weight ${weight.toFixed(0)}%` : ""}
+                  </small>
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      {blend ? <StackBar mean={blend} label="Blend preview" showPct /> : null}
+      <div className="row-between" style={{ marginTop: 8 }}>
+        <span className={`stat-sub ${tooFew ? "bad" : ""}`} role="status">
+          {tooFew ? `Choose at least ${BLEND_MIN} regions with a hunch.` : `${picked.length} regions selected.`}
+        </span>
+        <button type="button" className="btn btn-sm btn-primary" disabled={!blend} onClick={() => blend && onApply(blend, picked)}>
+          <Wand2 size={14} aria-hidden /> Apply blend
+        </button>
+      </div>
+    </fieldset>
+  );
+}
 import { Donut } from "./Donut";
 
 export function SimplexSliders({
@@ -78,7 +169,8 @@ export function ManifestoDesigner() {
   const confirmRef = useRef<HTMLButtonElement>(null);
   const sum = values.reduce((a, b) => a + b, 0);
   const manifesto = percentToManifesto(values);
-  const blend = blendGuesses(obs, hunches);
+  const [blendOpen, setBlendOpen] = useState(false);
+  const canBlend = regionsWithHunch(obs, hunches).length >= BLEND_MIN;
 
   useEffect(() => {
     if (confirming) confirmRef.current?.focus();
@@ -108,11 +200,14 @@ export function ManifestoDesigner() {
           <button
             type="button"
             className="btn btn-sm"
-            disabled={!blend}
-            title={blend ? "Voter-weighted average of the archetypes you pencilled in" : "Set a hunch for at least one region first"}
-            onClick={() => blend && setValues(toIntegerSimplex(blend))}
+            disabled={!canBlend}
+            aria-expanded={blendOpen && canBlend}
+            aria-controls="blend-picker"
+            title={canBlend ? BLEND_HELP : `Set a hunch for at least ${BLEND_MIN} regions first`}
+            onClick={() => setBlendOpen((o) => !o)}
           >
             <Wand2 size={14} aria-hidden /> Blend my hunches
+            {blendOpen && canBlend ? <ChevronUp size={14} aria-hidden /> : <ChevronDown size={14} aria-hidden />}
           </button>
           <button
             type="button"
@@ -128,6 +223,23 @@ export function ManifestoDesigner() {
             <BarChart3 size={14} aria-hidden /> Draft from top-3 stats
           </button>
         </div>
+        {blendOpen && canBlend ? (
+          <div id="blend-picker" style={{ marginTop: 12 }}>
+            <BlendPicker
+              obs={obs}
+              hunches={hunches}
+              onApply={(b, regions) => {
+                setValues(toIntegerSimplex(b));
+                setBlendOpen(false);
+                pushToast({
+                  kind: "info",
+                  title: "Blended your hunches",
+                  message: `Voter-weighted blend of ${regions.map((r) => REGION_META[r as RegionId]?.label ?? r).join(", ")}.`,
+                });
+              }}
+            />
+          </div>
+        ) : null}
         <p className="stat-sub" style={{ marginTop: 12 }}>
           Sliders are linked: moving one rebalances the unlocked others proportionally, so the total is always 100%.
           Voters back you when your budget is close to theirs (similarity = 1 − half the L1 distance). Tip: opinions drift

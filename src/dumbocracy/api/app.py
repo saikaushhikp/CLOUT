@@ -13,11 +13,12 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass, field
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 import torch
 from fastapi import Body, FastAPI, HTTPException, Query as QueryParam
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
 
 from ..config import ElectorateConfig, GameConfig, resolve_device
 from ..game import Allocate, Commit, Forfeit, GameEngine, GameState, Query, observation_for, public_result
@@ -27,6 +28,7 @@ from ..voting import similarity, vote_probability
 
 DEFAULT_MAX_GAMES = 8
 MAX_GRAPH_NODES = 10_000
+MIN_BUDGET, MAX_BUDGET = Decimal("500.00"), Decimal("1000.00")   # R17
 ORACLE_NOTE = "ORACLE: full-information benchmark"
 
 
@@ -36,6 +38,22 @@ class NewGameBody(BaseModel):
     num_voters: int = Field(10_000, ge=1_000, le=1_000_000)
     seed: int | None = Field(None, ge=0, lt=2**63)
     rounds: int = Field(5, ge=1, le=10)
+    budget: StrictStr | None = None   # R17: decimal string "500.00".."1000.00", ≤ 2 dp; omitted/null → "500.00"
+
+    @field_validator("budget")
+    @classmethod
+    def _check_budget(cls, value: str | None) -> str:
+        if value is None:
+            return f"{MIN_BUDGET:.2f}"
+        try:
+            amount = Decimal(value.strip())
+        except InvalidOperation:
+            raise ValueError("budget must be a decimal string such as \"500.00\"") from None
+        if not amount.is_finite() or amount.as_tuple().exponent < -2:
+            raise ValueError("budget must have at most 2 decimal places")
+        if not MIN_BUDGET <= amount <= MAX_BUDGET:
+            raise ValueError(f"budget must lie in {MIN_BUDGET}..{MAX_BUDGET}")
+        return f"{amount.quantize(Decimal('0.01')):.2f}"
 
 
 class QueryBody(BaseModel):
@@ -62,7 +80,7 @@ class Session:
     state: GameState
     lock: threading.Lock = field(default_factory=threading.Lock)
     last_used: float = field(default_factory=time.monotonic)
-    cache: dict[Any, Any] = field(default_factory=dict)   # graph topology per max_nodes, debrief
+    cache: dict[Any, Any] = field(default_factory=dict)   # graph topology per max_nodes, debrief, epistemic
 
 
 class GameStore:
@@ -216,7 +234,8 @@ def create_app(device: str | None = None, max_games: int = DEFAULT_MAX_GAMES) ->
         body = body or NewGameBody()
         seed = secrets.randbits(31) if body.seed is None else body.seed
         target = engine_device()
-        config = GameConfig(seed=seed, rounds=body.rounds, device=str(target),
+        budget = Decimal(body.budget) if body.budget is not None else MIN_BUDGET
+        config = GameConfig(seed=seed, rounds=body.rounds, budget=budget, device=str(target),
                             electorate=ElectorateConfig(num_voters=body.num_voters))
         state = GameEngine.new_game(config, ("p0",), game_id=uuid.uuid4().hex[:12], device=target)
         store.add(Session(state))
@@ -269,6 +288,26 @@ def create_app(device: str | None = None, max_games: int = DEFAULT_MAX_GAMES) ->
             key = ("debrief", player_id)
             if key not in session.cache:
                 session.cache[key] = build_debrief(session.state, player_id)
+            return session.cache[key]
+
+    @app.get("/api/games/{game_id}/players/{player_id}/epistemic")
+    def epistemic(game_id: str, player_id: str) -> dict[str, Any]:
+        """Contract ``EpistemicTimeline`` (P5, R14): DONE only; computed once per (game, player), then cached.
+
+        Sync route → FastAPI threadpool; the game lock serialises concurrent first requests, so the
+        (seconds-long) possible-worlds computation runs exactly once.
+        """
+        session = session_player(game_id, player_id)
+        with session.lock:
+            if session.state.phase != "DONE":
+                raise HTTPException(409, "the epistemic timeline is available only when the game is DONE")
+            key = ("epistemic", player_id)
+            if key not in session.cache:
+                try:   # lazy: heavy P5 module, loaded on first use
+                    from ..logic.report import epistemic_timeline
+                except ImportError as exc:
+                    raise HTTPException(503, "the epistemic timeline is not available on this engine") from exc
+                session.cache[key] = epistemic_timeline(session.state, player_id, device=session.state.device)
             return session.cache[key]
 
     @app.delete("/api/games/{game_id}")

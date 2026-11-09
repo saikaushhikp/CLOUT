@@ -22,7 +22,7 @@ from ..dynamics.social import aggregate
 from ..dynamics.update import step_preferences
 from ..electorate import Electorate, generate_electorate
 from ..information.knowledge import KnowledgeEntry
-from ..information.survey import global_top3_pct, query_pct, run_poll
+from ..information.survey import global_top3_pct, query_moe, run_poll, sample_query
 from ..sectors import NUM_REGIONS, REGIONS, SECTORS
 from ..voting import run_election, similarity, vote_probability
 from .actions import (
@@ -32,6 +32,8 @@ from .ledger import Ledger, money_str
 from .state import GameState, PlayerState
 
 ALIGNMENT_BINS = 5
+# Vote-probability bin edges for the debrief network colouring (R15): <10% | 10–40% | 40–60% swing | 60–90% | >90%.
+ALIGNMENT_EDGES = (0.1, 0.4, 0.6, 0.9)
 NO_ALLOCATION = Allocate((0,) * NUM_REGIONS, 0, (False,) * NUM_REGIONS)
 
 
@@ -59,10 +61,13 @@ def _true_share(state: GameState, v: torch.Tensor, manifesto: torch.Tensor) -> f
     return float(vote_probability(similarity(v, manifesto), voting.sensitivity, voting.threshold).mean())
 
 
-def alignment_bins(v: torch.Tensor, manifesto: torch.Tensor) -> torch.Tensor:
-    """Similarity to the manifesto binned into 5 equal bins over [0, 1] (4 = closest), uint8 [N] on CPU."""
-    bins = (similarity(v, manifesto) * ALIGNMENT_BINS).floor().clamp(0, ALIGNMENT_BINS - 1)
-    return bins.to(torch.uint8).cpu()
+def alignment_bins(v: torch.Tensor, manifesto: torch.Tensor, sensitivity: float, threshold: float) -> torch.Tensor:
+    """Each voter's probability of voting for the manifesto, P_i = σ(β(S_i − z)) (spec §5), binned at
+    ALIGNMENT_EDGES into 0..4 (4 = >90% likely yes), uint8 [N] on CPU (R15). Equal similarity fifths were
+    uninformative because almost all voters have S ∈ [0.6, 1]; vote-probability bins match the result."""
+    prob = vote_probability(similarity(v, manifesto), sensitivity, threshold)
+    edges = torch.tensor(ALIGNMENT_EDGES, dtype=prob.dtype, device=prob.device)
+    return torch.bucketize(prob, edges, right=True).to(torch.uint8).cpu()
 
 
 # ------------------------------------------------------------------------- information updates
@@ -93,15 +98,16 @@ def _snapshot(state: GameState, player: PlayerState) -> PlayerState:
     """Append hidden trajectory/alignment snapshots for the current v (debrief + graph reveal)."""
     b = _manifesto_tensor(state, player)
     return replace(player, share_trajectory=player.share_trajectory + (_true_share(state, state.preferences, b),),
-                   alignment=player.alignment + (alignment_bins(state.preferences, b),))
+                   alignment=player.alignment + (alignment_bins(state.preferences, b, state.config.voting.sensitivity,
+                                                                 state.config.voting.threshold),))
 
 
 def _start_round(state: GameState, round: int) -> GameState:
-    """Enter ROUND ``round``: reset readiness/query keys, add free stat, poll per player (§6.2, §6.4)."""
+    """Enter ROUND ``round``: reset readiness/query pools, add free stat, poll per player (§6.2, §6.4)."""
     state = replace(state, phase="ROUND", round=round)
     state = _add_free_stat(state, round)
     for player in state.players:
-        player = replace(player, ready=False, pending=None, query_keys=frozenset())
+        player = replace(player, ready=False, pending=None, query_pools={})
         state = state.with_player(_add_poll(state, player, round))
     return state.with_event("round_start", f"Round {round} of {state.config.rounds} begins")
 
@@ -109,15 +115,31 @@ def _start_round(state: GameState, round: int) -> GameState:
 # ------------------------------------------------------------------------------ action effects
 
 def _apply_query(state: GameState, player: PlayerState, action: Query) -> tuple[GameState, dict[str, Any]]:
-    cost = state.config.survey.query_cost
-    pct = query_pct(state.preferences, state.electorate.region_of, SECTORS.index(action.sector_a),
-                    SECTORS.index(action.sector_b), REGIONS.index(action.region))
+    """Spec §6.3 (R12): fresh 10% sample of the region; answer + MoE + pooled estimate for this phase/round.
+
+    The sample is drawn from ``seeds.generator("survey", round, player, query_index)`` where
+    ``query_index`` counts this player's previous queries in the game, so replays are exact.
+    """
+    cfg = state.config
+    cost = cfg.survey.query_cost
+    gen = cfg.seeds().generator("survey", state.round, player.player_id, player.query_count, device=state.device)
+    yes, m, size = sample_query(state.preferences, state.electorate.region_of, SECTORS.index(action.sector_a),
+                                SECTORS.index(action.sector_b), REGIONS.index(action.region),
+                                cfg.survey.query_sample_fraction, gen)
+    prev_yes, prev_m, repeats = player.query_pools.get(action.key, (0, 0, 0))
+    pooled_yes, pooled_m = prev_yes + yes, prev_m + m
+    pct = 100.0 * yes / m
     answer = {"round": state.round, "phase": state.phase, "sector_a": action.sector_a, "sector_b": action.sector_b,
-              "region": action.region, "pct_b_over_a": pct, "cost": money_str(cost)}
-    player = replace(player, ledger=player.ledger.debit(cost), query_keys=player.query_keys | {action.key})
+              "region": action.region, "pct_b_over_a": pct, "sample_size": m, "moe": query_moe(yes, m, size),
+              "pooled_pct": 100.0 * pooled_yes / pooled_m, "pooled_sample_size": pooled_m,
+              "pooled_moe": query_moe(pooled_yes, pooled_m, fpc=False), "repeat_index": repeats + 1,
+              "cost": money_str(cost)}
+    pools = {**player.query_pools, action.key: (pooled_yes, pooled_m, repeats + 1)}
+    player = replace(player, ledger=player.ledger.debit(cost), query_count=player.query_count + 1, query_pools=pools)
     player = _log(player, "query", state.round, answer)
     state = state.with_player(player).with_event(
-        "query", f"Query {action.sector_b} > {action.sector_a} in {action.region}: {pct:.1f}%", player.player_id)
+        "query", f"Survey {action.sector_b} > {action.sector_a} in {action.region}: {pct:.1f}% "
+                 f"± {answer['moe']:.1f} (sample {m})", player.player_id)
     return state, answer
 
 
@@ -139,7 +161,8 @@ def _apply_allocate(state: GameState, player: PlayerState, action: Allocate, for
     record = {"workers_by_region": list(action.workers_by_region), "extra_workers": action.extra_workers,
               "media_regions": list(action.media_regions), "cost": money_str(cost)}
     player = replace(player, ledger=player.ledger.debit(cost), ready=True, pending=action,
-                     allocations=player.allocations + (action,))
+                     allocations=player.allocations + (action,),
+                     hired_workers=player.hired_workers + action.extra_workers)   # R16: permanent hires
     player = _log(player, "allocation", state.round, record)
     message = f"Round {state.round} forfeited" if forfeit else f"Round {state.round} plan locked in (cost {money_str(cost)})"
     return state.with_player(player).with_event("forfeit" if forfeit else "allocate", message, player.player_id)
@@ -154,7 +177,9 @@ def _campaign(state: GameState, player: PlayerState) -> CampaignOutcome:
     gens = {name: seeds.generator(name, t, player.player_id, device=state.device) for name in ("workers", "cascade", "media")}
     action = player.pending or NO_ALLOCATION
     allocation = Allocation(tuple(action.workers_by_region), action.extra_workers, tuple(action.media_regions))
-    return campaign_round(state.electorate, allocation, player.media_airings, state.config.workers, state.config.media, gens)
+    earlier_hires = player.hired_workers - action.extra_workers   # hired_workers already counts this round's hires
+    return campaign_round(state.electorate, allocation, player.media_airings, state.config.workers, state.config.media,
+                          gens, hired_workers=earlier_hires)
 
 
 def _round_report(round: int, outcome: CampaignOutcome, election_held: bool) -> dict[str, Any]:

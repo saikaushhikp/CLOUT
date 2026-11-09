@@ -27,7 +27,6 @@ class ErrorCode:
     INVALID_ALLOCATION = "INVALID_ALLOCATION"
     INVALID_QUERY = "INVALID_QUERY"
     INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS"
-    DUPLICATE_QUERY = "DUPLICATE_QUERY"
     UNKNOWN_PLAYER = "UNKNOWN_PLAYER"
     TERMINAL_STATE = "TERMINAL_STATE"
 
@@ -43,7 +42,8 @@ class Rejection:
 
 @dataclass(frozen=True, slots=True)
 class Query:
-    """Paid exact query (spec §6.3): % of ``region`` voters with v[sector_b] > v[sector_a]."""
+    """Paid sampled-survey query (spec §6.3, R12): % of a fresh 10% sample of ``region`` voters with
+    v[sector_b] > v[sector_a]. Repeats are allowed (each draws a new sample); (b, a, r) is a different key."""
 
     sector_a: str
     sector_b: str
@@ -140,8 +140,8 @@ def _phase_guard(state: "GameState", expected: tuple[str, ...]) -> Rejection | N
 # -------------------------------------------------------------------------------- validators
 
 def validate_query(state: "GameState", player: "PlayerState", action: Query) -> Rejection | None:
-    """Spec §6.3: SURVEY or ROUND; distinct known sectors, known region; not repeated this
-    phase/round; affordable."""
+    """Spec §6.3 (R12): SURVEY or ROUND; distinct known sectors, known region; affordable.
+    Repeating a query is allowed (no duplicate rejection since R12)."""
     rejection = _phase_guard(state, ("SURVEY", "ROUND"))
     if rejection:
         return rejection
@@ -151,8 +151,6 @@ def validate_query(state: "GameState", player: "PlayerState", action: Query) -> 
         return Rejection(ErrorCode.INVALID_QUERY, f"region must be in {list(REGIONS)}")
     if action.sector_a == action.sector_b:
         return Rejection(ErrorCode.INVALID_QUERY, "sector_a and sector_b must differ")
-    if action.key in player.query_keys:
-        return Rejection(ErrorCode.DUPLICATE_QUERY, "identical query already asked this phase/round")
     if not player.ledger.can_afford(state.config.survey.query_cost):
         return Rejection(ErrorCode.INSUFFICIENT_FUNDS, "not enough money for a query")
     return None
@@ -185,8 +183,8 @@ def _round_guard(state: "GameState", player: "PlayerState") -> Rejection | None:
 
 
 def validate_allocate(state: "GameState", player: "PlayerState", action: Allocate) -> Rejection | None:
-    """Spec §3, §7 + contract: 4 non-negative int worker counts summing ≤ free + extra, extra ≥ 0,
-    4 boolean media flags; cost ≤ treasury."""
+    """Spec §3, §7 + contract (R16): 4 non-negative int worker counts summing ≤ free + earlier hires +
+    new hires (``extra_workers`` ≥ 0), 4 boolean media flags; cost (new hires × fee + media) ≤ treasury."""
     rejection = _round_guard(state, player)
     if rejection:
         return rejection
@@ -197,9 +195,12 @@ def validate_allocate(state: "GameState", player: "PlayerState", action: Allocat
         return Rejection(ErrorCode.INVALID_ALLOCATION, "extra_workers must be a non-negative integer")
     if not isinstance(media, tuple) or len(media) != NUM_REGIONS or not all(isinstance(m, bool) for m in media):
         return Rejection(ErrorCode.INVALID_ALLOCATION, "media_regions must be 4 booleans")
-    available = state.config.workers.free_workers + action.extra_workers
+    free, hired = state.config.workers.free_workers, player.hired_workers
+    available = free + hired + action.extra_workers
     if sum(workers) > available:
-        return Rejection(ErrorCode.INVALID_ALLOCATION, f"assigned {sum(workers)} workers but only {available} available")
+        return Rejection(ErrorCode.INVALID_ALLOCATION,
+                         f"assigned {sum(workers)} workers but only {available} available "
+                         f"({free} free + {hired} hired + {action.extra_workers} new hires)")
     cost = allocation_cost(action, state.sizes, state.config.workers.extra_worker_cost, state.config.media.base_cost)
     if not player.ledger.can_afford(cost):
         return Rejection(ErrorCode.INSUFFICIENT_FUNDS, f"allocation costs {cost:.2f} but treasury is {player.ledger.balance:.2f}")

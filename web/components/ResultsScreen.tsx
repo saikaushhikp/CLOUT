@@ -5,8 +5,10 @@ import { Award, Check, Eye, GitCompare, Lightbulb, Loader2, Network, RotateCcw, 
 import { useGame, useObservation } from "@/lib/game";
 import { REGION_META } from "@/lib/constants";
 import { fmtInt, fmtShare } from "@/lib/format";
-import { formatMoney, toCents } from "@/lib/money";
-import type { Debrief, Observation, RegionId } from "@/lib/types";
+import { centsToString, formatMoney, toCents } from "@/lib/money";
+import { initialBudgetCents } from "@/lib/rounds";
+import type { Debrief, EpistemicTimeline, Observation, RegionId } from "@/lib/types";
+import { EpistemicPanel } from "./EpistemicTimeline";
 import { PollChart } from "./PollChart";
 import { NetworkView } from "./NetworkView";
 import { Panel, SectorLegend, StackBar } from "./ui";
@@ -40,7 +42,9 @@ function Verdict({ obs }: { obs: Observation }) {
   const r = obs.result;
   if (!r) return null;
   const margin = r.votes - r.num_voters / 2;
-  const spent = obs.queries.reduce((a, q) => a + toCents(q.cost), 0) + obs.allocations.reduce((a, al) => a + toCents(al.cost), 0);
+  // R17: the starting treasury is the player's choice (₫500–₫1000), so spend = initial_budget − treasury.
+  const budget = initialBudgetCents(obs);
+  const spent = budget - toCents(obs.treasury);
   return (
     <section className={`verdict ${r.victory ? "win" : ""}`} aria-live="polite">
       {r.victory ? <Confetti /> : null}
@@ -70,6 +74,7 @@ function Verdict({ obs }: { obs: Observation }) {
         <div className="stat">
           <span className="stat-label">Money spent</span>
           <span className="stat-value num">{formatMoney(spent)}</span>
+          <span className="stat-sub" style={{ color: "inherit", opacity: 0.85 }}>of {formatMoney(budget)}</span>
         </div>
       </div>
     </section>
@@ -179,9 +184,32 @@ function lessons(obs: Observation, d: Debrief): string[] {
   return out;
 }
 
+/** Loads the P5 epistemic timeline lazily, once the debrief is on screen (the engine may need ~10 s). */
+function useEpistemic(gameId: string, playerId: string, ready: boolean) {
+  const { client } = useGame();
+  const [timeline, setTimeline] = useState<EpistemicTimeline | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    setTimeline(null);
+    setError(null);
+    if (!ready) return;
+    let alive = true;
+    client
+      .epistemic(gameId, playerId)
+      .then((t) => alive && setTimeline(t))
+      .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)));
+    return () => {
+      alive = false;
+    };
+  }, [client, gameId, playerId, ready, attempt]);
+  return { timeline, error, retry: () => setAttempt((a) => a + 1) };
+}
+
 export function ResultsScreen() {
   const obs = useObservation();
   const { debrief, graph, graphError, createGame, leaveGame, busy } = useGame();
+  const epistemic = useEpistemic(obs.game_id, obs.player_id, debrief !== null);
   const roundsLabels = useMemo(() => ["Start", ...Array.from({ length: obs.rounds }, (_, k) => `After R${k + 1}`)], [obs.rounds]);
   return (
     <div className="stack">
@@ -192,7 +220,7 @@ export function ResultsScreen() {
           className="btn btn-primary"
           disabled={busy !== null}
           onClick={() => {
-            const req = { num_voters: obs.num_voters, seed: obs.seed, rounds: obs.rounds };
+            const req = { num_voters: obs.num_voters, seed: obs.seed, rounds: obs.rounds, budget: centsToString(initialBudgetCents(obs)) };
             leaveGame();
             void createGame(req);
           }}
@@ -244,6 +272,8 @@ export function ResultsScreen() {
             </Panel>
           </div>
 
+          <EpistemicPanel timeline={epistemic.timeline} error={epistemic.error} onRetry={epistemic.retry} />
+
           <div className="grid-2">
             <Panel title="Why you won — or didn't" icon={Lightbulb}>
               <ul className="list-plain stack" style={{ gap: 8 }}>
@@ -255,7 +285,7 @@ export function ResultsScreen() {
                 ))}
               </ul>
             </Panel>
-            <Panel title="How opinion spread" icon={Network} hint="voters coloured by closeness to your manifesto">
+            <Panel title="How opinion spread" icon={Network} hint="each voter's chance of voting for you · 40–60% = swing voters">
               <NetworkView sample={graph} error={graphError} totalVoters={obs.num_voters} revealRounds={roundsLabels} />
             </Panel>
           </div>

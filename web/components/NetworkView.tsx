@@ -34,6 +34,68 @@ export function computeLayout(sample: GraphSample): { x: number; y: number }[] {
   });
 }
 
+type LayoutGraph = {
+  forEachNode: (cb: (node: string, attrs: Record<string, unknown>) => void) => void;
+  degree: (node: string) => number;
+  mergeNodeAttributes: (node: string, attrs: Record<string, unknown>) => void;
+};
+
+/**
+ * ForceAtlas2 repels nodes that have no tie inside the sample far away from everything else, which
+ * zooms the camera out until the real network is a speck. Put them back inside their region's cloud.
+ */
+export function settleIsolated(graph: LayoutGraph): number {
+  const byRegion = new Map<string, { x: number; y: number }[]>();
+  const isolated: { node: string; region: string; k: number }[] = [];
+  let k = 0;
+  graph.forEachNode((node, a) => {
+    const region = String(a.region ?? "");
+    if (graph.degree(node) === 0) isolated.push({ node, region, k: k++ });
+    else {
+      const pts = byRegion.get(region) ?? [];
+      pts.push({ x: Number(a.x), y: Number(a.y) });
+      byRegion.set(region, pts);
+    }
+  });
+  const all = [...byRegion.values()].flat();
+  for (const it of isolated) {
+    const pts = byRegion.get(it.region)?.length ? byRegion.get(it.region)! : all;
+    if (!pts.length) return 0;
+    const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+    const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+    const d = pts.map((p) => Math.hypot(p.x - cx, p.y - cy)).sort((a, b) => a - b);
+    const radius = d[Math.floor(d.length / 2)] || 1;
+    const r = radius * Math.sqrt(h01(it.k, 3));
+    const t = 2 * Math.PI * h01(it.k, 4);
+    graph.mergeNodeAttributes(it.node, { x: cx + r * Math.cos(t), y: cy + r * Math.sin(t) });
+  }
+  reelInOutliers(graph);
+  return isolated.length;
+}
+
+/** Pull the few stragglers (pendant chains, tiny components) beyond 1.15 × the 97th-percentile radius back to it. */
+export function reelInOutliers(graph: LayoutGraph): number {
+  const pts: { node: string; x: number; y: number }[] = [];
+  graph.forEachNode((node, a) => pts.push({ node, x: Number(a.x), y: Number(a.y) }));
+  if (pts.length < 20) return 0;
+  // median centre: the stragglers must not drag the centre towards themselves
+  const med = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+  const cx = med(pts.map((p) => p.x));
+  const cy = med(pts.map((p) => p.y));
+  const d = pts.map((p) => Math.hypot(p.x - cx, p.y - cy));
+  const sorted = [...d].sort((a, b) => a - b);
+  const limit = 1.15 * sorted[Math.floor(0.97 * (sorted.length - 1))];
+  let moved = 0;
+  pts.forEach((p, i) => {
+    if (d[i] > limit && d[i] > 0) {
+      const f = limit / d[i];
+      graph.mergeNodeAttributes(p.node, { x: cx + (p.x - cx) * f, y: cy + (p.y - cy) * f });
+      moved += 1;
+    }
+  });
+  return moved;
+}
+
 export function NetworkView({
   sample,
   error,
@@ -102,9 +164,19 @@ export function NetworkView({
           iterations: sample.nodes.length > 2000 ? 40 : 80,
           settings: { gravity: 1.5, scalingRatio: 6, barnesHutOptimize: sample.nodes.length > 800, slowDown: 4, strongGravityMode: false },
         });
+        settleIsolated(graph);
         if (cancelled) return;
         const renderer = new Sigma(graph, el, {
-          settings: { renderLabels: false, hideEdgesOnMove: true, enableNodeDrag: false, allowInvalidContainer: true, stagePadding: 18 },
+          settings: {
+            renderLabels: false,
+            hideEdgesOnMove: true,
+            enableNodeDrag: false,
+            allowInvalidContainer: true,
+            stagePadding: 18,
+            // sigma v4 defaults to sizes in graph units; after ForceAtlas2 those are hundreds wide, which made
+            // every node sub-pixel (only edges were visible). Our sizes are pixels.
+            itemSizesReference: "screen",
+          },
         });
         sigmaRef.current = renderer as unknown as { kill: () => void; refresh: () => void };
         graphRef.current = graph as unknown as { setNodeAttribute: (n: string, k: string, v: unknown) => void };
@@ -186,7 +258,8 @@ export function NetworkView({
             ))}
           </div>
         ) : (
-          <div className="legend">
+          <div className="legend" aria-label="Each voter's probability of voting for you">
+            <span className="muted">Chance of voting for you:</span>
             {ALIGNMENT_LABELS.map((l, i) => (
               <span key={l}>
                 <span className="swatch" style={{ background: ALIGNMENT_HEX[i] }} aria-hidden />

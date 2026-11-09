@@ -1,9 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Dices, Loader2, Play, Users } from "lucide-react";
+import { Dices, Landmark, Loader2, Play, Users } from "lucide-react";
 import { useGame } from "@/lib/game";
-import { N_DEFAULT, N_MAX, N_MIN, ROUNDS_DEFAULT, ROUNDS_MAX, ROUNDS_MIN } from "@/lib/constants";
+import {
+  BUDGET_DEFAULT,
+  BUDGET_MAX,
+  BUDGET_MIN,
+  BUDGET_PRESETS,
+  N_DEFAULT,
+  N_MAX,
+  N_MIN,
+  ROUNDS_DEFAULT,
+  ROUNDS_MAX,
+  ROUNDS_MIN,
+} from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 import { fmtCompact, fmtInt } from "@/lib/format";
 import { Stepper } from "./ui";
 
@@ -22,12 +34,29 @@ export const votersToSlider = (n: number) => Math.round(((Math.log10(n) - LOG_MI
 
 const PRESETS = [1_000, 10_000, 100_000, 1_000_000];
 
+/** Starting treasury (R17): whole credits clamped to ₫500–₫1000; non-numbers fall back to the default. */
+export function clampBudget(x: number): number {
+  if (!Number.isFinite(x)) return BUDGET_DEFAULT;
+  return Math.min(BUDGET_MAX, Math.max(BUDGET_MIN, Math.round(x)));
+}
+/** Is this typed text a valid starting treasury (whole credits within ₫500–₫1000)? */
+export function budgetTextValid(text: string): boolean {
+  if (!/^\d{1,7}$/.test(text.trim())) return false;
+  const n = Number(text.trim());
+  return n >= BUDGET_MIN && n <= BUDGET_MAX;
+}
+/** The wire form of the budget: a 2-dp decimal string ("750.00"). */
+export const budgetToRequest = (credits: number): string => clampBudget(credits).toFixed(2);
+
 export function SetupScreen() {
   const { createGame, busy, health, healthError, client } = useGame();
   const [voters, setVoters] = useState(N_DEFAULT);
   const [votersText, setVotersText] = useState(String(N_DEFAULT));
   const [seedText, setSeedText] = useState("");
   const [rounds, setRounds] = useState(ROUNDS_DEFAULT);
+  const [budget, setBudget] = useState(BUDGET_DEFAULT);
+  const [budgetText, setBudgetText] = useState(String(BUDGET_DEFAULT));
+  const budgetOk = budgetTextValid(budgetText);
   const seedValid = seedText.trim() === "" || /^\d{1,10}$/.test(seedText.trim());
   const creating = busy === "create";
 
@@ -37,10 +66,16 @@ export function SetupScreen() {
     setVotersText(String(v));
   };
 
+  const commitBudget = (n: number) => {
+    const b = clampBudget(n);
+    setBudget(b);
+    setBudgetText(String(b));
+  };
+
   const start = async () => {
-    if (!seedValid) return;
+    if (!seedValid || !budgetOk) return;
     const seed = seedText.trim() === "" ? undefined : Number(seedText.trim());
-    await createGame({ num_voters: voters, rounds, ...(seed === undefined ? {} : { seed }) });
+    await createGame({ num_voters: voters, rounds, budget: budgetToRequest(budget), ...(seed === undefined ? {} : { seed }) });
   };
 
   return (
@@ -53,7 +88,7 @@ export function SetupScreen() {
           <em>Know</em> your voters.
         </h1>
         <p className="lede">
-          Four regions. Six possible archetypes. Hidden personalities. A treasury of Đ500 and a social network that
+          Four regions. Six possible archetypes. Hidden personalities. A treasury of Đ500–Đ1,000 (you choose) and a social network that
           gossips. Survey the electorate, commit a budget manifesto, then deploy party workers and media to pull voters
           your way before the ballots open.
         </p>
@@ -186,7 +221,78 @@ export function SetupScreen() {
             : "Seed must be a whole number."}
         </span>
 
-        <button type="submit" className="btn btn-primary btn-lg" disabled={creating || !seedValid}>
+        <div className="field">
+          <label htmlFor="budget-range">
+            <Landmark size={14} aria-hidden style={{ verticalAlign: "-2px", marginRight: 6 }} />
+            Party fund (starting treasury)
+          </label>
+          <div className="row-between">
+            <span className="big-n num" aria-hidden>
+              {formatMoney(budget * 100)}
+            </span>
+            <span className="muted">to spend on questions, hires and media</span>
+          </div>
+          <input
+            id="budget-range"
+            type="range"
+            min={BUDGET_MIN}
+            max={BUDGET_MAX}
+            step={10}
+            value={budget}
+            aria-valuetext={`${budget} credits`}
+            onChange={(e) => commitBudget(Number(e.target.value))}
+          />
+          <div className="row-between">
+            <div className="seg" role="group" aria-label="Treasury presets">
+              {BUDGET_PRESETS.map((p) => (
+                <button key={p} type="button" aria-pressed={budget === p && budgetOk} onClick={() => commitBudget(p)}>
+                  Đ{p}
+                </button>
+              ))}
+            </div>
+            <input
+              className="input num"
+              style={{ maxWidth: 130 }}
+              aria-label="Starting treasury in credits"
+              aria-invalid={!budgetOk}
+              aria-describedby="budget-help"
+              inputMode="numeric"
+              value={budgetText}
+              onChange={(e) => {
+                const t = e.target.value.replace(/[^\d]/g, "");
+                setBudgetText(t);
+                if (budgetTextValid(t)) setBudget(Number(t));
+              }}
+              onBlur={() => commitBudget(budgetText === "" ? BUDGET_DEFAULT : Number(budgetText))}
+            />
+          </div>
+          <span id="budget-help" className={`stat-sub ${budgetOk ? "" : "bad"}`}>
+            {budgetOk ? `Between Đ${BUDGET_MIN} and Đ${BUDGET_MAX}. More money buys more questions, hires and airtime.` : `Enter a whole amount from Đ${BUDGET_MIN} to Đ${BUDGET_MAX}.`}
+          </span>
+        </div>
+
+        <dl className="setup-summary" aria-label="Game summary">
+          <div>
+            <dt>Voters</dt>
+            <dd className="num">{fmtInt(voters)}</dd>
+          </div>
+          <div>
+            <dt>Rounds</dt>
+            <dd className="num">{rounds}</dd>
+          </div>
+          <div>
+            <dt>Treasury</dt>
+            <dd className="num" data-testid="summary-budget">
+              {formatMoney(budget * 100)}
+            </dd>
+          </div>
+          <div>
+            <dt>Seed</dt>
+            <dd className="mono">{seedText.trim() || "random"}</dd>
+          </div>
+        </dl>
+
+        <button type="submit" className="btn btn-primary btn-lg" disabled={creating || !seedValid || !budgetOk}>
           {creating ? <Loader2 className="spin" size={18} aria-hidden /> : <Play size={18} aria-hidden />}
           {creating ? "Drawing the electorate…" : "Start campaign"}
         </button>
