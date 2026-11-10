@@ -114,9 +114,53 @@ where:
 
 ## 5. Campaigning
 
-Campaigning mechanisms involve:
-- **Party Workers** (fixed in number)
-- **Media** (single media)
-- **Ideation** (still in development)
+Campaigning mechanisms involve **Media Influence** and **Party Workers (Grassroots / Word-of-Mouth)**.
+
+### 5.1 Media Campaigning & Opinion Dynamics
+The evolution of voter $i$'s opinion/budget preference vector $x_i(t)$ at time step $t+1$ is modeled as:
+
+$$x_i(t+1) = \big(1 - \alpha_i(t) - \eta_i\big) \, x_i(t) \;+\; \alpha_i(t) \cdot b \;+\; \eta_i \frac{\sum_{j \in \mathcal{N}_i} x_j(t)}{|\mathcal{N}_i|}$$
+
+where:
+- $b$: Campaign budget / manifesto vector.
+- $\eta_i \frac{\sum_{j \in \mathcal{N}_i} x_j(t)}{|\mathcal{N}_i|}$: **Neighbor influence** from voter $i$'s local graph neighbors $\mathcal{N}_i$ with weight $\eta_i$.
+- $\alpha_i(t)$: **Media influence factor**:
+  - Depends on media influence / investment.
+  - **No investment:** $\alpha_i(t)$ remains unchanged (e.g., becomes $0$, or default $\alpha_i \sim \mathcal{N}(0.5, 1)$).
+  - **If invest:** Changes $\alpha_i(t)$ (e.g., shifts the mean of the Gaussian distribution higher).
+
+---
+
+### 5.2 Party Workers (Independent Cascade Model)
+Party workers influence voters through an **Independent Cascade Model**:
+
+- **Initial State:** For every bought party worker, $x_i(t) = b$.(brainwashed to the party manifesto)
+- **Spread Mechanism:**
+  - Party worker tries to influence adjacent neighbors based on a probability (coin flip):
+    - **Heads (Success):** Neighbor is successfully influenced $\rightarrow$ converted into a temporary party worker with $x(t) = b$.
+    - **Tails (Failure):** Nothing happens (fails).
+- **Rounds & Cascade Rules:**
+  - In the next round, the original worker **cannot influence again**.
+  - Only newly converted temporary workers can propagate influence further to their neighbors.
+- **Restrictions:**
+  - Each voter can be targeted/attempted to be influenced at most **3 or 4 times**.
+- The existing method of re-locating party members doesn't hold here. the changes to the mode shall be: once bought, he is a permanent worker (count how many you have bought). player can buy new workers in consiquent rounds and allocate them to any region. once a party worker is braniwashed, he shall stay in that region only. and the ui shall show it while playing while buying a new worker and allocating them to a region. 
+- a party worker selected to a region is the node in the sample-graph(10% of that region graph) with the highest degree centrality.
+
+### 5.3 Strategies (experiments)
+1. **Strategy I: People Pleaser**
+   - Choose 1 or 2 regions with a majority and invest everything (Media + Party Workers) into those regions.
+2. **Strategy II: Balanced / Decision-driven**
+   - Decide whether to ask queries (surveys) or not.
+   - Decide whether to invest in party workers or not.
+   - Decide whether to invest in media or not.
+   - Choose how to craft/create the manifesto vector $b$.
+3. **Strategy III: Strong-Arm / Fixed Agenda**
+   - Choose a random/fixed budget and force voters to align via aggressive campaign investment.
+4. **Strategy IV: Opponent-Aware**
+   - Responsive strategy tailored against another player / opponent party.
+
+
+
 
 

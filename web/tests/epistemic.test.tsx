@@ -5,6 +5,7 @@ import { GameApp } from "@/components/GameApp";
 import { createMockClient } from "@/lib/mockApi";
 import type { DumbocracyClient } from "@/lib/api";
 import type { EpistemicTimeline } from "@/lib/types";
+import { centsToString, toCents } from "@/lib/money";
 
 vi.mock("@/components/NetworkView", () => ({
   NetworkView: () => <div data-testid="network-stub" />,
@@ -125,7 +126,7 @@ async function finishedGame(client: DumbocracyClient, seed = 31, rounds = 3) {
   const { game_id, player_id } = await client.createGame({ num_voters: 5000, seed, rounds });
   await client.query(game_id, player_id, { sector_a: "Edu", sector_b: "Env", region: "S" });
   let obs = (await client.commit(game_id, player_id, { manifesto: [0.2, 0.2, 0.2, 0.2, 0.2] })).observation;
-  const plan = { workers_by_region: [3, 3, 2, 2], extra_workers: 0, media_regions: [false, false, false, false] };
+  const plan = { hires_by_region: [1, 1, 0, 0], media_regions: [false, false, false, false] };
   for (let t = 0; t < rounds; t++) obs = (await client.allocate(game_id, player_id, plan)).observation;
   expect(obs.phase).toBe("DONE");
   return obs;
@@ -142,7 +143,7 @@ describe("mock engine — epistemic timeline", () => {
     const t = await c.epistemic(obs.game_id, obs.player_id);
     assertSchema(t, 3);
     expect(t.actual.victory).toBe(obs.result!.victory);
-    expect(t.rounds[0].treasury).toBe("495.00");
+    expect(t.rounds[0].treasury).toBe(centsToString(toCents(obs.initial_budget) - toCents(obs.costs.query)));
     expect(t.rounds[0].knowledge).toMatchObject({ queries: 1, polls: 1 });
     expect(t.rounds[2].knowledge.polls).toBe(3);
 

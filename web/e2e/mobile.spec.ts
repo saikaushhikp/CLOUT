@@ -52,7 +52,9 @@ test("mobile: full game at 390×844 without horizontal scroll", async ({ page })
 
     for (let t = 1; t <= 5; t++) {
       await expect(page.getByRole("heading", { name: `Round ${t} of 5` })).toBeVisible();
-      await page.getByRole("button", { name: "By population" }).tap();
+      // P8: buy one permanent worker in North each round (stepper +)
+      await page.getByRole("button", { name: "Increase New workers in North" }).tap();
+      await expect(page.getByTestId("hire-line-N")).toContainText(`team ${t - 1} · +1 new`);
       if (t % 2) await page.getByRole("button", { name: /^Air media in East for/ }).tap();
       await expectNoHorizontalScroll(page, `round ${t}`);
       if (t === 1) {

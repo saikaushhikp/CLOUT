@@ -33,7 +33,7 @@ def _style(ax) -> None:
 
 
 def _figure(height: float):
-    fig, ax = plt.subplots(figsize=(7.5, height), dpi=150)
+    fig, ax = plt.subplots(figsize=(7.5, height), dpi=300)
     fig.patch.set_facecolor(SURFACE)
     _style(ax)
     return fig, ax
@@ -89,7 +89,7 @@ def paired_differences(report: dict, out: Path, base: str = "uniform") -> None:
 
 def spend(report: dict, out: Path) -> None:
     names = report["players"]
-    cats = [("workers", "Extra workers"), ("media", "Media"), ("queries", "Queries")]
+    cats = [("workers", "Workers"), ("media", "Media"), ("queries", "Queries")]
     fig, ax = _figure(0.55 * len(names) + 1.5)
     for i, name in enumerate(names):
         left = 0.0

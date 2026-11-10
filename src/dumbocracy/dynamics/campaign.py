@@ -1,14 +1,17 @@
-"""Campaign mechanisms: party workers, word-of-mouth SIR cascade, media, costs (spec §3).
+"""Campaign mechanisms: permanent party workers + round-by-round Independent Cascade, media, costs
+(spec §3; P8 rules R21–R28 in ``docs/v2/plans/P8_party_workers_ic.md``).
 
-Every mechanism maps one player's allocation for one round to per-voter *exposure intensities*
-``e ∈ [0, 1]`` (tensors of shape ``[N]``, single world). Intensities combine with the product rule
-``c_i = 1 − Π_e (1 − e)`` and zealots always get ``c_i = 0`` (spec §3, §2.4).
+Party workers (P8) are real voter nodes bought in a region, pinned at the manifesto for the whole game.
+Influence spreads as an Independent Cascade, ONE hop per campaign round: the spreaders of round t are the
+workers bought in round t plus the voters converted in round t−1; each tries every friend once
+(chance ``γ_j P_j``, at most ``attempt_cap`` attempts per voter per game) and a converted voter takes
+``v = b``. Media maps an allocation to per-voter *exposure intensities* ``e ∈ [0, 1]`` that enter the
+§4 preference update (zealots always get 0).
 
 All randomness comes from an explicit ``torch.Generator`` whose device must equal the tensors'
-device (spec §9: named streams ``workers``, ``cascade``, ``media``). Every function is vectorised
-over voters/edges; the only Python loops run over the ≤ 4 regions and the ≤ L cascade hops. Each
-random draw has a size that depends only on the inputs' shapes and the allocation — never on the
-outcome of earlier draws — so a fixed (generator seed, device) gives an identical result.
+device (spec §9: named streams ``workers``, ``cascade``, ``media``). The cascade draws one uniform per
+voter per hop and media one per voter, independent of outcomes; worker picks draw one ``randperm`` of the
+eligible voters per region with hires. A fixed (generator seed, device) gives an identical result.
 
 Money is ``decimal.Decimal`` rounded half-up to 0.01 (spec §1).
 """
@@ -20,17 +23,18 @@ from decimal import ROUND_HALF_UP, Decimal, localcontext
 
 import torch
 
-from ..config import MediaConfig, WorkerConfig
+from ..config import MediaConfig, VotingConfig, WorkerConfig
 from ..electorate.electorate import Electorate
 from ..electorate.sbm import Graph
 from ..sectors import NUM_REGIONS
+from ..voting import similarity, vote_probability
 
 CENT = Decimal("0.01")
 
 __all__ = [
-    "Allocation", "CampaignOutcome", "CascadeResult", "campaign_round", "combine_intensities",
-    "media_cost", "media_exposure", "media_intensity", "sir_cascade", "word_of_mouth_intensity",
-    "worker_contacts", "worker_cost", "worker_intensity",
+    "Allocation", "CampaignOutcome", "WorkerState", "apply_assignments", "campaign_round", "combine_intensities",
+    "conversion_chance", "eligible_counts", "eligible_workers", "ic_from_counts", "ic_hop", "media_cost", "media_exposure",
+    "media_intensity", "pick_workers", "spreader_edge_counts", "worker_cost",
 ]
 
 
@@ -71,113 +75,127 @@ def _check_generator(generator: torch.Generator, device: torch.device) -> None:
         raise ValueError(f"generator device {gen} does not match tensor device {device}")
 
 
-# --------------------------------------------------------------------------------- party workers §3.1
+# ------------------------------------------------------------------- party workers (P8, R21–R27)
 
-def worker_contacts(region_of: torch.Tensor, workers_by_region: Sequence[int], contacts_per_worker: int,
-                    generator: torch.Generator) -> torch.Tensor:
-    """Number of direct worker contacts per voter, int64 ``[N]`` (spec §3.1).
+def eligible_workers(degree: torch.Tensor, zealot: torch.Tensor, blocked: torch.Tensor, min_degree: int) -> torch.Tensor:
+    """bool ``[N]``: voters that may be bought as workers (R22): degree ≥ ``min_degree``, not a zealot and
+    not ``blocked`` (already a worker)."""
+    if not _is_int(min_degree) or min_degree < 0:
+        raise ValueError("min_degree must be a non-negative integer")
+    return (degree >= min_degree) & ~zealot.to(torch.bool) & ~blocked.to(torch.bool)
 
-    Each of the ``workers_by_region[r]`` workers in region r contacts ``contacts_per_worker`` voters
-    drawn uniformly *with replacement* from region r, so region r receives exactly
-    ``workers_by_region[r] · contacts_per_worker`` contacts. Region membership is read from
-    ``region_of`` (voters need not be contiguous, although they are in a generated electorate).
+
+def eligible_counts(region_of: torch.Tensor, eligible: torch.Tensor) -> list[int]:
+    """Number of eligible voters per region ``[N, S, E, W]``."""
+    return [int(x) for x in torch.bincount(region_of[eligible.to(torch.bool)], minlength=NUM_REGIONS).tolist()]
+
+
+def pick_workers(region_of: torch.Tensor, eligible: torch.Tensor, hires_by_region: Sequence[int],
+                 generator: torch.Generator) -> tuple[torch.Tensor, ...]:
+    """Pick ``hires_by_region[r]`` distinct eligible voters of region r uniformly at random (R22).
+
+    For every region with hires > 0 (in order N, S, E, W) one ``randperm`` of that region's eligible voters
+    (ascending ids) is drawn from ``generator`` (the ``workers`` stream) and its first k entries are taken.
+    Returns one int64 id tensor per region. Raises ``ValueError`` if a region has fewer eligible voters
+    than requested (the engine turns this into ``INVALID_ALLOCATION``).
     """
-    workers = _non_negative_ints(workers_by_region, "workers_by_region")
-    if not _is_int(contacts_per_worker) or contacts_per_worker < 0:
-        raise ValueError("contacts_per_worker must be a non-negative integer")
+    hires = _non_negative_ints(hires_by_region, "hires_by_region")
     device = region_of.device
     _check_generator(generator, device)
-    num_voters = region_of.numel()
-    counts = torch.zeros(num_voters, dtype=torch.int64, device=device)
-    if num_voters == 0 or contacts_per_worker == 0 or sum(workers) == 0:
-        return counts
-    sizes = torch.bincount(region_of, minlength=NUM_REGIONS).tolist()
-    members = torch.argsort(region_of, stable=True)  # voters grouped by region
-    offset = 0
-    picks = []
+    eligible = eligible.to(torch.bool)
+    out = []
     for r in range(NUM_REGIONS):
-        draws = workers[r] * contacts_per_worker
-        if draws and sizes[r] == 0:
-            raise ValueError(f"workers assigned to empty region {r}")
-        if draws:
-            local = torch.randint(0, sizes[r], (draws,), generator=generator, device=device, dtype=torch.int64)
-            picks.append(members[offset + local])
-        offset += sizes[r]
-    return torch.bincount(torch.cat(picks), minlength=num_voters)
+        if hires[r] == 0:
+            out.append(torch.zeros(0, dtype=torch.int64, device=device))
+            continue
+        candidates = torch.nonzero(eligible & (region_of == r)).flatten()
+        if candidates.numel() < hires[r]:
+            raise ValueError(f"region {r} has only {candidates.numel()} eligible voters for {hires[r]} new workers")
+        perm = torch.randperm(candidates.numel(), generator=generator, device=device)[: hires[r]]
+        out.append(candidates[perm])
+    return tuple(out)
 
 
-def worker_intensity(contact_counts: torch.Tensor, campaign_susceptibility: torch.Tensor,
-                     strength: float) -> torch.Tensor:
-    """``1 − (1 − η_w·γ_i)^{count_i}``: each contact gives ``η_w·γ_i``, compounding (spec §3.1)."""
-    strength = _probability(strength, "strength")
-    per_contact = (strength * campaign_susceptibility).clamp(0.0, 1.0)
-    exponent = contact_counts.to(per_contact.dtype)
-    return 1.0 - torch.pow(1.0 - per_contact, exponent)
+def spreader_edge_counts(graph: Graph, spreaders: torch.Tensor, rows: torch.Tensor | None = None) -> torch.Tensor:
+    """``count_j`` = number of directed edges spreader → j, int64 with the shape of ``spreaders`` ``[..., N]``."""
+    n = graph.num_nodes
+    if spreaders.shape[-1] != n:
+        raise ValueError("spreaders must have shape [..., num_nodes]")
+    rows = graph.rows() if rows is None else rows
+    spreaders = spreaders.to(torch.bool)
+    if spreaders.ndim == 1:
+        return torch.bincount(graph.indices[spreaders[rows]], minlength=n)
+    flat = spreaders.reshape(-1, n)
+    which, entry = torch.nonzero(flat[:, rows], as_tuple=True)
+    counts = torch.bincount(which * n + graph.indices[entry], minlength=flat.shape[0] * n)
+    return counts.view(spreaders.shape)
+
+
+def conversion_chance(campaign_susceptibility: torch.Tensor, v: torch.Tensor, manifesto: torch.Tensor,
+                      sensitivity: float, threshold: float) -> torch.Tensor:
+    """R25: per-attempt conversion chance ``γ_j · P_j`` with ``P_j = σ(β_v (S_j − z))`` on ``v`` ``[..., N, 5]``."""
+    prob = vote_probability(similarity(v, manifesto), sensitivity, threshold)
+    return (campaign_susceptibility * prob).clamp(0.0, 1.0)
+
+
+def ic_hop(graph: Graph, spreaders: torch.Tensor, chance: torch.Tensor, attempts: torch.Tensor,
+           blocked: torch.Tensor, attempt_cap: int, generator: torch.Generator,
+           rows: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor]:
+    """One Independent-Cascade hop (R24, R25, R27). Supports leading batch dims ``[..., N]``.
+
+    * ``count_j`` = directed edges spreader → j; ``eff_j = min(count_j, cap − attempts_j)`` (0 for ``blocked``
+      voters: workers and zealots are never targets and their attempts are not counted);
+    * ``attempts_j += eff_j`` (failures included);
+    * j converts iff ``u_j < 1 − (1 − chance_j)^{eff_j}``, with ONE uniform per voter (``[N]``, shared over
+      any batch dims = common random numbers) — RNG consumption is independent of the outcome.
+
+    Returns ``(converted bool [..., N], attempts int64 [..., N])``.
+    """
+    _check_generator(generator, graph.device)
+    counts = spreader_edge_counts(graph, spreaders, rows)
+    return ic_from_counts(counts, chance, attempts, blocked, attempt_cap, generator)
+
+
+def ic_from_counts(counts: torch.Tensor, chance: torch.Tensor, attempts: torch.Tensor, blocked: torch.Tensor,
+                   attempt_cap: int, generator: torch.Generator) -> tuple[torch.Tensor, torch.Tensor]:
+    """The conversion part of :func:`ic_hop` given ``count_j`` (spreader → j edge counts) ``[..., N]``."""
+    if not _is_int(attempt_cap) or attempt_cap < 0:
+        raise ValueError("attempt_cap must be a non-negative integer")
+    device = counts.device
+    _check_generator(generator, device)
+    n = counts.shape[-1]
+    counts = counts.to(torch.int64)
+    remaining = (attempt_cap - attempts).clamp_min(0)
+    eff = torch.where(blocked.to(torch.bool), torch.zeros_like(counts), torch.minimum(counts, remaining))
+    u = torch.rand(n, generator=generator, device=device, dtype=chance.dtype)
+    p = 1.0 - torch.pow(1.0 - chance.clamp(0.0, 1.0), eff.to(chance.dtype))
+    converted = (u < p) & (eff > 0)
+    return converted, attempts + eff
 
 
 @dataclass(frozen=True, eq=False)
-class CascadeResult:
-    """Outcome of one word-of-mouth cascade."""
+class WorkerState:
+    """One player's hidden party-worker state (P8). Never serialised to a player.
 
-    reached: torch.Tensor   # bool [N]: newly reached secondary voters (seeds excluded)
-    per_hop_new: list[int]  # number of voters newly reached at hop h = 1..L (length L)
-
-
-def sir_cascade(graph: Graph, seeds: torch.Tensor, can_spread: torch.Tensor, transmission: float,
-                recovery: float, hops: int, generator: torch.Generator) -> CascadeResult:
-    """Hop-limited SIR word-of-mouth cascade on the unweighted social graph (spec §3.1).
-
-    * Infectious set ``I_0 = seeds & can_spread`` (zealots never spread).
-    * For hop h = 1..L: every node infectious at the start of the hop transmits to each neighbour
-      independently w.p. ``transmission`` (w_ij = 1). A hit neighbour j is *reached* iff it is not a
-      seed, was not reached earlier in this call and ``can_spread[j]``; non-spreading voters (zealots)
-      are never marked reached and never relay.
-    * Recovery (resolution of the spec's "after each hop each infectious node recovers w.p. ρ"):
-      nodes infectious at the start of hop h recover w.p. ``recovery`` *after* transmitting; nodes
-      reached at hop h are infectious for hop h+1 and face their first recovery draw after it. So a
-      node transmits at least once and on average ``1/ρ`` times; with ρ = 0 the cascade is a
-      transmission-limited BFS of depth L. Recovered nodes and seeds are never re-reached.
-
-    RNG consumption per hop is fixed (one uniform per directed CSR entry, one per voter), independent
-    of the cascade's progress.
+    ``pinned`` marks the player's permanent workers (held at b, R23); ``worker_ids`` lists them per region
+    (purchase order); ``spreaders`` are the voters converted last round, who spread in the next hop (R24);
+    ``attempts`` counts conversion attempts received per voter (R27).
     """
-    if not _is_int(hops) or hops < 0:
-        raise ValueError("hops must be a non-negative integer")
-    transmission = _probability(transmission, "transmission")
-    recovery = _probability(recovery, "recovery")
-    device = graph.device
-    _check_generator(generator, device)
-    n = graph.num_nodes
-    if seeds.shape != (n,) or can_spread.shape != (n,):
-        raise ValueError("seeds and can_spread must have shape [num_nodes]")
-    seeds = seeds.to(device=device, dtype=torch.bool)
-    can_spread = can_spread.to(device=device, dtype=torch.bool)
 
-    eligible = can_spread & ~seeds          # may still become reached
-    infectious = seeds & can_spread
-    reached = torch.zeros(n, dtype=torch.bool, device=device)
-    rows = graph.rows()
-    per_hop_new: list[int] = []
-    for _ in range(hops):
-        fire = infectious[rows] & (torch.rand(rows.numel(), generator=generator, device=device) < transmission)
-        hit = torch.zeros(n, dtype=torch.bool, device=device)
-        hit[graph.indices[fire]] = True
-        new = hit & eligible
-        eligible &= ~new
-        reached |= new
-        survive = torch.rand(n, generator=generator, device=device) >= recovery
-        infectious = (infectious & survive) | new
-        per_hop_new.append(int(new.sum()))
-    return CascadeResult(reached, per_hop_new)
+    pinned: torch.Tensor                      # bool [N]
+    worker_ids: tuple[torch.Tensor, ...]      # 4 x int64 [k_r]
+    spreaders: torch.Tensor                   # bool [N]
+    attempts: torch.Tensor                    # int64 [N]
 
+    @classmethod
+    def empty(cls, num_voters: int, device: torch.device | str = "cpu") -> "WorkerState":
+        z = torch.zeros(num_voters, dtype=torch.bool, device=device)
+        ids = tuple(torch.zeros(0, dtype=torch.int64, device=device) for _ in range(NUM_REGIONS))
+        return cls(z, ids, z.clone(), torch.zeros(num_voters, dtype=torch.int64, device=device))
 
-def word_of_mouth_intensity(reached: torch.Tensor, campaign_susceptibility: torch.Tensor,
-                            strength: float) -> torch.Tensor:
-    """``η_wom·γ_j`` on cascade-reached voters, 0 elsewhere (spec §3.1)."""
-    strength = _probability(strength, "strength")
-    value = (strength * campaign_susceptibility).clamp(0.0, 1.0)
-    return torch.where(reached.to(torch.bool), value, torch.zeros_like(value))
-
+    @property
+    def team_by_region(self) -> tuple[int, int, int, int]:
+        return tuple(int(x.numel()) for x in self.worker_ids)  # type: ignore[return-value]
 
 # -------------------------------------------------------------------------------------- media §3.2
 
@@ -257,97 +275,108 @@ def media_cost(sizes: Sequence[int] | torch.Tensor, aired: Sequence[bool], base_
     return cost
 
 
-def worker_cost(extra_workers: int, unit_cost: Decimal) -> Decimal:
-    """``extra_workers · cost_w`` rounded half-up to 0.01 (spec §3.1)."""
-    if not _is_int(extra_workers) or extra_workers < 0:
-        raise ValueError("extra_workers must be a non-negative integer")
+def worker_cost(count: int, unit_cost: Decimal) -> Decimal:
+    """``count · cost_w`` (one-time fee per bought worker, R21) rounded half-up to 0.01."""
+    if not _is_int(count) or count < 0:
+        raise ValueError("count must be a non-negative integer")
     if not isinstance(unit_cost, Decimal) or not unit_cost.is_finite() or unit_cost < 0:
         raise ValueError("unit_cost must be a finite non-negative Decimal")
-    return (unit_cost * extra_workers).quantize(CENT, rounding=ROUND_HALF_UP)
+    return (unit_cost * count).quantize(CENT, rounding=ROUND_HALF_UP)
 
 
 # --------------------------------------------------------------------------- one player's round
 
 @dataclass(frozen=True)
 class Allocation:
-    """One player's campaign allocation for one round (spec §3, §7; R16).
+    """One player's campaign allocation for one round (P8: R21–R22, R28).
 
-    ``extra_workers`` are NEW permanent hires made this round (paid once; they keep working in every
-    later round). ``workers_by_region`` counts the workers assigned this round, drawn from the free
-    workers, every earlier hire and this round's new hires; unassigned workers are allowed and idle.
+    ``hires_by_region`` = NEW permanent workers bought this round per region [N, S, E, W] (paid once);
+    ``media_regions`` = regions aired this round.
     """
 
-    workers_by_region: tuple[int, int, int, int]
-    extra_workers: int = 0
+    hires_by_region: tuple[int, int, int, int] = (0, 0, 0, 0)
     media_regions: tuple[bool, bool, bool, bool] = (False, False, False, False)
 
-    def validate(self, free_workers: int, hired: int = 0) -> None:
-        """Raise ``ValueError`` for wrong lengths, negative counts or over-assignment.
+    @property
+    def total_hires(self) -> int:
+        return int(sum(self.hires_by_region))
 
-        ``hired`` = permanent hires made in EARLIER rounds (R16); the assignable total is
-        ``free_workers + hired + extra_workers``.
-        """
-        if not _is_int(free_workers) or free_workers < 0:
-            raise ValueError("free_workers must be a non-negative integer")
-        if not _is_int(hired) or hired < 0:
-            raise ValueError("hired must be a non-negative integer")
-        workers = _non_negative_ints(self.workers_by_region, "workers_by_region")
-        if not _is_int(self.extra_workers) or self.extra_workers < 0:
-            raise ValueError("extra_workers must be a non-negative integer")
+    def validate(self) -> None:
+        """Raise ``ValueError`` for wrong lengths, negative/non-integer hires or non-boolean media flags."""
+        _non_negative_ints(self.hires_by_region, "hires_by_region")
         _flags(self.media_regions, "media_regions")
-        if sum(workers) > free_workers + hired + self.extra_workers:
-            raise ValueError(f"assigned {sum(workers)} workers but only {free_workers} free + {hired} hired + "
-                             f"{self.extra_workers} new hires are available")
 
 
 @dataclass(frozen=True, eq=False)
 class CampaignOutcome:
-    """Result of :func:`campaign_round` for one player.
+    """Result of :func:`campaign_round` for one player (steps 1–3 of the P8 round order).
 
-    ``direct_contacts`` counts distinct voters with ≥ 1 worker contact; ``media_exposed`` counts
-    exposed voters (zealots included, though their intensity is 0).
+    ``assigned`` = this round's new workers and converts (both set to ``v = b`` before the social step);
+    ``intensity`` = media intensity ``c^p`` [N] (zealots 0); ``state`` = the player's worker state after
+    the round (``state.spreaders`` = this round's converts, who spread next round).
     """
 
-    intensity: torch.Tensor  # c_i^p [N] in [0, 1], zealots 0
-    direct_contacts: int
-    word_of_mouth_reached: int
+    assigned: torch.Tensor   # bool [N]
+    intensity: torch.Tensor  # media c_i^p [N] in [0, 1], zealots 0
+    hires: int
+    spreaders: int
+    converted: int
     media_exposed: int
     cost: Decimal
+    state: WorkerState
 
 
-def campaign_round(electorate: Electorate, allocation: Allocation, prior_airings: Sequence[int],
-                   worker_cfg: WorkerConfig, media_cfg: MediaConfig,
-                   generators: dict[str, torch.Generator], *, hired_workers: int = 0) -> CampaignOutcome:
-    """Compose workers → SIR cascade → media into one player's intensity ``c^p`` (spec §3).
+def campaign_round(electorate: Electorate, allocation: Allocation, state: WorkerState, preferences: torch.Tensor,
+                   manifesto: torch.Tensor, prior_airings: Sequence[int], worker_cfg: WorkerConfig,
+                   media_cfg: MediaConfig, voting_cfg: VotingConfig, generators: dict[str, torch.Generator], *,
+                   exclude: torch.Tensor | None = None) -> CampaignOutcome:
+    """Steps 1–3 of the P8 round order for one player: hires → one cascade hop → media intensity.
 
-    ``hired_workers`` = the player's permanent hires from earlier rounds (R16), used only to validate
-    the worker count; the cost covers this round's new hires and media only.
+    1. Hires (R22): pick the new workers from the ``workers`` stream among region voters with degree ≥
+       ``min_degree``, excluding existing workers (this player's and ``exclude``) and zealots; they join
+       ``pinned`` and this round's spreaders (with last round's converts, R24).
+    2. Cascade hop (R25, R27): chance ``γ_j P_j`` with ``P_j`` computed on ``preferences`` = v at the START of
+       the round (before hires); attempt cap; workers and zealots are never targets (``cascade`` stream).
+    3. Media intensity from the ``media`` stream (R28).
 
-    ``generators`` must provide ``"workers"``, ``"cascade"`` and ``"media"`` on the electorate's
-    device. Cascade seeds are the directly contacted voters; zealots cannot spread and are frozen.
+    Raises ``ValueError`` on a malformed allocation or too few eligible voters. The caller sets
+    ``v[assigned] = b``, runs the social step with ``pinned`` workers held at b and pays ``cost``.
     """
-    allocation.validate(worker_cfg.free_workers, hired_workers)
+    allocation.validate()
     missing = {"workers", "cascade", "media"} - set(generators)
     if missing:
         raise ValueError(f"missing generators: {sorted(missing)}")
     sus = electorate.susceptibility
     region_of = electorate.region_of
+    graph = electorate.graph
     zealot = sus.zealot.to(torch.bool)
+    others = state.pinned if exclude is None else state.pinned | exclude.to(torch.bool)
 
-    counts = worker_contacts(region_of, allocation.workers_by_region,
-                             worker_cfg.contacts_per_worker(electorate.num_voters), generators["workers"])
-    contacted = counts > 0
-    cascade = sir_cascade(electorate.graph, contacted, ~zealot, worker_cfg.transmission, worker_cfg.recovery,
-                          worker_cfg.hops, generators["cascade"])
+    eligible = eligible_workers(graph.degree, zealot, others, worker_cfg.min_degree)
+    new_ids = pick_workers(region_of, eligible, allocation.hires_by_region, generators["workers"])
+    new = torch.zeros_like(state.pinned)
+    new[torch.cat(new_ids)] = True
+    pinned = state.pinned | new
+    spreaders = state.spreaders | new
+
+    chance = conversion_chance(sus.campaign, preferences, manifesto, voting_cfg.sensitivity, voting_cfg.threshold)
+    converted, attempts = ic_hop(graph, spreaders, chance, state.attempts, others | new | zealot,
+                                 worker_cfg.attempt_cap, generators["cascade"])
+
     eta_media = _media_strength(region_of, prior_airings, media_cfg.strength, media_cfg.decay, sus.media.dtype)
     exposed = media_exposure(region_of, allocation.media_regions, media_cfg.exposure_prob, generators["media"])
+    intensity = combine_intensities(_exposed_intensity(exposed, eta_media, sus.media), frozen=zealot)
 
-    intensity = combine_intensities(
-        worker_intensity(counts, sus.campaign, worker_cfg.contact_strength),
-        word_of_mouth_intensity(cascade.reached, sus.campaign, worker_cfg.word_of_mouth_strength),
-        _exposed_intensity(exposed, eta_media, sus.media),
-        frozen=zealot,
-    )
-    cost = worker_cost(allocation.extra_workers, worker_cfg.extra_worker_cost) + \
+    cost = worker_cost(allocation.total_hires, worker_cfg.worker_cost) + \
         media_cost(electorate.sizes, allocation.media_regions, media_cfg.base_cost)
-    return CampaignOutcome(intensity, int(contacted.sum()), int(cascade.reached.sum()), int(exposed.sum()), cost)
+    ids = tuple(torch.cat([old, add]) for old, add in zip(state.worker_ids, new_ids))
+    new_state = WorkerState(pinned, ids, converted, attempts)
+    return CampaignOutcome(new | converted, intensity, int(new.sum()), int(spreaders.sum()), int(converted.sum()),
+                           int(exposed.sum()), cost, new_state)
+
+
+def apply_assignments(v: torch.Tensor, outcomes: Sequence[CampaignOutcome], manifestos: torch.Tensor) -> torch.Tensor:
+    """``v_j ← b_p`` for every voter assigned (new worker or convert) by player p, in player order."""
+    for outcome, b in zip(outcomes, manifestos):
+        v = torch.where(outcome.assigned.unsqueeze(-1), b.to(v.dtype), v)
+    return v

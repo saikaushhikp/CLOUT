@@ -45,8 +45,14 @@ export type RoundReport = {
   /** the round just resolved */
   round: number;
   cost: string;
-  direct_contacts: number;
-  word_of_mouth_reached: number;
+  /** [N,S,E,W] workers bought this round (P8) */
+  hires_by_region: number[];
+  /** [N,S,E,W] permanent workers after this round's hires */
+  team_by_region: number[];
+  /** voters who tried to convert friends this round (new workers + last round's converts) */
+  spreaders: number;
+  /** voters converted to your manifesto this round (they spread next round) */
+  converted: number;
   media_exposed: number;
   election_held: boolean;
 };
@@ -60,7 +66,7 @@ export type ElectionResult = {
 };
 
 export type Observation = {
-  schema_version: "2.0";
+  schema_version: "2.2";
   game_id: string;
   player_id: string;
   phase: Phase;
@@ -73,16 +79,18 @@ export type Observation = {
   treasury: string;
   /** the treasury chosen at setup (R17) */
   initial_budget: string;
-  /** R16: hired = permanent hires so far; available = free + hired */
-  workers: { free: number; hired: number; available: number };
+  /** P8: permanent team per region (no free workers, R21) */
+  workers: { by_region: Record<RegionId, number>; total: number };
   /** R19: one per resolved round, oldest first (for the round look-back) */
   round_reports: RoundReport[];
   costs: {
     query: string;
-    /** one-time hiring fee per permanent worker (R16) */
-    extra_worker: string;
-    free_workers: number;
-    contacts_per_worker: number;
+    /** one-time fee per worker (P8) */
+    worker: string;
+    /** a bought worker has ≥ this many friends */
+    min_degree: number;
+    /** max conversion attempts per voter per game */
+    attempt_cap: number;
     /** next airing price per region */
     media_by_region: Record<RegionId, string>;
   };
@@ -98,8 +106,7 @@ export type Observation = {
   manifesto: number[] | null;
   allocations: {
     round: number;
-    workers_by_region: number[];
-    extra_workers: number;
+    hires_by_region: number[];
     media_regions: boolean[];
     cost: string;
   }[];
@@ -184,5 +191,5 @@ export type CreateGameResponse = { game_id: string; player_id: string; observati
 
 export type QueryRequest = { sector_a: string; sector_b: string; region: string };
 export type CommitRequest = { manifesto: number[] };
-/** `extra_workers` = NEW permanent hires this round (R16); sum(workers_by_region) ≤ workers.available + extra_workers. */
-export type AllocateRequest = { workers_by_region: number[]; extra_workers: number; media_regions: boolean[] };
+/** P8 (R21–R22): `hires_by_region` = NEW workers bought this round per region [N,S,E,W]; permanent, no reassignment. */
+export type AllocateRequest = { hires_by_region: number[]; media_regions: boolean[] };

@@ -1,185 +1,357 @@
+"""P8 campaign core: worker picks (R22), one IC hop per round (R24–R27), pinned workers (R23), media (R28)."""
+import dataclasses
 import math
 from decimal import Decimal
 
 import pytest
 import torch
 
-from dumbocracy.config import ElectorateConfig, GameConfig, MediaConfig, WorkerConfig
+from dumbocracy.config import ElectorateConfig, GameConfig, MediaConfig, VotingConfig, WorkerConfig
 from dumbocracy.dynamics.campaign import (
-    Allocation, CascadeResult, campaign_round, combine_intensities, media_cost, media_exposure,
-    media_intensity, sir_cascade, word_of_mouth_intensity, worker_contacts, worker_cost, worker_intensity,
+    Allocation, WorkerState, campaign_round, combine_intensities, conversion_chance, eligible_counts,
+    eligible_workers, ic_hop, media_cost, media_exposure, media_intensity, pick_workers, spreader_edge_counts,
+    worker_cost,
 )
+from dumbocracy.dynamics.update import step_preferences
 from dumbocracy.electorate import Graph, generate_electorate
+from dumbocracy.electorate.attributes import Susceptibilities
+from dumbocracy.electorate.electorate import Electorate
+from dumbocracy.simulate import resolve_campaign_round, simulate_world
 
 
 def gen(seed, device="cpu"):
     return torch.Generator(device=device).manual_seed(seed)
 
 
-def path_graph(n):
-    return Graph.from_edges(n, torch.arange(n - 1), torch.arange(1, n))
-
-
-def ring_graph(n):
-    return Graph.from_edges(n, torch.arange(n), (torch.arange(n) + 1) % n)
-
-
 def star_graph(leaves):
     return Graph.from_edges(leaves + 1, torch.zeros(leaves, dtype=torch.int64), torch.arange(1, leaves + 1))
 
 
-def mask(n, *idx):
-    out = torch.zeros(n, dtype=torch.bool)
-    out[list(idx)] = True
-    return out
-
-
 REGION_OF = torch.repeat_interleave(torch.arange(4), torch.tensor([100, 200, 300, 400]))
+B = torch.tensor([0.3, 0.2, 0.2, 0.15, 0.15], dtype=torch.float64)
 
 
-# ------------------------------------------------------------------------------------- workers
-
-def test_worker_contacts_totals_and_regions():
-    counts = worker_contacts(REGION_OF, [3, 0, 5, 0], 7, gen(1))
-    assert counts.dtype == torch.int64 and counts.shape == (1000,)
-    assert int(counts.sum()) == (3 + 5) * 7
-    assert int(counts[REGION_OF == 0].sum()) == 21 and int(counts[REGION_OF == 2].sum()) == 35
-    assert int(counts[(REGION_OF == 1) | (REGION_OF == 3)].sum()) == 0
+def electorate(device="cpu", seed=3, n=5000):
+    return generate_electorate(GameConfig(seed=seed, device="cpu", electorate=ElectorateConfig(num_voters=n)), device=device)
 
 
-def test_worker_contacts_reproducible_and_seed_sensitive():
-    a = worker_contacts(REGION_OF, [10, 10, 10, 10], 20, gen(5))
-    b = worker_contacts(REGION_OF, [10, 10, 10, 10], 20, gen(5))
-    c = worker_contacts(REGION_OF, [10, 10, 10, 10], 20, gen(6))
-    assert torch.equal(a, b) and not torch.equal(a, c)
+def generators(seed, device="cpu"):
+    return {name: gen(seed * 10 + i, device) for i, name in enumerate(("workers", "cascade", "media"))}
 
 
-def test_worker_contacts_non_contiguous_regions():
-    shuffled = REGION_OF[torch.randperm(1000, generator=gen(0))]
-    counts = worker_contacts(shuffled, [0, 4, 0, 0], 10, gen(2))
-    assert int(counts[shuffled == 1].sum()) == 40 and int(counts.sum()) == 40
+def toy_electorate(graph, *, gamma=1.0, zealot=()):
+    """Single-region electorate on ``graph`` with every voter at B (so P is the same for everyone)."""
+    n = graph.num_nodes
+    z = torch.zeros(n, dtype=torch.bool)
+    z[list(zealot)] = True
+    ones = torch.ones(n, dtype=torch.float64)
+    sus = Susceptibilities(ones * 0.5, ones * 0.5, ones * gamma, z)
+    sizes = torch.tensor([n, 0, 0, 0])
+    return Electorate(sizes, torch.zeros(n, dtype=torch.int64), graph, B.repeat(n, 1), sus, torch.arange(4),
+                      torch.arange(4), torch.zeros(4), torch.zeros(4, 4), torch.zeros(4, 4), 1.0, False)
 
 
-def test_worker_contacts_zero_and_validation():
-    assert torch.equal(worker_contacts(REGION_OF, [0, 0, 0, 0], 9, gen(1)), torch.zeros(1000, dtype=torch.int64))
-    assert int(worker_contacts(REGION_OF, [5, 5, 5, 5], 0, gen(1)).sum()) == 0
-    for bad in ([1, 2, 3], [-1, 0, 0, 0], [1.5, 0, 0, 0], [True, 0, 0, 0]):
-        with pytest.raises(ValueError):
-            worker_contacts(REGION_OF, bad, 3, gen(1))
+SURE = VotingConfig(sensitivity=1000.0, threshold=0.5)    # S = 1 for v = b  ->  P = sigma(500) = 1 exactly
+NEVER = VotingConfig(sensitivity=1000.0, threshold=1.0)   # S < 0.96         ->  P = 0 exactly
+
+
+# ------------------------------------------------------------------------------------- picks (R22)
+
+def test_pick_workers_rules_and_determinism():
+    e = electorate(n=2000)
+    zealot = e.susceptibility.zealot
+    none = torch.zeros(e.num_voters, dtype=torch.bool)
+    eligible = eligible_workers(e.graph.degree, zealot, none, 3)
+    ids = pick_workers(e.region_of, eligible, [3, 0, 5, 2], gen(1))
+    assert [x.numel() for x in ids] == [3, 0, 5, 2]
+    flat = torch.cat(ids)
+    assert flat.unique().numel() == 10
+    for r, x in enumerate(ids):
+        assert bool((e.region_of[x] == r).all())
+    assert bool((e.graph.degree[flat] >= 3).all()) and not bool(zealot[flat].any())
+    again = pick_workers(e.region_of, eligible, [3, 0, 5, 2], gen(1))
+    assert all(torch.equal(a, b) for a, b in zip(ids, again))
+    other = pick_workers(e.region_of, eligible, [3, 0, 5, 2], gen(2))
+    assert not all(torch.equal(a, b) for a, b in zip(ids, other))
+    # no repeats across rounds: existing workers are excluded
+    taken = none.clone()
+    taken[flat] = True
+    later = torch.cat(pick_workers(e.region_of, eligible_workers(e.graph.degree, zealot, taken, 3), [3, 3, 3, 3], gen(3)))
+    assert not bool(taken[later].any())
+
+
+def test_pick_workers_rejects_too_few_eligible():
+    e = electorate(n=2000)
+    eligible = eligible_workers(e.graph.degree, e.susceptibility.zealot, torch.zeros(e.num_voters, dtype=torch.bool), 3)
+    counts = eligible_counts(e.region_of, eligible)
+    assert all(0 < c <= int(s) for c, s in zip(counts, e.sizes.tolist()))
+    pick_workers(e.region_of, eligible, [counts[0], 0, 0, 0], gen(1))       # exactly all is fine
     with pytest.raises(ValueError):
-        worker_contacts(REGION_OF, [1, 0, 0, 0], -1, gen(1))
+        pick_workers(e.region_of, eligible, [counts[0] + 1, 0, 0, 0], gen(1))
+    with pytest.raises(ValueError):
+        pick_workers(e.region_of, eligible, [-1, 0, 0, 0], gen(1))
+    # degree rule: on a star only the centre has >= 3 friends
+    star = star_graph(5)
+    ok = eligible_workers(star.degree, torch.zeros(6, dtype=torch.bool), torch.zeros(6, dtype=torch.bool), 3)
+    assert ok.tolist() == [True] + [False] * 5
 
 
-def test_worker_intensity_compounds():
-    counts = torch.tensor([0, 1, 2, 3])
-    gamma = torch.tensor([0.5, 0.5, 0.5, 1.0], dtype=torch.float64)
-    out = worker_intensity(counts, gamma, 0.3)
-    expected = [0.0, 0.15, 1 - 0.85 ** 2, 1 - 0.7 ** 3]
-    assert torch.allclose(out, torch.tensor(expected, dtype=torch.float64))
+# ------------------------------------------------------------------------- one hop per round (R24)
+
+def lollipop():
+    """0 is the only voter with >= 3 friends: 0-{1,2,3}, then the path 3-4-5-6-7-8-9."""
+    src = torch.tensor([0, 0, 0, 3, 4, 5, 6, 7, 8])
+    return Graph.from_edges(10, src, src.new_tensor([1, 2, 3, 4, 5, 6, 7, 8, 9]))
 
 
-# ---------------------------------------------------------------------------------------- SIR
-
-def test_sir_no_transmission_reaches_nobody():
-    g = ring_graph(20)
-    res = sir_cascade(g, mask(20, 0), torch.ones(20, dtype=torch.bool), 0.0, 0.0, 10, gen(1))
-    assert isinstance(res, CascadeResult)
-    assert not res.reached.any() and res.per_hop_new == [0] * 10
-
-
-@pytest.mark.parametrize("graph,n,hops", [(path_graph(12), 12, 11), (ring_graph(15), 15, 7)])
-def test_sir_full_reach_of_component(graph, n, hops):
-    res = sir_cascade(graph, mask(n, 0), torch.ones(n, dtype=torch.bool), 1.0, 0.0, hops, gen(3))
-    assert torch.equal(res.reached, ~mask(n, 0))
-    assert sum(res.per_hop_new) == n - 1
-
-
-def test_sir_component_bounded():
-    # Two disjoint paths 0-1-2 and 3-4-5: seeding 0 never reaches the other component.
-    g = Graph.from_edges(6, torch.tensor([0, 1, 3, 4]), torch.tensor([1, 2, 4, 5]))
-    res = sir_cascade(g, mask(6, 0), torch.ones(6, dtype=torch.bool), 1.0, 0.0, 10, gen(1))
-    assert res.reached.tolist() == [False, True, True, False, False, False]
-
-
-def test_sir_hop_limit_on_path():
-    res = sir_cascade(path_graph(10), mask(10, 0), torch.ones(10, dtype=torch.bool), 1.0, 0.0, 2, gen(1))
-    assert res.reached.nonzero().squeeze(1).tolist() == [1, 2] and res.per_hop_new == [1, 1]
+def test_one_hop_per_round_and_worker_never_respreads():
+    e = toy_electorate(lollipop())
+    state = WorkerState.empty(10)
+    converted_by_round = []
+    attempts_by_round = []
+    for t in range(4):
+        alloc = Allocation((1, 0, 0, 0) if t == 0 else (0, 0, 0, 0))
+        out = campaign_round(e, alloc, state, e.preferences, B, [0] * 4, WorkerConfig(), MediaConfig(), SURE,
+                             generators(t))
+        if t == 0:
+            assert out.hires == 1 and out.state.worker_ids[0].tolist() == [0] and out.spreaders == 1
+        state = out.state
+        converted_by_round.append(set(torch.nonzero(state.spreaders).flatten().tolist()))
+        attempts_by_round.append(state.attempts.tolist())
+    assert converted_by_round[0] == {1, 2, 3}           # the worker's friends, in its purchase round
+    assert converted_by_round[1] == {4}                 # converts of round 1 spread in round 2 (0 is a worker)
+    assert converted_by_round[2] == {3, 5}              # one hop further each round (3 is an ordinary voter)
+    assert 6 in converted_by_round[3]
+    # the worker spread only in round 1: 1 and 2 (friends of the worker only) were tried exactly once
+    assert attempts_by_round[-1][1] == attempts_by_round[-1][2] == 1
+    assert attempts_by_round[-1][0] == 0                 # workers are never targets
+    assert bool(state.pinned[0]) and int(state.pinned.sum()) == 1
 
 
-def test_sir_zealots_block_and_are_never_reached():
-    n = 10
-    can_spread = torch.ones(n, dtype=torch.bool)
-    can_spread[4] = False
-    res = sir_cascade(path_graph(n), mask(n, 0), can_spread, 1.0, 0.0, 20, gen(1))
-    assert res.reached.nonzero().squeeze(1).tolist() == [1, 2, 3]
-    # A zealot seed does not spread either.
-    can_spread = torch.ones(n, dtype=torch.bool)
-    can_spread[0] = False
-    res = sir_cascade(path_graph(n), mask(n, 0), can_spread, 1.0, 0.0, 20, gen(1))
-    assert not res.reached.any()
+def test_forfeit_round_still_spreads_earlier_converts():
+    e = toy_electorate(lollipop())
+    first = campaign_round(e, Allocation((1, 0, 0, 0)), WorkerState.empty(10), e.preferences, B, [0] * 4,
+                           WorkerConfig(), MediaConfig(), SURE, generators(0))
+    nothing = campaign_round(e, Allocation(), first.state, e.preferences, B, [0] * 4, WorkerConfig(), MediaConfig(),
+                             SURE, generators(1))
+    assert nothing.cost == Decimal("0.00") and nothing.hires == 0 and nothing.spreaders == 3 and nothing.converted == 1
 
 
-def test_sir_seeds_excluded_and_recovery_one_still_transmits_once():
-    # Seeds 0 and 2 on a path: node 1 is reached once; seed 2 is never "reached".
-    res = sir_cascade(path_graph(5), mask(5, 0, 2), torch.ones(5, dtype=torch.bool), 1.0, 1.0, 5, gen(1))
-    # Seeds transmit at hop 1 then recover; newly reached 1 and 3 transmit at hop 2 (reaching 4).
-    assert res.reached.tolist() == [False, True, False, True, True]
-    assert res.per_hop_new == [2, 1, 0, 0, 0]
+# ---------------------------------------------------------------------------------- cap (R27)
+
+def test_attempt_cap_counts_failures_and_skips_workers_and_zealots():
+    # K_{5,3}: voters 0..4 spread to 5, 6, 7; 6 is a zealot, 7 is blocked as a worker
+    src = torch.arange(5).repeat_interleave(3)
+    dst = torch.tensor([5, 6, 7]).repeat(5)
+    graph = Graph.from_edges(8, src, dst)
+    spreaders = torch.zeros(8, dtype=torch.bool)
+    spreaders[:5] = True
+    assert spreader_edge_counts(graph, spreaders).tolist() == [0, 0, 0, 0, 0, 5, 5, 5]
+    blocked = torch.zeros(8, dtype=torch.bool)
+    blocked[[6, 7]] = True
+    attempts = torch.zeros(8, dtype=torch.int64)
+    zero = torch.zeros(8, dtype=torch.float64)
+    for hop in range(3):
+        converted, attempts = ic_hop(graph, spreaders, zero, attempts, blocked, 3, gen(hop))
+        assert not converted.any()
+        assert attempts.tolist() == [0, 0, 0, 0, 0, 3, 0, 0]   # failures counted, never more than 3
+    # once the cap is reached even a certain conversion cannot happen
+    converted, _ = ic_hop(graph, spreaders, torch.ones(8, dtype=torch.float64), attempts, blocked, 3, gen(9))
+    assert not converted.any()
+    converted, att = ic_hop(graph, spreaders, torch.ones(8, dtype=torch.float64), torch.zeros(8, dtype=torch.int64),
+                            blocked, 3, gen(9))
+    assert converted.tolist() == [False] * 5 + [True, False, False] and att[5] == 3
 
 
-def test_sir_per_hop_sums_and_determinism():
-    g = ring_graph(200)
-    seeds = mask(200, 0, 50, 100)
-    can = torch.ones(200, dtype=torch.bool)
-    a = sir_cascade(g, seeds, can, 0.7, 0.3, 6, gen(9))
-    b = sir_cascade(g, seeds, can, 0.7, 0.3, 6, gen(9))
-    assert torch.equal(a.reached, b.reached) and a.per_hop_new == b.per_hop_new
-    assert sum(a.per_hop_new) == int(a.reached.sum()) and len(a.per_hop_new) == 6
-    assert not (a.reached & seeds).any()
+def test_zealots_and_workers_never_converted_in_campaign_round():
+    e = toy_electorate(lollipop(), zealot=(4,))
+    state = WorkerState.empty(10)
+    for t in range(5):
+        out = campaign_round(e, Allocation((1, 0, 0, 0) if t == 0 else (0, 0, 0, 0)), state, e.preferences, B,
+                             [0] * 4, WorkerConfig(), MediaConfig(), SURE, generators(t))
+        state = out.state
+        assert not bool(state.spreaders[4]) and not bool(state.spreaders[0])
+        assert int(state.attempts[4]) == 0
+    assert not bool(state.spreaders[5:].any())         # the zealot at 4 blocks the path
 
 
-def test_sir_star_reach_fraction():
-    leaves, p = 4000, 0.3
-    res = sir_cascade(star_graph(leaves), mask(leaves + 1, 0), torch.ones(leaves + 1, dtype=torch.bool), p, 0.5, 1, gen(4))
-    frac = int(res.reached.sum()) / leaves
+# ------------------------------------------------------------------------------- chance (R25)
+
+def test_zero_gamma_or_zero_probability_never_converts():
+    star = star_graph(500)
+    spreaders = torch.zeros(501, dtype=torch.bool)
+    spreaders[0] = True
+    none = torch.zeros(501, dtype=torch.bool)
+    v = B.repeat(501, 1)
+    far = torch.tensor([0.0, 0.0, 0.0, 0.0, 1.0], dtype=torch.float64).repeat(501, 1)
+    gamma = torch.ones(501, dtype=torch.float64)
+    assert float(conversion_chance(gamma * 0, v, B, SURE.sensitivity, SURE.threshold).max()) == 0.0
+    assert float(conversion_chance(gamma, far, B, NEVER.sensitivity, NEVER.threshold).max()) == 0.0
+    for chance in (conversion_chance(gamma * 0, v, B, SURE.sensitivity, SURE.threshold),
+                   conversion_chance(gamma, far, B, NEVER.sensitivity, NEVER.threshold)):
+        for s in range(5):
+            converted, _ = ic_hop(star, spreaders, chance, torch.zeros(501, dtype=torch.int64), none, 3, gen(s))
+            assert not converted.any()
+    # gamma = P = 1 converts every reachable leaf
+    full = conversion_chance(gamma, v, B, SURE.sensitivity, SURE.threshold)
+    assert float(full.min()) == 1.0
+    converted, _ = ic_hop(star, spreaders, full, torch.zeros(501, dtype=torch.int64), none, 3, gen(0))
+    assert bool(converted[1:].all()) and not bool(converted[0])
+
+
+def test_conversion_probability_is_gamma_times_p_and_compounds():
+    leaves = 40_000
+    star = star_graph(leaves)
+    spreaders = torch.zeros(leaves + 1, dtype=torch.bool)
+    spreaders[0] = True
+    none = torch.zeros(leaves + 1, dtype=torch.bool)
+    v = B.repeat(leaves + 1, 1)
+    gamma = torch.full((leaves + 1,), 0.6, dtype=torch.float64)
+    voting = VotingConfig()
+    chance = conversion_chance(gamma, v, B, voting.sensitivity, voting.threshold)
+    p = 0.6 / (1 + math.exp(-voting.sensitivity * (1 - voting.threshold)))
+    assert torch.allclose(chance, torch.full_like(chance, p))
+    converted, _ = ic_hop(star, spreaders, chance, torch.zeros(leaves + 1, dtype=torch.int64), none, 3, gen(4))
+    frac = float(converted[1:].double().mean())
     assert abs(frac - p) < 4 * math.sqrt(p * (1 - p) / leaves)
+    # two spreaders on every leaf (K_{2,n}): 1 - (1 - gamma P)^2
+    n = 20_000
+    src = torch.tensor([0, 1]).repeat_interleave(n)
+    dst = torch.arange(2, n + 2).repeat(2)
+    g2 = Graph.from_edges(n + 2, src, dst)
+    sp = torch.zeros(n + 2, dtype=torch.bool)
+    sp[:2] = True
+    c2 = torch.full((n + 2,), 0.3, dtype=torch.float64)
+    converted, att = ic_hop(g2, sp, c2, torch.zeros(n + 2, dtype=torch.int64), torch.zeros(n + 2, dtype=torch.bool), 3, gen(5))
+    q = 1 - 0.7 ** 2
+    assert abs(float(converted[2:].double().mean()) - q) < 4 * math.sqrt(q * (1 - q) / n)
+    assert bool((att[2:] == 2).all())
 
 
-def test_sir_validation():
-    g = path_graph(4)
-    ones = torch.ones(4, dtype=torch.bool)
+def test_ic_hop_batched_matches_single():
+    e = electorate(n=2000)
+    gamma = e.susceptibility.campaign
+    chance = (gamma * 0.5).clamp(0, 1)
+    sp = torch.zeros((3, e.num_voters), dtype=torch.bool)
+    sp[0, :20] = True
+    sp[2, 100:150] = True
+    att = torch.zeros((3, e.num_voters), dtype=torch.int64)
+    blocked = e.susceptibility.zealot
+    batched, batt = ic_hop(e.graph, sp, chance, att, blocked, 3, gen(7))
+    for c in range(3):
+        single, satt = ic_hop(e.graph, sp[c], chance, att[c], blocked, 3, gen(7))
+        assert torch.equal(single, batched[c]) and torch.equal(satt, batt[c])
+    assert not batched[1].any()
+
+
+# ------------------------------------------------------------------------------- pinned (R23)
+
+def test_step_preferences_holds_pinned_workers_exactly_at_b():
+    e = electorate(n=2000)
+    v = e.preferences.clone()
+    zealot = e.susceptibility.zealot
+    pinned = torch.zeros(e.num_voters, dtype=torch.bool)
+    pinned[torch.nonzero(~zealot).flatten()[:50]] = True
+    b = B.to(v.dtype)
+    v[pinned] = b
+    agg = torch.full_like(v, 0.2)
+    media = torch.full((1, e.num_voters), 0.3, dtype=v.dtype)
+    new = step_preferences(v, agg, torch.full((e.num_voters,), 0.5, dtype=v.dtype), media, b.unsqueeze(0), zealot,
+                           pinned=pinned.unsqueeze(0))
+    assert torch.equal(new[pinned], b.expand(int(pinned.sum()), -1))
+    assert torch.equal(new[zealot], v[zealot])
+    free = ~pinned & ~zealot
+    assert not torch.allclose(new[free], v[free])
     with pytest.raises(ValueError):
-        sir_cascade(g, ones, ones, 1.5, 0.0, 1, gen(1))
+        step_preferences(v, agg, torch.full((e.num_voters,), 0.5, dtype=v.dtype), media, b.unsqueeze(0), zealot,
+                         pinned=pinned)
+
+
+def test_round_keeps_workers_at_b_and_zealots_unchanged():
+    e = electorate(n=3000)
+    cfg = GameConfig(seed=3, device="cpu", electorate=ElectorateConfig(num_voters=3000))
+    b = B.to(e.preferences.dtype)
+    v = e.preferences
+    state = WorkerState.empty(e.num_voters)
+    for t in range(3):
+        alloc = Allocation((2, 1, 1, 1) if t == 0 else (1, 0, 0, 0), (True, True, False, False))
+        out = campaign_round(e, alloc, state, v, b, [t, t, 0, 0], cfg.workers, cfg.media, cfg.voting, generators(t))
+        assert torch.equal(out.assigned & e.susceptibility.zealot, torch.zeros_like(out.assigned))
+        new_v = resolve_campaign_round(e, cfg, v, b.unsqueeze(0), [out])
+        state = out.state
+        assert torch.equal(new_v[state.pinned], b.expand(int(state.pinned.sum()), -1))
+        z = e.susceptibility.zealot
+        assert torch.equal(new_v[z], e.preferences[z])
+        v = new_v
+    assert state.team_by_region == (4, 1, 1, 1)
+
+
+# ------------------------------------------------------------------------ campaign_round + determinism
+
+ALLOC = Allocation((4, 4, 2, 2), (True, False, True, False))
+
+
+def test_campaign_round_end_to_end_and_determinism():
+    e = electorate()
+    cfg = GameConfig()
+    b = B.to(e.preferences.dtype)
+    run = lambda s: campaign_round(e, ALLOC, WorkerState.empty(e.num_voters), e.preferences, b, [0, 0, 1, 0],  # noqa: E731
+                                   cfg.workers, cfg.media, cfg.voting, generators(s))
+    out = run(1)
+    c = out.intensity
+    assert c.shape == (e.num_voters,) and torch.all((c >= 0) & (c <= 1))
+    assert not c[e.susceptibility.zealot].any()
+    assert out.hires == 12 and out.spreaders == 12 and out.state.team_by_region == (4, 4, 2, 2)
+    assert out.converted == int(out.state.spreaders.sum()) and out.media_exposed > 0
+    assert out.cost == worker_cost(12, cfg.workers.worker_cost) + media_cost(e.sizes, ALLOC.media_regions, cfg.media.base_cost)
+    again = run(1)
+    assert torch.equal(c, again.intensity) and torch.equal(out.assigned, again.assigned)
+    assert torch.equal(out.state.attempts, again.state.attempts)
+    assert not torch.equal(out.assigned, run(2).assigned)
+
+
+def test_campaign_round_empty_allocation_and_errors():
+    e = electorate()
+    cfg = GameConfig()
+    b = B.to(e.preferences.dtype)
+    out = campaign_round(e, Allocation(), WorkerState.empty(e.num_voters), e.preferences, b, [0] * 4, cfg.workers,
+                         cfg.media, cfg.voting, generators(1))
+    assert not out.intensity.any() and out.cost == Decimal("0.00")
+    assert out.hires == out.spreaders == out.converted == out.media_exposed == 0
     with pytest.raises(ValueError):
-        sir_cascade(g, ones, ones, 0.5, 0.0, -1, gen(1))
+        campaign_round(e, Allocation((10_000, 0, 0, 0)), WorkerState.empty(e.num_voters), e.preferences, b, [0] * 4,
+                       cfg.workers, cfg.media, cfg.voting, generators(1))
     with pytest.raises(ValueError):
-        sir_cascade(g, torch.ones(3, dtype=torch.bool), ones, 0.5, 0.0, 1, gen(1))
+        campaign_round(e, ALLOC, WorkerState.empty(e.num_voters), e.preferences, b, [0] * 4, cfg.workers, cfg.media,
+                       cfg.voting, {"workers": gen(1)})
 
 
-def test_sir_reach_grows_across_spectral_threshold():
-    """ER graph, N = 5000, k̄ ≈ 30 → λ_max ≈ 31, threshold ρ/λ_max ≈ 0.016 at ρ = 0.5."""
-    n, k = 5000, 30
-    g0 = gen(11)
-    m = n * k // 2
-    g = Graph.from_edges(n, torch.randint(0, n, (m,), generator=g0), torch.randint(0, n, (m,), generator=g0))
-    can = torch.ones(n, dtype=torch.bool)
-    num_seeds = 20
-    means = []
-    for tau in (0.005, 0.02, 0.05, 0.1):
-        reach = []
-        for s in range(8):
-            seeds = mask(n, *torch.randperm(n, generator=gen(100 + s))[:num_seeds].tolist())
-            reach.append(int(sir_cascade(g, seeds, can, tau, 0.5, 6, gen(200 + s)).reached.sum()))
-        means.append(sum(reach) / len(reach))
-    assert all(a < b for a, b in zip(means, means[1:])), means
-    assert means[0] < 2 * num_seeds and means[-1] > 20 * num_seeds, means
+@pytest.mark.parametrize("alloc", [
+    Allocation((-1, 0, 0, 0)), Allocation((1, 0, 0)), Allocation((1.5, 0, 0, 0)),          # type: ignore[arg-type]
+    Allocation((1, 0, 0, 0), (False,) * 3), Allocation((True, 0, 0, 0)),                    # type: ignore[arg-type]
+])
+def test_allocation_validate_errors(alloc):
+    with pytest.raises(ValueError):
+        alloc.validate()
 
 
-def test_word_of_mouth_intensity():
-    reached = torch.tensor([True, False, True])
-    gamma = torch.tensor([0.5, 0.9, 0.2], dtype=torch.float64)
-    out = word_of_mouth_intensity(reached, gamma, 0.1)
-    assert torch.allclose(out, torch.tensor([0.05, 0.0, 0.02], dtype=torch.float64))
+def test_allocation_validate_ok():
+    Allocation((5, 5, 2, 0), (True, False, False, True)).validate()
+    Allocation().validate()
+    assert Allocation((1, 2, 3, 4)).total_hires == 10
+
+
+def test_simulate_world_deterministic_per_seed():
+    e = electorate(n=3000)
+    cfg = GameConfig(seed=3, device="cpu", electorate=ElectorateConfig(num_voters=3000))
+    policy = lambda ctx: Allocation((2, 2, 0, 0) if ctx.round == 0 else (0, 0, 0, 0))  # noqa: E731
+    a = simulate_world(e, cfg, B, policy)
+    b = simulate_world(e, cfg, B, policy)
+    c = simulate_world(e, dataclasses.replace(cfg, seed=4), B, policy)
+    assert a.converted == b.converted and a.share_trajectory == b.share_trajectory
+    assert a.converted != c.converted
+    assert a.spreaders[0] == 4 and a.spreaders[1] == a.converted[0]
+    assert a.spent == Decimal(4) * cfg.workers.worker_cost
 
 
 # -------------------------------------------------------------------------------------- media
@@ -233,10 +405,10 @@ def test_media_cost_exact_decimal_rounding():
 
 
 def test_worker_cost():
-    assert worker_cost(3, Decimal("4.00")) == Decimal("12.00")
-    assert worker_cost(0, Decimal("4.00")) == Decimal("0.00")
+    assert worker_cost(3, Decimal("25.00")) == Decimal("75.00")
+    assert worker_cost(0, Decimal("25.00")) == Decimal("0.00")
     with pytest.raises(ValueError):
-        worker_cost(-1, Decimal("4.00"))
+        worker_cost(-1, Decimal("25.00"))
 
 
 # ------------------------------------------------------------------------------------ combine
@@ -255,92 +427,44 @@ def test_combine_intensities():
         combine_intensities()
 
 
-# --------------------------------------------------------------------------------- allocation
+# ------------------------------------------------------------------------------------------ GPU
 
-@pytest.mark.parametrize("alloc,free", [
-    (Allocation((5, 5, 1, 0), 0, (False,) * 4), 10),
-    (Allocation((-1, 0, 0, 0), 0, (False,) * 4), 10),
-    (Allocation((1, 0, 0), 0, (False,) * 4), 10),
-    (Allocation((1, 0, 0, 0), -2, (False,) * 4), 10),
-    (Allocation((1, 0, 0, 0), 0, (False,) * 3), 10),
-    (Allocation((8, 4, 0, 0), 1, (False,) * 4), 10),
-])
-def test_allocation_validate_errors(alloc, free):
-    with pytest.raises(ValueError):
-        alloc.validate(free)
-
-
-def test_allocation_validate_ok():
-    Allocation((5, 5, 2, 0), 2, (True, False, False, True)).validate(10)
-    Allocation((0, 0, 3, 0), 0, (False,) * 4).validate(10)  # unassigned workers are wasted, not an error
-
-
-# ------------------------------------------------------------------------------- campaign_round
-
-def electorate(device="cpu", seed=3, n=5000):
-    return generate_electorate(GameConfig(seed=seed, device="cpu", electorate=ElectorateConfig(num_voters=n)), device=device)
-
-
-def generators(seed, device="cpu"):
-    return {name: gen(seed * 10 + i, device) for i, name in enumerate(("workers", "cascade", "media"))}
-
-
-ALLOC = Allocation((4, 4, 2, 2), 2, (True, False, True, False))
-
-
-def test_campaign_round_end_to_end():
-    e = electorate()
-    out = campaign_round(e, ALLOC, [0, 0, 1, 0], WorkerConfig(), MediaConfig(), generators(1))
-    c = out.intensity
-    assert c.shape == (e.num_voters,) and c.dtype == e.susceptibility.campaign.dtype
-    assert torch.all((c >= 0) & (c <= 1))
-    assert not c[e.susceptibility.zealot].any()
-    q = WorkerConfig().contacts_per_worker(e.num_voters)
-    assert 0 < out.direct_contacts <= 12 * q
-    assert out.media_exposed > 0 and out.word_of_mouth_reached >= 0
-    expected_cost = Decimal("8.00") + media_cost(e.sizes, ALLOC.media_regions, MediaConfig().base_cost)
-    assert out.cost == expected_cost
-    again = campaign_round(e, ALLOC, [0, 0, 1, 0], WorkerConfig(), MediaConfig(), generators(1))
-    assert torch.equal(c, again.intensity) and out.direct_contacts == again.direct_contacts
-    assert out.word_of_mouth_reached == again.word_of_mouth_reached and out.media_exposed == again.media_exposed
-    other = campaign_round(e, ALLOC, [0, 0, 1, 0], WorkerConfig(), MediaConfig(), generators(2))
-    assert not torch.equal(c, other.intensity)
-
-
-def test_campaign_round_empty_allocation_and_errors():
-    e = electorate()
-    out = campaign_round(e, Allocation((0, 0, 0, 0), 0, (False,) * 4), [0] * 4, WorkerConfig(), MediaConfig(), generators(1))
-    assert not out.intensity.any() and out.cost == Decimal("0.00")
-    assert out.direct_contacts == out.word_of_mouth_reached == out.media_exposed == 0
-    with pytest.raises(ValueError):
-        campaign_round(e, Allocation((11, 0, 0, 0), 0, (False,) * 4), [0] * 4, WorkerConfig(), MediaConfig(), generators(1))
-    with pytest.raises(ValueError):
-        campaign_round(e, ALLOC, [0] * 4, WorkerConfig(), MediaConfig(), {"workers": gen(1)})
+def _cuda2_free() -> bool:
+    if torch.cuda.device_count() <= 2:
+        return False
+    try:
+        return torch.cuda.mem_get_info(2)[0] > 2 * 2**30
+    except RuntimeError:
+        return False
 
 
 @pytest.mark.gpu
 def test_generator_device_mismatch_rejected():
-    if torch.cuda.device_count() <= 2:
-        pytest.skip("cuda:2 not present")
+    if not _cuda2_free():
+        pytest.skip("cuda:2 not present or busy")
+    star = star_graph(3)
     with pytest.raises(ValueError):
-        worker_contacts(REGION_OF, [1, 0, 0, 0], 3, gen(1, "cuda:2"))
+        ic_hop(star, torch.zeros(4, dtype=torch.bool), torch.zeros(4), torch.zeros(4, dtype=torch.int64),
+               torch.zeros(4, dtype=torch.bool), 3, gen(1, "cuda:2"))
 
 
 @pytest.mark.gpu
-def test_campaign_round_on_gpu_matches_cpu_in_distribution():
-    if torch.cuda.device_count() <= 2:
-        pytest.skip("cuda:2 not present")
+def test_campaign_on_gpu_matches_cpu_in_distribution():
+    if not _cuda2_free():
+        pytest.skip("cuda:2 not present or busy")
     device = "cuda:2"
+    cfg = GameConfig(seed=3, device="cpu", electorate=ElectorateConfig(num_voters=5000))
     cpu, gpu = electorate(), electorate(device)
-    cpu_means, gpu_means = [], []
+    policy = lambda ctx: Allocation((2, 1, 0, 0) if ctx.round == 0 else (0, 0, 0, 0), (ctx.round == 0, False, False, False))  # noqa: E731
+    cpu_conv, gpu_conv, cpu_share, gpu_share = [], [], [], []
     for s in range(6):
-        a = campaign_round(cpu, ALLOC, [0] * 4, WorkerConfig(), MediaConfig(), generators(s))
-        b = campaign_round(gpu, ALLOC, [0] * 4, WorkerConfig(), MediaConfig(), generators(s, device))
-        assert b.intensity.device == torch.device(device)
-        assert torch.all((b.intensity >= 0) & (b.intensity <= 1))
-        assert not b.intensity[gpu.susceptibility.zealot].any()
-        assert a.cost == b.cost
-        cpu_means.append(float(a.intensity.mean()))
-        gpu_means.append(float(b.intensity.mean()))
-    cpu_mean, gpu_mean = sum(cpu_means) / 6, sum(gpu_means) / 6
-    assert abs(cpu_mean - gpu_mean) < 0.05 * cpu_mean, (cpu_means, gpu_means)
+        c = dataclasses.replace(cfg, seed=s)
+        a = simulate_world(cpu, c, B, policy)
+        g = simulate_world(gpu, c, B, policy)
+        assert g.final_preferences.device == torch.device(device) and a.spent == g.spent
+        cpu_conv.append(sum(a.converted))
+        gpu_conv.append(sum(g.converted))
+        cpu_share.append(a.share_trajectory[-1])
+        gpu_share.append(g.share_trajectory[-1])
+    assert abs(sum(cpu_share) - sum(gpu_share)) / 6 < 0.02, (cpu_share, gpu_share)
+    assert abs(sum(cpu_conv) - sum(gpu_conv)) < 0.5 * max(sum(cpu_conv), 1), (cpu_conv, gpu_conv)

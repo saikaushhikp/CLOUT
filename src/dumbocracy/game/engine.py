@@ -3,7 +3,8 @@
 ``SURVEY → ROUND(1..T) → DONE`` (the ELECTION is resolved automatically after round T).
 ``GameEngine.apply`` is a pure state transition: rejected actions return the *same* state object.
 
-Round resolution uses exactly the per-round generator keying of :func:`dumbocracy.simulate.simulate_world`
+Round resolution follows the P8 round order (hires → one cascade hop → media → social step with workers
+pinned → polls) and uses exactly the per-round generator keying of :func:`dumbocracy.simulate.simulate_world`
 (``seeds.generator(name, t, player)`` with 0-based campaign round t for ``workers``/``cascade``/``media``
 and ``seeds.generator("election", player)``), so an engine game reproduces ``simulate_world`` exactly.
 """
@@ -17,13 +18,12 @@ from typing import Any
 import torch
 
 from ..config import GameConfig, resolve_device
-from ..dynamics.campaign import Allocation, CampaignOutcome, campaign_round
-from ..dynamics.social import aggregate
-from ..dynamics.update import step_preferences
+from ..dynamics.campaign import Allocation, CampaignOutcome, WorkerState, campaign_round
 from ..electorate import Electorate, generate_electorate
 from ..information.knowledge import KnowledgeEntry
 from ..information.survey import global_top3_pct, query_moe, run_poll, sample_query
 from ..sectors import NUM_REGIONS, REGIONS, SECTORS
+from ..simulate import resolve_campaign_round
 from ..voting import run_election, similarity, vote_probability
 from .actions import (
     Action, Allocate, Commit, ErrorCode, Forfeit, Query, Rejection, action_from_dict, allocation_cost, validate,
@@ -34,7 +34,7 @@ from .state import GameState, PlayerState
 ALIGNMENT_BINS = 5
 # Vote-probability bin edges for the debrief network colouring (R15): <10% | 10–40% | 40–60% swing | 60–90% | >90%.
 ALIGNMENT_EDGES = (0.1, 0.4, 0.6, 0.9)
-NO_ALLOCATION = Allocate((0,) * NUM_REGIONS, 0, (False,) * NUM_REGIONS)
+NO_ALLOCATION = Allocate((0,) * NUM_REGIONS, (False,) * NUM_REGIONS)
 
 
 @dataclass(frozen=True, eq=False)
@@ -157,12 +157,12 @@ def _apply_commit(state: GameState, player: PlayerState, action: Commit) -> Game
 
 def _apply_allocate(state: GameState, player: PlayerState, action: Allocate, forfeit: bool = False) -> GameState:
     cfg = state.config
-    cost = allocation_cost(action, state.sizes, cfg.workers.extra_worker_cost, cfg.media.base_cost)
-    record = {"workers_by_region": list(action.workers_by_region), "extra_workers": action.extra_workers,
-              "media_regions": list(action.media_regions), "cost": money_str(cost)}
+    cost = allocation_cost(action, state.sizes, cfg.workers.worker_cost, cfg.media.base_cost)
+    record = {"hires_by_region": list(action.hires_by_region), "media_regions": list(action.media_regions),
+              "cost": money_str(cost)}
+    team = tuple(a + int(h) for a, h in zip(player.team_by_region, action.hires_by_region))
     player = replace(player, ledger=player.ledger.debit(cost), ready=True, pending=action,
-                     allocations=player.allocations + (action,),
-                     hired_workers=player.hired_workers + action.extra_workers)   # R16: permanent hires
+                     allocations=player.allocations + (action,), team_by_region=team)   # P8: permanent workers
     player = _log(player, "allocation", state.round, record)
     message = f"Round {state.round} forfeited" if forfeit else f"Round {state.round} plan locked in (cost {money_str(cost)})"
     return state.with_player(player).with_event("forfeit" if forfeit else "allocate", message, player.player_id)
@@ -170,44 +170,56 @@ def _apply_allocate(state: GameState, player: PlayerState, action: Allocate, for
 
 # ---------------------------------------------------------------------------- round resolution
 
-def _campaign(state: GameState, player: PlayerState) -> CampaignOutcome:
-    """One player's §3 campaign for the current round, keyed exactly like ``simulate_world``."""
+def _campaign(state: GameState, player: PlayerState, exclude: torch.Tensor) -> CampaignOutcome:
+    """Steps 1–3 of the P8 round order for one player, keyed exactly like ``simulate_world``.
+
+    P_j is computed on ``state.preferences`` = v at the start of the round (before any hires)."""
     t = state.round - 1  # simulate_world's 0-based round index
     seeds = state.config.seeds()
     gens = {name: seeds.generator(name, t, player.player_id, device=state.device) for name in ("workers", "cascade", "media")}
     action = player.pending or NO_ALLOCATION
-    allocation = Allocation(tuple(action.workers_by_region), action.extra_workers, tuple(action.media_regions))
-    earlier_hires = player.hired_workers - action.extra_workers   # hired_workers already counts this round's hires
-    return campaign_round(state.electorate, allocation, player.media_airings, state.config.workers, state.config.media,
-                          gens, hired_workers=earlier_hires)
+    allocation = Allocation(tuple(action.hires_by_region), tuple(action.media_regions))
+    workers = player.workers or WorkerState.empty(state.electorate.num_voters, state.device)
+    return campaign_round(state.electorate, allocation, workers, state.preferences, _manifesto_tensor(state, player),
+                          player.media_airings, state.config.workers, state.config.media, state.config.voting, gens,
+                          exclude=exclude)
 
 
-def _round_report(round: int, outcome: CampaignOutcome, election_held: bool) -> dict[str, Any]:
-    return {"round": round, "cost": money_str(outcome.cost), "direct_contacts": outcome.direct_contacts,
-            "word_of_mouth_reached": outcome.word_of_mouth_reached, "media_exposed": outcome.media_exposed,
-            "election_held": election_held}
+def _round_report(round: int, action: Allocate, team: Sequence[int], outcome: CampaignOutcome,
+                  election_held: bool) -> dict[str, Any]:
+    return {"round": round, "cost": money_str(outcome.cost), "hires_by_region": [int(h) for h in action.hires_by_region],
+            "team_by_region": [int(x) for x in team], "spreaders": outcome.spreaders, "converted": outcome.converted,
+            "media_exposed": outcome.media_exposed, "election_held": election_held}
 
 
 def _resolve_round(state: GameState) -> tuple[GameState, dict[str, dict[str, Any]]]:
-    """Spec §4/§7: all players' campaigns → one synchronous update → next round or election."""
+    """P8 round order: every player's hires → cascade hop → media, then one synchronous social step
+    (new workers and converts at b, workers pinned, zealots frozen) → next round or election."""
     cfg, e, t = state.config, state.electorate, state.round
-    outcomes = [_campaign(state, p) for p in state.players]
+    empty = torch.zeros(e.num_voters, dtype=torch.bool, device=state.device)
+    pinned = [p.workers.pinned if p.workers is not None else empty for p in state.players]
+    outcomes: list[CampaignOutcome] = []
+    for i, player in enumerate(state.players):
+        others = empty
+        for j, mask in enumerate(pinned):
+            if j != i:
+                others = others | mask
+        outcome = _campaign(state, player, others)
+        pinned[i] = outcome.state.pinned
+        outcomes.append(outcome)
     manifestos = torch.stack([_manifesto_tensor(state, p) for p in state.players])
-    intensity = torch.stack([o.intensity for o in outcomes])                       # [P, N]
-    aggregated = aggregate(state.preferences, e.graph, cfg.dynamics.social_rule, cfg.dynamics.wmsr_trim)
-    social_weight = cfg.dynamics.social_step * e.susceptibility.social
-    v = step_preferences(state.preferences, aggregated, social_weight, intensity, manifestos, e.susceptibility.zealot)
+    v = resolve_campaign_round(e, cfg, state.preferences, manifestos, outcomes)
     state = replace(state, preferences=v)
     final = t >= cfg.rounds
     reports: dict[str, dict[str, Any]] = {}
     for player, outcome, action in zip(state.players, outcomes, (p.pending or NO_ALLOCATION for p in state.players)):
         airings = tuple(a + int(m) for a, m in zip(player.media_airings, action.media_regions))
-        report = _round_report(t, outcome, final)
+        report = _round_report(t, action, player.team_by_region, outcome, final)
         reports[player.player_id] = report
-        player = _log(replace(player, media_airings=airings), "round_report", t, report)
+        player = _log(replace(player, media_airings=airings, workers=outcome.state), "round_report", t, report)
         state = state.with_player(_snapshot(state, player))
-        state = state.with_event("round_resolved", f"Round {t} resolved: {outcome.direct_contacts} voters contacted, "
-                                 f"{outcome.word_of_mouth_reached} reached by word of mouth, "
+        state = state.with_event("round_resolved", f"Round {t} resolved: {outcome.hires} workers bought, "
+                                 f"{outcome.spreaders} spreaders, {outcome.converted} voters converted, "
                                  f"{outcome.media_exposed} saw your media", player.player_id)
     if final:
         return _run_election(state), reports

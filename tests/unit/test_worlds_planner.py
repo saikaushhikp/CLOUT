@@ -15,9 +15,10 @@ from dumbocracy.game.actions import validate
 from dumbocracy.game.ledger import Ledger
 from dumbocracy.sectors import archetype_means
 from dumbocracy.simulate import simulate_world
-from dumbocracy.strategies.planner import candidate_allocations, default_allocation, plan_round
+from dumbocracy.strategies.planner import allocation_cost, candidate_allocations, default_allocation, plan_round
 from dumbocracy.strategies.worlds import (
-    WorldBatch, observed_allocations, public_sizes, replay_history, sample_worlds, scaled_sizes,
+    BatchWorkers, WorldBatch, observed_allocations, public_sizes, replay_history, sample_worlds, scaled_sizes,
+    team_by_region,
 )
 
 N = 2000
@@ -45,15 +46,15 @@ def _ok(state, action):
     return step.state
 
 
-PLAYED = [Allocation((3, 3, 2, 2), 5, (True, False, False, False)), Allocation((0, 10, 0, 0), 0, (False, True, True, False))]
+PLAYED = [Allocation((1, 1, 0, 0), (True, False, False, False)), Allocation((0, 1, 0, 0), (False, True, True, False))]
 
 
 @pytest.fixture(scope="module")
 def round3_state(survey_state):
     state = _ok(survey_state, {"type": "commit", "manifesto": list(B)})
     for a in PLAYED:
-        state = _ok(state, {"type": "allocate", "workers_by_region": list(a.workers_by_region),
-                            "extra_workers": a.extra_workers, "media_regions": list(a.media_regions)})
+        state = _ok(state, {"type": "allocate", "hires_by_region": list(a.hires_by_region),
+                            "media_regions": list(a.media_regions)})
     return state
 
 
@@ -123,26 +124,66 @@ def test_replay_advances_rounds_and_matches_history(round3_state, config):
     # pulled toward the manifesto: similarity to b increases relative to v(0)
     b = torch.tensor(B)
     assert float((v2 - b).abs().sum(1).mean()) < float((world.preferences - b).abs().sum(1).mean())
+    # the replayed worlds carry the workers: 3 bought in total (scaled to the 1000-voter world: ~1.5)
+    v_w, workers = WorldBatch([world], config).replay_state(obs, seed=4)
+    assert torch.equal(v_w, v2) and workers.plans == 1
+    assert 0 <= int(workers.pinned.sum()) <= 3
+    assert torch.equal(v_w[workers.pinned[0]], b.to(v_w.dtype).expand(int(workers.pinned.sum()), -1))
+    assert team_by_region(obs) == [1, 2, 0, 0]
     # before commit, replay is the identity
     pre = dict(obs, manifesto=None, allocations=[])
     assert torch.equal(replay_history(world, pre, config), world.preferences)
 
 
 def test_world_batch_matches_simulate_world(config, electorate):
-    """The batched campaign/dynamics reproduce simulate_world's expected share (statistically)."""
+    """The batched P8 campaign/dynamics reproduce simulate_world's expected share and cascade (statistically)."""
     manifesto = torch.tensor(B)
-    plan = Allocation((5, 5, 5, 5), 10, (True, False, False, False))
-    policy = lambda ctx: plan  # noqa: E731
-    reference = [simulate_world(electorate, dataclasses.replace(config, seed=s), manifesto, policy).share_trajectory[-1]
-                 for s in range(4)]
+    plans = [Allocation((2, 2, 1, 1), (True, False, False, False))] + [Allocation((0, 0, 0, 0), (True, False, False, False))] * 3
+    policy = lambda ctx: plans[ctx.round]  # noqa: E731
+    runs = [simulate_world(electorate, dataclasses.replace(config, seed=s), manifesto, policy) for s in range(6)]
+    reference = sum(r.share_trajectory[-1] for r in runs) / len(runs)
+    ref_pinned = sum(int(r.workers.pinned.sum()) for r in runs) / len(runs)
     batch = WorldBatch([electorate], config)
-    v = batch.preferences.unsqueeze(0).expand(4, -1, -1).contiguous()
-    airings = torch.zeros((4, 4), dtype=torch.int64)
+    C = 6
+    v = batch.preferences.unsqueeze(0).expand(C, -1, -1).contiguous()
+    airings = torch.zeros((C, 4), dtype=torch.int64)
+    workers = None
     for t in range(config.rounds):
-        v = batch.step(v, [plan] * 4, airings, manifesto, torch.Generator().manual_seed(100 + t))
-        airings = airings + torch.tensor([[1, 0, 0, 0]] * 4)
+        v, workers = batch.step(v, [plans[t]] * C, airings, manifesto, torch.Generator().manual_seed(100 + t), workers)
+        airings = airings + torch.tensor([[1, 0, 0, 0]] * C)
     ours = float(batch.shares(v, manifesto).mean())
-    assert abs(ours - sum(reference) / len(reference)) < 0.01
+    assert abs(ours - reference) < 0.02, (ours, reference)
+    assert ref_pinned == 6 and bool((workers.pinned.sum(1) == 6).all())
+    # pinned workers sit exactly at b, zealots never move
+    for c in range(C):
+        assert torch.equal(v[c][workers.pinned[c]], manifesto.expand(6, -1))
+    z = batch.zealot
+    assert torch.equal(v[:, z], batch.preferences[z].expand(C, -1, -1))
+
+
+def test_world_batch_picks_follow_r22(config, electorate):
+    batch = WorldBatch([electorate, electorate], config)
+    plans = [Allocation((3, 0, 1, 0)), Allocation((0, 2, 0, 2))]
+    v = batch.preferences.unsqueeze(0).expand(2, -1, -1).contiguous()
+    _, workers = batch.step(v, plans, torch.zeros((2, 4), dtype=torch.int64), torch.tensor(B), torch.Generator().manual_seed(1))
+    region = batch.local_region
+    world = torch.arange(2 * batch.n) // batch.n
+    for c, a in enumerate(plans):
+        for w in range(2):
+            for r in range(4):
+                assert int((workers.pinned[c] & (region == r) & (world == w)).sum()) == a.hires_by_region[r]
+        assert bool((batch.graph.degree[workers.pinned[c]] >= 3).all()) and not bool(batch.zealot[workers.pinned[c]].any())
+    # rescaled worlds scale the hires (N/n = 2): 4 hires -> 2 per world on average
+    small = sample_worlds(observation_for(GameEngine.new_game(config, electorate=electorate), "p0"), ASSIGN, config,
+                          num_voters=1000, seed=3)
+    sb = WorldBatch(small, config)
+    assert sb.hire_scale == pytest.approx(0.5)
+    counts = []
+    for s in range(20):
+        _, w = sb.step(sb.preferences.unsqueeze(0), [Allocation((3, 0, 0, 0))], torch.zeros((1, 4), dtype=torch.int64),
+                       torch.tensor(B), torch.Generator().manual_seed(s))
+        counts.append(int(w.pinned.sum()))
+    assert all(3 <= x <= 6 for x in counts) and abs(sum(counts) / 20 - 4.5) < 1.0
 
 
 def _random_round_observation(base_obs, rng, config):
@@ -152,49 +193,41 @@ def _random_round_observation(base_obs, rng, config):
     if rng.random() < 0.2:
         obs["treasury"] = f"{Decimal(rng.randint(0, 3000)) / 100:.2f}"
     obs["media_airings"] = {r: rng.randint(0, 4) for r in ("N", "S", "E", "W")}
-    hired = rng.choice([0, 0, rng.randint(1, 60)])   # R16: permanent hires so far
-    free = config.workers.free_workers
-    obs["workers"] = {"free": free, "hired": hired, "available": free + hired}
     return obs
 
 
 def test_candidates_valid_and_affordable_property(round3_state, config):
-    """R16: every candidate is valid (≤ free + earlier hires + new hires) and affordable, accepted by the engine."""
+    """Every candidate is valid and affordable and accepted by the engine (P8 hires + media)."""
     base = observation_for(round3_state, "p0")
-    assert base["workers"] == {"free": 10, "hired": 5, "available": 15}   # PLAYED hired 5 in round 1
+    assert base["workers"] == {"by_region": {"N": 1, "S": 2, "E": 0, "W": 0}, "total": 3}
     rng = random.Random(0)
     player = round3_state.player("p0")
     for _ in range(300):
         obs = _random_round_observation(base, rng, config)
-        hired = obs["workers"]["hired"]
         cands = candidate_allocations(obs, config)
         assert 1 <= len(cands) <= 20
         assert len(set(cands)) == len(cands)
-        state = round3_state.with_player(dataclasses.replace(player, ledger=Ledger(Decimal(obs["treasury"])),
-                                                             hired_workers=hired))
+        state = round3_state.with_player(dataclasses.replace(player, ledger=Ledger(Decimal(obs["treasury"]))))
         for a in cands:
-            a.validate(config.workers.free_workers, hired)
-            # candidates put every available worker to work (free + earlier hires + new hires)
-            assert sum(a.workers_by_region) == config.workers.free_workers + hired + a.extra_workers
-            action = Allocate(tuple(a.workers_by_region), a.extra_workers, tuple(a.media_regions))
+            a.validate()
+            assert allocation_cost(a, public_sizes(obs), config) <= Decimal(obs["treasury"])
+            action = Allocate(tuple(a.hires_by_region), tuple(a.media_regions))
             assert validate(state, state.player("p0"), action) is None
         # the default continuation is affordable and valid too
-        d = default_allocation(public_sizes(obs), Decimal(obs["treasury"]), 2, [0, 0, 0, 0], config, hired)
-        assert validate(state, state.player("p0"), Allocate(d.workers_by_region, d.extra_workers, d.media_regions)) is None
-        # ... and without counting the earlier hires it would never over-assign either
-        if hired:
-            too_many = Allocate((config.workers.free_workers + hired + 1, 0, 0, 0), 0, (False,) * 4)
-            assert validate(state, state.player("p0"), too_many).code == "INVALID_ALLOCATION"
+        d = default_allocation(public_sizes(obs), Decimal(obs["treasury"]), 2, [0, 0, 0, 0], config)
+        assert validate(state, state.player("p0"), Allocate(d.hires_by_region, d.media_regions)) is None
 
 
 def test_candidates_diverse_with_budget(round3_state, config):
     obs = observation_for(round3_state, "p0")
     cands = candidate_allocations(obs, config)
     assert len(cands) >= 10
-    assert any(any(a.media_regions) for a in cands) and any(a.extra_workers > 0 for a in cands)
-    assert any(a.extra_workers == 0 and not any(a.media_regions) for a in cands)
+    assert any(any(a.media_regions) for a in cands) and any(a.total_hires > 0 for a in cands)
+    assert any(a.total_hires == 0 and not any(a.media_regions) for a in cands)
+    assert any(a.total_hires == 0 and any(a.media_regions) for a in cands)            # media-only
+    assert any(sum(1 for h in a.hires_by_region if h) == 1 for a in cands)              # focus on one region
     broke = dict(obs, treasury="0.00")
-    assert all(a.extra_workers == 0 and not any(a.media_regions) for a in candidate_allocations(broke, config))
+    assert candidate_allocations(broke, config) == [Allocation()]
 
 
 def test_plan_round_deterministic_and_returns_candidate(round3_state, config):
@@ -208,11 +241,57 @@ def test_plan_round_deterministic_and_returns_candidate(round3_state, config):
     assert d1["candidates"][:len(base)] == base  # + value-guided candidates from the same worlds
     treasury = Decimal(obs["treasury"])
     for a in d1["candidates"]:
-        a.validate(config.workers.free_workers, obs["workers"]["hired"])
-        assert a.extra_workers * config.workers.extra_worker_cost <= treasury
+        a.validate()
+        assert allocation_cost(a, public_sizes(obs), config) <= treasury
     _, d4 = plan_round(obs, worlds, obs["manifesto"], config, seed=7, value_guided=False)
     assert d4["candidates"] == base
     assert d1["num_worlds"] == 3 and len(d1["scores"]) == d1["num_candidates"]
     assert d1["best_score"] == max(d1["scores"])
     a3, d3 = plan_round(obs, worlds, obs["manifesto"], config, seed=7, rollout="none")
     assert a3 in d3["candidates"]
+
+
+def test_plan_round_is_fast_at_10k():
+    """Rollout planner decision at N = 10k (players use 8 worlds x 1600 voters) stays under 1 s."""
+    import time
+    from dumbocracy.strategies.players import BayesPlanner
+    cfg = GameConfig(seed=5, rounds=5, device="cpu")
+    state = GameEngine.new_game(cfg)
+    state = _ok(state, {"type": "commit", "manifesto": list(B)})
+    state = _ok(state, {"type": "allocate", "hires_by_region": [2, 0, 1, 0], "media_regions": [True, False, False, False]})
+    obs = observation_for(state, "p0")
+    player = BayesPlanner(seed=1, round_query_gain=None)
+    player.allocation(obs)          # warm-up
+    start = time.perf_counter()
+    allocation, diag = player.allocation(obs)
+    assert time.perf_counter() - start < 1.0, diag["seconds"]
+    allocation.validate()
+
+
+@pytest.mark.parametrize("fee", ["1.00", "50.00", "137.50", "600.00"])
+def test_candidates_and_default_affordable_at_any_fee(round3_state, config, fee):
+    """Strategies must never exceed the treasury whatever the worker fee is."""
+    cfg = dataclasses.replace(config, workers=dataclasses.replace(config.workers, worker_cost=Decimal(fee)))
+    base = observation_for(round3_state, "p0")
+    rng = random.Random(1)
+    for _ in range(100):
+        obs = _random_round_observation(base, rng, cfg)
+        treasury = Decimal(obs["treasury"])
+        cands = candidate_allocations(obs, cfg)
+        assert all(allocation_cost(a, public_sizes(obs), cfg) <= treasury for a in cands)
+        if treasury >= Decimal(fee) + 200:   # enough for a worker and an airing: the set stays diverse
+            assert any(a.total_hires > 0 for a in cands) and any(any(a.media_regions) for a in cands)
+            assert len(cands) >= 5
+        for left in (1, 2, 4):
+            d = default_allocation(public_sizes(obs), treasury, left, [0, 0, 0, 0], cfg)
+            assert allocation_cost(d, public_sizes(obs), cfg) <= treasury
+
+
+@pytest.mark.parametrize("fee", ["50.00", "137.50"])
+def test_scripted_players_never_overspend(fee):
+    from dumbocracy.strategies.players import RandomPlayer, Top3Player, play_game
+    cfg = GameConfig(seed=31, rounds=3, device="cpu", electorate=ElectorateConfig(num_voters=1000),
+                     workers=dataclasses.replace(GameConfig().workers, worker_cost=Decimal(fee)))
+    for player in (Top3Player(config=cfg), RandomPlayer(seed=2)):
+        final, log = play_game(GameEngine.new_game(cfg, game_id="fee"), player)   # strict: a rejection raises
+        assert final.phase == "DONE" and all(ok for *_, ok, _ in log)

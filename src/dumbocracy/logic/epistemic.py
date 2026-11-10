@@ -25,10 +25,10 @@ Policy set Π_t (:func:`policy_set`): every allocation of
 played as is in round t; in every later round s the same pattern is re-applied with its spending re-capped
 to the remaining money: per-round money = min(treasury_s, pace · treasury_s / rounds_left_s) where
 pace = cost(a) / (treasury_t / rounds_left_t); the plan's media regions are kept while affordable within
-that money (in plan order), the rest buys new hires, and all workers are split with the plan's region
-weights. Hires are permanent (R16): a plan's later rounds assign free + every hire made so far (before the
-decision point and by the plan itself) + that round's new hires. Plus "No spend" (all available workers by
-region size, nothing bought).
+that money (in plan order), the rest buys new workers (P8), split with the plan's region weights (its
+first-round hires, or region sizes for a media-only plan). Workers are permanent and their cascades run in
+every later round of the simulation (the worlds carry each plan's worker state). Plus "No spend" (nothing
+bought; workers bought before the decision point keep spreading).
 """
 from __future__ import annotations
 
@@ -42,8 +42,8 @@ import torch
 from ..config import GameConfig, SeedStreams
 from ..dynamics.campaign import Allocation, media_cost
 from ..sectors import NUM_REGIONS, REGIONS
-from ..strategies.planner import candidate_allocations, round_cap, rounds_left, split_by_weight
-from ..strategies.worlds import WorldBatch, hired_workers, public_sizes
+from ..strategies.planner import allocation_cost, candidate_allocations, round_cap, rounds_left, workers_for
+from ..strategies.worlds import BatchWorkers, WorldBatch, public_sizes
 from .worlds import WorldSet
 
 __all__ = ["K", "M", "Plan", "evaluate", "guaranteed_victory", "inevitable_defeat", "knows_win_exists",
@@ -142,12 +142,10 @@ class Plan:
     weights: tuple[float, float, float, float]
     pace: Decimal                        # per-round money as a multiple of the even cap
 
-    def allocation(self, sizes: Sequence[int], treasury: Decimal, left: int, config: GameConfig,
-                   hired: int = 0) -> Allocation:
-        """The plan's allocation for a later round with ``treasury`` money, ``left`` rounds to go and
-        ``hired`` permanent hires already made (R16)."""
+    def allocation(self, sizes: Sequence[int], treasury: Decimal, left: int, config: GameConfig) -> Allocation:
+        """The plan's allocation for a later round with ``treasury`` money and ``left`` rounds to go."""
         if self.pace <= 0:
-            return Allocation(split_by_weight(config.workers.free_workers + hired, self.weights))
+            return Allocation()
         money = min(treasury, (round_cap(treasury, left) * self.pace).quantize(CENT, rounding=ROUND_FLOOR))
         media = [False] * NUM_REGIONS
         for r in range(NUM_REGIONS):
@@ -157,24 +155,24 @@ class Plan:
                 if media_cost(sizes, trial, config.media.base_cost) <= money:
                     media = trial
         left_money = money - media_cost(sizes, media, config.media.base_cost)
-        extra = max(0, int(left_money // config.workers.extra_worker_cost)) if left_money > 0 else 0
-        workers = split_by_weight(config.workers.free_workers + hired + extra, self.weights)
-        return Allocation(workers, extra, tuple(media))  # type: ignore[arg-type]
+        return Allocation(workers_for(left_money, self.weights, config), tuple(media))  # type: ignore[arg-type]
 
 
 def _cost(a: Allocation, sizes: Sequence[int], config: GameConfig) -> Decimal:
-    return a.extra_workers * config.workers.extra_worker_cost + media_cost(sizes, a.media_regions, config.media.base_cost)
+    return allocation_cost(a, sizes, config)
 
 
 def _label(a: Allocation, sizes: Sequence[int], pace: Decimal) -> str:
     aired = [REGIONS[r] for r in range(NUM_REGIONS) if a.media_regions[r]]
-    workers = list(a.workers_by_region)
-    total = sum(workers)
-    nonzero = [REGIONS[r] for r in range(NUM_REGIONS) if workers[r] > 0]
-    if total and len(nonzero) == 1:
-        where = f"workers focused on {nonzero[0]}"
+    hires = list(a.hires_by_region)
+    total = sum(hires)
+    nonzero = [REGIONS[r] for r in range(NUM_REGIONS) if hires[r] > 0]
+    if not total:
+        where = "no workers"
+    elif len(nonzero) == 1:
+        where = f"{total} workers in {nonzero[0]}"
     else:
-        where = "workers by region size"
+        where = f"{total} workers ({'/'.join(str(h) for h in hires)})"
     media = f"media in {'+'.join(aired)}" if aired else "no media"
     spend = "no spending" if pace <= 0 else f"{int((pace * 100).to_integral_value())}% pace"
     return f"{where}, {media}, {spend}"
@@ -186,8 +184,8 @@ def policy_set(observation_t: dict[str, Any], config: GameConfig) -> list[Plan]:
     treasury = Decimal(str(observation_t["treasury"]))
     cap = round_cap(treasury, rounds_left(observation_t))
     by_size = tuple(float(s) for s in sizes)
-    no_spend = Allocation(split_by_weight(config.workers.free_workers + hired_workers(observation_t), by_size))
-    plans = [Plan("No spend (available workers by region size)", no_spend, (False,) * NUM_REGIONS, by_size, Decimal(0))]  # type: ignore[arg-type]
+    no_spend = Allocation()
+    plans = [Plan("No spend (earlier workers keep spreading)", no_spend, (False,) * NUM_REGIONS, by_size, Decimal(0))]  # type: ignore[arg-type]
     seen = {no_spend}
     for a in candidate_allocations(observation_t, config):
         if a in seen:
@@ -195,7 +193,7 @@ def policy_set(observation_t: dict[str, Any], config: GameConfig) -> list[Plan]:
         seen.add(a)
         cost = _cost(a, sizes, config)
         pace = (cost / cap).quantize(Decimal("0.01")) if cap > 0 else Decimal(0)
-        weights = tuple(float(w) for w in a.workers_by_region) if sum(a.workers_by_region) > 0 else by_size
+        weights = tuple(float(h) for h in a.hires_by_region) if a.total_hires > 0 else by_size
         plans.append(Plan(_label(a, sizes, pace), a, tuple(a.media_regions), weights, pace))  # type: ignore[arg-type]
     labels: dict[str, int] = {}
     out = []
@@ -209,8 +207,11 @@ def policy_set(observation_t: dict[str, Any], config: GameConfig) -> list[Plan]:
 # ----------------------------------------------------------------------------------- simulation
 
 def simulate_plans(batch: WorldBatch, current: torch.Tensor, policies: Sequence[Plan], observation_t: dict[str, Any],
-                   config: GameConfig, *, seed: int = 0, trajectory: bool = False):
+                   config: GameConfig, *, seed: int = 0, trajectory: bool = False, workers: BatchWorkers | None = None):
     """Play every plan from the decision point to the election in every world of ``batch`` (batched, CRN).
+
+    ``workers`` is the worlds' worker state at the decision point (C = 1, e.g. from
+    :meth:`WorldBatch.replay_state`); ``None`` = no workers bought yet.
 
     Returns ``V [W, Π]`` (float64 expected shares at the election) and, with ``trajectory``, also the
     share after every remaining round ``[W, Π, rounds_left]``.
@@ -226,7 +227,6 @@ def simulate_plans(batch: WorldBatch, current: torch.Tensor, policies: Sequence[
     airings0 = [int(observation_t.get("media_airings", {}).get(r, 0)) for r in REGIONS]
     airings = torch.tensor([airings0] * C, dtype=torch.int64, device=batch.device)
     budgets = [treasury] * C
-    hires = [hired_workers(observation_t)] * C        # R16: permanent hires, accumulated per plan
     v = current.to(batch.device).unsqueeze(0).expand(C, -1, -1).contiguous()
     streams = SeedStreams(int(seed))
     shares_by_round = []
@@ -234,14 +234,13 @@ def simulate_plans(batch: WorldBatch, current: torch.Tensor, policies: Sequence[
         if step == 0:
             plans = [p.first for p in policies]
         else:
-            plans = [p.allocation(sizes, budgets[c], left - step, config, hires[c]) for c, p in enumerate(policies)]
+            plans = [p.allocation(sizes, budgets[c], left - step, config) for c, p in enumerate(policies)]
         for c, a in enumerate(plans):
             budgets[c] = budgets[c] - _cost(a, sizes, config)
-            hires[c] += a.extra_workers
             if budgets[c] < 0:
                 raise ValueError(f"plan {policies[c].label!r} overspends")
         gen = streams.generator("worlds", "logic-eval", t0 + step, device=batch.device)
-        v = batch.step(v, plans, airings, b, gen)
+        v, workers = batch.step(v, plans, airings, b, gen, workers)
         airings = airings + torch.tensor([p.media_regions for p in plans], dtype=torch.int64, device=batch.device)
         if trajectory or step == left - 1:
             shares_by_round.append(batch.shares(v, b).T.to(torch.float64).cpu())       # [W, Π]
@@ -254,7 +253,8 @@ def simulate_plans(batch: WorldBatch, current: torch.Tensor, policies: Sequence[
 def evaluate(worlds: WorldSet, policies: Sequence[Plan], observation_t: dict[str, Any], config: GameConfig, *,
              seed: int = 0, trajectory: bool = False):
     """Outcome matrix ``V[w, π]`` over the sampled consistent worlds (see :func:`simulate_plans`)."""
-    return simulate_plans(worlds.batch, worlds.current, policies, observation_t, config, seed=seed, trajectory=trajectory)
+    return simulate_plans(worlds.batch, worlds.current, policies, observation_t, config, seed=seed, trajectory=trajectory,
+                          workers=worlds.workers)
 
 
 def truth_victory_possible(true_state, policies: Sequence[Plan], *, player_id: str = "p0",
@@ -269,6 +269,9 @@ def truth_victory_possible(true_state, policies: Sequence[Plan], *, player_id: s
     from ..game.observation import observation_for
     obs = observation_t or observation_for(true_state, player_id)
     batch = WorldBatch([true_state.electorate], true_state.config)
-    shares = simulate_plans(batch, true_state.preferences, policies, obs, true_state.config, seed=seed)[0]   # [Π]
+    true_workers = true_state.player(player_id).workers
+    workers = BatchWorkers.from_state(true_workers) if true_workers is not None else None
+    shares = simulate_plans(batch, true_state.preferences, policies, obs, true_state.config, seed=seed,
+                            workers=workers)[0]   # [Π]
     possible = bool((shares > THRESHOLD).any())
     return (possible, shares) if return_shares else possible

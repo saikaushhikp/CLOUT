@@ -50,13 +50,14 @@ const P = {
   budget: "500.00", // default starting treasury (R17: the player may choose 500.00..1000.00)
   budgetMin: 50000, // cents
   budgetMax: 100000,
-  query: "5.00",
-  extraWorker: "4.00",
-  freeWorkers: 10,
+  query: "10.00",
+  worker: "20.00",
+  minDegree: 3,
+  attemptCap: 3,
+  /** share of a region's voters with ≥ min_degree friends, not zealots (eligible to be bought as workers) */
+  eligibleShare: 0.9,
   kappa: 60,
   omega: 0.15,
-  etaW: 0.5,
-  etaWom: 0.15,
   m0: 50,
   etaM0: 0.25,
   lambda: 0.5,
@@ -160,6 +161,10 @@ type MockGame = {
   initialReps: number[][];
   eventSeq: number;
   lastTouched: number;
+  /** P8 hidden cascade state, per region: permanent workers, last round's converts (spread next round), attempts used */
+  team: number[];
+  pendingSpreaders: number[];
+  attempts: number[];
   /** pooled query tallies per (triple, phase, round) — hidden counts behind the public pooled estimate */
   pools: Map<string, { yes: number; m: number; count: number }>;
 };
@@ -402,7 +407,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
 
     const id = `mock-${(seed >>> 0).toString(36)}-${Date.now().toString(36)}${(counter++).toString(36)}`;
     const obs: Observation = {
-      schema_version: "2.0",
+      schema_version: "2.2",
       game_id: id,
       player_id: "p0",
       phase: "SURVEY",
@@ -412,13 +417,13 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       seed,
       treasury: centsToString(budgetCents),
       initial_budget: centsToString(budgetCents),
-      workers: { free: P.freeWorkers, hired: 0, available: P.freeWorkers },
+      workers: { by_region: { N: 0, S: 0, E: 0, W: 0 }, total: 0 },
       round_reports: [],
       costs: {
         query: P.query,
-        extra_worker: P.extraWorker,
-        free_workers: P.freeWorkers,
-        contacts_per_worker: Math.max(1, Math.round(0.0025 * n)),
+        worker: P.worker,
+        min_degree: P.minDegree,
+        attempt_cap: P.attemptCap,
         media_by_region: { N: "0.00", S: "0.00", E: "0.00", W: "0.00" },
       },
       sectors: SECTOR_IDS.map((s, i) => ({ id: s, label: SECTOR_LABELS[i] })),
@@ -461,6 +466,9 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       initialReps: reps.map((r) => r.v.slice()),
       eventSeq: 0,
       lastTouched: Date.now() + counter++,
+      team: [0, 0, 0, 0],
+      pendingSpreaders: [0, 0, 0, 0],
+      attempts: [0, 0, 0, 0],
       pools: new Map(),
     };
     refreshMediaPrices(game);
@@ -547,48 +555,61 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     const o = game.obs;
     if (o.phase === "DONE") return reject(game, "TERMINAL_STATE", "The game is over.");
     if (o.phase !== "ROUND") return reject(game, "INVALID_PHASE", "Commit a manifesto before campaigning.");
-    const w = req.workers_by_region;
+    const h = req.hires_by_region;
     const okShape =
-      Array.isArray(w) &&
-      w.length === 4 &&
-      w.every((x) => Number.isInteger(x) && x >= 0) &&
-      Number.isInteger(req.extra_workers) &&
-      req.extra_workers >= 0 &&
+      Array.isArray(h) &&
+      h.length === 4 &&
+      h.every((x) => Number.isInteger(x) && x >= 0) &&
       Array.isArray(req.media_regions) &&
       req.media_regions.length === 4 &&
       req.media_regions.every((x) => typeof x === "boolean");
     if (!okShape) return reject(game, "INVALID_ALLOCATION", "Malformed allocation.");
-    // R16: hires are permanent — the pool is free + every earlier hire + this round's new hires.
-    if (w.reduce((s, x) => s + x, 0) > o.workers.available + req.extra_workers)
-      return reject(game, "INVALID_ALLOCATION", "More workers assigned than available + new hires.");
+    // R22: each hire is a distinct eligible voter of that region (degree ≥ min_degree, not a zealot, not a worker yet).
+    for (let r = 0; r < 4; r++) {
+      if (game.team[r] + h[r] > Math.floor(P.eligibleShare * game.sizes[r]))
+        return reject(game, "INVALID_ALLOCATION", `Not enough eligible voters left in ${REGION_LABELS[r]} to hire ${h[r]} workers.`);
+    }
     const costCents =
-      req.extra_workers * toCents(o.costs.extra_worker) +
+      h.reduce((s, x) => s + x, 0) * toCents(o.costs.worker) +
       REGION_IDS.reduce((s, r, i) => (req.media_regions[i] ? s + toCents(o.costs.media_by_region[r]) : s), 0);
     if (costCents > toCents(o.treasury)) return reject(game, "INSUFFICIENT_FUNDS", "Allocation costs more than the treasury.");
 
     const t = o.round;
     const b = o.manifesto!;
     const rng = streamOf(o.seed, `campaign:${t}`);
-    let direct = 0;
-    let wom = 0;
+    // P8 cascade (a cheap aggregate stand-in for R24–R27): this round's spreaders are the new hires plus last
+    // round's converts; each tries ~mean-degree friends once; chance = receptiveness × P(vote for b); ≤ cap tries each.
+    let spreaders = 0;
+    let converted = 0;
     let mediaExposed = 0;
-    const exposure = game.reps.map(() => 1); // product of (1 - e)
+    const convertP = [0, 0, 0, 0];
+    const exposure = game.reps.map(() => 1); // product of (1 - e) for media
     for (let r = 0; r < 4; r++) {
       const nr = game.sizes[r];
-      const contacts = w[r] * o.costs.contacts_per_worker;
-      direct += contacts;
-      const fContact = 1 - Math.exp(-contacts / nr);
-      const fWom = Math.min(1, fContact * 1.6);
-      if (contacts > 0) wom += Math.round(nr * fWom * 0.95);
+      const idxs = game.repsByRegion[r];
+      const sp = h[r] + game.pendingSpreaders[r];
+      spreaders += sp;
+      const chance =
+        idxs.reduce((acc, i) => {
+          const rep = game.reps[i];
+          return rep.zealot ? acc : acc + rep.gamma * sigmoid(P.betaV * (1 - tv(rep.v, b) - P.z));
+        }, 0) / idxs.length;
+      const capLeft = Math.max(0, P.attemptCap * nr - game.attempts[r]);
+      const tries = Math.min(capLeft, Math.round(sp * Math.min(P.meanDegree, nr - 1) * P.inRegion));
+      game.attempts[r] += tries;
+      const pool = Math.max(0, nr - game.team[r] - h[r]);
+      const conv = Math.min(pool, Math.round(tries * chance * (capLeft / Math.max(1, P.attemptCap * nr))));
+      converted += conv;
+      game.pendingSpreaders[r] = t < o.rounds ? conv : 0; // R24: converts of the final round never spread
+      game.team[r] += h[r];
+      convertP[r] = Math.min(1, (conv + h[r]) / nr);
       const aired = req.media_regions[r];
       const airings = o.media_airings[REGION_IDS[r]];
       const etaM = P.etaM0 / (1 + P.lambda * airings);
       if (aired) mediaExposed += Math.round(nr * P.pMedia);
-      for (const i of game.repsByRegion[r]) {
+      for (const i of idxs) {
         const rep = game.reps[i];
         if (rep.zealot) continue;
-        if (contacts > 0 && rng() < fContact) exposure[i] *= 1 - P.etaW * rep.gamma;
-        if (contacts > 0 && rng() < fWom) exposure[i] *= 1 - P.etaWom * rep.gamma;
         if (aired && rng() < P.pMedia) exposure[i] *= 1 - etaM * rep.beta;
       }
     }
@@ -598,8 +619,10 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       if (rep.zealot) return;
       const a = P.omega * rep.alpha;
       let c = 1 - exposure[i];
+      // R25/R26: a converted voter (or new worker) takes v = b, then drifts with the social step like anyone else
+      if (convertP[rep.region] > 0 && rng() < convertP[rep.region]) c = 1 - a;
       if (a + c > 1) c = 1 - a;
-      // social part already mixes (1-a)v + a·agg; add campaign pull toward b
+      // social part already mixes (1-a)v + a·agg; add campaign/media pull toward b
       const v = social[i].map((x, k) => (1 - c) * x + c * b[k]);
       const s = v.reduce((p, q) => p + q, 0);
       rep.v = v.map((x) => Math.max(0, x / s));
@@ -609,11 +632,13 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       if (req.media_regions[i]) o.media_airings[r] += 1;
     });
     o.treasury = centsToString(toCents(o.treasury) - costCents);
-    o.workers = { free: o.workers.free, hired: o.workers.hired + req.extra_workers, available: o.workers.available + req.extra_workers };
+    o.workers = {
+      by_region: { N: game.team[0], S: game.team[1], E: game.team[2], W: game.team[3] },
+      total: game.team.reduce((x, y) => x + y, 0),
+    };
     o.allocations.push({
       round: t,
-      workers_by_region: w.slice(),
-      extra_workers: req.extra_workers,
+      hires_by_region: h.slice(),
       media_regions: req.media_regions.slice(),
       cost: centsToString(costCents),
     });
@@ -624,14 +649,16 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
       forfeit ? "forfeit" : "allocate",
       forfeit
         ? `Round ${t}: clock ran out — campaign stood idle.`
-        : `Round ${t}: ${direct.toLocaleString("en-US")} doorsteps, ${wom.toLocaleString("en-US")} reached by word of mouth, ${mediaExposed.toLocaleString("en-US")} saw ads.`,
+        : `Round ${t}: ${spreaders.toLocaleString("en-US")} spreaders converted ${converted.toLocaleString("en-US")} voters, ${mediaExposed.toLocaleString("en-US")} saw ads.`,
     );
 
     const report: RoundReport = {
       round: t,
       cost: centsToString(costCents),
-      direct_contacts: direct,
-      word_of_mouth_reached: wom,
+      hires_by_region: h.slice(),
+      team_by_region: game.team.slice(),
+      spreaders,
+      converted,
       media_exposed: mediaExposed,
       election_held: false,
     };
@@ -747,8 +774,8 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     const rng = streamOf(o.seed, "epistemic");
     const plans = [
       { label: "Hold back (no campaign)", lift: 0 },
-      { label: "Free workers, spread evenly", lift: 0.006 },
-      { label: "Canvass the swing region", lift: 0.011 },
+      { label: "Buy workers, spread evenly", lift: 0.006 },
+      { label: "Buy workers in the swing region", lift: 0.011 },
       { label: "Workers + media blitz", lift: 0.016 },
     ];
     const win = (share: number) => share > 0.5;
@@ -826,7 +853,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     commit: (g, p, req) => guard(() => commit(getGame(g, p), req.manifesto)),
     allocate: (g, p, req) => guard(() => resolve(getGame(g, p), req, false)),
     forfeit: (g, p) =>
-      guard(() => resolve(getGame(g, p), { workers_by_region: [0, 0, 0, 0], extra_workers: 0, media_regions: [false, false, false, false] }, true)),
+      guard(() => resolve(getGame(g, p), { hires_by_region: [0, 0, 0, 0], media_regions: [false, false, false, false] }, true)),
     graphSample: (g, maxNodes = 1500) => guard(() => graphSample(getGame(g), maxNodes)),
     debrief: (g, p) =>
       guard(() => {

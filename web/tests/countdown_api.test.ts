@@ -47,7 +47,7 @@ describe("http client", () => {
     await c.observation("g 1", "p0");
     await c.query("g", "p0", { sector_a: "Edu", sector_b: "Env", region: "N" });
     await c.commit("g", "p0", { manifesto: [0.2, 0.2, 0.2, 0.2, 0.2] });
-    await c.allocate("g", "p0", { workers_by_region: [1, 2, 3, 4], extra_workers: 0, media_regions: [true, false, false, false] });
+    await c.allocate("g", "p0", { hires_by_region: [1, 2, 3, 4], media_regions: [true, false, false, false] });
     await c.forfeit("g", "p0");
     await c.graphSample("g");
     await c.debrief("g", "p0");

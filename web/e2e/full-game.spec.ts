@@ -1,6 +1,6 @@
 /**
  * (a) full game, (f) privacy of every payload during play, (g) WebGL network view at DONE only (R18) —
- * desktop 1440×900. Also: chosen starting treasury (R17), permanent hires (R16), round look-back (R19),
+ * desktop 1440×900. Also: chosen starting treasury (R17), bought permanent workers (P8), round look-back (R19),
  * blend picker (R20), committed manifesto panel during the rounds.
  */
 import { expect, test } from "@playwright/test";
@@ -20,7 +20,7 @@ import {
   shot,
   startGame,
   watchDiagnostics,
-  workers,
+  hire,
 } from "./helpers";
 
 const SEED = 20261108;
@@ -123,38 +123,48 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
     await expect(manifestoPanel.getByRole("img", { name: /^Manifesto: Education 30%, Welfare 15%, Agriculture 25%, Industry 15%, Environment 15%$/ })).toBeVisible();
     // "How it works" popover in the orders panel
     await page.getByText("How it works").click();
-    await expect(page.getByRole("note", { name: "How workers are hired and used" })).toContainText("up to 3 hops");
+    const help = page.getByRole("note", { name: "How party workers work" });
+    await expect(help).toContainText("one hop per round");
+    await expect(help).toContainText("one-time fee");
     await page.getByText("How it works").click();
     await shot(page, "desktop-06-campaign-round1");
 
-    // R16: hires are permanent, so the team grows: 10 → 12 → 15 → 15 → 19.
-    const plans = [
-      { w: { North: 4, South: 3, East: 2, West: 1 }, extra: 0, media: ["North"] },
-      { w: { North: 3, South: 3, East: 3, West: 3 }, extra: 2, media: ["West"] },
-      { w: { North: 5, South: 3, East: 3, West: 2 }, extra: 3, media: [] },
-      { w: { North: 4, South: 4, East: 4, West: 3 }, extra: 0, media: ["East", "North"] },
-      { w: { North: 5, South: 5, East: 5, West: 4 }, extra: 4, media: ["South"] },
+    // P8: there are no free workers; bought workers are permanent and stay in their region: team 0 → 2 → 3 → 4 → 4 → 5.
+    const plans: { hires: Record<string, number>; media: string[] }[] = [
+      { hires: { North: 1, South: 1 }, media: ["North"] },
+      { hires: { East: 1 }, media: ["West"] },
+      { hires: { North: 1 }, media: [] },
+      { hires: {}, media: ["East", "North"] },
+      { hires: { West: 1 }, media: ["South"] },
     ];
-    let team = 10;
+    {
+      // the whole plan (+ the round-2 question) must fit the treasury at the engine's prices (fee and media read
+      // from the observation, never hard-coded); fail fast with a clear message if the price config changes
+      const o = await (await page.request.get(`/api/games/${gameId}/players/p0/observation`)).json();
+      const cents = (x: string) => Math.round(Number(x) * 100);
+      const regionId: Record<string, string> = { North: "N", South: "S", East: "E", West: "W" };
+      const workersCents = plans.reduce((a, pl) => a + Object.values(pl.hires).reduce((x, y) => x + y, 0), 0) * cents(o.costs.worker);
+      const mediaCents = plans.flatMap((pl) => pl.media).reduce((a, r) => a + cents(o.costs.media_by_region[regionId[r]]), 0);
+      const planCents = workersCents + mediaCents + cents(o.costs.query);
+      expect(planCents, `plan costs ${planCents / 100} at fee ${o.costs.worker}; treasury ${o.treasury}`).toBeLessThanOrEqual(cents(o.treasury));
+    }
+    let team = 0;
     const roundTimes: number[] = [];
     let prevPollLabel = await pollChart.getAttribute("aria-label");
     for (let t = 1; t <= 5; t++) {
       await expect(page.getByRole("heading", { name: `Round ${t} of 5` })).toBeVisible();
       const plan = plans[t - 1];
-      await expect(page.getByTestId("team-line")).toContainText(`= ${team} available`);
-      if (plan.extra) {
-        const extra = page.getByRole("spinbutton", { name: "New hires" });
-        await extra.fill(String(plan.extra));
-        await expect(extra).toHaveValue(String(plan.extra));
-      }
-      for (const [r, n] of Object.entries(plan.w)) await workers(page, r, n);
+      const bought = Object.values(plan.hires).reduce((a, b) => a + b, 0);
+      await expect(page.getByTestId("team-line")).toContainText(`Permanent team: ${team} worker`);
+      for (const [r, n] of Object.entries(plan.hires)) await hire(page, r, n);
+      if (bought) await expect(page.getByTestId("team-line")).toContainText(`+ ${bought} new = ${team + bought}`);
       for (const r of plan.media) {
         const toggle = page.getByRole("button", { name: new RegExp(`^Air media in ${r} for`) });
         await toggle.click();
         await expect(toggle).toHaveAttribute("aria-pressed", "true");
       }
       const orders = page.getByRole("form", { name: `Round ${t} allocation` });
-      await expect(orders.getByText(new RegExp(`${Object.values(plan.w).reduce((a, b) => a + b, 0)}/${team + plan.extra} deployed`))).toBeVisible();
+      await expect(orders.getByTestId("cost-table")).toContainText(`Workers ${bought} ×`);
       await expect(orders.getByRole("alert")).toHaveCount(0);
       if (t === 2) {
         // one paid question mid-campaign, from the Intel panel
@@ -169,10 +179,15 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
         const sheet = page.getByRole("dialog", { name: "Round 2 in review" });
         await expect(sheet).toBeVisible();
         await expect(sheet.getByText(/±\d+\.\d pts · n = /).first()).toBeVisible();
-        await expect(sheet.getByText(/10 on staff \+ 2 new permanent hires · 12 deployed/)).toBeVisible();
+        await expect(sheet.getByText(/Team: 2 before \+ 1 bought = 3 permanent workers/)).toBeVisible();
+        await expect(sheet.getByRole("columnheader", { name: "Bought" })).toBeVisible();
+        await expect(sheet.getByRole("columnheader", { name: "Team after" })).toBeVisible();
         await expect(sheet.getByText("Media: West")).toBeVisible();
         await expect(sheet.getByText("Questions asked (1)")).toBeVisible();
-        await expect(sheet.getByText("Word of mouth")).toBeVisible();
+        const outcomes = sheet.getByRole("region", { name: "Outcomes" });
+        await expect(outcomes.getByText("Spreaders")).toBeVisible();
+        await expect(outcomes.getByText("Converted")).toBeVisible();
+        await expect(outcomes.getByText("Saw your ads")).toBeVisible();
         await shot(page, "desktop-07b-round-lookback", { fullPage: false });
         await page.keyboard.press("Escape");
         await expect(sheet).toHaveCount(0);
@@ -180,6 +195,8 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
         await page.getByRole("list", { name: "Game progress" }).getByRole("button", { name: "Review round 1" }).click();
         const review = page.getByRole("dialog", { name: "Round 1 in review" });
         await expect(review).toBeVisible();
+        await expect(review.getByText(/Team: 0 before \+ 2 bought = 2 permanent workers/)).toBeVisible();
+        await expect(review.getByText("Media: North")).toBeVisible();
         // the current-round chip exists in both the top bar and the sheet; use the sheet's
         await review.getByRole("button", { name: "Round 3 — back to planning" }).click();
         await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -188,11 +205,12 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
       await expect(submit).toBeEnabled();
       t0 = Date.now();
       await submit.click();
-      team += plan.extra;
+      team += bought;
       if (t < 5) {
         await expect(page.getByRole("heading", { name: `Round ${t + 1} of 5` })).toBeVisible({ timeout: 60_000 });
         roundTimes.push(Date.now() - t0);
         await expect(page.getByLabel(`Round ${t} report`)).toBeVisible();
+        await expect(page.getByLabel(`Round ${t} report`)).toContainText(`R${t} spreaders`);
         const label = await pollChart.getAttribute("aria-label");
         expect(label, "poll chart gained a point").not.toEqual(prevPollLabel);
         expect(label).toContain(`R${t + 1}: poll`);
@@ -261,7 +279,7 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
     const doneObs = (during_[during_.length - 1].body as { observation: { initial_budget: string; round_reports: unknown[]; workers: unknown } }).observation;
     expect(doneObs.initial_budget).toBe("750.00");
     expect(doneObs.round_reports).toHaveLength(5);
-    expect(doneObs.workers).toMatchObject({ free: 10, hired: 9, available: 19 });
+    expect(doneObs.workers).toEqual({ by_region: { N: 2, S: 1, E: 1, W: 1 }, total: 5 });
     const leaks = privacyViolations(during_, N);
     await attachJson(testInfo, "privacy-scan", { responses: during_.length, leaks });
     expect(leaks).toEqual([]);

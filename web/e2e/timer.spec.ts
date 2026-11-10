@@ -1,6 +1,6 @@
 /** (c) The optional round clock: on expiry the client forfeits the round (allocate nothing). */
 import { expect, test } from "@playwright/test";
-import { currentGameId, deleteGame, expectClean, setManifesto, shot, startGame, watchDiagnostics, workers } from "./helpers";
+import { currentGameId, deleteGame, expectClean, setManifesto, shot, startGame, watchDiagnostics, hire } from "./helpers";
 
 test("round clock expiry forfeits the round", async ({ page }) => {
   test.setTimeout(150_000);
@@ -21,7 +21,7 @@ test("round clock expiry forfeits the round", async ({ page }) => {
     await expect(page.getByRole("switch", { name: "Round clock" })).toBeChecked();
     const timer = page.getByRole("timer");
     await expect(timer).toContainText(/s left/);
-    await workers(page, "North", 5); // a draft that is NOT submitted: expiry forfeits, it does not send the draft
+    await hire(page, "North", 5); // a draft that is NOT submitted: expiry forfeits, it does not send the draft
     await page.waitForTimeout(1500);
     await shot(page, "desktop-14-round-clock-running", { fullPage: false });
 
@@ -36,10 +36,11 @@ test("round clock expiry forfeits the round", async ({ page }) => {
     await expect(page.getByLabel("Round 1 report")).toContainText("Đ0.00");
     // the clock restarts for the new round (and the North draft was cleared)
     await expect(timer).toContainText(/(29|30)s left/);
-    await expect(page.getByRole("spinbutton", { name: "Workers in North" })).toHaveValue("0");
+    await expect(page.getByRole("spinbutton", { name: "New workers in North" })).toHaveValue("0");
     // round-1 allocation recorded as nothing
     const obs = await (await page.request.get(`/api/games/${gameId}/players/p0/observation`)).json();
-    expect(obs.allocations[0]).toMatchObject({ round: 1, workers_by_region: [0, 0, 0, 0], extra_workers: 0, cost: "0.00" });
+    expect(obs.allocations[0]).toMatchObject({ round: 1, hires_by_region: [0, 0, 0, 0], cost: "0.00" });
+    expect(obs.workers).toMatchObject({ total: 0 }); // the unsent draft bought nothing
     await page.locator("label.switch", { hasText: "Round clock" }).click();
     expectClean(diag);
   } finally {

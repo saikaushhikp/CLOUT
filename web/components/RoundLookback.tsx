@@ -122,16 +122,17 @@ export function RoundLookback({
           {!orders ? (
             <p className="stat-sub">No orders on record for this round.</p>
           ) : !s.campaigned ? (
-            <p className="stat-sub">No campaign this round (forfeited or nothing deployed).</p>
+            <p className="stat-sub">No campaign spending this round (forfeited or nothing bought). Earlier converts still spread.</p>
           ) : null}
           {orders ? (
             <>
               <table className="cost-table lookback-table">
-                <caption className="sr-only">Workers per region and media in round {round}</caption>
+                <caption className="sr-only">Workers bought, team after the round and media per region in round {round}</caption>
                 <thead>
                   <tr>
                     <th scope="col">Region</th>
-                    <th scope="col">Workers</th>
+                    <th scope="col">Bought</th>
+                    <th scope="col">Team after</th>
                     <th scope="col">Media</th>
                   </tr>
                 </thead>
@@ -144,7 +145,8 @@ export function RoundLookback({
                           {REGION_META[r as RegionId].label}
                         </span>
                       </th>
-                      <td className="num">{orders.workers_by_region[i] ?? 0}</td>
+                      <td className="num">{s.hiresByRegion[i] ? `+${s.hiresByRegion[i]}` : "0"}</td>
+                      <td className="num">{s.teamAfterByRegion[i] ?? 0}</td>
                       <td>{orders.media_regions[i] ? <span className="badge"><Megaphone size={11} aria-hidden /> aired</span> : <span className="muted">—</span>}</td>
                     </tr>
                   ))}
@@ -152,7 +154,8 @@ export function RoundLookback({
               </table>
               <ul className="list-plain stat-sub lookback-facts">
                 <li>
-                  Team: {s.teamBefore} on staff{s.newHires ? ` + ${s.newHires} new permanent hire${s.newHires > 1 ? "s" : ""}` : ""} · {s.workersAssigned} deployed
+                  Team: {s.teamBefore} before{s.newHires ? ` + ${s.newHires} bought` : " · none bought"} ={" "}
+                  {s.teamAfterByRegion.reduce((a, b) => a + b, 0)} permanent workers
                 </li>
                 <li>
                   Media: {aired.length ? aired.map((r) => REGION_META[r as RegionId].label).join(", ") : "none"}
@@ -170,8 +173,12 @@ export function RoundLookback({
           <h3>Outcomes</h3>
           {s.report ? (
             <div className="report-strip lookback-strip">
-              <Stat label="Doorsteps" value={fmtInt(s.report.direct_contacts)} />
-              <Stat label="Word of mouth" value={fmtInt(s.report.word_of_mouth_reached)} />
+              <Stat label="Spreaders" value={fmtInt(s.report.spreaders)} sub="new workers + last round's converts" />
+              <Stat
+                label="Converted"
+                value={fmtInt(s.report.converted)}
+                sub={s.report.election_held ? "final round: no spreading" : "spread next round"}
+              />
               <Stat label="Saw your ads" value={fmtInt(s.report.media_exposed)} />
               <Stat label="Spent" value={formatMoney(s.report.cost)} />
             </div>

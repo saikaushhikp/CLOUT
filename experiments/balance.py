@@ -1,17 +1,18 @@
 """P2 balance gate (spec §12): does the default economy make decisions matter?
 
 Usage:
-  python experiments/balance.py --seeds 200 --n 10000 --device cuda:2 [--set workers.transmission=0.03 ...]
+  python experiments/balance.py --seeds 200 --n 10000 --device cuda:2 [--set workers.worker_cost=25.00 ...]
 
-Policies (all use the available workers = free + permanent hires so far, R16; they differ in how the
-*paid* budget is spent — every extra worker bought is a one-time hire that keeps working in later rounds):
-  none          no campaign at all (free workers idle)
-  free_even     free workers split evenly, no spending
-  pay_workers   budget paced evenly over rounds, all on extra workers (split by region size)
+Policies (P8: there are no free workers; a bought worker is a permanent voter node pinned at b that
+seeds a one-hop-per-round Independent Cascade, so workers bought early are worth more):
+  none          no campaign at all
+  free_even     P8: identical to ``none`` (kept so older result keys still resolve)
+  pay_workers   budget paced evenly over rounds, all on workers (split by region size)
+  front_workers half the treasury on workers in round 1 (by region size), then even pacing on workers
   pay_media     budget paced evenly, all on media (largest regions first while affordable)
   pay_split     half workers / half media
-  planner       ORACLE marginal-value planner (uses true v): ranks worker and media options by
-                expected share gain per unit cost
+  planner       ORACLE marginal-value planner (uses true v and graph): ranks a worker per region (expected
+                cascade reach × gain per convert) and media by expected share gain per unit cost
 Manifestos: uniform, top3 (free global statistic only — uninformed), informed (knows the region
 archetypes σ — the best a perfect surveyor could learn), oracle (optimised on the true v(0)).
 """
@@ -96,26 +97,27 @@ def media_within(ctx: RoundContext, cap: Decimal, order: list[int]) -> tuple[boo
 
 # ----------------------------------------------------------------------------- policies
 def policy_none(ctx: RoundContext) -> Allocation:
-    return Allocation((0, 0, 0, 0), 0, NO_MEDIA)
+    return Allocation((0, 0, 0, 0), NO_MEDIA)
 
 
-def policy_free_even(ctx: RoundContext) -> Allocation:
-    return Allocation(split_by_weight(ctx.available_workers, [1, 1, 1, 1]), 0, NO_MEDIA)
-
-
-def _workers_with(ctx: RoundContext, cap: Decimal, weights: list[float]) -> Allocation:
-    extra = int(cap // ctx.config.workers.extra_worker_cost)
-    return Allocation(split_by_weight(ctx.available_workers + extra, weights), extra, NO_MEDIA)
+def _workers_with(ctx: RoundContext, cap: Decimal, weights: list[float], media=NO_MEDIA) -> Allocation:
+    unit = ctx.config.workers.worker_cost
+    count = int(cap // unit) if cap > 0 and unit > 0 else 0
+    return Allocation(split_by_weight(count, weights), tuple(media))
 
 
 def policy_pay_workers(ctx: RoundContext) -> Allocation:
     return _workers_with(ctx, round_cap(ctx), [float(x) for x in sizes_of(ctx)])
 
 
+def policy_front_workers(ctx: RoundContext) -> Allocation:
+    cap = (ctx.budget / 2).quantize(Decimal("0.01"), rounding="ROUND_FLOOR") if ctx.round == 0 else round_cap(ctx)
+    return _workers_with(ctx, cap, [float(x) for x in sizes_of(ctx)])
+
+
 def policy_pay_media(ctx: RoundContext) -> Allocation:
     order = sorted(range(4), key=lambda r: -sizes_of(ctx)[r])
-    media = media_within(ctx, round_cap(ctx), order)
-    return Allocation(split_by_weight(ctx.available_workers, [1, 1, 1, 1]), 0, media)
+    return Allocation((0, 0, 0, 0), media_within(ctx, round_cap(ctx), order))
 
 
 def policy_pay_split(ctx: RoundContext) -> Allocation:
@@ -123,26 +125,37 @@ def policy_pay_split(ctx: RoundContext) -> Allocation:
     order = sorted(range(4), key=lambda r: -sizes_of(ctx)[r])
     media = media_within(ctx, cap / 2, order)
     spent = media_cost(sizes_of(ctx), media, ctx.config.media.base_cost)
-    workers = _workers_with(ctx, cap - spent, [float(x) for x in sizes_of(ctx)])
-    return Allocation(workers.workers_by_region, workers.extra_workers, media)
+    return _workers_with(ctx, cap - spent, [float(x) for x in sizes_of(ctx)], media)
 
 
 def policy_planner(ctx: RoundContext) -> Allocation:
-    """ORACLE: marginal share gain per unit cost from the true state (first-order in intensity)."""
+    """ORACLE: marginal share gain per unit cost from the true state (first-order).
+
+    Media as before (``p_m η_m Σ β dP/dc``). A worker in region r (P8) seeds a cascade with per-attempt chance
+    ``a_r = E_r[γP]`` over the true mean degree k̄_r: reach ≈ ``k̄ a Σ_{h<L} (k̄ a)^h`` voters over the L remaining
+    hops (capped at half the region), each gaining ``E_r[γP (P_b − P)] / a_r`` in vote probability.
+    """
     cfg, e = ctx.config, ctx.electorate
     sim = similarity(ctx.preferences, ctx.manifesto)
     prob = vote_probability(sim, cfg.voting.sensitivity, cfg.voting.threshold)
     gain = cfg.voting.sensitivity * prob * (1 - prob) * (1 - sim)  # d P_i / d c_i
+    p_full = float(vote_probability(torch.tensor(1.0), cfg.voting.sensitivity, cfg.voting.threshold))
     sus = e.susceptibility
-    q = cfg.workers.contacts_per_worker(e.num_voters)
+    chance = (sus.campaign * prob).clamp(0, 1)
+    degree = e.graph.degree.to(prob.dtype)
+    hops = ctx.rounds - ctx.round
     worker_value, media_value = [], []
     for r in range(4):
         mask = e.region_of == r
-        worker_value.append(float(q * cfg.workers.contact_strength * (sus.campaign[mask] * gain[mask]).mean()))
+        a = float(chance[mask].mean())
+        kbar = float(degree[mask].mean())
+        reach = min(kbar * a * sum((kbar * a) ** h for h in range(hops)), 0.5 * int(e.sizes[r]))
+        per_convert = float((chance[mask] * (p_full - prob[mask]).clamp_min(0)).mean()) / a if a > 0 else 0.0
+        worker_value.append(reach * per_convert)
         eta = cfg.media.strength / (1 + cfg.media.decay * ctx.prior_airings[r])
         media_value.append(float(cfg.media.exposure_prob * eta * (sus.media[mask] * gain[mask]).sum()))
     cap = round_cap(ctx)
-    cost_w = cfg.workers.extra_worker_cost
+    cost_w = cfg.workers.worker_cost
     best_worker = max(worker_value)
     ratios = []
     for r in range(4):
@@ -153,17 +166,19 @@ def policy_planner(ctx: RoundContext) -> Allocation:
     media = [False] * 4
     remaining = cap
     for ratio, r, cost in sorted(ratios, reverse=True):
-        if ratio > best_worker / float(cost_w) and cost <= remaining:
+        if ratio > best_worker / max(float(cost_w), 1e-9) and cost <= remaining:
             media[r] = True
             remaining -= cost
-    extra = int(remaining // cost_w)
     weights = [max(v, 0.0) ** 2 for v in worker_value]  # concentrate on the best regions
-    return Allocation(split_by_weight(ctx.available_workers + extra, weights), extra, tuple(media))
+    if sum(weights) <= 0:
+        weights = [float(x) for x in sizes_of(ctx)]
+    return _workers_with(ctx, remaining, weights, tuple(media))
 
 
-POLICIES = {"none": policy_none, "free_even": policy_free_even, "pay_workers": policy_pay_workers,
-            "pay_media": policy_pay_media, "pay_split": policy_pay_split, "planner": policy_planner}
-PAID_PATTERNS = ("pay_workers", "pay_media", "pay_split")
+POLICIES = {"none": policy_none, "free_even": policy_none, "pay_workers": policy_pay_workers,
+            "front_workers": policy_front_workers, "pay_media": policy_pay_media, "pay_split": policy_pay_split,
+            "planner": policy_planner}
+PAID_PATTERNS = ("pay_workers", "front_workers", "pay_media", "pay_split")
 
 
 # ----------------------------------------------------------------------------- manifestos
@@ -249,7 +264,8 @@ def run(config: GameConfig, seeds: list[int], device: torch.device, zealot_sweep
         "2_oracle_planner_ge_85pct": summary["oracle/planner"]["rate"] >= 0.85,
         "3_informed_beats_top3_p_lt_0.01": p_value < 0.01 and sum(diffs) > 0,
         "4a_no_paid_pattern_ge_80pct": max_pattern_rate < 0.80,
-        "4b_workers_and_media_each_best_sometimes": best_counts["pay_workers"] > 0 and best_counts["pay_media"] > 0,
+        "4b_workers_and_media_each_best_sometimes": (best_counts["pay_workers"] + best_counts["front_workers"]) > 0
+                                                    and best_counts["pay_media"] > 0,
     }
     return {"num_seeds": len(rows), "seconds": elapsed, "gate": gate, "summary": summary,
             "informed_vs_top3": {"mean_diff": sum(diffs) / len(diffs), "wilcoxon_p": p_value},

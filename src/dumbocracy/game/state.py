@@ -6,7 +6,7 @@ place, so snapshots can share them safely.
 
 Hidden fields (never serialised to a player; see :mod:`.observation`): ``electorate``,
 ``preferences``, ``PlayerState.share_trajectory``, ``PlayerState.alignment``,
-``PlayerState.pending``.
+``PlayerState.pending``, ``PlayerState.workers``.
 """
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from typing import Any, Literal
 import torch
 
 from ..config import GameConfig
+from ..dynamics.campaign import WorkerState
 from ..electorate import Electorate
 from ..information.knowledge import KnowledgeLog
 from ..voting import ElectionResult
@@ -49,7 +50,7 @@ class PlayerState:
     knowledge: KnowledgeLog = field(default_factory=KnowledgeLog)
     allocations: tuple[Allocate, ...] = ()             # resolved + pending, one per round
     media_airings: tuple[int, int, int, int] = (0, 0, 0, 0)
-    hired_workers: int = 0                              # R16: permanent hires so far (incl. a pending round's)
+    team_by_region: tuple[int, int, int, int] = (0, 0, 0, 0)   # P8: permanent workers bought (incl. a pending round's)
     ready: bool = False                                 # committed (SURVEY) / allocated (ROUND)
     pending: Allocate | None = None                     # this round's allocation awaiting resolution
     query_count: int = 0                                # paid queries asked so far in the game (survey-stream key)
@@ -59,6 +60,7 @@ class PlayerState:
     result: ElectionResult | None = None
     share_trajectory: tuple[float, ...] = ()            # HIDDEN: true E before round 1 and after each round
     alignment: tuple[torch.Tensor, ...] = ()            # HIDDEN: uint8 [N] similarity bins per round 0..T (CPU)
+    workers: WorkerState | None = None                  # HIDDEN: worker nodes, spreaders, attempts (P8)
 
 
 @dataclass(frozen=True, eq=False)

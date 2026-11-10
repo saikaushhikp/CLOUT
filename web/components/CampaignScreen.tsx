@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Activity, ClipboardList, Lock, Map as MapIcon, Newspaper, Search, Stamp, Target, TrendingDown, TrendingUp } from "lucide-react";
 import { useGame, useObservation } from "@/lib/game";
-import { emptyDraft, type AllocationDraft } from "@/lib/allocation";
+import { emptyDraft, teamByRegion, type AllocationDraft } from "@/lib/allocation";
 import { REGION_META, SECTOR_META, sectorLabel } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { fmtCompact, fmtInt } from "@/lib/format";
@@ -128,7 +128,8 @@ function RegionDetail({ obs, region, draft }: { obs: Observation; region: Region
   const info = obs.regions.find((r) => r.id === region);
   const i = REGION_IDS.indexOf(region);
   const answers = groupAnswers(obs.queries.filter((q) => q.region === region)).slice(-3).reverse();
-  const sent = obs.allocations.reduce((a, al) => a + (al.workers_by_region[i] ?? 0), 0);
+  const team = teamByRegion(obs)[i];
+  const planned = draft.hires[i] ?? 0;
   const hunch = obs.archetype_library.find((a) => a.id === hunches[region]);
   if (!info) return null;
   return (
@@ -137,7 +138,7 @@ function RegionDetail({ obs, region, draft }: { obs: Observation; region: Region
         <Stat label="Voters" value={fmtInt(info.voters)} sub={`${((100 * info.voters) / obs.num_voters).toFixed(1)}% of electorate`} />
         <Stat label="Friends / voter" value={info.mean_degree.toFixed(1)} sub={`${fmtInt(info.intra_edges)} local ties`} />
         <Stat label="Ad slot" value={formatMoney(obs.costs.media_by_region[region])} sub={`${obs.media_airings[region]} aired so far`} />
-        <Stat label="Workers sent" value={sent + draft.workers[i]} sub={`${draft.workers[i]} planned now`} />
+        <Stat label="Permanent team" value={team} sub={planned ? `+${planned} to buy now` : "workers in this region"} />
       </div>
       <div className="row-between">
         <span className="stat-sub">
@@ -213,8 +214,8 @@ export function CampaignScreen() {
             </div>
             {lastReport ? (
               <div className="report-strip" style={{ marginTop: 12 }} aria-label={`Round ${lastReport.round} report`}>
-                <Stat label={`R${lastReport.round} doorsteps`} value={fmtInt(lastReport.direct_contacts)} />
-                <Stat label="Word of mouth" value={fmtInt(lastReport.word_of_mouth_reached)} />
+                <Stat label={`R${lastReport.round} spreaders`} value={fmtInt(lastReport.spreaders)} />
+                <Stat label="Converted" value={fmtInt(lastReport.converted)} sub="spread next round" />
                 <Stat label="Saw your ads" value={fmtInt(lastReport.media_exposed)} />
                 <Stat label="Spent" value={formatMoney(lastReport.cost)} />
               </div>
@@ -223,7 +224,7 @@ export function CampaignScreen() {
 
           <Panel title="The map" className="o-map" icon={MapIcon} hint="click a region">
             <div className="map-wrap">
-              <RegionMap obs={obs} selected={selected} onSelect={setSelected} overlay={{ workers: draft.workers, media: draft.media }} />
+              <RegionMap obs={obs} selected={selected} onSelect={setSelected} overlay={{ workers: teamByRegion(obs).map((t, k) => t + (draft.hires[k] ?? 0)), media: draft.media }} />
             </div>
             <div className="row" style={{ gap: 6, marginTop: 10 }} aria-label="Cross-region friendships">
               <span className="stat-sub">Cross-region ties:</span>
@@ -251,7 +252,7 @@ export function CampaignScreen() {
               onChange={setDraft}
               busy={busy !== null}
               onSubmit={() =>
-                void allocate({ workers_by_region: draft.workers, extra_workers: draft.extra, media_regions: draft.media })
+                void allocate({ hires_by_region: draft.hires, media_regions: draft.media })
               }
             />
           </Panel>

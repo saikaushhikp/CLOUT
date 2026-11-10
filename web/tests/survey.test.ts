@@ -3,8 +3,9 @@ import { createMockClient } from "@/lib/mockApi";
 import { fitArchetypes, predictPctBOverA, sectorIndex } from "@/lib/insight";
 import { formatEstimate, groupAnswers, pooledMoe, querySampleSize, sampleMoe } from "@/lib/survey";
 import type { QueryAnswer } from "@/lib/types";
+import { centsToString, toCents } from "@/lib/money";
 
-const none = { workers_by_region: [0, 0, 0, 0], extra_workers: 0, media_regions: [false, false, false, false] };
+const none = { hires_by_region: [0, 0, 0, 0], media_regions: [false, false, false, false] };
 const ask = { sector_a: "Edu", sector_b: "Agri", region: "N" };
 
 describe("sampled query statistics (spec §6.3, R12)", () => {
@@ -71,7 +72,7 @@ describe("mock engine sampled queries", () => {
     // a different triple starts its own pool
     const other = await c.query(g, p, { ...ask, region: "S" });
     expect(other.answer).toMatchObject({ repeat_index: 1 });
-    expect(other.observation.treasury).toBe("475.00");
+    expect(other.observation.treasury).toBe(centsToString(toCents(o0.treasury) - 5 * toCents(o0.costs.query)));
     expect(other.observation.queries).toHaveLength(5);
 
     // pooling resets each round

@@ -7,6 +7,7 @@ FORBIDDEN_KEYS = {
     "preferences", "susceptibility", "zealot", "zealots", "archetype_of_region", "personality_of_region",
     "p_intra", "p_inter", "sparsity", "sparsity_capped", "edge_probability", "src", "dst", "indptr", "indices",
     "region_of", "alpha", "gamma", "share_trajectory", "alignment_snapshots", "electorate", "knowledge_state",
+    "attempts", "worker_ids", "pinned", "node_id", "node_ids", "workers_state",
 }
 FORBIDDEN_SUBSTRINGS = ("zealot", "archetype_of", "personality_of", "p_intra", "p_inter", "sparsity")
 

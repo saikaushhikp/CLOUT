@@ -5,6 +5,7 @@ import { budgetTextValid, budgetToRequest, clampBudget } from "@/components/Setu
 import { createMockClient } from "@/lib/mockApi";
 import type { DumbocracyClient } from "@/lib/api";
 import type { Observation } from "@/lib/types";
+import { centsToString, formatMoney, toCents } from "@/lib/money";
 
 // The WebGL network view is exercised in the browser, not jsdom.
 vi.mock("@/components/NetworkView", () => ({
@@ -143,40 +144,72 @@ describe("campaign screen", () => {
     const manifesto = screen.getByTestId("manifesto-summary");
     expect(within(manifesto).getByRole("img", { name: /manifesto: education 25%, welfare 15%, agriculture 20%, industry 20%, environment 20%/i })).toBeInTheDocument();
     expect(within(manifesto).getByText("Education").closest("li")).toHaveTextContent("25%");
-    // hiring copy (R16)
-    expect(screen.getByText(/one-time fee, works every remaining round/i)).toBeInTheDocument();
-    expect(screen.getByTestId("team-line")).toHaveTextContent("Team: 10 free = 10 available");
+    // buying copy (P8): one-time fee, permanent, no free workers
+    expect(screen.getByText(/Buy party workers/)).toBeInTheDocument();
+    const fee = formatMoney(obs.costs.worker); // read from the engine, never hard-coded
+    expect(screen.getByText(`${fee} each · one-time, permanent`)).toBeInTheDocument();
+    expect(screen.getByTestId("team-line")).toHaveTextContent("Permanent team: 0 workers");
+    expect(screen.queryByText(/deployed|unassigned|available/i)).toBeNull(); // no reassignment UI
 
-    const north = screen.getByRole("group", { name: "Workers in North" });
+    const north = screen.getByRole("group", { name: "New workers in North" });
     const inc = within(north).getByRole("button", { name: /increase/i });
-    for (let i = 0; i < 12; i++) fireEvent.click(inc);
-    // bounded by the 10 free workers
-    expect(within(north).getByRole("spinbutton")).toHaveValue(10);
-    expect(inc).toBeDisabled();
-
-    fireEvent.click(screen.getByRole("button", { name: /increase new hires/i }));
-    expect(screen.getByTestId("team-line")).toHaveTextContent("Team: 10 free + 1 new hire = 11 available");
+    fireEvent.click(inc);
+    fireEvent.click(inc);
+    expect(within(north).getByRole("spinbutton")).toHaveValue(2);
+    expect(screen.getByTestId("hire-line-N")).toHaveTextContent("team 0 · +2 new");
+    expect(screen.getByTestId("team-N")).toHaveTextContent("0 +2");
+    fireEvent.click(within(screen.getByRole("group", { name: "New workers in East" })).getByRole("button", { name: /increase/i }));
+    expect(screen.getByTestId("team-line")).toHaveTextContent("Permanent team: 0 workers + 3 new = 3");
     fireEvent.click(screen.getByRole("button", { name: /air media in south/i }));
     const southPrice = obs.costs.media_by_region.S;
-    const expected = (4 + Number(southPrice)).toFixed(2);
+    const expected = formatMoney(3 * toCents(obs.costs.worker) + toCents(southPrice));
     expect(screen.getByText("This round").nextSibling).toHaveTextContent(expected);
+    expect(screen.getByText(`Workers 3 × ${fee} (one-time)`).nextSibling).toHaveTextContent(formatMoney(3 * toCents(obs.costs.worker)));
 
     fireEvent.click(screen.getByRole("button", { name: /launch round 1/i }));
     await waitFor(() =>
       expect(allocate).toHaveBeenCalledWith(obs.game_id, "p0", {
-        workers_by_region: [10, 0, 0, 0],
-        extra_workers: 1,
+        hires_by_region: [2, 0, 1, 0],
         media_regions: [false, true, false, false],
       }),
     );
     expect(await screen.findByRole("heading", { name: /round 2 of 3/i })).toBeInTheDocument();
-    // R16: the hire is permanent — round 2 starts with 11 workers and no fee for them
-    expect(screen.getByTestId("team-line")).toHaveTextContent("Team: 10 free + 1 hired = 11 available");
-    expect(screen.getByText(/0\/11 deployed/)).toBeInTheDocument();
+    // P8: workers are permanent and stay in their region — round 2 shows the team, the steppers start at 0
+    expect(screen.getByTestId("team-line")).toHaveTextContent("Permanent team: 3 workers");
+    expect(screen.getByTestId("hire-line-N")).toHaveTextContent("team 2");
+    expect(screen.getByTestId("hire-line-E")).toHaveTextContent("team 1");
+    expect(within(screen.getByRole("group", { name: "New workers in North" })).getByRole("spinbutton")).toHaveValue(0);
+    expect(screen.getByText("This round").nextSibling).toHaveTextContent("Đ0.00");
+    // last round's outcome
+    const strip = screen.getByLabelText("Round 1 report");
+    expect(strip).toHaveTextContent("R1 spreaders");
+    expect(strip).toHaveTextContent("Converted");
+    expect(strip).toHaveTextContent("Saw your ads");
     expect(screen.getByTestId("manifesto-summary")).toBeInTheDocument();
   });
 
-  it("explains how workers are hired and used", async () => {
+  it("caps the hire stepper at what the treasury affords and blocks over-budget plans", async () => {
+    const client = createMockClient();
+    const base = await roundObservation(client);
+    // a treasury of exactly two workers: the stepper stops at 2, and any media then overspends
+    const obs = { ...base, treasury: centsToString(2 * toCents(base.costs.worker)) };
+    render(<GameApp client={client} initialObservation={obs} />);
+    const north = screen.getByRole("group", { name: "New workers in North" });
+    const inc = within(north).getByRole("button", { name: /increase/i });
+    for (let i = 0; i < 5; i++) fireEvent.click(inc);
+    expect(within(north).getByRole("spinbutton")).toHaveValue(2);
+    expect(inc).toBeDisabled();
+    const launch = screen.getByRole("button", { name: /launch round 1/i });
+    expect(launch).toBeEnabled();
+    // media pushes the plan over budget: error + disabled launch
+    fireEvent.click(screen.getByRole("button", { name: /air media in north/i }));
+    expect(screen.getByRole("alert")).toHaveTextContent(/costs more than your treasury/i);
+    expect(launch).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /air media in north/i }));
+    expect(launch).toBeEnabled();
+  });
+
+  it("explains how party workers are bought and how they spread", async () => {
     const client = createMockClient();
     const obs = await roundObservation(client);
     render(<GameApp client={client} initialObservation={obs} />);
@@ -184,12 +217,20 @@ describe("campaign screen", () => {
     const details = summary.closest("details")!;
     expect(details.open).toBe(false);
     fireEvent.click(summary);
-    const note = within(details).getByRole("note", { name: /how workers are hired and used/i });
-    expect(note).toHaveTextContent(/permanent team/i);
-    expect(note).toHaveTextContent(/0\.25% of the 10k voters \(25 doorsteps\)/);
-    expect(note).toHaveTextContent(/uniformly at random from that region \(with replacement/);
-    expect(note).toHaveTextContent(/campaign susceptibility/);
-    expect(note).toHaveTextContent(/up to 3 hops/);
+    const note = within(details).getByRole("note", { name: /how party workers work/i });
+    expect(note).toHaveTextContent(/no free workers/i);
+    expect(note).toHaveTextContent(`one-time fee of ${formatMoney(obs.costs.worker)}`);
+    expect(note).toHaveTextContent(/permanent/);
+    expect(note).toHaveTextContent(/stays in the region/);
+    expect(note).toHaveTextContent(/random voter of that region with at least 3 friends/);
+    expect(note).toHaveTextContent(/pinned to your manifesto/);
+    expect(note).toHaveTextContent(/one hop per round/);
+    expect(note).toHaveTextContent(/next round, then\s+becomes an ordinary voter again/);
+    expect(note).toHaveTextContent(/at most 3 times/);
+    expect(note).toHaveTextContent(/how receptive they are to canvassing × how much they already like your manifesto/);
+    expect(note).toHaveTextContent(/Buy early/);
+    expect(note).toHaveTextContent(/converted in the final round have no round left to\s+spread/);
+    expect(note).not.toHaveTextContent(/doorstep|hops/);
   });
 
   it("shows a friendly toast when the engine rejects a move", async () => {

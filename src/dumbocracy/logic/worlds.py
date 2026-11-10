@@ -45,7 +45,7 @@ from ..config import GameConfig, SeedStreams
 from ..electorate.electorate import Electorate
 from ..sectors import NUM_REGIONS
 from ..strategies.bayes import ASSIGNMENTS, Posterior, posterior_from_observation
-from ..strategies.worlds import WorldBatch, observed_allocations, sample_worlds
+from ..strategies.worlds import BatchWorkers, WorldBatch, sample_worlds
 
 __all__ = ["PERMUTATIONS", "WorldSet", "consistent_worlds", "poll_standard_error"]
 
@@ -78,6 +78,7 @@ class WorldSet:
     posterior: Posterior
     fallback: bool = False
     meta: dict[str, Any] = field(default_factory=dict)
+    workers: BatchWorkers | None = None   # P8 worker state at the decision point (C = 1, [1, B·n])
 
     def __len__(self) -> int:
         return len(self.worlds)
@@ -87,21 +88,12 @@ class WorldSet:
         return self.accepted / self.draws if self.draws else 0.0
 
 
-def _record_replay(batch: WorldBatch, observation: dict[str, Any], seed: int) -> tuple[torch.Tensor, torch.Tensor]:
-    """Replay the player's history (as :meth:`WorldBatch.replay`) recording E_w after every step.
+def _record_replay(batch: WorldBatch, observation: dict[str, Any], seed: int):
+    """Replay the player's history (:meth:`WorldBatch.replay_state`) recording E_w after every step.
 
-    Returns ``(v_t [B·n, 5], shares [B, S+1])`` where column s is the share after s resolved rounds.
+    Returns ``(v_t [B·n, 5], workers, shares [B, S+1])`` where column s is the share after s resolved rounds.
     """
-    b = batch.manifesto_tensor(observation["manifesto"])
-    airings = torch.zeros((1, NUM_REGIONS), dtype=torch.int64, device=batch.device)
-    v = batch.preferences.unsqueeze(0)
-    shares = [batch.shares(v, b)[0]]
-    for t, allocation in enumerate(observed_allocations(observation)):
-        gen = SeedStreams(int(seed)).generator("strategy", "replay", t, device=batch.device)
-        v = batch.step(v, [allocation], airings, b, gen)
-        airings = airings + torch.tensor([allocation.media_regions], dtype=torch.int64, device=batch.device)
-        shares.append(batch.shares(v, b)[0])
-    return v[0], torch.stack(shares, dim=1).to(torch.float64)
+    return batch.replay_state(observation, seed, record_shares=True)
 
 
 def _poll_targets(observation: dict[str, Any], slack: float) -> tuple[list[int], torch.Tensor, torch.Tensor]:
@@ -151,11 +143,11 @@ def consistent_worlds(observation_t: dict[str, Any], config: GameConfig, count: 
         worlds = sample_worlds(observation_t, sigma, config, num_voters=n, seed=streams.derive("worlds", "logic-micro", k),
                                device=device, personalities=tau)
         batch = WorldBatch(worlds, config)
-        v_t, shares = _record_replay(batch, observation_t, streams.derive("worlds", "logic-replay", k))
+        v_t, workers_t, shares = _record_replay(batch, observation_t, streams.derive("worlds", "logic-replay", k))
         at_polls = shares[:, [r - 1 for r in poll_rounds]].cpu() if poll_rounds else torch.zeros((size, 0), dtype=torch.float64)
         z = ((at_polls - est) / scale).abs().amax(1) if poll_rounds else torch.zeros(size, dtype=torch.float64)
         ok = z <= poll_z
-        chunks.append({"worlds": worlds, "v": v_t.view(size, batch.n, -1), "sigma": sigma, "tau": tau,
+        chunks.append({"worlds": worlds, "v": v_t.view(size, batch.n, -1), "w": workers_t, "sigma": sigma, "tau": tau,
                        "polls": at_polls, "z": z, "ok": ok})
         accepted += int(ok.sum())
         draws += size
@@ -170,6 +162,9 @@ def consistent_worlds(observation_t: dict[str, Any], config: GameConfig, count: 
     chosen = [chunks[c]["worlds"][i] for c, i in picks]
     batch = WorldBatch(chosen, config)
     current = torch.cat([chunks[c]["v"][i] for c, i in picks])
+    n_w = chunks[0]["v"].shape[1]
+    workers = BatchWorkers(*(torch.cat([getattr(chunks[c]["w"], name)[:, i * n_w:(i + 1) * n_w] for c, i in picks], dim=1)
+                             for name in ("pinned", "spreaders", "attempts")))
     return WorldSet(
         round=t, worlds=chosen, batch=batch, current=current,
         sigma=torch.stack([chunks[c]["sigma"][i] for c, i in picks]),
@@ -179,4 +174,5 @@ def consistent_worlds(observation_t: dict[str, Any], config: GameConfig, count: 
         consistent=torch.stack([chunks[c]["ok"][i] for c, i in picks]),
         draws=draws, accepted=accepted, posterior=posterior, fallback=fallback,
         meta={"poll_z": poll_z, "slack": slack, "world_voters": n, "max_draws": max_draws, "poll_rounds": poll_rounds},
+        workers=workers,
     )

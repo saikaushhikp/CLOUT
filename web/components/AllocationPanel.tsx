@@ -3,41 +3,84 @@
 import { Eraser, HelpCircle, Loader2, Megaphone, Radio, Send, Users } from "lucide-react";
 import type { Observation, RegionId } from "@/lib/types";
 import { REGION_IDS } from "@/lib/types";
-import { REGION_META, WOM_HOPS } from "@/lib/constants";
-import { checkAllocation, setExtraWorkers, setRegionWorkers, type AllocationDraft, emptyDraft } from "@/lib/allocation";
+import { REGION_META } from "@/lib/constants";
+import { checkAllocation, setRegionHires, teamByRegion, type AllocationDraft, emptyDraft } from "@/lib/allocation";
 import { formatMoney } from "@/lib/money";
-import { fmtCompact, fmtInt } from "@/lib/format";
+import { fmtInt } from "@/lib/format";
 import { RegionPip, Stepper } from "./ui";
 
-/** "How it works": how a (new) worker is chosen and used — public rules only (owner request). */
+/** "How it works": how a bought party worker is chosen and how its influence spreads (P8, public rules only). */
 export function WorkerHelp({ obs }: { obs: Observation }) {
-  const perWorker = obs.costs.contacts_per_worker;
+  const minDegree = obs.costs.min_degree;
+  const cap = obs.costs.attempt_cap;
   return (
     <details className="help-pop">
       <summary>
         <HelpCircle size={14} aria-hidden /> How it works
       </summary>
-      <div className="help-pop-body" role="note" aria-label="How workers are hired and used">
+      <div className="help-pop-body" role="note" aria-label="How party workers work">
         <p>
-          <b>If I hire a worker now, how is he/she chosen and used?</b>
+          <b>If I buy a worker now, who is it and what does it do?</b>
         </p>
         <ul>
           <li>
-            A hire joins your <b>permanent team</b>: you pay the {formatMoney(obs.costs.extra_worker)} fee once and they work
-            every remaining round, alongside your {obs.costs.free_workers} free workers.
+            There are no free workers. You pay a <b>one-time fee</b> of {formatMoney(obs.costs.worker)} per worker. The worker is{" "}
+            <b>permanent</b> and <b>stays in the region</b> you bought it in for the rest of the game.
           </li>
-          <li>Each round you assign every worker to a region. Workers you leave unassigned sit idle that round.</li>
           <li>
-            Each worker canvasses about 0.25% of the {fmtCompact(obs.num_voters)} voters ({fmtInt(perWorker)} doorsteps), picked
-            uniformly at random from that region (with replacement, so the same door can be knocked twice).
+            The worker is a random voter of that region with at least {minDegree} friends, pinned to your manifesto: friends and
+            ads never change its mind.
           </li>
-          <li>Voters with more campaign susceptibility move further toward your manifesto.</li>
           <li>
-            Contacted voters can spread your message by word of mouth over friendship ties, for up to {WOM_HOPS} hops.
+            In the round you buy it, the worker tries to win over each of its friends once. Influence moves{" "}
+            <b>one hop per round</b>: a friend it converts takes your manifesto and tries <i>their</i> friends next round, then
+            becomes an ordinary voter again (who can drift away like anyone else).
+          </li>
+          <li>
+            Each voter can be tried at most {cap} times in the whole game, failed tries included.
+          </li>
+          <li>
+            The chance of converting someone = how receptive they are to canvassing × how much they already like your manifesto.
+          </li>
+          <li>
+            <b>Buy early</b>: the cascade gets more rounds to spread. Voters converted in the final round have no round left to
+            spread in.
           </li>
         </ul>
       </div>
     </details>
+  );
+}
+
+/** Permanent team per region, with this round's planned purchases (P8 `workers.by_region`). */
+export function TeamStrip({ obs, hires }: { obs: Observation; hires?: number[] }) {
+  const team = teamByRegion(obs);
+  const total = team.reduce((a, b) => a + b, 0);
+  const newTotal = (hires ?? []).reduce((a, b) => a + b, 0);
+  return (
+    <div className="team-strip-wrap">
+      <span className="stat-sub" data-testid="team-line">
+        Permanent team: {total} worker{total === 1 ? "" : "s"}
+        {newTotal ? ` + ${newTotal} new = ${total + newTotal}` : ""}
+      </span>
+      <ul className="team-strip list-plain" aria-label="Permanent team by region">
+        {REGION_IDS.map((r, i) => {
+          const add = hires?.[i] ?? 0;
+          return (
+            <li key={r} data-testid={`team-${r}`}>
+              <RegionPip id={r} size={20} />
+              <span className="num">
+                <b>{team[i]}</b>
+                {add ? <span className="team-new"> +{add}</span> : null}
+              </span>
+              <span className="sr-only">
+                {REGION_META[r as RegionId].label}: {team[i]} on the team{add ? `, ${add} new this round` : ""}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 
@@ -55,38 +98,9 @@ export function AllocationPanel({
   busy: boolean;
 }) {
   const check = checkAllocation(obs, draft);
-  const free = obs.costs.free_workers;
-  /** team before this round's hires: free + every earlier permanent hire (R16) */
-  const base = check.workersBase;
-  const hiredBefore = Math.max(0, base - free);
-  const pool = base + draft.extra;
   const canAct = obs.legal_actions.includes("allocate");
   const isLast = obs.round >= obs.rounds;
-
-  const spreadEvenly = () => {
-    const per = Math.floor(pool / 4);
-    const rest = pool - per * 4;
-    // larger regions get the remainder
-    const order = obs.regions.map((r, i) => ({ i, v: r.voters })).sort((a, b) => b.v - a.v);
-    const workers = [per, per, per, per];
-    for (let k = 0; k < rest; k++) workers[order[k].i] += 1;
-    onChange({ ...draft, workers });
-  };
-  const byVoters = () => {
-    const total = obs.regions.reduce((a, r) => a + r.voters, 0);
-    const raw = obs.regions.map((r) => (pool * r.voters) / total);
-    const workers = raw.map(Math.floor);
-    let rest = pool - workers.reduce((a, b) => a + b, 0);
-    raw.map((x, i) => ({ i, f: x - Math.floor(x) }))
-      .sort((a, b) => b.f - a.f)
-      .forEach(({ i }) => {
-        if (rest > 0) {
-          workers[i] += 1;
-          rest -= 1;
-        }
-      });
-    onChange({ ...draft, workers });
-  };
+  const fee = formatMoney(obs.costs.worker);
 
   return (
     <form
@@ -97,61 +111,52 @@ export function AllocationPanel({
       aria-label={`Round ${obs.round} allocation`}
     >
       <div className="row-between">
-        <span className="field-label">
+        <span className="field-label" id="hire-label">
           <Users size={14} aria-hidden style={{ verticalAlign: "-2px", marginRight: 6 }} />
-          Party workers · {check.workersAssigned}/{pool} deployed
+          Buy party workers
         </span>
-        <span className="stat-sub">{fmtInt(obs.costs.contacts_per_worker)} doorsteps each</span>
+        <span className="stat-sub" id="hire-help">
+          {fee} each · one-time, permanent
+        </span>
       </div>
       <div className="row-between" style={{ alignItems: "flex-start" }}>
-        <span className="stat-sub" data-testid="team-line">
-          Team: {free} free{hiredBefore ? ` + ${hiredBefore} hired` : ""}
-          {draft.extra ? ` + ${draft.extra} new hire${draft.extra > 1 ? "s" : ""}` : ""} = {pool} available
-        </span>
+        <TeamStrip obs={obs} hires={draft.hires} />
         <WorkerHelp obs={obs} />
       </div>
-      <div className="workers-pool" aria-hidden>
-        {Array.from({ length: pool }, (_, k) => (
-          <span key={k} className={`worker-dot ${k >= base ? "paid" : k >= free ? "hired" : ""} ${k < check.workersAssigned ? "used" : ""}`} />
-        ))}
-      </div>
       <div className="row" style={{ margin: "6px 0 4px" }}>
-        <button type="button" className="btn btn-sm" onClick={spreadEvenly}>
-          Even split
-        </button>
-        <button type="button" className="btn btn-sm" onClick={byVoters}>
-          By population
-        </button>
         <button type="button" className="btn btn-sm btn-ghost" onClick={() => onChange(emptyDraft())}>
           <Eraser size={14} aria-hidden /> Clear
         </button>
       </div>
 
       {REGION_IDS.map((r, i) => {
-        const region = obs.regions.find((x) => x.id === r);
+        const label = REGION_META[r as RegionId].label;
         const airings = obs.media_airings[r];
         const strength = 1 / (1 + 0.5 * airings);
-        const others = draft.workers.reduce((a, b, k) => (k === i ? a : a + b), 0);
+        const add = draft.hires[i] ?? 0;
         return (
           <div className="alloc-row" key={r}>
             <div className="alloc-region">
               <RegionPip id={r} />
               <div style={{ minWidth: 0 }}>
-                <b>{REGION_META[r as RegionId].label}</b>
-                <small className="num">{fmtInt(region?.voters ?? 0)} voters</small>
+                <b>{label}</b>
+                <small className="num" data-testid={`hire-line-${r}`}>
+                  team {check.teamBefore[i]}
+                  {add ? ` · +${add} new` : ""}
+                </small>
               </div>
             </div>
             <Stepper
-              label={`Workers in ${REGION_META[r as RegionId].label}`}
-              value={draft.workers[i]}
-              max={Math.max(draft.workers[i], pool - others)}
-              onChange={(v) => onChange(setRegionWorkers(draft, base, i, v))}
+              label={`New workers in ${label}`}
+              value={add}
+              max={add + check.maxAffordableMore}
+              onChange={(v) => onChange(setRegionHires(draft, i, v))}
             />
             <button
               type="button"
               className="media-toggle"
               aria-pressed={draft.media[i]}
-              aria-label={`Air media in ${REGION_META[r as RegionId].label} for ${formatMoney(obs.costs.media_by_region[r])}${airings ? `, airing number ${airings + 1}, strength ${Math.round(strength * 100)} percent` : ""}`}
+              aria-label={`Air media in ${label} for ${formatMoney(obs.costs.media_by_region[r])}${airings ? `, airing number ${airings + 1}, strength ${Math.round(strength * 100)} percent` : ""}`}
               title={airings ? `Repeat airing: ${Math.round(strength * 100)}% of first-airing impact` : "First airing: full impact"}
               onClick={() => onChange({ ...draft, media: draft.media.map((m, k) => (k === i ? !m : m)) })}
             >
@@ -163,25 +168,12 @@ export function AllocationPanel({
         );
       })}
 
-      <div className="row-between" style={{ marginTop: 12 }}>
-        <div>
-          <span className="field-label" id="hire-label">Hire extra workers</span>
-          <div className="stat-sub" id="hire-help">
-            {formatMoney(obs.costs.extra_worker)} each · one-time fee, works every remaining round
-          </div>
-        </div>
-        <Stepper
-          label="New hires"
-          value={draft.extra}
-          max={Math.max(draft.extra, check.maxAffordableExtra)}
-          onChange={(v) => onChange(setExtraWorkers(draft, base, v))}
-        />
-      </div>
-
-      <table className="cost-table">
+      <table className="cost-table" data-testid="cost-table">
         <tbody>
           <tr>
-            <td>New hires × {draft.extra} (one-time)</td>
+            <td>
+              Workers {check.totalHires} × {fee} (one-time)
+            </td>
             <td>{formatMoney(check.workerCostCents)}</td>
           </tr>
           <tr>
@@ -193,7 +185,7 @@ export function AllocationPanel({
             <td>{formatMoney(check.costCents)}</td>
           </tr>
           <tr>
-            <td className="muted">Treasury after</td>
+            <td className="muted">Treasury {formatMoney(check.treasuryCents)} → after</td>
             <td className={check.remainingCents < 0 ? "bad" : ""}>{formatMoney(check.remainingCents)}</td>
           </tr>
         </tbody>
@@ -213,9 +205,9 @@ export function AllocationPanel({
             <div key={e.message}>{e.message}</div>
           ))}
         </div>
-      ) : check.workersIdle > 0 ? (
+      ) : check.totalHires === 0 && check.teamBefore.some((x) => x > 0) ? (
         <p className="stat-sub" style={{ marginTop: 8 }}>
-          {check.workersIdle} worker{check.workersIdle > 1 ? "s" : ""} unassigned — they sit idle this round (they stay on the team).
+          No new workers this round. Last round&apos;s converts still spread.
         </p>
       ) : null}
 

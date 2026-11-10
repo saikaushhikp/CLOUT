@@ -68,8 +68,7 @@ class CommitBody(BaseModel):
 
 class AllocateBody(BaseModel):
     model_config = ConfigDict(strict=False)
-    workers_by_region: list[StrictInt]
-    extra_workers: StrictInt = 0
+    hires_by_region: list[StrictInt]
     media_regions: list[StrictBool] = Field(default_factory=lambda: [False] * NUM_REGIONS)
 
 
@@ -257,7 +256,7 @@ def create_app(device: str | None = None, max_games: int = DEFAULT_MAX_GAMES) ->
 
     @app.post("/api/games/{game_id}/players/{player_id}/allocate")
     def allocate(game_id: str, player_id: str, body: AllocateBody) -> dict[str, Any]:
-        return act(game_id, player_id, Allocate(tuple(body.workers_by_region), body.extra_workers, tuple(body.media_regions)))
+        return act(game_id, player_id, Allocate(tuple(body.hires_by_region), tuple(body.media_regions)))
 
     @app.post("/api/games/{game_id}/players/{player_id}/forfeit")
     def forfeit(game_id: str, player_id: str) -> dict[str, Any]:

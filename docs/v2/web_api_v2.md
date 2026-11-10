@@ -26,7 +26,7 @@ every route is player-keyed for a future second/LLM player).
 | `GET /api/games/{g}/players/{p}/observation` | – | `Observation` |
 | `POST /api/games/{g}/players/{p}/query` | `{sector_a, sector_b, region}` | `ActionResponse` (+ `answer`) |
 | `POST /api/games/{g}/players/{p}/commit` | `{manifesto: number[5]}` (≥0, sums to 1 ± 1e-6) | `ActionResponse` |
-| `POST /api/games/{g}/players/{p}/allocate` | `{workers_by_region: int[4], extra_workers: int, media_regions: bool[4]}` | `ActionResponse` (+ `round_report`) |
+| `POST /api/games/{g}/players/{p}/allocate` | `{hires_by_region: int[4], media_regions: bool[4]}` (P8/R21–R22: NEW workers bought this round, per region) | `ActionResponse` (+ `round_report`) |
 | `POST /api/games/{g}/players/{p}/forfeit` | – (timer expired; = allocate nothing) | `ActionResponse` (+ `round_report`) |
 | `GET /api/games/{g}/graph_sample?max_nodes=1500` | – | `GraphSample` |
 | `GET /api/games/{g}/players/{p}/debrief` | – (only when phase = DONE, else 409) | `Debrief` |
@@ -54,19 +54,24 @@ type QueryAnswer = { round: number; phase: "SURVEY"|"ROUND"; sector_a: string; s
                      repeat_index: number;   // 1 for the first ask of this triple this round, 2, 3, …
                      cost: string };
 type RoundReport = { round: number /* the round just resolved */; cost: string;
-                     direct_contacts: number; word_of_mouth_reached: number; media_exposed: number;
+                     hires_by_region: number[];   // [N,S,E,W] workers bought this round (P8)
+                     team_by_region: number[];    // [N,S,E,W] permanent workers after this round's hires
+                     spreaders: number;           // voters who tried to convert friends this round (new workers + last round's converts)
+                     converted: number;           // voters converted to your manifesto this round (they spread next round)
+                     media_exposed: number;
                      election_held: boolean };
 type Observation = {
-  schema_version: "2.0"; game_id: string; player_id: string;
+  schema_version: "2.2"; game_id: string; player_id: string;
   phase: "SURVEY"|"ROUND"|"DONE";
   round: number;            // 0 in SURVEY; 1..T = the round now being planned; T at DONE
   rounds: number;           // T
   num_voters: number; seed: number;
   treasury: string;         // remaining money
   initial_budget: string;   // the treasury chosen at setup (R17)
-  workers: { free: number; hired: number; available: number };  // R16: hired = permanent hires so far; available = free + hired
+  workers: { by_region: Record<"N"|"S"|"E"|"W", number>; total: number };  // P8: permanent team (no free workers, R21)
   round_reports: RoundReport[];  // R19: one per resolved round, oldest first (for the round look-back)
-  costs: { query: string; extra_worker: string /* one-time hiring fee, R16 */; free_workers: number; contacts_per_worker: number;
+  costs: { query: string; worker: string /* one-time fee per worker, P8 */;
+           min_degree: number /* a bought worker has ≥ this many friends */; attempt_cap: number /* max conversion attempts per voter per game */;
            media_by_region: Record<"N"|"S"|"E"|"W", string> /* next airing price per region */ };
   sectors: {id: string; label: string}[];
   regions: {id: string; label: string; voters: number; intra_edges: number; mean_degree: number}[];
@@ -77,7 +82,7 @@ type Observation = {
   queries: QueryAnswer[];                                                     // this player's answers
   polls: {round: number; estimate: number; moe: number; sample_size: number}[]; // after commit; round = start-of-round t (T+1 = pre-election)
   manifesto: number[] | null;
-  allocations: {round: number; workers_by_region: number[]; extra_workers: number; media_regions: boolean[]; cost: string}[];
+  allocations: {round: number; hires_by_region: number[]; media_regions: boolean[]; cost: string}[];
   media_airings: Record<"N"|"S"|"E"|"W", number>;
   legal_actions: ("query"|"commit"|"allocate"|"forfeit")[];
   result: null | { votes: number; num_voters: number; vote_share: number; victory: boolean; expected_share: number };
@@ -101,17 +106,22 @@ type Debrief = {
 ```
 
 ## Semantics that both sides rely on
-- SURVEY: `query` any number of times (5.00 each). Each query is a fresh 10% random sample of the region
+- SURVEY: `query` any number of times (each costs `costs.query`, default 10.00). Each query is a fresh 10% random sample of the region
   (R12); repeating the same triple in the same phase/round is allowed and narrows the pooled estimate. Then `commit`.
   Commit moves to ROUND 1 and immediately produces poll #1 (start of round 1) and a fresh `free_stats` entry.
 - ROUND t: any number of `query`, then exactly one `allocate` (or `forfeit`) resolves the round:
   campaign → social dynamics → round t+1 (new free stat + poll). After round T resolves, a pre-election poll
   (round T+1) is taken and the election runs automatically → phase DONE, `result` filled.
-- **R16 permanent hires:** `extra_workers` = NEW hires this round, paid once (`extra_worker` each); they then work
-  every later round like the free workers. `workers_by_region` must sum ≤ `workers.available + extra_workers`
-  (free + all earlier hires + this round's hires); unassigned workers idle that round. cost = `extra_workers × extra_worker` +
-  Σ `media_by_region[r]` over aired regions; must be ≤ treasury. `workers.hired` counts a round's hires as soon as
-  its `allocate` is accepted (the returned observation already includes them); a rejected allocate hires nothing.
+- **P8 party workers (R21–R27; supersedes R16):** there are no free workers. `hires_by_region[r]` NEW workers are
+  bought in region r this round for a one-time `costs.worker` each, and they stay in r for the rest of the game.
+  Each one is a random region-r voter with ≥ `min_degree` friends, pinned at your manifesto. In the round it is bought,
+  a worker tries to convert each of its friends once. Converted voters take your manifesto and try *their* friends
+  in the next round (one hop per round). Each voter can be tried at most `attempt_cap` times per game. The
+  conversion chance grows with how receptive the voter is and how much they already like your manifesto.
+  cost = `Σ hires_by_region × worker` + Σ `media_by_region[r]` over aired regions, and it must be ≤ treasury.
+  If a region does not have enough eligible voters, the allocate is rejected with `INVALID_ALLOCATION`. A rejected
+  allocate buys nothing. `workers` already includes an accepted round's hires. All-zero hires and no media
+  ("do nothing") is legal; earlier converts still spread that round.
 - **R17 budget:** must be a JSON *string* (a JSON number → 422); omitted or `null` → `"500.00"`; at most 2 decimal
   places (`"750.5"` and `"1000"` are accepted and normalised to `"750.50"` / `"1000.00"`; `"500.001"` → 422).
 - **R19 round_reports:** a forfeited round also has a report (cost `"0.00"`); the last one has `election_held: true`.

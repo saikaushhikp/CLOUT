@@ -101,19 +101,25 @@ remainder (Dirichlet draws, graph, Betas, zealots) is the **micro-state**.
 Each mechanism produces per-voter *exposure intensities* e ∈ [0,1]. Intensities from all mechanisms of
 player p combine as `c_i^p = 1 − Π_e (1 − e)`; zealots always get c_i^p = 0.
 
-### 3.1 Party workers (U9)
-- Each round player p has `W_free = 10` ⚙ free workers and may buy extra workers at `cost_w = 4.00` ⚙
-  each (that round only). The player assigns integer worker counts `n_w(r)` to regions; unassigned
-  free workers are wasted.
-- Each worker contacts `q = max(1, round(0.0025·N))` ⚙ voters drawn uniformly (with replacement)
-  from its region. Each contact of voter i gives `e = η_w · γ_i`, η_w = 0.30 ⚙ (multiple contacts
-  compound via the product rule).
-- **Word of mouth — SIR cascade** (lecture: infection models). Infectious set I_0 = contacted
-  non-zealots. For hop h = 1..L (L = 3 ⚙): every infectious i transmits to each neighbour j
-  independently w.p. `τ_c · w_ij` (τ_c = 0.03 ⚙, calibrated in P2 to sit near the regional SIR threshold). A newly reached non-zealot j (not reached before this
-  round) receives `e = η_wom · γ_j` (η_wom = 0.10 ⚙) and joins the infectious set. After each hop each
-  infectious node recovers w.p. ρ = 0.5 ⚙. Reference threshold: spreading is supercritical when
-  `τ_c · λ_max(A_block) > ρ`, reported by analysis tools.
+### 3.1 Party workers (U9; replaced by P8, R21–R27)
+> The v2.0/v2.1 mechanism (free workers making random doorstep contacts each round, plus an in-round 3-hop SIR
+> cascade) is **superseded**. See `plans/P8_party_workers_ic.md` for the full rules and round order.
+
+- **Buying (R21, R22).** There are no free workers. Each round the player may buy `h_r` new workers in each region r
+  at a one-time `cost_w` (provisional; set by the P8 price check). A worker is a uniformly random voter of region r
+  with degree ≥ 3, not a zealot and not already a worker (seeded `workers` stream). Workers are permanent and
+  never change region.
+- **Pinned (R23).** Every worker has `v_i = b` for the rest of the game, and social and media influence never moves
+  them. They feed b into their friends' aggregates every round, acting as pro-party stubborn agents.
+- **Independent Cascade, one hop per round (R24–R27)** (lecture: infection models).
+  - Spreaders in round t = the workers bought in t together with the voters converted in t−1.
+  - Each spreader attempts every friend j once (j not a worker, not a zealot), and voter j can receive at most 3
+    attempts per game, failures included.
+  - With `eff_j` attempts this round, j converts w.p. `1 − (1 − γ_j P_j)^{eff_j}`, where `P_j = σ(β(S_j(b) − z))`
+    is computed at the start of the round.
+  - Converts get `v_j = b` and spread in round t+1 only. After that they are ordinary voters who drift with friends
+    and media.
+  - Spread threshold: the expected number of conversions per spreader ≈ Σ_{j∈N(i)} γ_j P_j, which depends on b.
 
 ### 3.2 Media (U10)
 - Single channel, region-targetable. The player chooses a subset of regions to air in this round.
@@ -314,3 +320,12 @@ the five rounds (voters converge to regional means), so manifestos must be optim
 - **R17 treasury choice.** B ∈ [500.00, 1000.00] chosen at game creation (default 500.00).
 - The §12/§14 balance results and the P7 experiments were measured under the v2.1 rules (per-round hires, B = 500)
   and will be re-run once the owner's further mechanics changes are complete.
+
+## 16. Party workers v3 (owner, 2026-11-09; implemented in P8)
+- R21–R28 replace §3.1 (summary above; full rules in `plans/P8_party_workers_ic.md`). R16 permanent hires are subsumed
+  by them: there are no free workers, every worker is bought once and stays in its region, and workers are never
+  reassigned.
+- Removed parameters: `W_free, q, η_w, τ_c, ρ, L, η_wom`. New: `cost_w` = ₫20.00 (R30; was ₫50.00 R29); survey query price ₫10.00 (R30; was ₫5.00),
+  `min_degree = 3`, `attempt_cap = 3`.
+- Balance gate (§12) and the P7 experiments, including E3, which was SIR-specific, are stale until the owner's
+  planned re-run.

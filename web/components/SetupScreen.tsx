@@ -89,14 +89,14 @@ export function SetupScreen() {
         </h1>
         <p className="lede">
           Four regions. Six possible archetypes. Hidden personalities. A treasury of Đ500–Đ1,000 (you choose) and a social network that
-          gossips. Survey the electorate, commit a budget manifesto, then deploy party workers and media to pull voters
+          gossips. Survey the electorate, commit a budget manifesto, then buy party workers and media to pull voters
           your way before the ballots open.
         </p>
         <ol className="howto list-plain">
           <li>
             <span className="n">1</span>
             <span>
-              <b>Survey</b>Free top-3 stats + paid head-to-head questions (Đ5) per region.
+              <b>Survey</b>Free top-3 stats + paid head-to-head questions per region (priced in game).
             </span>
           </li>
           <li>
@@ -108,7 +108,7 @@ export function SetupScreen() {
           <li>
             <span className="n">3</span>
             <span>
-              <b>Campaign</b>Each round: workers, extra hires and regional media airtime.
+              <b>Campaign</b>Each round: buy permanent party workers and regional media airtime.
             </span>
           </li>
           <li>

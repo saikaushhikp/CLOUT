@@ -94,8 +94,8 @@ def pick_device(requested: str) -> torch.device:
 
 def spend_breakdown(observation: dict, config: GameConfig) -> dict:
     """Money by category from the player's own (public) history."""
-    worker_unit = config.workers.extra_worker_cost
-    workers = sum((a["extra_workers"] * worker_unit for a in observation["allocations"]), Decimal("0.00"))
+    worker_unit = config.workers.worker_cost
+    workers = sum((sum(a["hires_by_region"]) * worker_unit for a in observation["allocations"]), Decimal("0.00"))
     total_alloc = sum((Decimal(a["cost"]) for a in observation["allocations"]), Decimal("0.00"))
     queries = sum((Decimal(q["cost"]) for q in observation["queries"]), Decimal("0.00"))
     return {"workers": float(workers), "media": float(total_alloc - workers), "queries": float(queries),

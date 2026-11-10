@@ -15,19 +15,24 @@ and committed manifesto (both in the observation) so each world is advanced to t
 
 :class:`WorldBatch` is the batched simulator used by the planner: B worlds of equal size are joined into
 one disjoint-union graph and C candidate plans are simulated at once (leading batch dimension), with
-common random numbers across candidates (spec §9 "batched worlds").
+common random numbers across candidates (spec §9 "batched worlds"). It runs the P8 round order (hires →
+one IC cascade hop → media → social step with workers pinned) and carries each plan's worker state
+(:class:`BatchWorkers`) from round to round. Hires are absolute counts for the TRUE electorate; in a world
+rescaled to n < N voters each region's hires are scaled by n/N with stochastic rounding (a worker's cascade
+reaches a roughly fixed number of voters, so this keeps the share effect per worker unbiased).
 """
 from __future__ import annotations
 
 import math
 import warnings
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Any
 
 import torch
 
 from ..config import GameConfig, SeedStreams
-from ..dynamics.campaign import Allocation
+from ..dynamics.campaign import Allocation, WorkerState, conversion_chance, ic_from_counts
 from ..dynamics.social import aggregate
 from ..dynamics.update import step_preferences
 from ..electorate.attributes import sample_personalities, sample_susceptibilities
@@ -39,8 +44,8 @@ from ..electorate.sbm import Graph, block_probability_matrix, sample_block_proba
 from ..sectors import NUM_REGIONS, REGIONS
 from ..voting import similarity, vote_probability
 
-__all__ = ["WorldBatch", "available_workers", "hired_workers", "observed_allocations", "public_sizes", "replay_history",
-           "sample_worlds", "scaled_sizes"]
+__all__ = ["BatchWorkers", "WorldBatch", "observed_allocations", "public_sizes", "replay_history", "sample_worlds",
+           "scaled_sizes", "team_by_region"]
 
 
 # ------------------------------------------------------------------------------------ public facts
@@ -51,23 +56,16 @@ def public_sizes(observation: dict[str, Any]) -> list[int]:
     return [by_id[r] for r in REGIONS]
 
 
-def hired_workers(observation: dict[str, Any]) -> int:
-    """Permanent hires so far (R16): ``workers.hired`` if present, else Σ ``extra_workers`` of the allocations."""
+def team_by_region(observation: dict[str, Any]) -> list[int]:
+    """Permanent workers bought so far per region (P8): ``workers.by_region`` if present, else Σ ``hires_by_region``
+    of the allocations."""
     workers = observation.get("workers")
-    if isinstance(workers, dict) and "hired" in workers:
-        return int(workers["hired"])
-    return sum(int(a.get("extra_workers", 0)) for a in observation.get("allocations") or [])
-
-
-def available_workers(observation: dict[str, Any], free_workers: int | None = None) -> int:
-    """Workers usable in the next allocation before new hires: free + hired (R16)."""
-    if free_workers is None:
-        workers = observation.get("workers")
-        if isinstance(workers, dict) and "free" in workers:
-            free_workers = int(workers["free"])
-        else:
-            free_workers = int(observation["costs"]["free_workers"])
-    return int(free_workers) + hired_workers(observation)
+    if isinstance(workers, dict) and isinstance(workers.get("by_region"), dict):
+        return [int(workers["by_region"].get(r, 0)) for r in REGIONS]
+    team = [0] * NUM_REGIONS
+    for a in observation.get("allocations") or []:
+        team = [x + int(h) for x, h in zip(team, a.get("hires_by_region") or [0] * NUM_REGIONS)]
+    return team
 
 
 def scaled_sizes(sizes: Sequence[int], num_voters: int, min_fraction: float = 0.15) -> list[int]:
@@ -173,8 +171,8 @@ def sample_worlds(observation: dict[str, Any], assignments: torch.Tensor, config
 def observed_allocations(observation: dict[str, Any]) -> list[Allocation]:
     """The player's own resolved allocations (oldest first) from the observation."""
     rows = sorted(observation.get("allocations", []), key=lambda a: a["round"])
-    return [Allocation(tuple(int(w) for w in a["workers_by_region"]), int(a["extra_workers"]),
-                       tuple(bool(m) for m in a["media_regions"])) for a in rows]
+    return [Allocation(tuple(int(h) for h in a["hires_by_region"]), tuple(bool(m) for m in a["media_regions"]))
+            for a in rows]
 
 
 def _csr(indptr: torch.Tensor, indices: torch.Tensor, values: torch.Tensor, n: int) -> torch.Tensor:
@@ -194,11 +192,46 @@ def _union_graph(graphs: Sequence[Graph], n: int) -> Graph:
     return Graph(len(graphs) * n, src, dst, indptr, indices, degree)
 
 
+@dataclass(frozen=True, eq=False)
+class BatchWorkers:
+    """Worker state of C plans over the batched worlds (P8): ``[C, B·n]`` tensors (see ``WorkerState``)."""
+
+    pinned: torch.Tensor     # bool  [C, Bn]
+    spreaders: torch.Tensor  # bool  [C, Bn]
+    attempts: torch.Tensor   # int64 [C, Bn]
+
+    @classmethod
+    def empty(cls, plans: int, total: int, device: torch.device | str = "cpu") -> "BatchWorkers":
+        z = torch.zeros((plans, total), dtype=torch.bool, device=device)
+        return cls(z, z.clone(), torch.zeros((plans, total), dtype=torch.int64, device=device))
+
+    @classmethod
+    def from_state(cls, state: WorkerState) -> "BatchWorkers":
+        """One plan (C = 1) from a single-world engine/simulate :class:`WorkerState`."""
+        return cls(state.pinned.unsqueeze(0), state.spreaders.unsqueeze(0), state.attempts.unsqueeze(0))
+
+    @property
+    def plans(self) -> int:
+        return int(self.pinned.shape[0])
+
+    def expand(self, plans: int) -> "BatchWorkers":
+        """Broadcast a single plan's state (C = 1) to ``plans`` copies."""
+        if self.plans == plans:
+            return self
+        if self.plans != 1:
+            raise ValueError(f"cannot expand worker state of {self.plans} plans to {plans}")
+        return BatchWorkers(*(x.expand(plans, -1).clone() for x in (self.pinned, self.spreaders, self.attempts)))
+
+    def select(self, index: int) -> "BatchWorkers":
+        return BatchWorkers(self.pinned[index:index + 1], self.spreaders[index:index + 1], self.attempts[index:index + 1])
+
+
 class WorldBatch:
     """B equal-sized worlds joined into one disjoint union; simulates C plans at once.
 
-    State tensors have shape ``[C, B·n, 5]``. All random draws are shared across the C candidates
-    (common random numbers), which makes candidate comparisons low-variance and deterministic per seed.
+    State tensors have shape ``[C, B·n, 5]`` (preferences) and ``[C, B·n]`` (:class:`BatchWorkers`). All
+    random draws are shared across the C candidates (common random numbers), which makes candidate
+    comparisons low-variance and deterministic per seed.
     """
 
     def __init__(self, worlds: Sequence[Electorate], config: GameConfig):
@@ -214,80 +247,94 @@ class WorldBatch:
         self.sizes = sizes
         self.device = worlds[0].device
         self.graph = _union_graph([w.graph for w in worlds], self.n)
-        self.rows = self.graph.rows()
         self.local_region = worlds[0].region_of.repeat(self.num_worlds)                       # [Bn]
-        offsets = [0]
-        for s in sizes[:-1]:
-            offsets.append(offsets[-1] + s)
-        self.offsets = torch.tensor(offsets, dtype=torch.int64, device=self.device)
-        self.size_t = torch.tensor(sizes, dtype=torch.float64, device=self.device)
         self.preferences = torch.cat([w.preferences for w in worlds])                         # [Bn, 5]
         self.social = torch.cat([w.susceptibility.social for w in worlds])
         self.media = torch.cat([w.susceptibility.media for w in worlds])
         self.campaign = torch.cat([w.susceptibility.campaign for w in worlds])
         self.zealot = torch.cat([w.susceptibility.zealot for w in worlds]).to(torch.bool)
         self.social_weight = config.dynamics.social_step * self.social
-        self.contacts_per_worker = config.workers.contacts_per_worker(self.n)
+        # worker picks (R22): group = (world, region); voters of a group are contiguous in index order
+        total = self.num_worlds * self.n
+        world_of = torch.arange(total, device=self.device) // self.n
+        self.group = world_of * NUM_REGIONS + self.local_region                              # [Bn], non-decreasing
+        if bool((self.group[1:] < self.group[:-1]).any()):
+            raise ValueError("worlds must list their voters region by region")
+        group_start = torch.zeros(self.num_worlds * NUM_REGIONS, dtype=torch.int64, device=self.device)
+        counts = torch.bincount(self.group, minlength=self.num_worlds * NUM_REGIONS)
+        group_start[1:] = torch.cumsum(counts, 0)[:-1]
+        self.rank_in_group = torch.arange(total, device=self.device) - group_start[self.group]
+        self.eligible_base = (self.graph.degree >= config.workers.min_degree) & ~self.zealot
+        # hires are counts for the true electorate (N voters); scale to this world size
+        self.hire_scale = min(1.0, self.n / max(1, int(config.electorate.num_voters)))
 
     # ------------------------------------------------------------------ one round, C plans
-    def _intensity(self, allocations: Sequence[Allocation], airings: torch.Tensor,
-                   generator: torch.Generator) -> torch.Tensor:
-        """Campaign intensity c ``[C, Bn]`` for one round (spec §3), common random numbers over C."""
+    def _hire_counts(self, allocations: Sequence[Allocation], generator: torch.Generator) -> torch.Tensor:
+        """Hires per (plan, world, region) ``[C, B·4]`` after scaling to the world size (stochastic rounding,
+        one uniform per (world, region) shared across plans)."""
+        dev = self.device
+        hires = torch.tensor([list(a.hires_by_region) for a in allocations], dtype=torch.float64, device=dev)  # [C,4]
+        u = torch.rand((self.num_worlds, NUM_REGIONS), generator=generator, device=dev, dtype=torch.float64)
+        scaled = hires.unsqueeze(1) * self.hire_scale                                            # [C,1,4]
+        base = scaled.floor()
+        count = base + (u.unsqueeze(0) < scaled - base).to(torch.float64)                       # [C,B,4]
+        return count.reshape(len(allocations), -1).to(torch.int64)
+
+    def _pick(self, hires: torch.Tensor, pinned: torch.Tensor, priority: torch.Tensor) -> torch.Tensor:
+        """New workers ``[C, Bn]``: per (plan, world, region) the ``hires`` eligible voters with the lowest
+        priority (one uniform per voter, shared across plans) — a uniform pick without replacement (R22).
+        A synthetic region with too few eligible voters simply gets fewer workers."""
+        eligible = self.eligible_base & ~pinned                                                  # [C, Bn]
+        key = self.group.to(torch.float64) * 4.0 + torch.where(eligible, priority, torch.full_like(priority, 2.0))
+        order = torch.argsort(key, dim=1)
+        quota = hires[:, self.group]                                                             # [C, Bn] by sorted position
+        chosen = (self.rank_in_group < quota) & torch.gather(eligible, 1, order)
+        new = torch.zeros_like(eligible)
+        return new.scatter_(1, order, chosen)
+
+    def step(self, v: torch.Tensor, allocations: Sequence[Allocation], airings: torch.Tensor,
+             manifesto: torch.Tensor, generator: torch.Generator,
+             workers: BatchWorkers | None = None) -> tuple[torch.Tensor, BatchWorkers]:
+        """One P8 round for C plans: hires → one cascade hop → media → social step with workers pinned at b.
+
+        ``v`` is ``[C, Bn, 5]``; ``workers`` the plans' worker state (``None`` = nobody hired yet; a C = 1 state
+        is broadcast). Returns ``(v', workers')``. P_j for the conversion chance uses ``v`` (start of round).
+        """
         cfg_w, cfg_m = self.config.workers, self.config.media
-        dev, dtype = self.device, self.preferences.dtype
-        C, B, n = len(allocations), self.num_worlds, self.n
-        total = B * n
-        workers = torch.tensor([a.workers_by_region for a in allocations], dtype=torch.int64, device=dev)  # [C,4]
-        q = self.contacts_per_worker
-        draws_per_region = workers * q                                                           # [C,4]
-        kmax = int(draws_per_region.max()) if C else 0
-        counts = torch.zeros(C * total, dtype=dtype, device=dev)
-        if kmax > 0:
-            u = torch.rand((B, NUM_REGIONS, kmax), generator=generator, device=dev, dtype=torch.float64)
-            local = (u * self.size_t.view(1, -1, 1)).floor().to(torch.int64)
-            local = torch.minimum(local, (self.size_t.to(torch.int64) - 1).view(1, -1, 1))
-            voter = local + self.offsets.view(1, -1, 1) + (torch.arange(B, device=dev) * n).view(-1, 1, 1)  # [B,4,K]
-            k = torch.arange(kmax, device=dev)
-            valid = k.view(1, 1, 1, -1) < draws_per_region.view(C, 1, NUM_REGIONS, 1)           # [C,1,4,K]
-            valid = valid.expand(C, B, NUM_REGIONS, kmax)
-            flat = (voter.unsqueeze(0) + (torch.arange(C, device=dev) * total).view(-1, 1, 1, 1))
-            counts.index_add_(0, flat[valid], torch.ones(int(valid.sum()), dtype=dtype, device=dev))
-        counts = counts.view(C, total)
-        per_contact = (cfg_w.contact_strength * self.campaign).clamp(0, 1)
-        worker_e = 1.0 - torch.pow(1.0 - per_contact, counts)
-        # word of mouth: hop-limited SIR on the union graph (same rules as dynamics.campaign.sir_cascade).
-        # One uniform per directed CSR entry (row i, col j) decides whether j transmits to i this hop,
-        # so "who is hit" is a sparse mat-vec: hit = X @ infectious with X_ij = [u_ij < τ_c].
-        spread = ~self.zealot
-        seeds = (counts > 0).T                                                                   # [Bn, C]
-        eligible = spread.unsqueeze(1) & ~seeds
-        infectious = seeds & spread.unsqueeze(1)
-        reached = torch.zeros_like(seeds)
-        for _ in range(cfg_w.hops):
-            fire = (torch.rand(self.graph.indices.numel(), generator=generator, device=dev) < cfg_w.transmission).to(dtype)
-            x = _csr(self.graph.indptr, self.graph.indices, fire, total)
-            hit = (x @ infectious.to(dtype)) > 0
-            new = hit & eligible
-            eligible = eligible & ~new
-            reached = reached | new
-            survive = torch.rand(total, generator=generator, device=dev) >= cfg_w.recovery
-            infectious = (infectious & survive.unsqueeze(1)) | new
-        reached = reached.T
-        wom_e = torch.where(reached, (cfg_w.word_of_mouth_strength * self.campaign).clamp(0, 1), torch.zeros((), dtype=dtype, device=dev))
-        # media
+        dev, dtype = self.device, v.dtype
+        C, total = len(allocations), self.num_worlds * self.n
+        workers = BatchWorkers.empty(C, total, dev) if workers is None else workers.expand(C)
+        b = manifesto.to(device=dev, dtype=dtype)
+        # 1. hires (draws are made every round so the stream does not depend on the plans)
+        hires = self._hire_counts(allocations, generator)
+        priority = torch.rand(total, generator=generator, device=dev, dtype=torch.float64)
+        new = self._pick(hires, workers.pinned, priority) if bool((hires > 0).any()) else torch.zeros_like(workers.pinned)
+        pinned = workers.pinned | new
+        spreaders = workers.spreaders | new
+        # 2. one IC hop: chance γ·P on v at the start of the round; workers and zealots are never targets
+        chance = conversion_chance(self.campaign, v, b, self.config.voting.sensitivity, self.config.voting.threshold)
+        counts = self._spreader_counts(spreaders, dtype)
+        converted, attempts = ic_from_counts(counts, chance, workers.attempts, pinned | self.zealot,
+                                             cfg_w.attempt_cap, generator)
+        # 3. media
         aired = torch.tensor([a.media_regions for a in allocations], dtype=torch.bool, device=dev)  # [C,4]
         exposed = aired[:, self.local_region] & (torch.rand(total, generator=generator, device=dev) < cfg_m.exposure_prob)
         eta = cfg_m.strength / (1.0 + cfg_m.decay * airings.to(dtype))                             # [C,4]
         media_e = torch.where(exposed, (eta[:, self.local_region] * self.media).clamp(0, 1), torch.zeros((), dtype=dtype, device=dev))
-        combined = 1.0 - (1.0 - worker_e) * (1.0 - wom_e) * (1.0 - media_e)
-        return torch.where(self.zealot, torch.zeros((), dtype=dtype, device=dev), combined.clamp(0, 1))
-
-    def step(self, v: torch.Tensor, allocations: Sequence[Allocation], airings: torch.Tensor,
-             manifesto: torch.Tensor, generator: torch.Generator) -> torch.Tensor:
-        """Campaign → synchronous social update (spec §3–§4) for C plans; ``v`` is ``[C, Bn, 5]``."""
-        intensity = self._intensity(allocations, airings, generator)
+        media_e = torch.where(self.zealot, torch.zeros((), dtype=dtype, device=dev), media_e)
+        # 4. social step on v with new workers and converts at b; workers pinned, zealots frozen
+        v = torch.where((new | converted).unsqueeze(-1), b, v)
         agg = self.aggregate(v)
-        return step_preferences(v, agg, self.social_weight, intensity.unsqueeze(0), manifesto.view(1, -1), self.zealot)
+        v = step_preferences(v, agg, self.social_weight, media_e.unsqueeze(0), b.view(1, -1), self.zealot,
+                             pinned=pinned.unsqueeze(0))
+        return v, BatchWorkers(pinned, converted, attempts)
+
+    def _spreader_counts(self, spreaders: torch.Tensor, dtype: torch.dtype) -> torch.Tensor:
+        """``count_j`` = spreader → j edges for ``[C, Bn]`` spreaders (one sparse mat-mul)."""
+        if not bool(spreaders.any()):
+            return torch.zeros(spreaders.shape, dtype=torch.int64, device=self.device)
+        counts = self._adjacency(dtype) @ spreaders.T.to(dtype)                                   # [Bn, C]
+        return counts.T.round().to(torch.int64)
 
     def aggregate(self, v: torch.Tensor) -> torch.Tensor:
         """``Agg(v)`` for ``[C, Bn, 5]``; DeGroot as one sparse mat-mul (much faster than gather/scatter)."""
@@ -314,22 +361,33 @@ class WorldBatch:
     def manifesto_tensor(self, manifesto: Sequence[float] | torch.Tensor) -> torch.Tensor:
         return torch.as_tensor(manifesto, dtype=self.preferences.dtype).to(self.device)
 
-    def replay(self, observation: dict[str, Any], seed: int = 0) -> torch.Tensor:
-        """Advance every world through the player's resolved rounds: returns v_t ``[B·n, 5]``.
+    def replay_state(self, observation: dict[str, Any], seed: int = 0, *,
+                     record_shares: bool = False):
+        """Advance every world through the player's resolved rounds (their hires and media, P8).
 
-        Each recorded allocation already lists every worker it assigned (free + permanent hires, R16), so
-        replaying ``workers_by_region`` reproduces the hires' effect without separate bookkeeping."""
-        v = self.preferences
+        Returns ``(v_t [B·n, 5], workers (C = 1))``; with ``record_shares`` also ``shares [B, S+1]`` (the
+        expected share after s resolved rounds, column 0 = before round 1)."""
+        v = self.preferences.unsqueeze(0)
+        workers = BatchWorkers.empty(1, self.num_worlds * self.n, self.device)
         if observation.get("manifesto") is None:
-            return v.clone()
+            out = (v[0].clone(), workers)
+            return (*out, torch.zeros((self.num_worlds, 1), dtype=torch.float64)) if record_shares else out
         b = self.manifesto_tensor(observation["manifesto"])
         airings = torch.zeros((1, NUM_REGIONS), dtype=torch.int64, device=self.device)
-        v = v.unsqueeze(0)
+        shares = [self.shares(v, b)[0]]
         for t, allocation in enumerate(observed_allocations(observation)):
             gen = SeedStreams(int(seed)).generator("strategy", "replay", t, device=self.device)
-            v = self.step(v, [allocation], airings, b, gen)
+            v, workers = self.step(v, [allocation], airings, b, gen, workers)
             airings = airings + torch.tensor([allocation.media_regions], dtype=torch.int64, device=self.device)
-        return v[0]
+            if record_shares:
+                shares.append(self.shares(v, b)[0])
+        if record_shares:
+            return v[0], workers, torch.stack(shares, dim=1).to(torch.float64)
+        return v[0], workers
+
+    def replay(self, observation: dict[str, Any], seed: int = 0) -> torch.Tensor:
+        """``v_t [B·n, 5]`` after replaying the player's resolved rounds (see :meth:`replay_state`)."""
+        return self.replay_state(observation, seed)[0]
 
 
 def replay_history(world: Electorate, observation: dict[str, Any], config: GameConfig, *, seed: int = 0) -> torch.Tensor:

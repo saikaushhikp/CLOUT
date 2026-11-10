@@ -82,25 +82,18 @@ class DynamicsConfig:
 
 @dataclass(frozen=True, slots=True)
 class WorkerConfig:
-    free_workers: int = 10                                # ⚙ W_free §3.1
-    extra_worker_cost: Decimal = Decimal("4.00")          # ⚙
-    contacts_fraction: float = 0.0025                     # ⚙ q = max(1, round(fraction * N))
-    contact_strength: float = 0.50                        # η_w (v2.1 calibrated)
-    transmission: float = 0.03                            # τ_c (v2.1): τ_c·λ_max(A_rr)/ρ ≈ 1.1–1.7, just supercritical
-    recovery: float = 0.5                                 # ⚙ ρ
-    hops: int = 3                                         # ⚙ L
-    word_of_mouth_strength: float = 0.15                  # η_wom (v2.1 calibrated)
+    """P8 party workers (R21–R27): bought one-time, permanent, pinned at b; IC cascade one hop per round."""
+
+    worker_cost: Decimal = Decimal("20.00")               # owner, 2026-11-10 (R30; was 50.00 R29)
+    min_degree: int = 3                                   # R22: a bought worker has >= min_degree friends
+    attempt_cap: int = 3                                  # R27: max conversion attempts per voter per game
 
     def __post_init__(self) -> None:
-        _check(isinstance(self.free_workers, int) and self.free_workers >= 0, "free_workers must be an integer >= 0")
-        _money(self.extra_worker_cost, "extra_worker_cost")
-        _prob(self.contacts_fraction, "contacts_fraction")
-        for name in ("contact_strength", "transmission", "recovery", "word_of_mouth_strength"):
-            _prob(getattr(self, name), name)
-        _check(isinstance(self.hops, int) and self.hops >= 0, "hops must be an integer >= 0")
-
-    def contacts_per_worker(self, num_voters: int) -> int:
-        return max(1, round(self.contacts_fraction * num_voters))
+        _money(self.worker_cost, "worker_cost")
+        _check(isinstance(self.min_degree, int) and not isinstance(self.min_degree, bool) and self.min_degree >= 0,
+               "min_degree must be an integer >= 0")
+        _check(isinstance(self.attempt_cap, int) and not isinstance(self.attempt_cap, bool) and self.attempt_cap >= 0,
+               "attempt_cap must be an integer >= 0")
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,7 +122,7 @@ class VotingConfig:
 
 @dataclass(frozen=True, slots=True)
 class SurveyConfig:
-    query_cost: Decimal = Decimal("5.00")                 # U8
+    query_cost: Decimal = Decimal("10.00")                # owner, 2026-11-10 (R30; was 5.00 U8)
     query_sample_fraction: float = 0.10                   # R12: share of the region sampled per query
     poll_size: int = 400                                  # ⚙ §6.4
     consistency_tolerance: float = 0.02                   # ⚙ ε §10.1 (fraction, not %)

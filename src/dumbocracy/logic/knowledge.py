@@ -16,8 +16,8 @@ Filters (round tags as written by the engine: SURVEY queries carry round 0, roun
 pre-election poll round T+1): ``free_stats`` round ≤ t; ``polls`` round ≤ t; ``queries`` asked in SURVEY or
 in a round < t (``"decision"``: ≤ t); ``allocations`` round < t. The treasury is recomputed from the
 costs: initial budget (final treasury + every cost in the log) − included query and allocation costs;
-``media_airings`` from the included allocations; ``round_reports`` round < t; ``workers`` (R16) with
-``hired`` = Σ ``extra_workers`` of the included allocations and ``available`` = free + hired;
+``media_airings`` from the included allocations; ``round_reports`` round < t; ``workers`` (P8) with
+``by_region`` = Σ ``hires_by_region`` of the included allocations and ``total`` = their sum;
 ``phase`` "ROUND", ``round`` t, ``result`` None,
 ``legal_actions`` as the engine lists them at that point; ``events`` keep rounds < t (approximate —
 the event log is not part of the knowledge log).
@@ -93,9 +93,10 @@ def observation_at(observation: dict[str, Any], round_index: int, *, stage: str 
     out["media_airings"] = dict(zip(REGIONS, airings))
     if "round_reports" in out:
         out["round_reports"] = [r for r in out["round_reports"] or [] if int(r["round"]) < t]
-    hired = sum(int(a.get("extra_workers", 0)) for a in out["allocations"])
-    free = int((out.get("workers") or {}).get("free", out.get("costs", {}).get("free_workers", 0)))
-    out["workers"] = {"free": free, "hired": hired, "available": free + hired}
+    team = [0] * NUM_REGIONS
+    for a in out["allocations"]:
+        team = [x + int(h) for x, h in zip(team, a.get("hires_by_region") or [0] * NUM_REGIONS)]
+    out["workers"] = {"by_region": dict(zip(REGIONS, team)), "total": sum(team)}
     out["phase"] = "ROUND"
     out["round"] = t
     out["result"] = None

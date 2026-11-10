@@ -22,10 +22,13 @@ export type RoundSummary = {
   orders: Observation["allocations"][number] | null;
   report: RoundReport | null;
   queries: QueryAnswer[];
-  /** team size that round before new hires: free + permanent hires from earlier rounds */
+  /** permanent team (all regions) before this round's hires: every worker bought in earlier rounds */
   teamBefore: number;
+  /** workers bought this round per region [N,S,E,W] */
+  hiresByRegion: number[];
   newHires: number;
-  workersAssigned: number;
+  /** permanent team per region after this round's hires */
+  teamAfterByRegion: number[];
   queryCostCents: number;
   ordersCostCents: number;
   treasuryBeforeCents: number;
@@ -54,8 +57,12 @@ export function roundSummary(obs: LookbackView, t: number): RoundSummary {
   const queryCostCents = queries.reduce((a, q) => a + toCents(q.cost), 0);
   const ordersCostCents = orders ? toCents(orders.cost) : report ? toCents(report.cost) : 0;
   const before = initialBudgetCents(obs) - spentBefore;
-  const teamBefore = obs.costs.free_workers + obs.allocations.filter((a) => a.round < t).reduce((a, al) => a + al.extra_workers, 0);
-  const workersAssigned = orders ? orders.workers_by_region.reduce((a, b) => a + b, 0) : 0;
+  const earlier = [0, 0, 0, 0];
+  for (const al of obs.allocations) if (al.round < t) al.hires_by_region.forEach((h, i) => (earlier[i] += h));
+  const hiresByRegion = (report?.hires_by_region ?? orders?.hires_by_region ?? [0, 0, 0, 0]).slice(0, 4);
+  while (hiresByRegion.length < 4) hiresByRegion.push(0);
+  const newHires = hiresByRegion.reduce((a, b) => a + b, 0);
+  const teamAfterByRegion = report?.team_by_region?.slice(0, 4) ?? earlier.map((e, i) => e + hiresByRegion[i]);
   return {
     round: t,
     pollStart: obs.polls.find((p) => p.round === t) ?? null,
@@ -63,14 +70,15 @@ export function roundSummary(obs: LookbackView, t: number): RoundSummary {
     orders,
     report,
     queries,
-    teamBefore,
-    newHires: orders?.extra_workers ?? 0,
-    workersAssigned,
+    teamBefore: earlier.reduce((a, b) => a + b, 0),
+    hiresByRegion,
+    newHires,
+    teamAfterByRegion,
     queryCostCents,
     ordersCostCents,
     treasuryBeforeCents: before,
     treasuryAfterCents: before - queryCostCents - ordersCostCents,
-    campaigned: !!orders && (workersAssigned > 0 || orders.extra_workers > 0 || orders.media_regions.some(Boolean)),
+    campaigned: !!orders && (newHires > 0 || orders.media_regions.some(Boolean)),
   };
 }
 

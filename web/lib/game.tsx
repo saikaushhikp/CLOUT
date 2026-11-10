@@ -169,8 +169,9 @@ export function GameProvider({
         if (demo !== "survey") {
           o = (await client.commit(g.game_id, g.player_id, { manifesto: [0.25, 0.2, 0.2, 0.2, 0.15] })).observation;
           const plans = [
-            { workers_by_region: [4, 3, 2, 1], extra_workers: 0, media_regions: [true, false, false, false] },
-            { workers_by_region: [3, 3, 3, 3], extra_workers: 2, media_regions: [false, true, false, false] },
+            // small plans: the 5-round "done" demo must fit the ₫750 treasury at the observed worker fee
+            { hires_by_region: [1, 0, 1, 0], media_regions: [true, false, false, false] },
+            { hires_by_region: [0, 1, 0, 0], media_regions: [false, false, false, false] },
           ];
           const n = demo === "done" ? o.rounds : 2;
           for (let t = 0; t < n; t++) o = (await client.allocate(g.game_id, g.player_id, plans[t % 2])).observation;

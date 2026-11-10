@@ -1216,35 +1216,24 @@ input[type="range"] {
   color: var(--accent-ink);
   border-color: transparent;
 }
-.workers-pool {
+.team-strip-wrap {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.team-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin: 8px 0 4px;
+  gap: 6px 12px;
+  margin: 6px 0 4px;
 }
-.worker-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid var(--ink-3);
+.team-strip li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.worker-dot.used {
-  background: var(--ink);
-  border-color: var(--ink);
-}
-.worker-dot.paid {
-  border-style: dashed;
-  border-color: var(--gold);
-}
-.worker-dot.hired {
-  border-color: var(--gold);
-}
-.worker-dot.hired.used {
-  background: var(--gold);
-}
-.worker-dot.paid.used {
-  background: var(--gold);
-  border-style: solid;
+.team-new {
+  color: var(--gold);
+  font-weight: 700;
 }
 .cost-table {
   width: 100%;

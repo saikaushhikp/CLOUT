@@ -4,7 +4,7 @@
  * stale/tampered client would send it) to make the engine itself reject it.
  */
 import { expect, test } from "@playwright/test";
-import { currentGameId, deleteGame, expectClean, setManifesto, shot, startGame, watchDiagnostics, workers } from "./helpers";
+import { currentGameId, deleteGame, expectClean, setManifesto, shot, startGame, watchDiagnostics, hire } from "./helpers";
 
 test("overspend and stale-phase moves are rejected with friendly toasts, state unchanged", async ({ page, context }) => {
   const diag = watchDiagnostics(page);
@@ -20,17 +20,23 @@ test("overspend and stale-phase moves are rejected with friendly toasts, state u
     const treasury = page.locator(".treasury-chip");
     await expect(treasury).toContainText("Đ500.00");
 
-    // client-side guard: the new-hire stepper cannot exceed what the treasury affords
-    const extra = page.getByRole("spinbutton", { name: "New hires" });
-    await extra.fill("999");
-    await expect(extra).toHaveValue("125"); // Đ500 / Đ4
-    await extra.fill("0");
+    // client-side guard: a hire stepper cannot exceed what the treasury affords (fee read from the engine, P8)
+    const obs0 = await (await page.request.get(`/api/games/${gameId}/players/p0/observation`)).json();
+    const fee = Number(obs0.costs.worker);
+    const affordable = Math.floor(500 / fee);
+    const north = page.getByRole("spinbutton", { name: "New workers in North" });
+    await north.fill("99999");
+    await expect(north).toHaveValue(String(affordable));
+    await north.fill("0");
 
-    // server-side rejection: forge the body of an otherwise valid order
-    await workers(page, "North", 2);
+    // server-side rejection: forge the body of an otherwise valid order (one worker more than affordable,
+    // spread over the regions so no region runs out of eligible voters)
+    await hire(page, "North", 2);
+    const tooMany = affordable + 1;
+    const spread = [0, 1, 2, 3].map((i) => Math.floor(tooMany / 4) + (i < tooMany % 4 ? 1 : 0));
     await page.route("**/players/*/allocate", async (route) => {
       const body = route.request().postDataJSON() as Record<string, unknown>;
-      await route.continue({ postData: JSON.stringify({ ...body, extra_workers: 1000, workers_by_region: [2, 0, 0, 0] }) });
+      await route.continue({ postData: JSON.stringify({ ...body, hires_by_region: spread }) });
     });
     await page.getByRole("button", { name: "Launch round 1" }).click();
     const toast = page.locator(".toast-error");
@@ -45,9 +51,9 @@ test("overspend and stale-phase moves are rejected with friendly toasts, state u
     await toast.getByRole("button", { name: "Dismiss notification" }).click();
     await expect(toast).toHaveCount(0);
 
-    // invalid allocation (more workers than available), forged the same way
+    // invalid allocation (more workers than the region has eligible voters, R22), forged the same way
     await page.route("**/players/*/allocate", (route) =>
-      route.continue({ postData: JSON.stringify({ workers_by_region: [50, 0, 0, 0], extra_workers: 0, media_regions: [false, false, false, false] }) }),
+      route.continue({ postData: JSON.stringify({ hires_by_region: [1_000_000, 0, 0, 0], media_regions: [false, false, false, false] }) }),
     );
     await page.getByRole("button", { name: "Launch round 1" }).click();
     await expect(page.locator(".toast-error")).toContainText("That allocation breaks the rules");

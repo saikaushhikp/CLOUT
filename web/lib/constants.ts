@@ -39,7 +39,7 @@ export const regionLabel = (id: string) => REGION_META[id as RegionId]?.label ??
 export const ERROR_COPY: Record<string, string> = {
   INVALID_PHASE: "That move isn't available in this phase.",
   INVALID_MANIFESTO: "The manifesto must be five non-negative shares summing to 100%.",
-  INVALID_ALLOCATION: "That allocation breaks the rules — check your worker counts.",
+  INVALID_ALLOCATION: "That allocation breaks the rules — check your worker purchases (a region may be out of eligible voters).",
   INVALID_QUERY: "That query isn't valid — pick two different sectors and a region.",
   INSUFFICIENT_FUNDS: "Not enough money in the treasury for that.",
   TERMINAL_STATE: "The election is over. Start a new game to play again.",
@@ -59,8 +59,6 @@ export const BUDGET_PRESETS = [500, 750, 1000] as const;
 /** Blend picker (R20): how many regions may be blended. */
 export const BLEND_MIN = 2;
 export const BLEND_MAX = 4;
-/** Word of mouth spreads over friendship ties for up to this many hops (spec, public rule). */
-export const WOM_HOPS = 3;
 /** Dirichlet concentration κ of the voter preference draw (spec §14, v2.1). Public rule. */
 export const KAPPA = 60;
 /** Fraction of a region's voters surveyed by one paid query (spec §6.3, R12). Public rule. */

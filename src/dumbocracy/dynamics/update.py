@@ -9,6 +9,10 @@
 
 The result is a convex combination of simplex points; it is clamped at 0 and renormalised to absorb
 float error. Supports leading batch dimensions ``[..., N, 5]``.
+
+P8 (R23): ``pinned[p]`` marks player p's party workers; after the step they are set exactly to ``b_p``
+(friends and media never move them, and their v = b feeds the next round's aggregates). Zealots
+(``frozen``) keep their own v.
 """
 from __future__ import annotations
 
@@ -26,7 +30,7 @@ def _broadcast_voter_tensor(x: torch.Tensor, voter_shape: torch.Size, name: str)
 
 def step_preferences(v: torch.Tensor, aggregated: torch.Tensor, social_weight: torch.Tensor,
                      campaign_intensity: torch.Tensor, manifestos: torch.Tensor,
-                     frozen: torch.Tensor | None = None) -> torch.Tensor:
+                     frozen: torch.Tensor | None = None, pinned: torch.Tensor | None = None) -> torch.Tensor:
     """One synchronous §4 update.
 
     Args:
@@ -37,6 +41,8 @@ def step_preferences(v: torch.Tensor, aggregated: torch.Tensor, social_weight: t
             batch); P may be 0 for a pure social step.
         manifestos: ``b_p`` on the simplex, ``[P, K]``.
         frozen: zealot mask ``[N]`` or ``[..., N]``; frozen voters keep ``v`` bit-for-bit.
+        pinned: party-worker masks ``[P, N]`` or ``[P, ..., N]``; pinned voters of player p are set to
+            ``b_p`` exactly (applied in player order, before ``frozen``).
 
     Returns:
         v(t+1), same shape and dtype as ``v``.
@@ -83,6 +89,15 @@ def step_preferences(v: torch.Tensor, aggregated: torch.Tensor, social_weight: t
     new = (1 - a - total_c).unsqueeze(-1) * v + a.unsqueeze(-1) * aggregated + pull
     new = new.clamp_min(0)
     new = new / new.sum(-1, keepdim=True).clamp_min(torch.finfo(v.dtype).tiny)
+
+    if pinned is not None:
+        if pinned.ndim == 2 and len(voter_shape) > 1:
+            pinned = pinned.reshape(pinned.shape[0], *([1] * (len(voter_shape) - 1)), pinned.shape[-1])
+        if pinned.ndim != len(full_shape) or pinned.shape[0] != num_players or pinned.shape[-1] != num_voters:
+            raise ValueError(f"pinned must have shape {list(full_shape)} (or [P, N]), got {list(pinned.shape)}")
+        pinned = pinned.to(torch.bool).expand(full_shape)
+        for p in range(num_players):
+            new = torch.where(pinned[p].unsqueeze(-1), manifestos[p].to(v.dtype), new)
 
     if frozen is not None:
         mask = _broadcast_voter_tensor(frozen.to(torch.bool), voter_shape, "frozen")

@@ -1,13 +1,16 @@
-"""Observation-only rollout planner for campaign allocations (spec §3, §10.2; P4).
+"""Observation-only rollout planner for campaign allocations (spec §3, §10.2; P4, P8).
+
+P8: an allocation buys NEW permanent workers per region (``hires_by_region``, one-time ``costs.worker`` each)
+plus media regions. Workers are front-loaded value: a worker bought in round t seeds an Independent Cascade
+that advances one hop per remaining round, so early hires reach further.
 
 ``candidate_allocations`` builds a compact, diverse, always-valid set of allocations from the public
-observation (treasury, prices, region sizes, own airing counts, permanent hires so far — R16: available
-workers = free + hired, and every extra worker bought is a permanent hire that keeps working later). ``plan_round`` scores every candidate by
-playing it this round in each sampled world and then a fixed default continuation ("even" pacing:
-half the per-round budget on media in the least-aired regions, the rest on extra workers split by
-region size) for the remaining rounds; the objective is the mean expected share at the election
-(spec §5) over the worlds. All C candidates × B worlds are simulated in one batched call
-(:class:`~.worlds.WorldBatch`) with common random numbers, so the choice is deterministic per seed.
+observation (treasury, prices, region sizes, own airing counts). ``plan_round`` scores every candidate by
+playing it this round in each sampled world and then a fixed default continuation ("even" pacing: half the
+per-round budget on media in the least-aired regions, the rest on workers split by region size) for the
+remaining rounds; the objective is the mean expected share at the election (spec §5) over the worlds. All
+C candidates × B worlds are simulated in one batched call (:class:`~.worlds.WorldBatch`, carrying each plan's
+worker state) with common random numbers, so the choice is deterministic per seed.
 """
 from __future__ import annotations
 
@@ -20,11 +23,12 @@ from typing import Any
 import torch
 
 from ..config import GameConfig, SeedStreams
-from ..dynamics.campaign import Allocation, media_cost
+from ..dynamics.campaign import Allocation, media_cost, worker_cost
 from ..sectors import NUM_REGIONS, REGIONS
-from .worlds import WorldBatch, hired_workers, public_sizes
+from .worlds import BatchWorkers, WorldBatch, public_sizes
 
-__all__ = ["candidate_allocations", "default_allocation", "plan_round", "round_cap", "split_by_weight"]
+__all__ = ["allocation_cost", "candidate_allocations", "default_allocation", "plan_round", "round_cap",
+           "split_by_weight", "workers_for"]
 
 CENT = Decimal("0.01")
 NO_MEDIA = (False,) * NUM_REGIONS
@@ -78,62 +82,79 @@ def _media_set(sizes: Sequence[int], order: Sequence[int], count: int, cap: Deci
 
 
 def _with_workers(sizes: Sequence[int], media: tuple[bool, ...], money: Decimal, weights: Sequence[float],
-                  config: GameConfig, hired: int = 0) -> Allocation:
-    """Spend what is left of ``money`` after ``media`` on new hires; all workers (free + ``hired`` earlier
-    hires + new hires, R16) split by ``weights``."""
+                  config: GameConfig) -> Allocation:
+    """Spend what is left of ``money`` after ``media`` on new workers split by ``weights``."""
     left = money - media_cost(sizes, media, config.media.base_cost)
-    extra = max(0, int(left // config.workers.extra_worker_cost)) if left > 0 else 0
-    workers = split_by_weight(config.workers.free_workers + hired + extra, weights)
-    return Allocation(workers, extra, tuple(media))  # type: ignore[arg-type]
+    return Allocation(workers_for(left, weights, config), tuple(media))  # type: ignore[arg-type]
+
+
+def workers_for(money: Decimal, weights: Sequence[float], config: GameConfig) -> tuple[int, int, int, int]:
+    """As many workers as ``money`` buys, split by ``weights`` (largest remainder)."""
+    unit = config.workers.worker_cost
+    count = int(money // unit) if money > 0 and unit > 0 else 0
+    return split_by_weight(count, weights)
+
+
+def allocation_cost(a: Allocation, sizes: Sequence[int], config: GameConfig) -> Decimal:
+    """``Σ hires × worker_cost + media price`` (exact Decimal, same as the engine)."""
+    return worker_cost(a.total_hires, config.workers.worker_cost) + media_cost(sizes, a.media_regions, config.media.base_cost)
 
 
 def default_allocation(sizes: Sequence[int], budget: Decimal, left: int, airings: Sequence[int],
-                       config: GameConfig, hired: int = 0) -> Allocation:
-    """The "even" continuation: per-round cap, half on media (least aired first), rest on new hires; all
-    available workers (free + ``hired`` earlier hires + new hires) split by region size."""
+                       config: GameConfig) -> Allocation:
+    """The "even" continuation: per-round cap, half on media (least aired first), the rest on new workers
+    split by region size."""
     cap = round_cap(budget, left)
     media = _media_set(sizes, _media_order(sizes, airings), NUM_REGIONS, cap / 2, config.media.base_cost)
-    return _with_workers(sizes, media, cap, [float(s) for s in sizes], config, hired)
+    return _with_workers(sizes, media, cap, [float(s) for s in sizes], config)
 
 
 def candidate_allocations(observation: dict[str, Any], config: GameConfig) -> list[Allocation]:
-    """A compact, diverse candidate set (≈ 10–20), every member valid and affordable.
+    """A compact, diverse candidate set (≤ 20), every member valid and affordable.
 
-    Every plan assigns all available workers (free + earlier permanent hires, R16) plus its new hires.
-
-    * all workers by region size with new-hire spend at 0 / 25 / 50 / 100 % of the per-round cap
-      (cap = treasury / rounds left) and a front-loaded 2× cap;
-    * media on 1 / 2 / all affordable regions (least-aired first), remaining cap on workers by size;
-    * focus plans: all workers (free + cap) in one region; media + all workers in one region.
+    * no spending; workers by region size for 25 / 50 / 100 % of the per-round cap (cap = treasury / rounds
+      left), a front-loaded 2× cap and half the treasury (hires cascade for every remaining round);
+    * media on 1 / 2 / all affordable regions (least-aired first), remaining cap on workers by size, and the
+      same media sets alone (media-only plans);
+    * focus plans: the cap (at least one fee, if the treasury allows) on workers in one region; one airing +
+      workers in one region; the cheapest single airing alone.
     """
     sizes = public_sizes(observation)
     treasury = _money(observation["treasury"])
     airings = [int(observation.get("media_airings", {}).get(r, 0)) for r in REGIONS]
-    cap = round_cap(treasury, rounds_left(observation))
+    left = rounds_left(observation)
+    cap = round_cap(treasury, left)
     base = config.media.base_cost
-    hired = hired_workers(observation)
     by_size = [float(s) for s in sizes]
     order = _media_order(sizes, airings)
-    out: list[Allocation] = []
-    for frac in ("0", "0.25", "0.5", "1"):
-        out.append(_with_workers(sizes, NO_MEDIA, (cap * Decimal(frac)).quantize(CENT, rounding=ROUND_FLOOR), by_size,
-                                 config, hired))
-    out.append(_with_workers(sizes, NO_MEDIA, min(treasury, cap * 2), by_size, config, hired))
+    out: list[Allocation] = [Allocation()]
+    for frac in ("0.25", "0.5", "1"):
+        out.append(_with_workers(sizes, NO_MEDIA, (cap * Decimal(frac)).quantize(CENT, rounding=ROUND_FLOOR), by_size, config))
+    out.append(_with_workers(sizes, NO_MEDIA, min(treasury, cap * 2), by_size, config))
+    if left > 2:
+        out.append(_with_workers(sizes, NO_MEDIA, (treasury / 2).quantize(CENT, rounding=ROUND_FLOOR), by_size, config))
     for count in (1, 2, NUM_REGIONS):
-        out.append(_with_workers(sizes, _media_set(sizes, order, count, cap, base), cap, by_size, config, hired))
+        media = _media_set(sizes, order, count, cap, base)
+        out.append(_with_workers(sizes, media, cap, by_size, config))
+        out.append(Allocation((0, 0, 0, 0), media))  # type: ignore[arg-type]
+    cheapest = _media_set(sizes, sorted(range(NUM_REGIONS), key=lambda r: (sizes[r], r)), 1, treasury, base)
+    out.append(Allocation((0, 0, 0, 0), cheapest))  # type: ignore[arg-type]   # media-only even below the cap
+    # focus plans: at least one worker (and one airing) when the treasury allows it even if the even cap
+    # does not — workers are front-loaded value, so a low cap must not remove them from the set
+    fee = config.workers.worker_cost
     for r in range(NUM_REGIONS):
         focus = [1.0 if k == r else 0.0 for k in range(NUM_REGIONS)]
-        out.append(_with_workers(sizes, NO_MEDIA, cap, focus, config, hired))
-        media = _media_set(sizes, [r], 1, cap, base)
-        if any(media):
-            out.append(_with_workers(sizes, media, cap, focus, config, hired))
+        out.append(_with_workers(sizes, NO_MEDIA, min(treasury, max(cap, fee)), focus, config))
+        one = tuple(k == r for k in range(NUM_REGIONS))
+        price = media_cost(sizes, one, base)
+        if price <= treasury:
+            out.append(_with_workers(sizes, one, min(treasury, max(cap, price + fee)), focus, config))
     unique: list[Allocation] = []
     for a in out:
-        a.validate(config.workers.free_workers, hired)
-        cost = a.extra_workers * config.workers.extra_worker_cost + media_cost(sizes, a.media_regions, base)
-        if cost <= treasury and a not in unique:
+        a.validate()
+        if allocation_cost(a, sizes, config) <= treasury and a not in unique:
             unique.append(a)
-    return unique
+    return unique[:20]
 
 
 def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, current: torch.Tensor,
@@ -141,11 +162,13 @@ def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, curr
                             multipliers: Sequence[str] = ("0.5", "1", "1.5")) -> list[Allocation]:
     """Candidates from first-order marginal values estimated on the player's *own* sampled worlds.
 
-    Same heuristic as the ORACLE marginal-value planner (``experiments/balance.policy_planner``) but
-    computed on synthetic worlds replayed to the current round, i.e. on beliefs rather than the true state:
-    ``dP_i/dc_i = β_v P_i (1 − P_i)(1 − S_i)``; a worker in region r is worth ``q η_w E_r[γ dP/dc]`` and an
-    airing ``p_m η_m(n_r) Σ_r β dP/dc``; media is bought where its value per unit cost beats the best
-    worker's, the rest of the money goes to extra workers concentrated (∝ value²) on the best regions.
+    Computed on synthetic worlds replayed to the current round (beliefs, not the true state). Media: an
+    airing in r is worth ``p_m η_m(n_r) Σ_r β dP/dc`` with ``dP_i/dc_i = β_v P_i (1 − P_i)(1 − S_i)``. Workers
+    (P8): a worker in r seeds a cascade with per-attempt chance ``a = E_r[γP]`` and mean degree k̄_r, so it
+    reaches ≈ ``k̄_r a Σ_{h<L} (k̄_r a)^h`` voters over the L remaining hops (capped at half the region), each
+    gaining ``E_r[γP (P_b − P)] / a`` in vote probability (P_b = P at similarity 1). Media is bought where its
+    value per unit cost beats the best worker's; the rest of the money buys workers concentrated (∝ value²)
+    on the best regions. Values are per TRUE-sized world (media scaled by N/n).
     """
     from ..voting import similarity, vote_probability
     vote = config.voting
@@ -153,19 +176,28 @@ def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, curr
     sim = similarity(current, b)
     prob = vote_probability(sim, vote.sensitivity, vote.threshold)
     gain = vote.sensitivity * prob * (1 - prob) * (1 - sim)                                    # [Bn]
+    p_full = float(vote_probability(torch.tensor(1.0), vote.sensitivity, vote.threshold))
+    chance = (batch.campaign * prob).clamp(0, 1)
     region = batch.local_region
-    q = batch.contacts_per_worker
+    degree = batch.graph.degree.to(current.dtype)
+    hops = rounds_left(observation)
     airings = [int(observation.get("media_airings", {}).get(r, 0)) for r in REGIONS]
     sizes_true = public_sizes(observation)
+    up = sum(sizes_true) / batch.n
     worker_value, media_value = [], []
     for r in range(NUM_REGIONS):
         mask = region == r
-        worker_value.append(float(q * config.workers.contact_strength * (batch.campaign[mask] * gain[mask]).mean()))
+        a = float(chance[mask].mean())
+        kbar = float(degree[mask].mean())
+        r0 = kbar * a
+        reach = min(kbar * a * sum(r0 ** h for h in range(hops)), 0.5 * sizes_true[r])
+        per_convert = float((chance[mask] * (p_full - prob[mask]).clamp_min(0)).mean()) / a if a > 0 else 0.0
+        worker_value.append(reach * per_convert)
         eta = config.media.strength / (1 + config.media.decay * airings[r])
-        media_value.append(float(config.media.exposure_prob * eta * (batch.media[mask] * gain[mask]).sum()) / batch.num_worlds)
+        media_value.append(up * float(config.media.exposure_prob * eta * (batch.media[mask] * gain[mask]).sum()) / batch.num_worlds)
     treasury = _money(observation["treasury"])
-    cap0 = round_cap(treasury, rounds_left(observation))
-    cost_w = config.workers.extra_worker_cost
+    cap0 = round_cap(treasury, hops)
+    cost_w = config.workers.worker_cost
     best_worker = max(worker_value)
     ratios = []
     for r in range(NUM_REGIONS):
@@ -181,67 +213,63 @@ def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, curr
         media = [False] * NUM_REGIONS
         remaining = cap
         for ratio, r, price in sorted(ratios, reverse=True):
-            if ratio > best_worker / float(cost_w) and price <= remaining:
+            if ratio > best_worker / max(float(cost_w), 1e-9) and price <= remaining:
                 media[r] = True
                 remaining -= price
-        out.append(_with_workers(sizes_true, tuple(media), cap, weights, config, hired_workers(observation)))
+        out.append(_with_workers(sizes_true, tuple(media), cap, weights, config))
     return out
-
-
-def _cost(a: Allocation, sizes: Sequence[int], config: GameConfig) -> Decimal:
-    return a.extra_workers * config.workers.extra_worker_cost + media_cost(sizes, a.media_regions, config.media.base_cost)
 
 
 def plan_round(observation: dict[str, Any], worlds: WorldBatch | Sequence, manifesto: Sequence[float] | torch.Tensor,
                config: GameConfig, *, rollout: str = "even", seed: int = 0, current: torch.Tensor | None = None,
-               candidates: list[Allocation] | None = None, value_guided: bool = True) -> tuple[Allocation, dict[str, Any]]:
+               current_workers: BatchWorkers | None = None, candidates: list[Allocation] | None = None,
+               value_guided: bool = True) -> tuple[Allocation, dict[str, Any]]:
     """Pick the candidate allocation with the highest mean expected election share over ``worlds``.
 
-    ``worlds`` is a :class:`WorldBatch` or a list of electorates; ``current`` (``[B·n, 5]``) is the
-    worlds' state at the current round (e.g. from :meth:`WorldBatch.replay`); if omitted the worlds are
-    replayed from the observation. ``value_guided`` adds :func:`value_guided_candidates` (computed on the
-    same worlds) to the candidate set. ``rollout="even"`` continues every candidate with
-    :func:`default_allocation`; ``"none"`` continues with the available workers
-    (free + permanent hires so far, R16) and no spending.
+    ``worlds`` is a :class:`WorldBatch` or a list of electorates; ``current`` (``[B·n, 5]``) and
+    ``current_workers`` are the worlds' state at the current round (from :meth:`WorldBatch.replay_state`); if
+    ``current`` is omitted both are replayed from the observation. ``value_guided`` adds
+    :func:`value_guided_candidates` (computed on the same worlds) to the candidate set. ``rollout="even"``
+    continues every candidate with :func:`default_allocation`; ``"none"`` continues with no spending (the
+    workers already bought keep their cascades going).
     """
     if rollout not in ("even", "none"):
         raise ValueError("rollout must be 'even' or 'none'")
     start = time.perf_counter()
     batch = worlds if isinstance(worlds, WorldBatch) else WorldBatch(list(worlds), config)
     if current is None:
-        current = batch.replay(observation, seed)
+        current, current_workers = batch.replay_state(observation, seed)
+    sizes_true = public_sizes(observation)
+    treasury = _money(observation["treasury"])
     cands = list(candidates) if candidates is not None else candidate_allocations(observation, config)
     if value_guided:
         for a in value_guided_candidates(observation, batch, current, manifesto, config):
-            if a not in cands and _cost(a, public_sizes(observation), config) <= _money(observation["treasury"]):
+            if a not in cands and allocation_cost(a, sizes_true, config) <= treasury:
                 cands.append(a)
-    sizes_true = public_sizes(observation)
     b = batch.manifesto_tensor(manifesto)
     C = len(cands)
-    treasury = _money(observation["treasury"])
-    budgets = [treasury - _cost(a, sizes_true, config) for a in cands]
+    budgets = [treasury - allocation_cost(a, sizes_true, config) for a in cands]
     airings0 = [int(observation.get("media_airings", {}).get(r, 0)) for r in REGIONS]
     airings = torch.tensor([airings0] * C, dtype=torch.int64, device=batch.device)
     left = rounds_left(observation)
     t0 = int(observation["round"])
     streams = SeedStreams(int(seed))
     v = current.unsqueeze(0).expand(C, -1, -1).contiguous()
+    workers = current_workers
     plans = list(cands)
-    hires = [hired_workers(observation) + a.extra_workers for a in cands]   # R16: permanent, per candidate
     for step in range(left):
         gen = streams.generator("strategy", "plan", t0 + step, device=batch.device)
-        v = batch.step(v, plans, airings, b, gen)
+        v, workers = batch.step(v, plans, airings, b, gen, workers)
         airings = airings + torch.tensor([p.media_regions for p in plans], dtype=torch.int64, device=batch.device)
         if step + 1 < left:
             remaining = left - step - 1
             nxt = []
             for c in range(C):
                 if rollout == "even":
-                    a = default_allocation(sizes_true, budgets[c], remaining, airings[c].tolist(), config, hires[c])
+                    a = default_allocation(sizes_true, budgets[c], remaining, airings[c].tolist(), config)
                 else:
-                    a = Allocation(split_by_weight(config.workers.free_workers + hires[c], [float(s) for s in sizes_true]))
-                budgets[c] -= _cost(a, sizes_true, config)
-                hires[c] += a.extra_workers
+                    a = Allocation()
+                budgets[c] -= allocation_cost(a, sizes_true, config)
                 nxt.append(a)
             plans = nxt
     shares = batch.shares(v, b)                                  # [C, B]

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 
 pytest.importorskip("fastapi")
@@ -8,7 +10,7 @@ from tests.privacy_scan import assert_no_leaks  # noqa: E402
 
 N = 1000
 ROUNDS = 2
-ALLOC = {"workers_by_region": [3, 3, 2, 2], "extra_workers": 1, "media_regions": [False, True, False, False]}
+ALLOC = {"hires_by_region": [1, 0, 0, 0], "media_regions": [False, True, False, False]}
 
 
 @pytest.fixture(scope="module")
@@ -49,9 +51,9 @@ def test_full_flow_through_the_api(client, finished):
     game, payloads = finished
     created, _, query, commit, _, allocate, forfeit = payloads
     obs = created["observation"]
-    assert created["player_id"] == "p0" and obs["schema_version"] == "2.0" and obs["phase"] == "SURVEY"
+    assert created["player_id"] == "p0" and obs["schema_version"] == "2.2" and obs["phase"] == "SURVEY"
     assert obs["seed"] == 42 and obs["num_voters"] == N and obs["rounds"] == ROUNDS and obs["treasury"] == "500.00"
-    assert query["accepted"] and query["answer"]["cost"] == "5.00" and "round_report" not in query
+    assert query["accepted"] and query["answer"]["cost"] == obs["costs"]["query"] and "round_report" not in query
     assert set(query["answer"]) == {"round", "phase", "sector_a", "sector_b", "region", "pct_b_over_a", "sample_size",
                                     "moe", "pooled_pct", "pooled_sample_size", "pooled_moe", "repeat_index", "cost"}
     voters_n = next(r["voters"] for r in obs["regions"] if r["id"] == "N")
@@ -67,10 +69,19 @@ def test_full_flow_through_the_api(client, finished):
     assert commit["observation"]["round_reports"] == []
     assert allocate["observation"]["round_reports"] == [allocate["round_report"]]
     assert final["round_reports"] == [allocate["round_report"], forfeit["round_report"]]
-    # R16: the one hire of round 1 persists
-    assert obs["workers"] == {"free": 10, "hired": 0, "available": 10}
-    assert allocate["observation"]["workers"] == {"free": 10, "hired": 1, "available": 11}
-    assert final["workers"] == {"free": 10, "hired": 1, "available": 11}
+    # P8: the one worker bought in round 1 persists; contract fields of the report, allocations and costs
+    none = {"by_region": {"N": 0, "S": 0, "E": 0, "W": 0}, "total": 0}
+    one = {"by_region": {"N": 1, "S": 0, "E": 0, "W": 0}, "total": 1}
+    assert obs["workers"] == none
+    assert allocate["observation"]["workers"] == one and final["workers"] == one
+    report = allocate["round_report"]
+    assert set(report) == {"round", "cost", "hires_by_region", "team_by_region", "spreaders", "converted",
+                           "media_exposed", "election_held"}
+    assert report["hires_by_region"] == [1, 0, 0, 0] and report["team_by_region"] == [1, 0, 0, 0]
+    assert report["spreaders"] == 1 and forfeit["round_report"]["spreaders"] == report["converted"]
+    assert final["allocations"][0] == {"round": 1, "hires_by_region": [1, 0, 0, 0],
+                                       "media_regions": [False, True, False, False], "cost": report["cost"]}
+    assert set(obs["costs"]) == {"query", "worker", "min_degree", "attempt_cap", "media_by_region"}
     assert obs["initial_budget"] == final["initial_budget"] == "500.00"
     again = client.get(url(game, "observation")).json()
     assert again == final
@@ -83,11 +94,10 @@ def test_budget_choice_accepted(client, budget, expected):
     obs = game["observation"]
     assert obs["initial_budget"] == expected and obs["treasury"] == expected
     commit = client.post(url(game, "commit"), json={"manifesto": [0.2] * 5}).json()
-    step = client.post(url(game, "allocate"), json={"workers_by_region": [3, 3, 3, 3], "extra_workers": 2,
-                                                      "media_regions": [False] * 4}).json()
+    step = client.post(url(game, "allocate"), json={"hires_by_region": [1, 0, 1, 0], "media_regions": [False] * 4}).json()
     assert commit["accepted"] and step["accepted"]
     from decimal import Decimal
-    assert Decimal(step["observation"]["treasury"]) == Decimal(expected) - Decimal("8.00")
+    assert Decimal(step["observation"]["treasury"]) == Decimal(expected) - 2 * Decimal(obs["costs"]["worker"])
     assert step["observation"]["initial_budget"] == expected
     client.delete(f"/api/games/{game['game_id']}")
 
@@ -151,10 +161,16 @@ def test_debrief_409_before_done_and_rejections_are_200(client):
     bad = client.post(url(game, "query"), json={"sector_a": "Edu", "sector_b": "Edu", "region": "N"}).json()
     assert bad["error_code"] == "INVALID_QUERY" and bad["observation"]["treasury"] == "500.00"
     client.post(url(game, "commit"), json={"manifesto": [0.2] * 5})
-    bad = client.post(url(game, "allocate"), json={**ALLOC, "workers_by_region": [20, 0, 0, 0]}).json()
+    bad = client.post(url(game, "allocate"), json={**ALLOC, "hires_by_region": [2000, 0, 0, 0]}).json()
+    assert bad["error_code"] == "INVALID_ALLOCATION" and bad["observation"]["workers"]["total"] == 0  # too few eligible
+    bad = client.post(url(game, "allocate"), json={**ALLOC, "hires_by_region": [-1, 0, 0, 0]}).json()
     assert bad["error_code"] == "INVALID_ALLOCATION"
-    bad = client.post(url(game, "allocate"), json={**ALLOC, "extra_workers": 500}).json()
-    assert bad["error_code"] == "INSUFFICIENT_FUNDS"
+    bad = client.post(url(game, "allocate"), json={**ALLOC, "hires_by_region": [1, 0, 0]}).json()
+    assert bad["error_code"] == "INVALID_ALLOCATION"
+    worker = Decimal(game["observation"]["costs"]["worker"])
+    too_many = int(Decimal("500.00") // worker) + 1                       # one more worker than the treasury affords
+    bad = client.post(url(game, "allocate"), json={**ALLOC, "hires_by_region": [too_many, 0, 0, 0]}).json()
+    assert bad["error_code"] == "INSUFFICIENT_FUNDS" and bad["observation"]["treasury"] == "500.00"
 
 
 def test_repeated_query_is_accepted_charged_and_pooled(client):
@@ -165,7 +181,8 @@ def test_repeated_query_is_accepted_charged_and_pooled(client):
     assert first["accepted"] and second["accepted"] and second["error_code"] is None
     assert second["answer"]["repeat_index"] == 2
     assert second["answer"]["pooled_sample_size"] == 2 * first["answer"]["sample_size"]
-    assert second["observation"]["treasury"] == "490.00" and len(second["observation"]["queries"]) == 2
+    spent = 2 * Decimal(game["observation"]["costs"]["query"])
+    assert Decimal(second["observation"]["treasury"]) == Decimal("500.00") - spent and len(second["observation"]["queries"]) == 2
     assert second["observation"]["queries"][-1] == second["answer"]
 
 
@@ -174,7 +191,8 @@ def test_http_errors(client):
     assert client.get("/api/games/nope/players/p0/observation").status_code == 404
     assert client.get(f"/api/games/{game['game_id']}/players/p7/observation").status_code == 404
     assert client.post(url(game, "query"), json={"sector_a": "Edu"}).status_code == 422
-    assert client.post(url(game, "allocate"), json={"workers_by_region": ["x", 0, 0, 0]}).status_code == 422
+    assert client.post(url(game, "allocate"), json={"hires_by_region": ["x", 0, 0, 0]}).status_code == 422
+    assert client.post(url(game, "allocate"), json={"workers_by_region": [1, 0, 0, 0]}).status_code == 422
     assert client.post(url(game, "commit"), content="not json", headers={"content-type": "application/json"}).status_code == 422
     assert client.post("/api/games", json={"num_voters": 999}).status_code == 422
     assert client.post("/api/games", json={"num_voters": 1000, "rounds": 11}).status_code == 422

@@ -7,7 +7,7 @@ Per seed and B:
   the player-facing GameEngine; spend mix (workers / media / queries) from the player's own public history.
 * ORACLE: oracle manifesto (anticipated true electorate; independent of B) + oracle marginal planner via
   simulate_world; spend mix from its allocations.
-Theory: the marginal value of money is decreasing (media has diminishing returns η_m0/(1 + λn); worker contacts
+Theory: the marginal value of money is decreasing (media has diminishing returns η_m0/(1 + λn); worker cascades
 compound multiplicatively), so P(Victory | B) should be concave in log B with diminishing gains per doubling.
 
 Usage: python experiments/e5_budget.py --seeds 200 --n 10000 --device auto --workers 6 --out reports/v2/e5_budget.json
@@ -47,7 +47,7 @@ def run_task(task):
         cfg = dataclasses.replace(base, budget=Decimal(B))
         runs = {}
         out = simulate_world(e, cfg, bo, POLICIES["planner"])
-        w = sum(a.extra_workers for a in out.allocations) * float(cfg.workers.extra_worker_cost)
+        w = sum(a.total_hires for a in out.allocations) * float(cfg.workers.worker_cost)
         runs["oracle"] = {"expected": out.result.expected_share, "victory": out.result.victory,
                           "spend": {"workers": w, "media": float(out.spent) - w, "queries": 0.0, "total": float(out.spent)}}
         ccpu = dataclasses.replace(cfg, device="cpu")

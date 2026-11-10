@@ -58,17 +58,17 @@ def test_player_completes_full_game_with_legal_actions(game2000, index):
         assert Decimal(obs["treasury"]) < Decimal("100")  # it actually campaigns
     if isinstance(player, UniformPlayer):
         assert obs["treasury"] == "500.00" and obs["manifesto"] == [0.2] * 5
-    # R16: hires are permanent — every allocation used at most free + earlier hires + new hires
-    hired = 0
-    for a in obs["allocations"]:
-        assert sum(a["workers_by_region"]) <= 10 + hired + a["extra_workers"]
-        hired += a["extra_workers"]
-    assert obs["workers"] == {"free": 10, "hired": hired, "available": 10 + hired}
+    # P8: the team is the sum of every round's hires, and the reports track it
+    team = [0, 0, 0, 0]
+    for a, report in zip(obs["allocations"], obs["round_reports"]):
+        team = [x + h for x, h in zip(team, a["hires_by_region"])]
+        assert report["team_by_region"] == team and report["hires_by_region"] == a["hires_by_region"]
+    assert obs["workers"] == {"by_region": dict(zip("NSEW", team)), "total": sum(team)}
     assert len(obs["round_reports"]) == cfg.rounds
     if isinstance(player, Top3Player):
-        assert hired > 0
-        later = obs["allocations"][-1]
-        assert sum(later["workers_by_region"]) == 10 + hired   # earlier hires keep working in the last round
+        assert sum(team) > 0
+    if isinstance(player, UniformPlayer):
+        assert sum(team) == 0
 
 
 @pytest.mark.parametrize("index", range(4))
@@ -95,7 +95,7 @@ def test_bayes_planner_forced_queries_may_repeat_and_stay_fast(game2000):
     assert len(survey) == 8 and all(ok for *_, ok, _ in log)
     assert len(set(triples)) < len(triples)                       # at least one repeat
     assert max(q["repeat_index"] for q in survey) >= 2
-    assert all(q["cost"] == "5.00" for q in survey)
+    assert all(q["cost"] == obs["costs"]["query"] for q in survey)
     query_latency = player.latency["query"]
     assert sum(query_latency) / len(query_latency) < 0.5
 

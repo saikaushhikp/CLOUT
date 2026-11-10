@@ -11,7 +11,9 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Union
 
-from ..dynamics.campaign import media_cost, worker_cost
+import torch
+
+from ..dynamics.campaign import eligible_counts, eligible_workers, media_cost, worker_cost
 from ..sectors import NUM_REGIONS, NUM_SECTORS, REGIONS, SECTORS
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -63,10 +65,9 @@ class Commit:
 
 @dataclass(frozen=True, slots=True)
 class Allocate:
-    """One round's campaign allocation (spec §3, §7)."""
+    """One round's campaign allocation (P8: NEW workers bought per region + media regions)."""
 
-    workers_by_region: tuple[int, ...]
-    extra_workers: int = 0
+    hires_by_region: tuple[int, ...] = (0,) * NUM_REGIONS
     media_regions: tuple[bool, ...] = (False,) * NUM_REGIONS
 
 
@@ -97,8 +98,13 @@ def action_from_dict(data: Mapping[str, Any]) -> Action:
         raw = fields["manifesto"]
         return Commit(tuple(raw) if isinstance(raw, (list, tuple)) else raw)
     if kind == "allocate":
-        return Allocate(tuple(fields["workers_by_region"]), fields.get("extra_workers", 0),
-                        tuple(fields.get("media_regions", (False,) * NUM_REGIONS)))
+        unknown = set(fields) - {"hires_by_region", "media_regions"}
+        if unknown:
+            raise ValueError(f"unknown allocate fields {sorted(unknown)}")
+        hires = fields["hires_by_region"]
+        media = fields.get("media_regions", (False,) * NUM_REGIONS)
+        return Allocate(tuple(hires) if isinstance(hires, (list, tuple)) else hires,
+                        tuple(media) if isinstance(media, (list, tuple)) else media)
     return ACTION_TYPES[kind](**fields)
 
 
@@ -109,8 +115,8 @@ def action_to_dict(action: Action) -> dict[str, Any]:
     if isinstance(action, Commit):
         return {"type": "commit", "manifesto": [float(x) for x in action.manifesto]}
     if isinstance(action, Allocate):
-        return {"type": "allocate", "workers_by_region": list(action.workers_by_region),
-                "extra_workers": action.extra_workers, "media_regions": list(action.media_regions)}
+        return {"type": "allocate", "hires_by_region": list(action.hires_by_region),
+                "media_regions": list(action.media_regions)}
     return {"type": "forfeit"}
 
 
@@ -124,9 +130,26 @@ def _is_number(value: object) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
-def allocation_cost(action: Allocate, sizes: Sequence[int], extra_worker_cost: Decimal, media_base_cost: Decimal) -> Decimal:
-    """``extra × cost_w + Σ media price over aired regions`` (spec §3.1–§3.2), exact Decimal."""
-    return worker_cost(action.extra_workers, extra_worker_cost) + media_cost(list(sizes), list(action.media_regions), media_base_cost)
+def allocation_cost(action: Allocate, sizes: Sequence[int], unit_worker_cost: Decimal, media_base_cost: Decimal) -> Decimal:
+    """``Σ hires × worker_cost + Σ media price over aired regions`` (P8, spec §3.2), exact Decimal."""
+    return worker_cost(int(sum(action.hires_by_region)), unit_worker_cost) + \
+        media_cost(list(sizes), list(action.media_regions), media_base_cost)
+
+
+def available_hires(state: "GameState", player: "PlayerState") -> list[int]:
+    """Voters per region that ``player`` could still buy as workers this round (R22): degree ≥ min_degree,
+    not a zealot, not anyone's worker, minus other players' pending hires this round."""
+    e = state.electorate
+    taken = torch.zeros(e.num_voters, dtype=torch.bool, device=e.device)
+    for p in state.players:
+        if p.workers is not None:
+            taken |= p.workers.pinned
+    counts = eligible_counts(e.region_of, eligible_workers(e.graph.degree, e.susceptibility.zealot, taken,
+                                                           state.config.workers.min_degree))
+    for p in state.players:
+        if p.player_id != player.player_id and p.pending is not None:
+            counts = [c - int(h) for c, h in zip(counts, p.pending.hires_by_region)]
+    return counts
 
 
 def _phase_guard(state: "GameState", expected: tuple[str, ...]) -> Rejection | None:
@@ -183,25 +206,23 @@ def _round_guard(state: "GameState", player: "PlayerState") -> Rejection | None:
 
 
 def validate_allocate(state: "GameState", player: "PlayerState", action: Allocate) -> Rejection | None:
-    """Spec §3, §7 + contract (R16): 4 non-negative int worker counts summing ≤ free + earlier hires +
-    new hires (``extra_workers`` ≥ 0), 4 boolean media flags; cost (new hires × fee + media) ≤ treasury."""
+    """P8 + contract: 4 non-negative int ``hires_by_region`` (each region must have that many eligible
+    voters, R22), 4 boolean media flags; cost (hires × worker fee + media) ≤ treasury."""
     rejection = _round_guard(state, player)
     if rejection:
         return rejection
-    workers, media = action.workers_by_region, action.media_regions
-    if not isinstance(workers, tuple) or len(workers) != NUM_REGIONS or not all(_is_int(w) and w >= 0 for w in workers):
-        return Rejection(ErrorCode.INVALID_ALLOCATION, "workers_by_region must be 4 non-negative integers")
-    if not _is_int(action.extra_workers) or action.extra_workers < 0:
-        return Rejection(ErrorCode.INVALID_ALLOCATION, "extra_workers must be a non-negative integer")
+    hires, media = action.hires_by_region, action.media_regions
+    if not isinstance(hires, tuple) or len(hires) != NUM_REGIONS or not all(_is_int(h) and h >= 0 for h in hires):
+        return Rejection(ErrorCode.INVALID_ALLOCATION, "hires_by_region must be 4 non-negative integers")
     if not isinstance(media, tuple) or len(media) != NUM_REGIONS or not all(isinstance(m, bool) for m in media):
         return Rejection(ErrorCode.INVALID_ALLOCATION, "media_regions must be 4 booleans")
-    free, hired = state.config.workers.free_workers, player.hired_workers
-    available = free + hired + action.extra_workers
-    if sum(workers) > available:
-        return Rejection(ErrorCode.INVALID_ALLOCATION,
-                         f"assigned {sum(workers)} workers but only {available} available "
-                         f"({free} free + {hired} hired + {action.extra_workers} new hires)")
-    cost = allocation_cost(action, state.sizes, state.config.workers.extra_worker_cost, state.config.media.base_cost)
+    if any(hires):
+        available = available_hires(state, player)
+        for r, (h, a) in enumerate(zip(hires, available)):
+            if h > a:
+                return Rejection(ErrorCode.INVALID_ALLOCATION,
+                                 f"region {REGIONS[r]} has only {a} voters eligible as workers, {h} requested")
+    cost = allocation_cost(action, state.sizes, state.config.workers.worker_cost, state.config.media.base_cost)
     if not player.ledger.can_afford(cost):
         return Rejection(ErrorCode.INSUFFICIENT_FUNDS, f"allocation costs {cost:.2f} but treasury is {player.ledger.balance:.2f}")
     return None

@@ -136,8 +136,9 @@ export async function setManifesto(page: Page, pct: number[]) {
   for (let i = 0; i < names.length - 1; i++) await page.getByRole("button", { name: `Unlock ${names[i]}` }).click();
 }
 
-export async function workers(page: Page, region: string, n: number) {
-  const input = page.getByRole("spinbutton", { name: `Workers in ${region}` });
+/** Type this round's NEW worker purchases for one region (P8: permanent, one-time fee). */
+export async function hire(page: Page, region: string, n: number) {
+  const input = page.getByRole("spinbutton", { name: `New workers in ${region}` });
   await input.fill(String(n));
   await expect(input).toHaveValue(String(n));
 }

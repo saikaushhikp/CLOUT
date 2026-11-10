@@ -12,6 +12,7 @@ def test_defaults_validate_and_record_is_json_safe():
     import json
     cfg = GameConfig()
     assert cfg.rounds == 5 and cfg.budget == Decimal("500.00")
+    assert cfg.survey.query_cost == Decimal("10.00") and cfg.workers.worker_cost == Decimal("20.00")
     record = cfg.to_record()
     json.dumps(record)
     assert record["budget"] == "500.00"
@@ -37,9 +38,13 @@ def test_invalid_electorate_config(kwargs):
         ElectorateConfig(**kwargs)
 
 
-def test_contacts_per_worker():
-    assert WorkerConfig().contacts_per_worker(10_000) == 25
-    assert WorkerConfig().contacts_per_worker(10) == 1
+def test_worker_config_p8():
+    w = WorkerConfig()
+    assert w.worker_cost == Decimal("20.00") and w.min_degree == 3 and w.attempt_cap == 3
+    for bad in ({"worker_cost": 25.0}, {"worker_cost": Decimal("-1")}, {"min_degree": -1}, {"attempt_cap": 1.5},
+                {"attempt_cap": True}):
+        with pytest.raises(ConfigError):
+            WorkerConfig(**bad)
 
 
 def test_seed_streams_are_stable_independent_and_keyed():

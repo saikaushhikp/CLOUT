@@ -104,7 +104,7 @@ def test_zero_budget_and_opposed_electorate_is_inevitable_defeat():
     cfg, state = _round1_state(n=800, budget="0.00", seed=12, manifesto_fn=_opposed)
     obs, ws, plans, values = _knowledge(state, cfg)
     assert obs["treasury"] == "0.00"
-    assert all(p.first.extra_workers == 0 and not any(p.first.media_regions) for p in plans)   # only free workers
+    assert all(p.first.total_hires == 0 and not any(p.first.media_regions) for p in plans)   # nothing affordable
     props = properties(values)
     assert props["inevitable_defeat"] and not props["possible_victory"] and not props["guaranteed_victory"]
     assert not truth_victory_possible(state, plans, seed=5)
@@ -159,19 +159,19 @@ def test_observation_at_matches_engine_observations(played):
             for key in FIELDS:
                 assert got[key] == expected[key], (t, stage, key)
     assert initial_budget(final) == cfg.budget
-    assert final["workers"]["hired"] > 0                                 # R16 hires are reconstructed above
+    assert final["workers"]["total"] > 0                                 # P8 workers are reconstructed above
     with pytest.raises(ValueError):
         observation_at(final, 0)
 
 
 def test_observation_at_reconstructs_workers_without_the_workers_field(played):
-    """Older observations (no ``workers``/``initial_budget``) still give hires from the allocations."""
+    """Observations without ``workers``/``initial_budget`` still give the team from the allocations."""
     _, state, _ = played
     final = observation_for(state, "p0")
     legacy = {k: v for k, v in final.items() if k not in ("workers", "initial_budget", "round_reports")}
     for t in range(1, int(final["rounds"]) + 1):
-        hired = sum(a["extra_workers"] for a in final["allocations"] if a["round"] < t)
-        assert observation_at(legacy, t)["workers"] == {"free": 10, "hired": hired, "available": 10 + hired}
+        team = [sum(a["hires_by_region"][r] for a in final["allocations"] if a["round"] < t) for r in range(4)]
+        assert observation_at(legacy, t)["workers"] == {"by_region": dict(zip("NSEW", team)), "total": sum(team)}
         assert observation_at(final, t)["round_reports"] == final["round_reports"][: t - 1]
 
 

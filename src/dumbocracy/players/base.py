@@ -4,8 +4,7 @@ Action dicts are the JSON form accepted by :func:`dumbocracy.game.action_from_di
 
     {"type": "query", "sector_a": "Edu", "sector_b": "Agri", "region": "N"}
     {"type": "commit", "manifesto": [0.2, 0.2, 0.2, 0.2, 0.2]}
-    {"type": "allocate", "workers_by_region": [4, 3, 3, 0], "extra_workers": 0,
-     "media_regions": [False, True, False, False]}
+    {"type": "allocate", "hires_by_region": [2, 0, 1, 0], "media_regions": [False, True, False, False]}
     {"type": "forfeit"}
 """
 from __future__ import annotations

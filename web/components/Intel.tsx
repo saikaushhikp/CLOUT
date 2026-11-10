@@ -369,7 +369,7 @@ export function PersonalityLibrary() {
         <li key={p.id} className="ledger-item" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
           <b>{p.name}</b>
           <span className="stat-sub num" title="Mean susceptibility to friends / media / canvassing">
-            friends {Math.round(p.social * 100)} · media {Math.round(p.media * 100)} · doorstep {Math.round(p.campaign * 100)}
+            friends {Math.round(p.social * 100)} · media {Math.round(p.media * 100)} · canvassing {Math.round(p.campaign * 100)}
           </span>
         </li>
       ))}

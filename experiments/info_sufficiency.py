@@ -113,7 +113,7 @@ def plot(summary: dict[str, Any], path: str, meta: dict[str, Any]) -> None:
                  f"{meta['worlds']} sampled worlds per round", color=muted, fontsize=9, x=0.01, ha="left")
     fig.tight_layout()
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=150, facecolor=surface)
+    fig.savefig(path, dpi=300, facecolor=surface)
 
 
 def main() -> None:

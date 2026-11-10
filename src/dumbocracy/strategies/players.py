@@ -5,10 +5,9 @@ JSON body format accepted by :func:`dumbocracy.game.actions.action_from_dict`. P
 allowlisted contract ``Observation`` dict (web_api_v2.md) — never the engine state — and use the public
 rules (a :class:`GameConfig` with default parameters; its seed is never used to regenerate the world).
 
-* :class:`UniformPlayer` — no queries, uniform manifesto, free workers split evenly, no spending.
+* :class:`UniformPlayer` — no queries, uniform manifesto, never spends (P8: no free workers, so no campaign).
 * :class:`Top3Player`   — no queries, manifesto = normalised free top-3 statistic, spends the treasury evenly
-  over the rounds, half media (least-aired first) / half new hires (permanent, R16); all available workers
-  split by region size.
+  over the rounds, half media (least-aired first) / half new permanent workers (P8) split by region size.
 * :class:`BayesPlanner` — information-gain sampled-survey queries (:mod:`.bayes`; repeats allowed, stops when the
   expected information per coin is low), manifesto optimised on the anticipated
   electorate of posterior-sampled worlds, then a rollout planner (:mod:`.planner`) every round on
@@ -35,7 +34,7 @@ from ..sectors import NUM_REGIONS, NUM_SECTORS, REGIONS, SECTORS
 from .manifesto_opt import optimise_manifesto, project_simplex
 from .oracle import anticipate, top3_manifesto
 from .planner import default_allocation, plan_round, rounds_left, split_by_weight
-from .worlds import WorldBatch, available_workers, hired_workers, public_sizes, sample_worlds
+from .worlds import WorldBatch, public_sizes, sample_worlds
 
 __all__ = ["BayesPlanner", "RandomPlayer", "Top3Player", "UniformPlayer", "allocate_dict", "play_game",
            "public_config", "simplex_list"]
@@ -65,8 +64,8 @@ def simplex_list(values: Sequence[float] | torch.Tensor) -> list[float]:
 
 
 def allocate_dict(a: Allocation) -> dict[str, Any]:
-    return {"type": "allocate", "workers_by_region": [int(w) for w in a.workers_by_region],
-            "extra_workers": int(a.extra_workers), "media_regions": [bool(m) for m in a.media_regions]}
+    return {"type": "allocate", "hires_by_region": [int(h) for h in a.hires_by_region],
+            "media_regions": [bool(m) for m in a.media_regions]}
 
 
 def _treasury(observation: dict[str, Any]) -> Decimal:
@@ -99,7 +98,7 @@ class _Timed:
 
 @dataclass
 class UniformPlayer(_Timed):
-    """No queries; uniform manifesto; available workers (free + any earlier hires) split evenly; never spends."""
+    """No queries; uniform manifesto; never spends (buys no workers and no media)."""
 
     player_id: str = "p0"
     latency: dict[str, list[float]] = field(default_factory=dict)
@@ -109,7 +108,7 @@ class UniformPlayer(_Timed):
         if observation["phase"] == "SURVEY":
             action = {"type": "commit", "manifesto": [1.0 / NUM_SECTORS] * NUM_SECTORS}
         else:
-            action = allocate_dict(Allocation(split_by_weight(available_workers(observation), [1.0] * NUM_REGIONS)))
+            action = allocate_dict(Allocation())
         self._record(action["type"], time.perf_counter() - start)
         return action
 
@@ -130,7 +129,7 @@ class Top3Player(_Timed):
         else:
             cfg = public_config(observation, self.config)
             a = default_allocation(public_sizes(observation), _treasury(observation), rounds_left(observation),
-                                   _airings(observation), cfg, hired_workers(observation))   # R16: hires persist
+                                   _airings(observation), cfg)
             action = allocate_dict(a)
         self._record(action["type"], time.perf_counter() - start)
         return action
@@ -175,11 +174,10 @@ class RandomPlayer(_Timed):
             if rng.random() < 0.4 and sum(p for p, m in zip(prices, media) if m) + prices[r] <= budget:
                 media[r] = True
         spent = sum((p for p, m in zip(prices, media) if m), Decimal(0))
-        extra = int(max(Decimal(0), budget - spent) // Decimal(observation["costs"]["extra_worker"]))
+        affordable = int(max(Decimal(0), budget - spent) // Decimal(observation["costs"]["worker"]))
         weights = [rng.random() for _ in range(NUM_REGIONS)]
-        total = available_workers(observation) + extra   # free + earlier permanent hires + new hires (R16)
-        workers = split_by_weight(rng.randint(0, total), weights)
-        return allocate_dict(Allocation(workers, extra, tuple(media)))  # type: ignore[arg-type]
+        hires = split_by_weight(rng.randint(0, affordable), weights)
+        return allocate_dict(Allocation(hires, tuple(media)))  # type: ignore[arg-type]
 
 
 # ----------------------------------------------------------------------------- Bayes planner
@@ -288,15 +286,15 @@ class BayesPlanner(_Timed):
         if not self.planning:
             cfg = public_config(observation, self.config)
             a = default_allocation(public_sizes(observation), _treasury(observation), rounds_left(observation),
-                                   _airings(observation), cfg, hired_workers(observation))
+                                   _airings(observation), cfg)
             return a, {"best_score": float("nan"), "num_candidates": 1, "seconds": 0.0}
         posterior = posterior or self._posterior(observation)
         cfg, worlds = self._worlds(observation, posterior, self.num_worlds, "plan")
         batch = WorldBatch(worlds, cfg)
         seed = self._streams(observation).derive("strategy", "rollout", observation["round"])
-        current = batch.replay(observation, seed)
+        current, workers = batch.replay_state(observation, seed)
         return plan_round(observation, batch, observation["manifesto"], cfg, rollout=self.rollout, seed=seed,
-                          current=current)
+                          current=current, current_workers=workers)
 
     def act(self, observation: dict[str, Any]) -> dict[str, Any]:
         start = time.perf_counter()

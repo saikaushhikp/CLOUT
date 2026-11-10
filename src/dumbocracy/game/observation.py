@@ -15,7 +15,7 @@ from .engine import public_result
 from .ledger import money_str
 from .state import GameState, PlayerState
 
-SCHEMA_VERSION = "2.0"
+SCHEMA_VERSION = "2.2"
 
 
 def _beta_mean(params: tuple[float, float]) -> float:
@@ -28,9 +28,8 @@ def _costs(state: GameState) -> dict[str, Any]:
     sizes = state.sizes
     media = {r: money_str(media_cost(sizes, [i == j for j in range(len(REGIONS))], cfg.media.base_cost))
              for i, r in enumerate(REGIONS)}
-    return {"query": money_str(cfg.survey.query_cost), "extra_worker": money_str(cfg.workers.extra_worker_cost),
-            "free_workers": cfg.workers.free_workers,
-            "contacts_per_worker": cfg.workers.contacts_per_worker(state.electorate.num_voters),
+    return {"query": money_str(cfg.survey.query_cost), "worker": money_str(cfg.workers.worker_cost),
+            "min_degree": cfg.workers.min_degree, "attempt_cap": cfg.workers.attempt_cap,
             "media_by_region": media}
 
 
@@ -71,10 +70,10 @@ def _from_knowledge(player: PlayerState) -> dict[str, Any]:
     }
 
 
-def _workers(state: GameState, player: PlayerState) -> dict[str, int]:
-    """R16/R19: free workers, permanent hires so far, and available = free + hired (before new hires)."""
-    free = state.config.workers.free_workers
-    return {"free": free, "hired": player.hired_workers, "available": free + player.hired_workers}
+def _workers(state: GameState, player: PlayerState) -> dict[str, Any]:
+    """P8: the permanent team per region (counts only; never node ids), incl. an accepted round's hires."""
+    team = [int(x) for x in player.team_by_region]
+    return {"by_region": dict(zip(REGIONS, team)), "total": sum(team)}
 
 
 def observation_for(state: GameState, player_id: str) -> dict[str, Any]:

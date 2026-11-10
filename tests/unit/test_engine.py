@@ -86,11 +86,34 @@ def test_invalid_manifesto_rejected(fresh, manifesto):
     rejected(fresh, Commit(manifesto), ErrorCode.INVALID_MANIFESTO)
 
 
-@pytest.mark.parametrize("action", [Allocate((1, 0, 0)), Allocate((-1, 0, 0, 0)), Allocate((11, 0, 0, 0)),
-                                    Allocate((12, 0, 0, 0), 1), Allocate((True, 0, 0, 0)), Allocate((1, 0, 0, 0), -1),
-                                    Allocate((1, 0, 0, 0), 0, (1, 0, 0, 0)), Allocate((1.0, 0, 0, 0))])
+@pytest.mark.parametrize("action", [Allocate((1, 0, 0)), Allocate((-1, 0, 0, 0)), Allocate((True, 0, 0, 0)),
+                                    Allocate((1, 0, 0, 0), (1, 0, 0, 0)), Allocate((1.0, 0, 0, 0)),
+                                    Allocate((1, 0, 0, 0), (False,) * 3), Allocate([1, 0, 0, 0]), Allocate(None)])
 def test_invalid_allocation_rejected(fresh, action):
     rejected(committed(fresh), action, ErrorCode.INVALID_ALLOCATION)
+
+
+@pytest.mark.parametrize("body", [{"type": "allocate", "workers_by_region": [1, 0, 0, 0]},
+                                  {"type": "allocate", "hires_by_region": [1, 0, 0, 0], "extra_workers": 1}])
+def test_old_allocate_bodies_are_malformed(fresh, body):
+    rejected(committed(fresh), body, ErrorCode.INVALID_ACTION)
+
+
+def test_too_few_eligible_voters_rejected_atomically(fresh, config, electorate):
+    from dataclasses import replace
+    from dumbocracy.game.actions import available_hires
+    s = committed(fresh)
+    player = s.player("p0")
+    available = available_hires(s, player)
+    assert all(0 < a <= n for a, n in zip(available, electorate.sizes.tolist()))
+    rich = s.with_player(replace(player, ledger=type(player.ledger)(Decimal("1000000.00"))))
+    rejected(rich, Allocate((available[0] + 1, 0, 0, 0)), ErrorCode.INVALID_ALLOCATION)
+    assert rich.player("p0").team_by_region == (0, 0, 0, 0)
+    step = ok(rich, Allocate((0, available[1], 0, 0)))                 # every eligible voter is fine
+    assert step.round_report["team_by_region"] == [0, available[1], 0, 0]
+    # bought workers are no longer eligible
+    rejected(step.state, Allocate((0, 1, 0, 0)), ErrorCode.INVALID_ALLOCATION)
+    assert available_hires(step.state, step.state.player("p0"))[1] == 0
 
 
 @pytest.mark.parametrize("query", [Query("Edu", "Edu", "N"), Query("Edu", "Foo", "N"), Query("Edu", "Env", "X")])
@@ -100,29 +123,37 @@ def test_invalid_query_rejected(fresh, query):
 
 # ------------------------------------------------------------------------------------- costs
 
-def test_exact_decimal_costs_and_media_price_per_region(fresh, electorate):
+def test_exact_decimal_costs_and_media_price_per_region(fresh, electorate, config):
+    q, w = config.survey.query_cost, config.workers.worker_cost
     sizes = electorate.sizes.tolist()
-    price = {r: (Decimal("50.00") * 4 * n / N).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    price = {r: (config.media.base_cost * 4 * n / N).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
              for r, n in zip("NSEW", sizes)}
     obs = observation_for(fresh, "p0")
     assert obs["costs"]["media_by_region"] == {r: f"{p:.2f}" for r, p in price.items()}
-    assert obs["costs"]["query"] == "5.00" and obs["costs"]["extra_worker"] == "4.00"
+    assert obs["costs"]["query"] == f"{q:.2f}" and obs["costs"]["worker"] == f"{w:.2f}"
+    assert obs["costs"]["min_degree"] == 3 and obs["costs"]["attempt_cap"] == 3
+    assert set(obs["costs"]) == {"query", "worker", "min_degree", "attempt_cap", "media_by_region"}
     s = ok(fresh, Query("Edu", "Env", "N")).state
-    assert observation_for(s, "p0")["treasury"] == "495.00"
+    assert Decimal(observation_for(s, "p0")["treasury"]) == config.budget - q
     s = committed(s)
-    step = ok(s, Allocate((5, 4, 3, 1), 3, (True, False, False, True)))
-    expected = Decimal("12.00") + price["N"] + price["W"]
+    step = ok(s, Allocate((1, 1, 0, 1), (True, False, False, True)))
+    expected = 3 * w + price["N"] + price["W"]
     obs = observation_for(step.state, "p0")
     assert step.round_report["cost"] == f"{expected:.2f}"
     assert obs["allocations"][0]["cost"] == f"{expected:.2f}"
-    assert Decimal(obs["treasury"]) == Decimal("495.00") - expected
+    assert Decimal(obs["treasury"]) == config.budget - q - expected
     assert obs["media_airings"] == {"N": 1, "S": 0, "E": 0, "W": 1}
 
 
 def test_insufficient_funds(config, electorate):
+    q, w = config.survey.query_cost, config.workers.worker_cost
     s = committed(GameEngine.new_game(config, electorate=electorate))
-    rejected(s, Allocate((10, 0, 0, 0), 200), ErrorCode.INSUFFICIENT_FUNDS)  # 800.00 > 500.00
-    poor = GameConfig(seed=config.seed, rounds=2, device="cpu", budget=Decimal("7.00"), electorate=config.electorate)
+    too_many = int(config.budget // w) + 1
+    assert too_many * w > config.budget
+    rejected(s, Allocate((too_many, 0, 0, 0)), ErrorCode.INSUFFICIENT_FUNDS)
+    # enough for exactly one query, not two
+    poor = GameConfig(seed=config.seed, rounds=2, device="cpu", budget=(q * Decimal("1.4")).quantize(Decimal("0.01")),
+                      electorate=config.electorate)
     s = ok(GameEngine.new_game(poor, electorate=electorate), Query("Edu", "Env", "N")).state
     assert "query" not in observation_for(s, "p0")["legal_actions"]
     rejected(s, Query("Edu", "Env", "S"), ErrorCode.INSUFFICIENT_FUNDS)
@@ -151,20 +182,20 @@ def test_query_answer_is_a_seeded_10pct_sample(fresh, electorate, config):
     assert ans["moe"] == pytest.approx(query_moe(yes, m, n_r))
     assert ans["pooled_pct"] == ans["pct_b_over_a"] and ans["pooled_sample_size"] == m and ans["repeat_index"] == 1
     assert ans["pooled_moe"] == pytest.approx(query_moe(yes, m, fpc=False))
-    assert ans["phase"] == "SURVEY" and ans["round"] == 0 and ans["cost"] == "5.00"
+    assert ans["phase"] == "SURVEY" and ans["round"] == 0 and ans["cost"] == f"{config.survey.query_cost:.2f}"
     exact = query_pct(electorate.preferences, electorate.region_of, 2, 3, 2)
     assert abs(ans["pct_b_over_a"] - exact) < 4 * ans["moe"]
     assert observation_for(step.state, "p0")["queries"] == [step.answer]
 
 
-def test_repeats_are_charged_pooled_and_reset_next_round(fresh):
+def test_repeats_are_charged_pooled_and_reset_next_round(fresh, config):
     q = Query("Edu", "Welfare", "S")
     answers, s = [], fresh
     for _ in range(3):
         step = ok(s, q)
         answers.append(step.answer)
         s = step.state
-    assert observation_for(s, "p0")["treasury"] == "485.00"        # every repeat is charged
+    assert Decimal(observation_for(s, "p0")["treasury"]) == config.budget - 3 * config.survey.query_cost  # every repeat is charged
     assert [a["repeat_index"] for a in answers] == [1, 2, 3]
     assert len({a["pct_b_over_a"] for a in answers}) > 1            # fresh sample each time
     m = answers[0]["sample_size"]
@@ -197,7 +228,7 @@ def test_polls_moe_and_reproducibility(config, electorate):
     def play():
         s = committed(GameEngine.new_game(config, electorate=electorate, game_id="g"))
         for _ in range(config.rounds):
-            s = ok(s, Allocate((4, 3, 2, 1))).state
+            s = ok(s, Allocate((1, 0, 0, 0))).state
         return observation_for(s, "p0")
 
     first, second = play(), play()
@@ -216,7 +247,7 @@ def test_full_game_to_done(fresh, config):
     s = committed(s)
     reports = []
     for t in range(config.rounds):
-        step = ok(s, Allocate((3, 3, 2, 2), 2, (t == 0, False, True, False)))
+        step = ok(s, Allocate((2, 1, 0, 0) if t == 0 else (0, 0, 0, 0), (t == 0, False, True, False)))
         reports.append(step.round_report)
         s = step.state
     assert [r["round"] for r in reports] == [1, 2, 3]
@@ -236,85 +267,89 @@ def test_full_game_to_done(fresh, config):
 
 
 def test_engine_reproduces_simulate_world(config, electorate):
-    """R16: hires persist identically in both — round 2 assigns 12 (10 free + 2 earlier hires) without new
-    hires, round 3 assigns 17 (10 + 2 + 5 new); such a plan is only valid with permanent hires."""
+    """P8: identical round order and seed keying — workers persist and keep their cascades in both."""
     manifesto = torch.tensor([0.3, 0.1, 0.2, 0.25, 0.15])
-    plan = [Allocation((5, 3, 4, 0), 2, (True, False, False, False)),
-            Allocation((0, 12, 0, 0), 0, (False, True, True, False)),
-            Allocation((2, 2, 4, 9), 5, (True, False, False, True))]
-    seen_hired = []
+    plan = [Allocation((2, 1, 1, 0), (True, False, False, False)),
+            Allocation((0, 0, 0, 0), (False, True, True, False)),
+            Allocation((0, 0, 0, 1), (True, False, False, True))]
+    seen_team = []
 
     def policy(ctx):
-        seen_hired.append(ctx.hired)
+        seen_team.append(ctx.team_by_region)
         return plan[ctx.round]
 
     reference = simulate_world(electorate, config, manifesto, policy)
-    assert seen_hired == [0, 2, 2]
+    assert seen_team == [(0, 0, 0, 0), (2, 1, 1, 0), (2, 1, 1, 0)]
     s = ok(GameEngine.new_game(config, electorate=electorate), Commit(tuple(manifesto.tolist()))).state
+    reports = []
     for a in plan:
-        s = ok(s, Allocate(a.workers_by_region, a.extra_workers, a.media_regions)).state
+        step = ok(s, Allocate(a.hires_by_region, a.media_regions))
+        s = step.state
+        reports.append(step.round_report)
     player = s.player("p0")
-    assert player.hired_workers == 7
+    assert player.team_by_region == (2, 1, 1, 1)
     assert player.result == reference.result
     assert torch.equal(s.preferences, reference.final_preferences)
     assert list(player.share_trajectory) == reference.share_trajectory
     assert config.budget - player.ledger.balance == reference.spent
-    # simulate_world enforces the same rule: over-assigning beyond free + hires + new hires raises
-    with pytest.raises(ValueError):
-        simulate_world(electorate, config, manifesto, lambda ctx: Allocation((0, 13, 0, 0)) if ctx.round == 1 else plan[0])
+    assert [r["converted"] for r in reports] == reference.converted
+    assert [r["spreaders"] for r in reports] == reference.spreaders
+    assert torch.equal(player.workers.pinned, reference.workers.pinned)
+    # round 2 buys nothing but last round's converts still spread
+    assert reports[1]["spreaders"] == reports[0]["converted"]
 
 
-# ------------------------------------------------------------------------------ R16 permanent hires
+# ------------------------------------------------------------------------------ P8 permanent workers
 
-def test_hires_are_permanent_and_paid_once(fresh, config):
+REPORT_KEYS = {"round", "cost", "hires_by_region", "team_by_region", "spreaders", "converted", "media_exposed",
+               "election_held"}
+
+
+def test_workers_are_permanent_paid_once_and_pinned(fresh, config):
+    w = config.workers.worker_cost
     s = committed(fresh)
     obs = observation_for(s, "p0")
-    assert obs["workers"] == {"free": 10, "hired": 0, "available": 10}
-    assert obs["initial_budget"] == "500.00"
-    step = ok(s, Allocate((4, 4, 3, 3), 4))                      # hire 4 in round 1: 14 assigned
-    assert step.round_report["cost"] == "16.00"
+    assert obs["schema_version"] == "2.2"
+    assert obs["workers"] == {"by_region": {"N": 0, "S": 0, "E": 0, "W": 0}, "total": 0}
+    assert obs["initial_budget"] == f"{config.budget:.2f}"
+    step = ok(s, Allocate((2, 0, 1, 0)))                         # buy 3 in round 1
+    assert set(step.round_report) == REPORT_KEYS
+    assert step.round_report["cost"] == f"{3 * w:.2f}" and step.round_report["hires_by_region"] == [2, 0, 1, 0]
+    assert step.round_report["team_by_region"] == [2, 0, 1, 0] and step.round_report["spreaders"] == 3
     obs = observation_for(step.state, "p0")
-    assert obs["workers"] == {"free": 10, "hired": 4, "available": 14}
-    assert obs["treasury"] == "484.00"
-    rejected(step.state, Allocate((5, 5, 5, 0)), ErrorCode.INVALID_ALLOCATION)   # 15 > 14 without new hires
-    step = ok(step.state, Allocate((4, 4, 3, 3)))                 # round 2: 14 assigned, no new hires, free
-    assert step.round_report["cost"] == "0.00"
-    obs = observation_for(step.state, "p0")
-    assert obs["treasury"] == "484.00" and obs["workers"]["available"] == 14
-    assert obs["allocations"][1]["cost"] == "0.00" and obs["allocations"][1]["extra_workers"] == 0
-    step = ok(step.state, Allocate((5, 5, 5, 0), 1))              # round 3: 15 = 14 + 1 new hire
-    obs = observation_for(step.state, "p0")
-    assert obs["treasury"] == "480.00" and obs["workers"] == {"free": 10, "hired": 5, "available": 15}
+    assert obs["workers"] == {"by_region": {"N": 2, "S": 0, "E": 1, "W": 0}, "total": 3}
+    assert Decimal(obs["treasury"]) == config.budget - 3 * w
+    assert obs["allocations"][0] == {"round": 1, "hires_by_region": [2, 0, 1, 0], "media_regions": [False] * 4,
+                                     "cost": f"{3 * w:.2f}"}
+    player = step.state.player("p0")
+    b = torch.tensor(UNIFORM, dtype=step.state.preferences.dtype)
+    assert int(player.workers.pinned.sum()) == 3
+    assert torch.equal(step.state.preferences[player.workers.pinned], b.expand(3, -1))
+    first = step.round_report["converted"]
+    step = ok(step.state, Allocate((0, 1, 0, 0), (True, True, True, True)))   # round 2: one more, media everywhere
+    assert step.round_report["team_by_region"] == [2, 1, 1, 0]
+    assert step.round_report["spreaders"] == 1 + first
+    player = step.state.player("p0")
+    assert int(player.workers.pinned.sum()) == 4
+    assert torch.equal(step.state.preferences[player.workers.pinned], b.expand(4, -1))   # media/friends never move them
+    z = step.state.electorate.susceptibility.zealot
+    assert torch.equal(step.state.preferences[z], step.state.electorate.preferences[z])
+    step = ok(step.state, Forfeit())                              # forfeit: no hires, earlier converts spread
+    assert step.round_report["cost"] == "0.00" and step.round_report["hires_by_region"] == [0, 0, 0, 0]
     assert step.state.phase == "DONE"
 
 
-@pytest.mark.parametrize("hired,workers,extra,ok_expected", [
-    (0, (10, 0, 0, 0), 0, True), (0, (11, 0, 0, 0), 0, False), (0, (11, 0, 0, 0), 1, True),
-    (3, (13, 0, 0, 0), 0, True), (3, (14, 0, 0, 0), 0, False), (3, (7, 7, 0, 0), 1, True),
-    (3, (8, 7, 0, 0), 1, False), (3, (0, 0, 0, 0), 0, True)])
-def test_allocation_validation_boundaries(fresh, hired, workers, extra, ok_expected):
-    from dataclasses import replace
-    s = committed(fresh)
-    s = s.with_player(replace(s.player("p0"), hired_workers=hired))
-    action = Allocate(workers, extra)
-    if ok_expected:
-        assert GameEngine.apply(s, "p0", action).accepted
-        Allocation(workers, extra).validate(10, hired)
-    else:
-        rejected(s, action, ErrorCode.INVALID_ALLOCATION)
-        with pytest.raises(ValueError):
-            Allocation(workers, extra).validate(10, hired)
-
-
 def test_insufficient_funds_for_hires_is_atomic(config, electorate):
-    poor = GameConfig(seed=config.seed, rounds=2, device="cpu", budget=Decimal("10.00"), electorate=config.electorate)
+    w = config.workers.worker_cost
+    budget = (w * Decimal("2.4")).quantize(Decimal("0.01"))                       # affords 2 workers, not 3
+    poor = GameConfig(seed=config.seed, rounds=2, device="cpu", budget=budget, electorate=config.electorate)
     s = committed(GameEngine.new_game(poor, electorate=electorate))
-    rejected(s, Allocate((13, 0, 0, 0), 3), ErrorCode.INSUFFICIENT_FUNDS)      # 12.00 > 10.00, nothing hired
-    assert s.player("p0").hired_workers == 0
-    step = ok(s, Allocate((12, 0, 0, 0), 2))
-    assert observation_for(step.state, "p0")["workers"]["hired"] == 2
-    rejected(step.state, Allocate((12, 0, 0, 0), 1), ErrorCode.INSUFFICIENT_FUNDS)   # 4.00 > 2.00
-    assert ok(step.state, Allocate((6, 6, 0, 0))).accepted
+    rejected(s, Allocate((3, 0, 0, 0)), ErrorCode.INSUFFICIENT_FUNDS)          # 3w > 2.4w, nothing bought
+    assert s.player("p0").team_by_region == (0, 0, 0, 0) and s.player("p0").workers is None
+    step = ok(s, Allocate((2, 0, 0, 0)))
+    assert observation_for(step.state, "p0")["workers"]["total"] == 2
+    rejected(step.state, Allocate((1, 0, 0, 0)), ErrorCode.INSUFFICIENT_FUNDS)   # w > 0.4w left
+    assert ok(step.state, Allocate()).accepted
 
 
 def test_round_reports_grow_and_match_action_reports(fresh, config):
@@ -322,12 +357,13 @@ def test_round_reports_grow_and_match_action_reports(fresh, config):
     assert observation_for(s, "p0")["round_reports"] == []
     reports = []
     for t in range(1, config.rounds + 1):
-        step = ok(s, Allocate((3, 3, 2, 2), 1, (t == 2, False, False, False)) if t != 3 else Forfeit())
+        step = ok(s, Allocate((1, 0, 0, 0), (t == 2, False, False, False)) if t != 3 else Forfeit())
         s = step.state
         reports.append(step.round_report)
         obs = observation_for(s, "p0")
         assert obs["round_reports"] == reports
         assert [r["round"] for r in obs["round_reports"]] == list(range(1, t + 1))
+        assert all(set(r) == REPORT_KEYS for r in obs["round_reports"])
     assert reports[-1]["election_held"] and not any(r["election_held"] for r in reports[:-1])
     json.dumps(observation_for(s, "p0"))
 
@@ -336,11 +372,12 @@ def test_replay_is_deterministic(config, electorate):
     s = ok(GameEngine.new_game(config, electorate=electorate), Query("Edu", "Agri", "N")).state
     s = ok(s, Query("Edu", "Agri", "N")).state
     s = committed(s)
-    for _ in range(config.rounds):
+    for t in range(config.rounds):
         s = ok(s, Query("Env", "Industry", "W")).state
-        s = ok(s, Allocate((2, 2, 3, 3), 1, (False, True, False, False))).state
+        s = ok(s, Allocate((1, 0, 0, 1) if t == 0 else (0, 0, 0, 0), (False, True, False, False))).state
     again = GameEngine.replay(config, s.history, electorate=electorate)
     assert again.player("p0").result == s.player("p0").result
+    assert observation_for(again, "p0")["round_reports"] == observation_for(s, "p0")["round_reports"]
     assert torch.equal(again.preferences, s.preferences)
     assert again.player("p0").knowledge.to_list() == s.player("p0").knowledge.to_list()
     assert len(again.player("p0").knowledge.of_kind("query")) == 2 + config.rounds
@@ -352,18 +389,22 @@ def test_two_player_round_resolves_only_when_both_ready(config, electorate):
     s = GameEngine.new_game(config, ("p0", "p1"), electorate=electorate)
     s = ok(s, Commit(UNIFORM), "p0").state
     assert s.phase == "SURVEY"
+    fee = config.workers.worker_cost
     s = ok(s, Query("Edu", "Env", "N"), "p0").state
     s = ok(s, Commit((0.4, 0.1, 0.1, 0.3, 0.1)), "p1").state
     assert s.phase == "ROUND" and s.round == 1
-    step = ok(s, Allocate((10, 0, 0, 0)), "p0")
+    step = ok(s, Allocate((3, 0, 0, 0)), "p0")
     assert step.round_report is None and step.state.round == 1
-    rejected(step.state, Allocate((10, 0, 0, 0)), ErrorCode.INVALID_PHASE, "p0")
+    rejected(step.state, Allocate((3, 0, 0, 0)), ErrorCode.INVALID_PHASE, "p0")
     assert observation_for(step.state, "p0")["legal_actions"] == ["query"]
-    step = ok(step.state, Forfeit(), "p1")
+    step = ok(step.state, Allocate((2, 0, 0, 0)), "p1")
     assert step.round_report["round"] == 1 and step.state.round == 2
+    w0, w1 = step.state.player("p0").workers, step.state.player("p1").workers
+    assert int(w0.pinned.sum()) == 3 and int(w1.pinned.sum()) == 2 and not bool((w0.pinned & w1.pinned).any())
     o0, o1 = observation_for(step.state, "p0"), observation_for(step.state, "p1")
     assert len(o0["queries"]) == 1 and o1["queries"] == []
-    assert o0["manifesto"] != o1["manifesto"] and o0["treasury"] == "495.00" and o1["treasury"] == "500.00"
+    assert o0["manifesto"] != o1["manifesto"] and Decimal(o0["treasury"]) == config.budget - config.survey.query_cost - 3 * fee
+    assert Decimal(o1["treasury"]) == config.budget - 2 * fee
     assert o0["polls"] != o1["polls"]
     assert all("Query" not in e["message"] for e in o1["events"])
     assert o0["free_stats"] == o1["free_stats"]
@@ -374,8 +415,8 @@ def test_two_player_round_resolves_only_when_both_ready(config, electorate):
 def test_privacy_of_every_observation_and_action_payload(fresh, config):
     payloads = [observation_for(fresh, "p0")]
     s = fresh
-    for action in [Query("Edu", "Env", "N"), Commit(UNIFORM), Query("Agri", "Env", "S"), Allocate((5, 5, 0, 0), 1, (True,) * 4),
-                   Forfeit(), Allocate((0, 0, 5, 5))]:
+    for action in [Query("Edu", "Env", "N"), Commit(UNIFORM), Query("Agri", "Env", "S"), Allocate((2, 1, 0, 0), (True,) * 4),
+                   Forfeit(), Allocate((0, 0, 1, 0))]:
         step = GameEngine.apply(s, "p0", action)
         s = step.state
         payloads += [observation_for(s, "p0"), step.answer, step.round_report, step.message]
@@ -384,6 +425,12 @@ def test_privacy_of_every_observation_and_action_payload(fresh, config):
     for payload in payloads:
         assert_no_leaks(payload, N)
         json.dumps(payload)
+    # P8: worker counts only — no node ids, gamma, attempts or per-voter data anywhere
+    obs = observation_for(s, "p0")
+    assert set(obs["workers"]) == {"by_region", "total"}
+    text = json.dumps(payloads[1:] + [obs]).lower()
+    for word in ("attempt\"", "pinned", "worker_ids", "node", "gamma", "susceptib"):
+        assert word not in text, word
 
 
 def test_same_seed_gives_identical_initial_observation_and_census(config):
@@ -395,15 +442,24 @@ def test_same_seed_gives_identical_initial_observation_and_census(config):
 
 # ------------------------------------------------------------------------------- performance
 
+def test_round_resolves_under_one_second_at_10k_on_cpu():
+    cfg = GameConfig(seed=3, rounds=3, device="cpu", electorate=ElectorateConfig(num_voters=10_000))
+    s = committed(GameEngine.new_game(cfg))
+    s = ok(s, Allocate((3, 2, 0, 0), (True, False, False, False))).state
+    start = time.perf_counter()
+    s = ok(s, Allocate((1, 0, 0, 0), (False, True, False, False))).state
+    assert time.perf_counter() - start < 1.0
+
+
 @pytest.mark.gpu
 @pytest.mark.skipif(torch.cuda.device_count() <= 2, reason="needs cuda:2 (shared server)")
 def test_round_resolves_under_one_second_at_10k_on_gpu():
     cfg = GameConfig(seed=3, rounds=3, device="cuda:2", electorate=ElectorateConfig(num_voters=10_000))
     s = committed(GameEngine.new_game(cfg))
-    s = ok(s, Allocate((5, 5, 0, 0), 2, (True, False, False, False))).state  # warm-up
+    s = ok(s, Allocate((3, 2, 0, 0), (True, False, False, False))).state  # warm-up
     torch.cuda.synchronize("cuda:2")
     start = time.perf_counter()
-    s = ok(s, Allocate((3, 3, 3, 3), 2, (False, True, True, False))).state
+    s = ok(s, Allocate((1, 0, 0, 0), (False, True, False, False))).state
     torch.cuda.synchronize("cuda:2")
     assert time.perf_counter() - start < 1.0
 

@@ -30,23 +30,31 @@ the campaign, so aim at the electorate as it will look on election day.
 
 Blending is a starting point, not an optimiser: it does not use your poll results, personalities or the network.
 
-## If I hire a party worker now, how is he or she chosen and used?
+## If I buy a party worker now, how is he or she chosen and what do they do?
 
-- **Hiring (R16):** you pay a one-time fee of ₫4.00 per worker in the round you hire. The worker then joins your
-  permanent team: they work in every remaining round, exactly like your 10 free workers, at no further cost.
-- **Who the worker is:** workers are not individual simulated people. A worker is a unit of canvassing capacity.
-  Nothing about a hired worker is drawn at random; all workers are identical.
-- **Assignment:** each round you assign every worker on your team (free + hired) to a region. A worker you leave
-  unassigned idles that round.
-- **Who they canvass:** each assigned worker contacts `q = max(1, round(0.25% × N))` voters, drawn uniformly at
-  random **with replacement** from that region's voters (25 per worker at N = 10,000). The draw uses the game's
-  seeded "workers" random stream, so replaying a game reproduces it. A voter contacted twice gets two pulls.
-- **Effect on a contacted voter:** each contact pulls the voter's budget toward your manifesto by `0.5 × γ_i`,
-  where γ_i is that voter's (hidden) susceptibility to canvassing. It is higher in regions whose hidden
-  personality is "Receptive to canvassing", and zero for zealots. Several contacts compound: 1 − (1 − 0.5 γ_i)^k.
-- **Word of mouth:** every contacted non-zealot then spreads the message along friendship ties for up to 3 hops,
-  reaching each friend with probability 0.03 per hop; spreaders stop with probability 0.5 per hop (an SIR
-  cascade). Each voter reached this way gets a smaller pull, `0.15 × γ_j`. Workers therefore pay off most in dense,
-  receptive regions, where the cascade is above its spectral threshold (experiment E3).
+Rules R21–R27, from `plans/P8_party_workers_ic.md` (2026-11-10):
 
-Values are the calibrated defaults (spec §14) and may change after the next round of mechanics changes.
+- **Buying:** there are no free workers. You buy workers for a region you choose, paying a one-time fee each.
+  A worker is permanent: they stay in that region for the whole game and are never reassigned.
+- **Who the worker is:** a real voter in the network. The game picks a voter **at random from the region you chose**,
+  among voters with **at least 3 friends** who are not already your workers. The pick uses the game's seeded
+  "workers" random stream, so replaying a game reproduces it. You see how many workers you have per region, but
+  not which voters they are.
+- **Brainwashed:** from that moment the worker's own budget preference equals your manifesto and never changes.
+  Friends, media and time do not move it. Every round they keep pulling their friends toward your manifesto
+  through normal friend influence.
+- **Spreading (Independent Cascade, one step per round):**
+  - In the round you buy them, the worker tries once to convert each of their friends.
+  - A friend who is converted takes on your manifesto, then tries **their** friends **in the next round**. The
+    message moves one step through the network per round, so a worker bought in round 1 can start a cascade
+    up to 5 steps deep, while one bought in the last round gets only one step.
+  - After a converted voter has had their turn spreading, they are an ordinary voter again and may drift away
+    under friends and media.
+  - The original worker spreads only once, in the round they are bought.
+- **Chance of converting a friend:** the friend's hidden receptiveness to canvassing (higher in regions whose
+  personality is "Receptive to canvassing") × how likely that friend already is to vote for your manifesto.
+  A friend who already likes your manifesto is easy to win over; one far from it almost never converts.
+- **Limits:** each voter can be approached at most **3 times per game**, failed attempts included. Zealots and
+  your own workers are never targets.
+- **Why the chance includes "already likes you":** with receptiveness alone, a single worker converted about 65%
+  of 10,000 voters within 5 rounds, whatever the manifesto said (each voter has about 30 friends).

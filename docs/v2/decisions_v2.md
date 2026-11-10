@@ -59,5 +59,15 @@ spec cites them. Changing one requires a new row here and a spec update.
 | R18 | The sampled network graph is fetched and rendered only in the post-election debrief, not during rounds (saves frontend rendering) |
 | R19 | Observation carries `round_reports` and `workers`; the UI lets the player tap any past round to review its poll, orders, spend and outcomes |
 | R20 | "Blend my hunches" lets the player pick which regions (2–4) to blend, weighted by voters |
+| R21 | **No free workers**: every party worker is bought (one-time fee) and permanent; supersedes the free-worker part of U9 and the R16 reassignment model (owner, 2026-11-09; plan `plans/P8_party_workers_ic.md`) |
+| R22 | A bought worker is a uniformly random voter of the region the player chose, with ≥ 3 friends, not a worker or zealot (seeded `workers` stream); it never changes region and is never reassigned |
+| R23 | Workers are pinned at the manifesto b for the whole game (pro-party stubborn agents); they still feed b into friends' averages every round |
+| R24 | Independent Cascade, **one hop per round**: spreaders in round t = workers bought in t ∪ voters converted in t−1; each tries every friend once, then goes quiet; a worker spreads only in its purchase round |
+| R25 | Conversion chance for friend j = γ_j · P_j(vote for b) at round start; a convert is set to v_j = b. (Chance = γ alone let one ₫4 worker convert ~65% of 10k voters, so the manifesto stopped mattering; owner chose γ·P, 2026-11-09) |
+| R26 | Converts are ordinary voters again: they drift with friends and media and spread only in the next round |
+| R27 | At most 3 conversion attempts per voter per game (failures count); workers and zealots are never targets |
+| R28 | Media mechanism unchanged (already of the §5.1 form) |
+| R29 | Worker fee **₫50.00** (owner, 2026-11-10, after the P8 price check; ₫100 was the price passing all five balance checks, ₫50 fails 4a/4b: "split workers+media" wins 82%) |
+| R30 | Prices fixed by the owner (2026-11-10): worker fee **₫20.00** (supersedes R29's ₫50), survey query **₫10.00** (was ₫5.00, U8). Balance gate to be re-measured in the new experiment suite |
 | R10 | Word-of-mouth transmission τ_c calibrated near the SIR threshold ρ/λ_max(A_rr) (provisional 0.03; final value from P2) |
 | R5 | ER-SBM with one global sparsity factor s: P_rr = s·p_r, P_rs = s·p_g, s set for mean degree k̄ = 16 ⚙; ranges p_r ∈ [0.5,0.9], p_g ∈ [0.01,0.2] |

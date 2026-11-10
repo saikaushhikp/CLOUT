@@ -78,7 +78,8 @@ def child(n: int, device: str, repeats: int, seed: int, bayes: bool) -> dict:
     rounds = []
     for t_round in range(cfg.rounds):
         media = [r == largest and t_round < 3 for r in range(4)]
-        action = {"type": "allocate", "workers_by_region": [5, 5, 5, 5], "extra_workers": 10, "media_regions": media}
+        hires = [1 if (r == largest and t_round == 0) else 0 for r in range(4)]   # P8: workers bought once, early
+        action = {"type": "allocate", "hires_by_region": hires, "media_regions": media}
         t = time.perf_counter()
         step = GameEngine.apply(state, "p0", action)
         sync()

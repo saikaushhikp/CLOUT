@@ -21,7 +21,7 @@ MARKERS = ["o", "s", "^", "D", "v", "P"]
 INK, MUTED, GRID = "#1f1f1e", "#6b6a66", "#e4e3df"
 
 plt.rcParams.update({
-    "figure.dpi": 130, "savefig.dpi": 160, "font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
+    "figure.dpi": 300, "savefig.dpi": 300, "font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
     "axes.edgecolor": MUTED, "axes.labelcolor": INK, "xtick.color": MUTED, "ytick.color": MUTED,
     "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.8, "axes.spines.top": False,
     "axes.spines.right": False, "legend.frameon": False, "legend.fontsize": 9, "lines.linewidth": 2,
