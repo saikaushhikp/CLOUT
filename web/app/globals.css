@@ -1,9 +1,9 @@
-/* Dumbocracy v2 — "election-night war room". System font stacks only (no runtime font fetches). */
+/* Clout. Fonts: Google Sans + Google Sans Code, self-hosted by next/font at build time (no runtime font fetches). */
 
 :root {
   color-scheme: light;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --font-sans: var(--font-google-sans), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-google-sans-code), ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 
   /* light — "morning paper" */
   --bg: #f4f2ec;
@@ -196,8 +196,9 @@ select {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 16px;
-  margin: 0 -16px 18px;
+  /* full-bleed bar; padding = distance to the viewport edge, so contents stay aligned with the page */
+  padding: 10px calc(50vw - 50%);
+  margin: 0 calc(50% - 50vw) 18px;
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
@@ -211,16 +212,6 @@ select {
   text-transform: uppercase;
   font-size: 15px;
   white-space: nowrap;
-}
-.brand-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: var(--accent-ink);
-  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .brand small {
   font-weight: 700;
@@ -283,23 +274,24 @@ select {
     box-shadow: 0 0 0 6px transparent;
   }
 }
+/* a pill like the seed badge next to it; only the amount is emphasised */
 .treasury-chip {
-  display: flex;
+  display: inline-flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: var(--surface);
+  gap: 6px;
+  padding: 2px 10px; /* same height as the seed pill despite the slightly larger amount */
+  border-radius: 999px;
+  background: var(--surface-2);
   border: 1px solid var(--line);
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
   white-space: nowrap;
 }
 .treasury-chip span:first-child {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 12px;
   color: var(--ink-3);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* ------------------------------------------------------------------ primitives */
@@ -320,26 +312,13 @@ select {
 .panel-head h2,
 .panel-head h3 {
   margin: 0;
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
 }
 .panel-head .hint {
   margin-left: auto;
   font-size: 12px;
   color: var(--ink-3);
-}
-.panel-icon {
-  color: var(--accent);
-  flex: none;
-}
-.kicker {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
 }
 .btn {
   display: inline-flex;
@@ -400,10 +379,8 @@ select {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
   padding: 3px 8px;
   border-radius: 999px;
   background: var(--surface-2);
@@ -597,11 +574,9 @@ input[type="range"] {
   min-width: 0;
 }
 .stat-label {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 12px;
   color: var(--ink-3);
-  font-weight: 700;
+  font-weight: 600;
 }
 .stat-value {
   font-size: 22px;
@@ -668,59 +643,6 @@ input[type="range"] {
 }
 
 /* ------------------------------------------------------------------ setup */
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 24px;
-  align-items: stretch;
-  padding-top: 12px;
-}
-.hero-copy h1 {
-  font-size: clamp(38px, 6vw, 76px);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  margin: 10px 0 16px;
-  font-weight: 900;
-}
-.hero-copy h1 em {
-  font-style: normal;
-  color: var(--accent);
-}
-.hero-copy p.lede {
-  font-size: 17px;
-  color: var(--ink-2);
-  max-width: 56ch;
-}
-.howto {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 22px;
-}
-.howto li {
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-size: 14px;
-}
-.howto li b {
-  display: block;
-}
-.howto .n {
-  flex: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 13px;
-}
 .setup-card {
   display: flex;
   flex-direction: column;
@@ -747,15 +669,21 @@ input[type="range"] {
   flex-wrap: wrap;
 }
 .engine-status {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
   color: var(--ink-2);
+  cursor: default;
 }
 .engine-dot {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--ink-3);
 }
@@ -772,7 +700,12 @@ input[type="range"] {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
   gap: 16px;
-  align-items: start;
+  /* bento: every column runs to the same bottom edge; its last panel takes up the slack */
+  align-items: stretch;
+}
+/* only the middle column's last panel (Responses) stretches; the side columns keep their natural height */
+.grid-survey > .stack:nth-child(2) > .panel:last-child {
+  flex: 1 1 auto;
 }
 .grid-campaign {
   display: grid;
@@ -798,7 +731,12 @@ input[type="range"] {
   font-size: clamp(22px, 3vw, 30px);
   margin: 0;
   letter-spacing: -0.02em;
-  font-weight: 900;
+  font-weight: 800;
+}
+@media (min-width: 901px) {
+  .subnav .round-dots {
+    display: none;
+  }
 }
 
 /* ------------------------------------------------------------------ bars (top-3) */
@@ -976,10 +914,7 @@ input[type="range"] {
   gap: 10px;
 }
 .arch-card {
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1006,14 +941,11 @@ input[type="range"] {
   gap: 10px;
 }
 .dossier-card {
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
+  padding: 10px 0 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border-top: 4px solid var(--rc, var(--line));
+  border-top: 3px solid var(--rc, var(--line));
   min-width: 0;
 }
 .fit-list {
@@ -1049,7 +981,31 @@ input[type="range"] {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 20px;
-  align-items: start;
+  /* row 1: Budget manifesto | Preview at equal height; row 2: Responses | Commit */
+  align-items: stretch;
+}
+/* the budget panel's extra height goes between the slider rows, not below them */
+.manifesto-budget {
+  display: flex;
+  flex-direction: column;
+}
+.manifesto-budget > [role="group"] {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+.manifesto-commit {
+  align-self: start;
+}
+/* region response buttons in one row */
+.region-answers.region-answers-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 560px) {
+  .region-answers.region-answers-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .mslider {
   display: grid;
@@ -1109,6 +1065,8 @@ input[type="range"] {
 .modal-backdrop {
   position: fixed;
   inset: 0;
+  /* dialogs never inherit centring from where they are opened (e.g. the title screen) */
+  text-align: left;
   z-index: 40;
   background: rgba(5, 8, 15, 0.55);
   display: grid;
@@ -1215,25 +1173,6 @@ input[type="range"] {
   background: var(--accent);
   color: var(--accent-ink);
   border-color: transparent;
-}
-.team-strip-wrap {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-.team-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 12px;
-  margin: 6px 0 4px;
-}
-.team-strip li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.team-new {
-  color: var(--gold);
-  font-weight: 700;
 }
 .cost-table {
   width: 100%;
@@ -1411,7 +1350,7 @@ input[type="range"] {
 .verdict {
   position: relative;
   overflow: hidden;
-  padding: 28px;
+  padding: 20px 24px;
   border-radius: 20px;
   color: #fff;
   background: linear-gradient(135deg, #8f1d10, #d2402a 60%, #f07a3c);
@@ -1421,20 +1360,17 @@ input[type="range"] {
   background: linear-gradient(135deg, #0d3b7a, #1f6fd1 55%, #34b3a0);
 }
 .verdict h1 {
-  font-size: clamp(40px, 8vw, 92px);
-  margin: 4px 0;
+  font-size: clamp(32px, 4.5vw, 52px);
+  margin: 0 0 4px;
   line-height: 0.92;
   letter-spacing: -0.03em;
   font-weight: 900;
-}
-.verdict .kicker {
-  color: rgba(255, 255, 255, 0.85);
 }
 .verdict-stats {
   display: flex;
   gap: 28px;
   flex-wrap: wrap;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 .verdict-stats .stat-label {
   color: rgba(255, 255, 255, 0.75);
@@ -1550,17 +1486,7 @@ input[type="range"] {
   overflow: hidden;
 }
 .lesson {
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--surface-2);
   font-size: 14px;
-}
-.lesson svg {
-  flex: none;
-  color: var(--accent);
-  margin-top: 2px;
 }
 .grid-2 {
   display: grid;
@@ -1596,7 +1522,6 @@ input[type="range"] {
   }
 }
 @media (max-width: 900px) {
-  .hero,
   .grid-campaign,
   .manifesto,
   .grid-2,
@@ -1648,12 +1573,8 @@ input[type="range"] {
     padding: 8px 12px;
     gap: 8px;
   }
-  .brand small,
-  .brand-text {
+  .brand small {
     display: none;
-  }
-  .howto {
-    grid-template-columns: minmax(0, 1fr);
   }
   .mslider {
     grid-template-columns: minmax(0, 1fr) 64px 36px;
@@ -1716,13 +1637,21 @@ input[type="range"] {
 /* ------------------------------------------------------------------ epistemic timeline (P5, R14) */
 .ep-headline {
   margin: 0;
-  font-size: 19px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 700;
   line-height: 1.35;
   padding: 12px 14px;
-  border-left: 4px solid var(--accent);
-  background: var(--accent-soft);
+  border-left: 4px solid var(--ink-3);
+  background: var(--surface-2);
   border-radius: var(--radius-sm);
+}
+.ep-headline-win {
+  border-left-color: var(--good);
+  background: color-mix(in srgb, var(--good) 12%, transparent);
+}
+/* one cell standing for several rounds with the same value */
+.ep-table td.ep-span {
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
 }
 .ep-scroll {
   overflow-x: auto;
@@ -1792,10 +1721,8 @@ input[type="range"] {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
   padding: 3px 8px;
   border-radius: 999px;
   border: 1px solid var(--line);
@@ -1853,15 +1780,12 @@ input[type="range"] {
   font-size: 14px;
   line-height: 1.5;
 }
-.ep-explainer summary {
-  cursor: pointer;
-  font-weight: 800;
+.ep-explainer h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
 }
 .ep-explainer p {
   margin: 0;
-}
-.ep-explainer[open] summary {
-  margin-bottom: 8px;
 }
 .ep-skeleton {
   display: grid;
@@ -1967,10 +1891,8 @@ button.round-dot:hover {
 }
 .lookback-sec h3 {
   margin: 0 0 6px;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ink-3);
+  font-size: 14px;
+  color: var(--ink-2);
 }
 .lookback-table th,
 .lookback-table td {
@@ -2140,30 +2062,6 @@ button.round-dot:hover {
   display: block;
 }
 
-/* setup: treasury + summary */
-.setup-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-}
-.setup-summary dt {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink-3);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.setup-summary dd {
-  margin: 2px 0 0;
-  font-weight: 800;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 @media (max-width: 560px) {
   .lookback-backdrop {
@@ -2185,8 +2083,366 @@ button.round-dot:hover {
   .manifesto-mini-list {
     width: 100%;
   }
-  .blend-list,
-  .setup-summary {
+  .blend-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* results: summary list + full-width network */
+.lessons {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.results-network .network {
+  height: 460px;
+}
+@media (max-width: 560px) {
+  .results-network .network {
+    height: 300px;
+  }
+}
+.network-zoom {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+.network-zoom .btn {
+  background: var(--surface);
+}
+.network-canvas {
+  cursor: grab;
+}
+.network-canvas:active {
+  cursor: grabbing;
+}
+@media (hover: none) {
+  /* touch screens: two fingers move/zoom, so the mouse hint would be wrong */
+  .network-hint {
+    display: none;
+  }
+}
+
+/* segmented control that fills its row (e.g. the region picker in "Ask a region") */
+.seg.seg-fill {
+  display: flex;
+}
+.seg.seg-fill > button {
+  flex: 1 1 0;
+}
+
+/* region cards: the evidence area keeps the height of a full 3-row fit list, hunch pinned to the bottom */
+.dossier-evidence {
+  min-height: 64px; /* = a 3-row fit list (63px) */
+}
+.dossier-hunch {
+  margin-top: auto;
+}
+.dossier-card > .row-between {
+  min-height: 26px; /* room for the "N answers" badge, so it doesn't grow the card */
+}
+
+/* answers: one button per region, each opening a dialog */
+.region-answers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.region-answer-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.region-answer-btn:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+}
+.region-answer-btn:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.region-answer-btn small {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.modal-head {
+  margin-bottom: 12px;
+}
+.modal-head h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.answers-modal {
+  max-width: 640px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+.answers-modal .ledger {
+  max-height: none;
+  overflow: visible;
+}
+.answers-modal .answer-flash {
+  margin-top: 0;
+  animation: none;
+}
+/* one entry per question: its summary box sits right over its estimate */
+.ledger-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ledger-entry + .ledger-entry {
+  margin-top: 8px;
+}
+.answer-flash.answer-flash-sm {
+  display: block;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* region squares on an archetype card sit together, not spread across the row */
+.arch-pips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/*
+ * Survey bento (three-column layout only): the side columns stretch to the middle column's height, but instead of
+ * one empty block at the bottom, every side panel grows by an equal share and spreads it through its own content.
+ */
+@media (min-width: 1181px) {
+  .grid-survey > .stack:not(:nth-child(2)) > .panel {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  /* the panel body takes the panel's extra height and puts it between its parts */
+  .grid-survey > .stack:not(:nth-child(2)) > .panel > :last-child {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  /* National top 3: the bar rows */
+  .grid-survey .hbars {
+    flex: 1 1 auto;
+    justify-content: space-evenly;
+  }
+  /* Ask a region: the form's groups */
+  .grid-survey .qb-form {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  /* Archetypes: the card rows */
+  .grid-survey .arch-grid {
+    flex: 1 1 auto;
+    align-content: space-evenly;
+  }
+}
+
+/* campaign map: a smaller map with the selected region's details beside it */
+.map-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+.map-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.map-info h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.map-info .region-detail {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+}
+.map-info > .btn {
+  align-self: flex-start;
+}
+@media (max-width: 560px) {
+  .map-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .map-layout .map-wrap {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
+/*
+ * Campaign bento (two-column layout only): both columns end on the same line. Polls keeps its natural height; the
+ * other panels share the slack and spread it through their own content instead of leaving an empty block.
+ */
+@media (min-width: 901px) {
+  .grid-campaign {
+    align-items: stretch;
+  }
+  .grid-campaign > .stack > .panel:not(.o-poll) {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .grid-campaign .o-map .map-layout,
+  .grid-campaign .o-manifesto .manifesto-mini {
+    flex: 1 1 auto;
+    align-content: center;
+  }
+  .grid-campaign .o-orders > form,
+  .grid-campaign .o-intel > :last-child,
+  .grid-campaign .o-intel .qb-form {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+
+/* setup screen: HOW_TO_PLAY.md in a borderless scroll box that fades out at the top and bottom */
+/* setup = a centred title screen: title, tagline, the setup card, then the guide button */
+.title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  /* fill the window under the top bar (87px) minus the page's bottom padding (48px) */
+  min-height: calc(100dvh - 87px - 48px);
+  padding-bottom: 24px;
+  text-align: center;
+}
+.title-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.title-screen > .setup-card {
+  width: min(620px, 100%);
+  text-align: left;
+}
+.brand-hidden {
+  visibility: hidden;
+}
+.title-head h1.hero-title {
+  margin: 0;
+  font-size: clamp(64px, 9vw, 128px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  color: var(--ink);
+}
+/* the tagline is a link that must look like ordinary text */
+.hero-tagline,
+.hero-tagline:hover,
+.hero-tagline:visited {
+  color: var(--ink-2);
+  text-decoration: none;
+  cursor: text;
+  font-size: 18px;
+}
+.hero-howto {
+  margin-top: -8px;
+  color: var(--ink-2);
+}
+/* the instructions dialog: the scroll box (with its fades) sits inside the modal */
+.howto-modal {
+  max-width: 760px;
+}
+.howto-modal .howto-scroll {
+  max-height: calc(100dvh - 140px);
+}
+/* the dialog's own title replaces the doc's first heading */
+.howto-modal .howto-scroll > h1:first-child {
+  display: none;
+}
+.howto-modal .howto-scroll > h1:first-child + h2 {
+  margin-top: 0;
+}
+
+.howto-scroll {
+  overflow-y: auto;
+  padding: 0 12px 8px 0;
+  /* still scrolls with wheel, touch and keyboard; the bar itself is hidden */
+  scrollbar-width: none;
+  /* fades only where there is more text beyond the edge (toggled by HowToPlay on scroll) */
+  --fade-top: 40px;
+  --fade-bottom: 56px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.howto-scroll.at-top {
+  --fade-top: 0px;
+}
+.howto-scroll.at-bottom {
+  --fade-bottom: 0px;
+}
+.howto-scroll::-webkit-scrollbar {
+  display: none;
+}
+.howto-scroll:focus-visible {
+  outline-offset: -2px;
+}
+.howto-scroll h1 {
+  margin: 0 0 12px;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  color: var(--ink);
+}
+.howto-scroll h2 {
+  margin: 26px 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.howto-scroll p {
+  margin: 0 0 10px;
+  max-width: 76ch;
+}
+.howto-scroll ul,
+.howto-scroll ol {
+  margin: 0 0 10px;
+  padding-left: 22px;
+  max-width: 76ch;
+}
+.howto-scroll li + li {
+  margin-top: 6px;
+}
+.howto-scroll b {
+  color: var(--ink);
+  font-weight: 700;
+}
+@media (max-width: 560px) {
+  /* phones: the title screen starts at the top instead of centring */
+  .title-screen {
+    justify-content: flex-start;
+    min-height: 0;
+    gap: 20px;
   }
 }

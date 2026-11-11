@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { AlertTriangle, BrainCircuit, Check, Loader2, Minus } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { AlertTriangle, Check, Loader2, Minus } from "lucide-react";
 import { fmtShare } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
 import type { EpistemicRound, EpistemicTimeline } from "@/lib/types";
@@ -20,7 +20,7 @@ const FLAG_ROWS: { key: Flag; label: string; formula: string; gloss: string; ton
   },
   {
     key: "possible_victory",
-    label: "Possible",
+    label: "Win looked possible",
     formula: "M◇Win  =  ∃π ∃w",
     gloss: "In at least one world you could not rule out, some plan wins.",
     tone: "good",
@@ -64,8 +64,8 @@ function FlagBadge({ on, tone, label, round }: { on: boolean; tone: "truth" | "g
 
 function Explainer({ t }: { t: EpistemicTimeline }) {
   return (
-    <details className="ep-explainer">
-      <summary>How to read this</summary>
+    <div className="ep-explainer">
+      <h3>How to read this</h3>
       <div className="stack" style={{ gap: 8 }}>
         <p>
           At the start of every round (after that round&apos;s poll) we freeze <b>what you knew</b>: the free statistics, your survey
@@ -85,7 +85,7 @@ function Explainer({ t }: { t: EpistemicTimeline }) {
         </p>
         <p className="stat-sub">{t.scope.note}</p>
       </div>
-    </details>
+    </div>
   );
 }
 
@@ -97,10 +97,16 @@ function KnowledgeCell({ r }: { r: EpistemicRound }) {
   );
 }
 
-const DETAIL_ROWS: { label: string; hint?: string; cell: (r: EpistemicRound) => ReactNode }[] = [
-  { label: "Best plan", cell: (r) => <span className="ep-plan">{r.best_plan.label}</span> },
+/**
+ * `formal` rows only appear with "Show formal details" on. Rows with a `same` key draw neighbouring rounds
+ * that share a value as one cell spanning those columns.
+ */
+type DetailRow = { label: string; hint?: string; formal?: boolean; same?: (r: EpistemicRound) => string; cell: (r: EpistemicRound) => ReactNode };
+const DETAIL_ROWS: DetailRow[] = [
+  { label: "Best plan", same: (r) => r.best_plan.label, cell: (r) => <span className="ep-plan">{r.best_plan.label}</span> },
   {
     label: "Wins in",
+    same: (r) => String(Math.round(r.best_plan.win_fraction * 100)),
     hint: "share of consistent worlds the best plan wins",
     cell: (r) => (
       <span className="ep-frac">
@@ -113,22 +119,39 @@ const DETAIL_ROWS: { label: string; hint?: string; cell: (r: EpistemicRound) => 
   },
   { label: "Mean share", hint: "of the best plan, across worlds", cell: (r) => <span className="num">{fmtShare(r.best_plan.mean_share)}</span> },
   { label: "You had asked", cell: (r) => <KnowledgeCell r={r} /> },
-  { label: "Consistent worlds", cell: (r) => <span className="num">{r.knowledge.consistent_worlds}</span> },
+  { label: "Consistent worlds", formal: true, cell: (r) => <span className="num">{r.knowledge.consistent_worlds}</span> },
   {
     label: "Uncertainty",
+    formal: true,
     hint: "posterior entropy, bits — lower = you knew more",
     // The engine reports entropy in nats (natural log, strategies/bayes.py); show bits = nats / ln 2.
     cell: (r) => <span className="num">{(r.knowledge.posterior_entropy / Math.LN2).toFixed(2)} bits</span>,
   },
-  { label: "Treasury", cell: (r) => <span className="num">{formatMoney(r.treasury)}</span> },
+  { label: "Treasury", same: (r) => String(r.treasury), cell: (r) => <span className="num">{formatMoney(r.treasury)}</span> },
 ];
+
+/** Runs of consecutive rounds with the same `same` value (every round on its own when there is no key). */
+export function spans(rounds: EpistemicRound[], same?: (r: EpistemicRound) => string): { r: EpistemicRound; n: number }[] {
+  const out: { r: EpistemicRound; n: number; k: string }[] = [];
+  rounds.forEach((r, i) => {
+    const k = same ? same(r) : `#${i}`;
+    const last = out[out.length - 1];
+    if (last && last.k === k) last.n += 1;
+    else out.push({ r, n: 1, k });
+  });
+  return out;
+}
 
 /** Presentational timeline: truth row, epistemic verdict rows and per-round knowledge stats. */
 export function EpistemicTimelineView({ timeline: t }: { timeline: EpistemicTimeline }) {
+  const [formal, setFormal] = useState(false);
   return (
     <div className="stack" style={{ gap: 14 }}>
-      <p className="ep-headline" data-testid="ep-headline">
+      <p className={`ep-headline ${t.actual.victory ? "ep-headline-win" : ""}`} data-testid="ep-headline">
         {t.headline}
+      </p>
+      <p className="stat-sub" style={{ margin: 0 }}>
+        Each column is the start of a round. The first row uses the real electorate; the rest use only what you had seen by then.
       </p>
       <div className="ep-scroll" tabIndex={0} role="region" aria-label="Epistemic timeline table, scrolls horizontally on small screens">
         <table className="ep-table">
@@ -152,7 +175,7 @@ export function EpistemicTimelineView({ timeline: t }: { timeline: EpistemicTime
               <tr key={f.key} className={f.tone === "truth" ? "ep-truth-row" : undefined} data-testid={`ep-row-${f.key}`}>
                 <th scope="row" className="ep-rowhead" title={f.gloss}>
                   <span className="ep-label">{f.label}</span>
-                  <span className="ep-formula">{f.formula}</span>
+                  {formal ? <span className="ep-formula">{f.formula}</span> : null}
                 </th>
                 {t.rounds.map((r) => (
                   <td key={r.round}>
@@ -163,35 +186,28 @@ export function EpistemicTimelineView({ timeline: t }: { timeline: EpistemicTime
             ))}
           </tbody>
           <tbody className="ep-details">
-            {DETAIL_ROWS.map((d) => (
+            {DETAIL_ROWS.filter((d) => formal || !d.formal).map((d) => (
               <tr key={d.label}>
                 <th scope="row" className="ep-rowhead">
                   <span className="ep-label">{d.label}</span>
-                  {d.hint ? <span className="ep-formula">{d.hint}</span> : null}
+                  {formal && d.hint ? <span className="ep-formula">{d.hint}</span> : null}
                 </th>
-                {t.rounds.map((r) => (
-                  <td key={r.round}>{d.cell(r)}</td>
+                {spans(t.rounds, d.same).map(({ r, n }) => (
+                  <td key={r.round} colSpan={n > 1 ? n : undefined} className={n > 1 ? "ep-span" : undefined}>
+                    {d.cell(r)}
+                  </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="report-strip" style={{ gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
-        <div className="stat">
-          <span className="stat-label">Outcome</span>
-          <span className={`stat-value ${t.actual.victory ? "good" : "bad"}`}>{t.actual.victory ? "Won" : "Lost"}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Vote share</span>
-          <span className="stat-value num">{fmtShare(t.actual.vote_share)}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Expected share</span>
-          <span className="stat-value num">{fmtShare(t.actual.expected_share)}</span>
-        </div>
+      <div>
+        <button type="button" className="btn btn-sm btn-ghost" aria-expanded={formal} onClick={() => setFormal((f) => !f)}>
+          {formal ? "Hide formal details" : "Show formal details"}
+        </button>
       </div>
-      <Explainer t={t} />
+      {formal ? <Explainer t={t} /> : null}
     </div>
   );
 }
@@ -199,7 +215,7 @@ export function EpistemicTimelineView({ timeline: t }: { timeline: EpistemicTime
 /** The debrief panel: loading skeleton, error, or the timeline. */
 export function EpistemicPanel({ timeline, error, onRetry }: { timeline: EpistemicTimeline | null; error: string | null; onRetry?: () => void }) {
   return (
-    <Panel title="Epistemic timeline" icon={BrainCircuit} hint="truth vs what you could know, round by round">
+    <Panel title="Epistemic timeline">
       {timeline ? (
         <EpistemicTimelineView timeline={timeline} />
       ) : error ? (
@@ -216,7 +232,7 @@ export function EpistemicPanel({ timeline, error, onRetry }: { timeline: Epistem
           <span className="row" style={{ gap: 8 }}>
             <Loader2 className="spin" size={18} aria-hidden /> Reasoning over possible worlds…
           </span>
-          <span className="stat-sub">Rebuilding every electorate consistent with what you knew — this can take about ten seconds.</span>
+          <span className="stat-sub">This takes about ten seconds.</span>
           <div className="ep-skeleton-rows" aria-hidden>
             {Array.from({ length: 5 }, (_, i) => (
               <i key={i} />

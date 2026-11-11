@@ -33,7 +33,10 @@ test("mobile: full game at 390×844 without horizontal scroll", async ({ page })
     await ask(builder, "Education", "Environment", "West");
     await ask(builder, "Education", "Environment", "West");
     await ask(builder, "Welfare", "Industry", "South");
-    await expect(page.locator(".answer-flash")).toBeVisible();
+    await page.getByRole("button", { name: "West 2 responses" }).tap();
+    await expect(page.getByRole("dialog", { name: "Responses from West" }).locator(".answer-flash")).toBeInViewport();
+    await shot(page, "mobile-02b-survey-answers-dialog", { fullPage: false });
+    await page.getByRole("button", { name: "Close" }).tap();
     await expectNoHorizontalScroll(page, "survey with answers");
     await shot(page, "mobile-02-survey");
 

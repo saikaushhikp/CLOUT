@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Award, Check, Eye, GitCompare, Lightbulb, Loader2, Network, RotateCcw, Sparkles, TrendingUp, X } from "lucide-react";
+import { Check, Loader2, RotateCcw, X } from "lucide-react";
 import { useGame, useObservation } from "@/lib/game";
 import { REGION_META } from "@/lib/constants";
 import { fmtInt, fmtShare } from "@/lib/format";
 import { centsToString, formatMoney, toCents } from "@/lib/money";
 import { initialBudgetCents } from "@/lib/rounds";
+import { toIntegerSimplex } from "@/lib/simplex";
 import type { Debrief, EpistemicTimeline, Observation, RegionId } from "@/lib/types";
 import { EpistemicPanel } from "./EpistemicTimeline";
 import { PollChart } from "./PollChart";
@@ -48,7 +49,6 @@ function Verdict({ obs }: { obs: Observation }) {
   return (
     <section className={`verdict ${r.victory ? "win" : ""}`} aria-live="polite">
       {r.victory ? <Confetti /> : null}
-      <span className="kicker">Election night · {fmtInt(r.num_voters)} voters</span>
       <h1>{r.victory ? "You won." : "You lost."}</h1>
       <p style={{ margin: 0, fontSize: 17, opacity: 0.92 }}>
         {r.victory
@@ -74,7 +74,9 @@ function Verdict({ obs }: { obs: Observation }) {
         <div className="stat">
           <span className="stat-label">Money spent</span>
           <span className="stat-value num">{formatMoney(spent)}</span>
-          <span className="stat-sub" style={{ color: "inherit", opacity: 0.85 }}>of {formatMoney(budget)}</span>
+          <span className="stat-sub" style={{ color: "inherit", opacity: 0.85 }}>
+            {spent >= budget ? "the whole budget" : `of ${formatMoney(budget)}`}
+          </span>
         </div>
       </div>
     </section>
@@ -108,7 +110,7 @@ function RevealCards({ obs, debrief }: { obs: Observation; debrief: Debrief }) {
             {i >= flipped ? (
               <div className="reveal-face" style={{ ["--rc" as string]: REGION_META[r.id as RegionId]?.color }}>
                 <strong>{REGION_META[r.id as RegionId]?.label ?? r.id}</strong>
-                <span className="stat-sub">Classified file…</span>
+                <span className="stat-sub">Hidden</span>
               </div>
             ) : (
               <div className="reveal-face reveal-back" style={{ ["--rc" as string]: REGION_META[r.id as RegionId]?.color }}>
@@ -152,6 +154,55 @@ function RevealCards({ obs, debrief }: { obs: Observation; debrief: Debrief }) {
   );
 }
 
+/** Your manifesto next to the oracle's; collapses to one bar when they round to the same percentages. */
+function ManifestoCompare({ manifesto, debrief }: { manifesto: number[] | null; debrief: Debrief }) {
+  const mine = manifesto ? toIntegerSimplex(manifesto) : null;
+  const oracle = toIntegerSimplex(debrief.oracle.manifesto);
+  const same = mine !== null && mine.every((v, i) => v === oracle[i]);
+  return (
+    <div className="compare-bars">
+      {same ? (
+        <>
+          <p style={{ margin: 0 }}>
+            <b>Your manifesto matched the oracle&apos;s.</b>
+          </p>
+          <StackBar mean={debrief.oracle.manifesto} label="Your manifesto and the oracle's" showPct />
+        </>
+      ) : (
+        <>
+          <div className="compare-row">
+            <span>You</span>
+            {manifesto ? <StackBar mean={manifesto} label="Your manifesto" showPct /> : null}
+          </div>
+          <div className="compare-row">
+            <span>Oracle</span>
+            <StackBar mean={debrief.oracle.manifesto} label="Oracle manifesto" showPct />
+          </div>
+        </>
+      )}
+      <SectorLegend />
+      {same ? (
+        <div className="stat" style={{ marginTop: 6 }}>
+          <span className="stat-label">Vote share with no campaign</span>
+          <span className="stat-value num">{fmtShare(debrief.your_manifesto_no_campaign_share)}</span>
+        </div>
+      ) : (
+        <div className="report-strip" style={{ gridTemplateColumns: "repeat(2, minmax(0,1fr))", marginTop: 6 }}>
+          <div className="stat">
+            <span className="stat-label">You, no campaign</span>
+            <span className="stat-value num">{fmtShare(debrief.your_manifesto_no_campaign_share)}</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Oracle, no campaign</span>
+            <span className="stat-value num">{fmtShare(debrief.oracle.expected_share_no_campaign)}</span>
+          </div>
+        </div>
+      )}
+      <span className="stat-sub">{debrief.oracle.note}.{same ? "" : " Both shares assume no campaign."}</span>
+    </div>
+  );
+}
+
 function lessons(obs: Observation, d: Debrief): string[] {
   const out: string[] = [];
   const traj = d.share_trajectory;
@@ -160,27 +211,28 @@ function lessons(obs: Observation, d: Debrief): string[] {
   const gapManifesto = d.oracle.expected_share_no_campaign - d.your_manifesto_no_campaign_share;
   if (gapManifesto > 0.02)
     out.push(
-      `Your manifesto alone would have drawn ${fmtShare(d.your_manifesto_no_campaign_share)}; the oracle's draws ${fmtShare(d.oracle.expected_share_no_campaign)} with no campaign at all — the platform cost you ${(gapManifesto * 100).toFixed(1)} points.`,
+      `With no campaign, your manifesto would have drawn ${fmtShare(d.your_manifesto_no_campaign_share)} and the oracle's ${fmtShare(d.oracle.expected_share_no_campaign)}. Your manifesto cost you ${(gapManifesto * 100).toFixed(1)} points.`,
     );
-  else out.push(`Your manifesto was within ${(Math.max(0, gapManifesto) * 100).toFixed(1)} points of the full-information oracle — sharp reading of the electorate.`);
+  else if (gapManifesto < 0.0005) out.push("Your manifesto matched the oracle's.");
+  else out.push(`Your manifesto was within ${(gapManifesto * 100).toFixed(1)} points of the oracle's.`);
   const lift = end - d.your_manifesto_no_campaign_share;
   out.push(
     lift > 0.005
-      ? `Campaigning added about ${(lift * 100).toFixed(1)} points over simply letting opinions settle (${fmtShare(d.your_manifesto_no_campaign_share)} → ${fmtShare(end)}).`
-      : `Your campaign barely moved the needle beyond natural drift (${fmtShare(d.your_manifesto_no_campaign_share)} without it vs ${fmtShare(end)} with it).`,
+      ? `Campaigning added about ${(lift * 100).toFixed(1)} points (${fmtShare(d.your_manifesto_no_campaign_share)} → ${fmtShare(end)}).`
+      : `Campaigning made little difference (${fmtShare(d.your_manifesto_no_campaign_share)} without it, ${fmtShare(end)} with it).`,
   );
   const best = [...d.regions].sort((a, b) => b.final_expected_share - a.final_expected_share)[0];
   const worst = [...d.regions].sort((a, b) => a.final_expected_share - b.final_expected_share)[0];
   if (best && worst && best.id !== worst.id)
     out.push(
-      `${REGION_META[best.id as RegionId]?.label ?? best.id} was your stronghold (${fmtShare(best.final_expected_share)}); ${REGION_META[worst.id as RegionId]?.label ?? worst.id} never warmed up (${fmtShare(worst.final_expected_share)}).`,
+      `Best region: ${REGION_META[best.id as RegionId]?.label ?? best.id} (${fmtShare(best.final_expected_share)}). Worst: ${REGION_META[worst.id as RegionId]?.label ?? worst.id} (${fmtShare(worst.final_expected_share)}).`,
     );
   const pre = obs.polls.find((p) => p.round === obs.rounds + 1);
   if (pre)
     out.push(
-      `The eve-of-election poll said ${fmtShare(pre.estimate)} ± ${fmtShare(pre.moe)}; the true expected share was ${fmtShare(end)}. Polls of 400 voters wobble — that's the fog of war.`,
+      `The last poll said ${fmtShare(pre.estimate)} ± ${fmtShare(pre.moe)}; the true expected share was ${fmtShare(end)}.`,
     );
-  if (start < 0.5 && end > 0.5) out.push("You came from behind: the electorate started against you and the campaign flipped it.");
+  if (start < 0.5 && end > 0.5) out.push("You started below 50% and finished above it.");
   return out;
 }
 
@@ -225,70 +277,47 @@ export function ResultsScreen() {
             void createGame(req);
           }}
         >
-          <RotateCcw size={16} aria-hidden /> Replay this electorate (seed {obs.seed})
+          <RotateCcw size={16} aria-hidden /> Replay seed {obs.seed}
         </button>
         <button type="button" className="btn" onClick={leaveGame}>
-          <Sparkles size={16} aria-hidden /> New game
+          New game
         </button>
       </div>
 
       {!debrief ? (
         <div className="loading" role="status" style={{ minHeight: 200 }}>
-          <Loader2 className="spin" aria-hidden /> Declassifying the debrief…
+          <Loader2 className="spin" aria-hidden /> Loading results…
         </div>
       ) : (
         <>
-          <Panel title="The hidden map, revealed" icon={Eye}>
+          <Panel title="What happened">
+            <ul className="list-plain lessons">
+              {lessons(obs, debrief).map((l, i) => (
+                <li key={i} className="lesson">
+                  {l}
+                </li>
+              ))}
+            </ul>
+          </Panel>
+
+          <Panel title="What each region was">
             <RevealCards obs={obs} debrief={debrief} />
           </Panel>
 
           <div className="grid-2">
-            <Panel title="Truth vs your polls" icon={TrendingUp}>
+            <Panel title="Polls vs actual">
               <PollChart obs={obs} truth={debrief.share_trajectory} height={260} />
             </Panel>
-            <Panel title="Your manifesto vs the oracle" icon={GitCompare}>
-              <div className="compare-bars">
-                <div className="compare-row">
-                  <span>You</span>
-                  {obs.manifesto ? <StackBar mean={obs.manifesto} label="Your manifesto" showPct /> : null}
-                </div>
-                <div className="compare-row">
-                  <span>Oracle</span>
-                  <StackBar mean={debrief.oracle.manifesto} label="Oracle manifesto" showPct />
-                </div>
-                <SectorLegend />
-                <div className="report-strip" style={{ gridTemplateColumns: "repeat(2, minmax(0,1fr))", marginTop: 6 }}>
-                  <div className="stat">
-                    <span className="stat-label">You, no campaign</span>
-                    <span className="stat-value num">{fmtShare(debrief.your_manifesto_no_campaign_share)}</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-label">Oracle, no campaign</span>
-                    <span className="stat-value num">{fmtShare(debrief.oracle.expected_share_no_campaign)}</span>
-                  </div>
-                </div>
-                <span className="stat-sub">{debrief.oracle.note}. Both shares assume no campaigning: opinions only drift through friendships.</span>
-              </div>
+            <Panel title="Your manifesto vs the oracle">
+              <ManifestoCompare manifesto={obs.manifesto} debrief={debrief} />
             </Panel>
           </div>
+
+          <Panel title="How opinion spread" className="results-network">
+            <NetworkView sample={graph} error={graphError} totalVoters={obs.num_voters} revealRounds={roundsLabels} />
+          </Panel>
 
           <EpistemicPanel timeline={epistemic.timeline} error={epistemic.error} onRetry={epistemic.retry} />
-
-          <div className="grid-2">
-            <Panel title="Why you won — or didn't" icon={Lightbulb}>
-              <ul className="list-plain stack" style={{ gap: 8 }}>
-                {lessons(obs, debrief).map((l, i) => (
-                  <li key={i} className="lesson">
-                    <Award size={16} aria-hidden />
-                    <span>{l}</span>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-            <Panel title="How opinion spread" icon={Network} hint="each voter's chance of voting for you · 40–60% = swing voters">
-              <NetworkView sample={graph} error={graphError} totalVoters={obs.num_voters} revealRounds={roundsLabels} />
-            </Panel>
-          </div>
         </>
       )}
     </div>

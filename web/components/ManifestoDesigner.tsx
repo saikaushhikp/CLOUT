@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BarChart3, ChevronDown, ChevronUp, Info, Lock, LockOpen, Loader2, Shuffle, Stamp, Wand2 } from "lucide-react";
+import { BarChart3, ChevronDown, ChevronUp, Lock, LockOpen, Loader2, Shuffle, Stamp, Wand2 } from "lucide-react";
 import { useGame, useObservation } from "@/lib/game";
 import { BLEND_MAX, BLEND_MIN, REGION_META, SECTOR_META, sectorLabel } from "@/lib/constants";
 import { percentToManifesto, rebalance, similarity, toIntegerSimplex } from "@/lib/simplex";
@@ -10,6 +10,7 @@ import { fmtInt } from "@/lib/format";
 import type { Observation, RegionId } from "@/lib/types";
 import { SECTOR_IDS } from "@/lib/types";
 import { Panel, RegionPip, SectorSwatch, StackBar } from "./ui";
+import { KnowledgeLedger } from "./Intel";
 
 export const BLEND_HELP =
   "Takes the archetype you picked for each chosen region and averages their budget profiles, weighted by how many voters live there.";
@@ -40,8 +41,7 @@ export function BlendPicker({
     <fieldset className="blend-picker" aria-describedby="blend-help">
       <legend>Blend which regions?</legend>
       <p id="blend-help" className="stat-sub blend-help">
-        <Info size={13} aria-hidden style={{ verticalAlign: "-2px", marginRight: 4 }} />
-        {BLEND_HELP} Pick {BLEND_MIN}–{BLEND_MAX} regions; set a hunch in the region dossiers to enable a region.
+        {BLEND_HELP} Pick {BLEND_MIN} to {BLEND_MAX} regions that have a hunch.
       </p>
       <div className="row" style={{ gap: 6 }}>
         <span className="stat-sub">Shortcuts:</span>
@@ -186,7 +186,7 @@ export function ManifestoDesigner() {
 
   return (
     <div className="manifesto">
-      <Panel title="Budget manifesto" icon={Stamp} hint={<span className="sum-pill num">Σ {sum}%</span>}>
+      <Panel title="Budget manifesto" className="manifesto-budget" hint={<span className="sum-pill num">Σ {sum}%</span>}>
         <SimplexSliders
           values={values}
           locked={locked}
@@ -217,7 +217,7 @@ export function ManifestoDesigner() {
               if (!top3) return;
               // Exaggerate differences above the 60% "even" line so the popular sectors stand out.
               setValues(toIntegerSimplex(SECTOR_IDS.map((s) => Math.max(1, (top3[s] ?? 60) - 30))));
-              pushToast({ kind: "info", title: "Drafted from the free statistic", message: "A blunt starting point — the top-3 stat hides regional differences." });
+              pushToast({ kind: "info", title: "Drafted from the national top 3", message: "This ignores differences between regions." });
             }}
           >
             <BarChart3 size={14} aria-hidden /> Draft from top-3 stats
@@ -241,55 +241,57 @@ export function ManifestoDesigner() {
           </div>
         ) : null}
         <p className="stat-sub" style={{ marginTop: 12 }}>
-          Sliders are linked: moving one rebalances the unlocked others proportionally, so the total is always 100%.
-          Voters back you when your budget is close to theirs (similarity = 1 − half the L1 distance). Tip: opinions drift
-          toward their region&apos;s average over the campaign — aim at regions, not individuals.
+          The shares always add up to 100%: moving one slider adjusts the unlocked ones. Voters back you when your split is close
+          to their own, and opinions drift toward their region&apos;s average, so aim at regions.
         </p>
       </Panel>
 
-      <div className="stack">
-        <Panel title="Preview">
-          <div className="donut-wrap">
-            <Donut values={values} size={210} />
-            <div className="donut-center">
-              <div>
-                <div className="stat-label">Largest</div>
-                <div style={{ fontWeight: 900, fontSize: 18 }}>{sectorLabel(SECTOR_IDS[values.indexOf(Math.max(...values))])}</div>
-                <div className="num muted">{Math.max(...values)}%</div>
-              </div>
+      <Panel title="Preview">
+        <div className="donut-wrap">
+          <Donut values={values} size={210} />
+          <div className="donut-center">
+            <div>
+              <div className="stat-label">Largest</div>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>{sectorLabel(SECTOR_IDS[values.indexOf(Math.max(...values))])}</div>
+              <div className="num muted">{Math.max(...values)}%</div>
             </div>
           </div>
-          <div className="stack" style={{ gap: 6, marginTop: 14 }}>
-            <span className="stat-label">Closeness to each archetype</span>
-            {obs.archetype_library
-              .map((a) => ({ a, s: similarity(manifesto, a.mean) }))
-              .sort((x, y) => y.s - x.s)
-              .map(({ a, s }) => (
-                <div className="match-row" key={a.id}>
-                  <span>
-                    {a.name}
-                    {Object.entries(hunches).some(([, h]) => h === a.id) ? <span className="muted"> · hunch</span> : null}
-                  </span>
-                  <span className="meter" aria-hidden>
-                    <span style={{ width: `${Math.max(0, (s - 0.5) / 0.5) * 100}%`, background: s >= 0.825 ? "var(--good)" : "var(--ink-3)" }} />
-                  </span>
-                  <span className="num" style={{ textAlign: "right", fontWeight: 700 }}>
-                    {(s * 100).toFixed(0)}%
-                  </span>
-                </div>
-              ))}
-            <span className="stat-sub">Green = above the ~82.5% similarity where a typical voter flips to “likely yes”.</span>
-          </div>
-        </Panel>
-        <button
-          type="button"
-          className="btn btn-primary btn-lg"
-          disabled={!obs.legal_actions.includes("commit") || sum !== 100 || busy !== null}
-          onClick={() => setConfirming(true)}
-        >
-          <Stamp size={18} aria-hidden /> Commit manifesto
-        </button>
-      </div>
+        </div>
+        <div className="stack" style={{ gap: 6, marginTop: 14 }}>
+          <span className="stat-label">Match with each archetype</span>
+          {obs.archetype_library
+            .map((a) => ({ a, s: similarity(manifesto, a.mean) }))
+            .sort((x, y) => y.s - x.s)
+            .map(({ a, s }) => (
+              <div className="match-row" key={a.id}>
+                <span>
+                  {a.name}
+                  {Object.entries(hunches).some(([, h]) => h === a.id) ? <span className="muted"> · hunch</span> : null}
+                </span>
+                <span className="meter" aria-hidden>
+                  <span style={{ width: `${Math.max(0, (s - 0.5) / 0.5) * 100}%`, background: s >= 0.825 ? "var(--good)" : "var(--ink-3)" }} />
+                </span>
+                <span className="num" style={{ textAlign: "right", fontWeight: 700 }}>
+                  {(s * 100).toFixed(0)}%
+                </span>
+              </div>
+            ))}
+          <span className="stat-sub">Green means a typical voter would lean your way (above about 82.5%).</span>
+        </div>
+      </Panel>
+
+      <Panel title="Responses" className="manifesto-responses">
+        <KnowledgeLedger row />
+      </Panel>
+
+      <button
+        type="button"
+        className="btn btn-primary btn-lg manifesto-commit"
+        disabled={!obs.legal_actions.includes("commit") || sum !== 100 || busy !== null}
+        onClick={() => setConfirming(true)}
+      >
+        <Stamp size={18} aria-hidden /> Commit manifesto
+      </button>
 
       {confirming ? (
         <div className="modal-backdrop" role="presentation" onClick={() => setConfirming(false)}>
@@ -302,7 +304,7 @@ export function ManifestoDesigner() {
           >
             <h2 id="confirm-title">Lock in this manifesto?</h2>
             <p className="ink2">
-              It can&apos;t be changed for the rest of the campaign. Round 1 starts immediately and the first poll lands.
+              You can&apos;t change it later. Round 1 starts right away.
             </p>
             <ul className="list-plain stack" style={{ gap: 4, margin: "12px 0" }}>
               {SECTOR_IDS.map((s, i) => (

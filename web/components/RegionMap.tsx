@@ -80,7 +80,7 @@ export function RegionMap({
               {REGION_META[r].label}
             </text>
             <text className="map-sub" x={x} y={y + 6} textAnchor="middle" fontSize={13}>
-              {fmtCompact(region?.voters ?? 0)} · k̄ {region?.mean_degree.toFixed(0)}
+              {fmtCompact(region?.voters ?? 0)} voters
             </text>
             {w > 0 || aired ? (
               <text className="map-sub" x={x} y={y + 24} textAnchor="middle" fontSize={12}>

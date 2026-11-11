@@ -1,0 +1,10 @@
+[r3] device cuda:0; seeds 11000..11049; N 10000; batch 650
+[r3] balanced: 650 games in 1.6s (worlds 31.2s); E none 0.4660; aligned 0.5991; swing 0.5976; antagonistic 0.5990; aligned_swing 0.5978; even 0.5999; proportional 0.5999 (K10)
+[r3] default: 650 games in 1.5s (worlds 31.2s); E none 0.4787; aligned 0.6031; swing 0.6025; antagonistic 0.6012; aligned_swing 0.6031; even 0.6032; proportional 0.6032 (K10)
+[r3] skewed: 650 games in 1.6s (worlds 30.7s); E none 0.5028; aligned 0.6184; swing 0.6177; antagonistic 0.6158; aligned_swing 0.6186; even 0.6192; proportional 0.6189 (K10)
+[r3] parity passed: True
+[r3] figure /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r3_delta_by_arm.png
+[r3] figure /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r3_region_support.png
+[r3] figure /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r3_heatmap.png
+[r3] figure /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r3_largest_split.png
+[r3] done in 1.7 min; peak 7.79 GiB

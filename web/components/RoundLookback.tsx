@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, History, Megaphone, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Megaphone, X } from "lucide-react";
 import type { Observation, RegionId } from "@/lib/types";
 import { REGION_IDS } from "@/lib/types";
 import { REGION_META, sectorLabel } from "@/lib/constants";
@@ -86,9 +86,7 @@ export function RoundLookback({
       >
         <div className="row-between lookback-head">
           <div className="row" style={{ gap: 8 }}>
-            <History size={18} aria-hidden className="panel-icon" />
             <h2 id={titleId}>Round {round} in review</h2>
-            <span className="badge">read-only</span>
           </div>
           <button ref={closeRef} type="button" className="btn btn-ghost btn-icon" aria-label={`Close round ${round} review and return to planning`} onClick={onClose}>
             <X size={18} aria-hidden />

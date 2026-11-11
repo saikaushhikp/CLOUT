@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { GameApp } from "@/components/GameApp";
-import { budgetTextValid, budgetToRequest, clampBudget } from "@/components/SetupScreen";
+import { budgetTextValid, budgetToRequest, budgetToSlider, clampBudget, sliderToBudget } from "@/components/SetupScreen";
 import { createMockClient } from "@/lib/mockApi";
 import type { DumbocracyClient } from "@/lib/api";
 import type { Observation } from "@/lib/types";
@@ -26,18 +26,18 @@ describe("setup screen", () => {
     const spy = vi.spyOn(client, "createGame");
     render(<GameApp client={client} />);
     expect(screen.getByRole("form", { name: /new game setup/i })).toBeInTheDocument();
-    expect(screen.getAllByText("10,000")).toHaveLength(2); // big number + game summary
+    expect(screen.getAllByText("10,000")).toHaveLength(1); // big number
     await waitFor(() => expect(screen.getByText(/engine online/i)).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole("button", { name: "100k" }));
-    expect(screen.getAllByText("100,000")).toHaveLength(2);
+    expect(screen.getAllByText("100,000")).toHaveLength(1);
     fireEvent.change(screen.getByLabelText(/world seed/i), { target: { value: "4242" } });
     fireEvent.click(screen.getByRole("button", { name: /decrease campaign rounds/i }));
     fireEvent.click(screen.getByRole("button", { name: /start campaign/i }));
 
     await waitFor(() => expect(spy).toHaveBeenCalledWith({ num_voters: 100_000, rounds: 4, seed: 4242, budget: "500.00" }));
     expect(await screen.findByText(/find out what the regions want/i)).toBeInTheDocument();
-    expect(screen.getByText(/national top-3/i)).toBeInTheDocument();
+    expect(screen.getByText(/national top 3/i)).toBeInTheDocument();
   });
 
   it("lets the player choose the starting treasury (R17): presets, slider, typed value, summary, request", async () => {
@@ -46,25 +46,28 @@ describe("setup screen", () => {
     render(<GameApp client={client} />);
     const summary = () => screen.getByTestId("summary-budget");
     expect(summary()).toHaveTextContent("Đ500.00"); // default
-    expect(screen.getByRole("button", { name: "Đ500" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Đ1k" })).toHaveAttribute("aria-pressed", "false");
 
-    fireEvent.click(screen.getByRole("button", { name: "Đ750" }));
-    expect(summary()).toHaveTextContent("Đ750.00");
-    expect(screen.getByLabelText(/starting treasury in credits/i)).toHaveValue("750");
+    fireEvent.click(screen.getByRole("button", { name: "Đ10k" }));
+    expect(summary()).toHaveTextContent("Đ10,000.00");
+    expect(screen.getByRole("button", { name: "Đ10k" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText(/starting treasury in credits/i)).toHaveValue("10000");
 
-    const slider = screen.getByLabelText(/party fund/i);
-    expect(slider).toHaveAttribute("min", "500");
-    expect(slider).toHaveAttribute("max", "1000");
-    fireEvent.change(slider, { target: { value: "1000" } });
-    expect(summary()).toHaveTextContent("Đ1,000.00");
+    // logarithmic slider: both ends reach the limits
+    const slider = screen.getByLabelText(/starting money/i);
+    fireEvent.change(slider, { target: { value: slider.getAttribute("max") } });
+    expect(summary()).toHaveTextContent("Đ1,000,000.00");
+    fireEvent.change(slider, { target: { value: "0" } });
+    expect(summary()).toHaveTextContent("Đ500.00");
 
     // out-of-range typed values block the start button; blur clamps into range
     const field = screen.getByLabelText(/starting treasury in credits/i);
-    fireEvent.change(field, { target: { value: "1200" } });
+    fireEvent.change(field, { target: { value: "2000000" } });
     expect(field).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByText(/enter a whole amount from Đ500 to Đ1,000,000/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /start campaign/i })).toBeDisabled();
     fireEvent.blur(field);
-    expect(field).toHaveValue("1000");
+    expect(field).toHaveValue("1000000");
     fireEvent.change(field, { target: { value: "820" } });
     expect(summary()).toHaveTextContent("Đ820.00");
 
@@ -74,18 +77,24 @@ describe("setup screen", () => {
     expect(screen.getByText("Đ820.00")).toBeInTheDocument(); // treasury chip
   });
 
-  it("budget helpers clamp to ₫500–₫1000 and serialise with 2 dp", () => {
+  it("budget helpers clamp to ₫500–₫1,000,000 and serialise with 2 dp", () => {
     expect(clampBudget(499)).toBe(500);
-    expect(clampBudget(1001)).toBe(1000);
+    expect(clampBudget(1_000_001)).toBe(1_000_000);
     expect(clampBudget(749.6)).toBe(750);
     expect(clampBudget(Number.NaN)).toBe(500);
     expect(budgetTextValid("500")).toBe(true);
-    expect(budgetTextValid("1000")).toBe(true);
+    expect(budgetTextValid("1000000")).toBe(true);
+    expect(budgetTextValid("1000001")).toBe(false);
     expect(budgetTextValid("499")).toBe(false);
     expect(budgetTextValid("1000.5")).toBe(false);
     expect(budgetTextValid("")).toBe(false);
     expect(budgetToRequest(750)).toBe("750.00");
-    expect(budgetToRequest(5000)).toBe("1000.00");
+    expect(budgetToRequest(5_000_000)).toBe("1000000.00");
+    // log slider: exact at both ends, presets land within one step (~1.3%), 2 significant digits in between
+    expect(sliderToBudget(0)).toBe(500);
+    expect(sliderToBudget(budgetToSlider(1_000_000))).toBe(1_000_000);
+    for (const b of [1_000, 10_000, 100_000]) expect(Math.abs(sliderToBudget(budgetToSlider(b)) - b) / b).toBeLessThan(0.02);
+    expect(sliderToBudget(1)).toBe(510);
   });
 
   it("rejects a non-numeric seed", () => {
@@ -108,10 +117,25 @@ describe("survey desk — sampled queries (R12)", () => {
     expect(screen.getByTestId("qb-sample")).toHaveTextContent(/narrows the estimate/i);
 
     const askBtn = () => screen.getByRole("button", { name: /^ask( again)? · /i });
+    const northBtn = () => screen.getByRole("button", { name: /^North \d+ responses?$/ });
+    // before asking: every region's answers button is disabled
+    expect(screen.getByRole("button", { name: "North No responses yet" })).toBeDisabled();
     fireEvent.click(askBtn());
     await waitFor(() => expect(query).toHaveBeenCalledTimes(1));
-    const ledger = await screen.findByRole("list", { name: /your survey answers/i });
-    await waitFor(() => expect(within(ledger).getByTestId("ledger-estimate")).toHaveTextContent(new RegExp(`^\\d+\\.\\d% ± \\d+\\.\\d \\(n = ${m}\\)$`)));
+    // no answer box under the question any more: answers open per region, in a dialog
+    await waitFor(() => expect(northBtn()).toHaveAccessibleName("North 1 response"));
+    expect(document.querySelector(".answer-flash")).toBeNull();
+    expect(screen.getByRole("button", { name: "South No responses yet" })).toBeDisabled();
+    northBtn().focus(); // jsdom does not focus on click; a real click (or keyboard) does
+    fireEvent.click(northBtn());
+    let dialog = screen.getByRole("dialog", { name: "Responses from North" });
+    let ledger = within(dialog).getByRole("list", { name: /your survey answers/i });
+    expect(within(ledger).getByTestId("ledger-estimate")).toHaveTextContent(new RegExp(`^\\d+\\.\\d% ± \\d+\\.\\d \\(n = ${m}\\)$`));
+    expect(within(dialog).getByText(new RegExp(`of ${m.toLocaleString("en-US")}`))).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "Close" })).toHaveFocus();
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(northBtn()).toHaveFocus(); // focus returns to the region button
 
     // repeat: allowed, not blocked, and pooled into one ledger row
     expect(askBtn()).toHaveTextContent(/ask again/i);
@@ -119,10 +143,15 @@ describe("survey desk — sampled queries (R12)", () => {
     expect(screen.getByTestId("qb-sample")).toHaveTextContent(/ask again to narrow the margin/i);
     fireEvent.click(askBtn());
     await waitFor(() => expect(query).toHaveBeenCalledTimes(2));
-    await waitFor(() => expect(within(ledger).getByTestId("ledger-estimate")).toHaveTextContent(`(n = ${2 * m})`));
+    await waitFor(() => expect(northBtn()).toHaveAccessibleName("North 2 responses"));
+    fireEvent.click(northBtn());
+    dialog = screen.getByRole("dialog", { name: "Responses from North" });
+    ledger = within(dialog).getByRole("list", { name: /your survey answers/i });
+    expect(within(ledger).getByTestId("ledger-estimate")).toHaveTextContent(`(n = ${2 * m})`);
     expect(within(ledger).getAllByTestId("ledger-estimate")).toHaveLength(1);
     expect(within(ledger).getByText(/pooled ×2/)).toBeInTheDocument();
     expect(within(ledger).getByRole("list", { name: /individual samples/i }).querySelectorAll("li")).toHaveLength(2);
+    expect(within(dialog).getByText(/Pooled over 2 samples/)).toBeInTheDocument();
     expect(query).toHaveBeenLastCalledWith(game_id, player_id, { sector_a: "Edu", sector_b: "Agri", region: "N" });
   });
 });
@@ -136,7 +165,7 @@ describe("campaign screen", () => {
 
     expect(screen.getByRole("heading", { name: /round 1 of 3/i })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: /map of the four regions/i })).toBeInTheDocument();
-    expect(screen.getByText(/latest poll/i)).toBeInTheDocument();
+    expect(screen.getByText(/poll at the start of round 1/i)).toBeInTheDocument();
     // R18: no network panel during the rounds
     expect(screen.queryByTestId("network-stub")).toBeNull();
     expect(screen.queryByRole("heading", { name: /social network/i })).toBeNull();
@@ -147,7 +176,7 @@ describe("campaign screen", () => {
     // buying copy (P8): one-time fee, permanent, no free workers
     expect(screen.getByText(/Buy party workers/)).toBeInTheDocument();
     const fee = formatMoney(obs.costs.worker); // read from the engine, never hard-coded
-    expect(screen.getByText(`${fee} each · one-time, permanent`)).toBeInTheDocument();
+    expect(screen.getByText(`${fee} each, permanent`)).toBeInTheDocument();
     expect(screen.getByTestId("team-line")).toHaveTextContent("Permanent team: 0 workers");
     expect(screen.queryByText(/deployed|unassigned|available/i)).toBeNull(); // no reassignment UI
 
@@ -157,7 +186,6 @@ describe("campaign screen", () => {
     fireEvent.click(inc);
     expect(within(north).getByRole("spinbutton")).toHaveValue(2);
     expect(screen.getByTestId("hire-line-N")).toHaveTextContent("team 0 · +2 new");
-    expect(screen.getByTestId("team-N")).toHaveTextContent("0 +2");
     fireEvent.click(within(screen.getByRole("group", { name: "New workers in East" })).getByRole("button", { name: /increase/i }));
     expect(screen.getByTestId("team-line")).toHaveTextContent("Permanent team: 0 workers + 3 new = 3");
     fireEvent.click(screen.getByRole("button", { name: /air media in south/i }));

@@ -1,6 +1,6 @@
 "use client";
 
-import { Eraser, HelpCircle, Loader2, Megaphone, Radio, Send, Users } from "lucide-react";
+import { Eraser, HelpCircle, Loader2, Megaphone, Radio, Send } from "lucide-react";
 import type { Observation, RegionId } from "@/lib/types";
 import { REGION_IDS } from "@/lib/types";
 import { REGION_META } from "@/lib/constants";
@@ -52,35 +52,15 @@ export function WorkerHelp({ obs }: { obs: Observation }) {
   );
 }
 
-/** Permanent team per region, with this round's planned purchases (P8 `workers.by_region`). */
+/** Permanent team total, with this round's planned purchases (P8 `workers.by_region`). */
 export function TeamStrip({ obs, hires }: { obs: Observation; hires?: number[] }) {
-  const team = teamByRegion(obs);
-  const total = team.reduce((a, b) => a + b, 0);
+  const total = teamByRegion(obs).reduce((a, b) => a + b, 0);
   const newTotal = (hires ?? []).reduce((a, b) => a + b, 0);
   return (
-    <div className="team-strip-wrap">
-      <span className="stat-sub" data-testid="team-line">
-        Permanent team: {total} worker{total === 1 ? "" : "s"}
-        {newTotal ? ` + ${newTotal} new = ${total + newTotal}` : ""}
-      </span>
-      <ul className="team-strip list-plain" aria-label="Permanent team by region">
-        {REGION_IDS.map((r, i) => {
-          const add = hires?.[i] ?? 0;
-          return (
-            <li key={r} data-testid={`team-${r}`}>
-              <RegionPip id={r} size={20} />
-              <span className="num">
-                <b>{team[i]}</b>
-                {add ? <span className="team-new"> +{add}</span> : null}
-              </span>
-              <span className="sr-only">
-                {REGION_META[r as RegionId].label}: {team[i]} on the team{add ? `, ${add} new this round` : ""}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+    <span className="stat-sub" data-testid="team-line">
+      Permanent team: {total} worker{total === 1 ? "" : "s"}
+      {newTotal ? ` + ${newTotal} new = ${total + newTotal}` : ""}
+    </span>
   );
 }
 
@@ -112,11 +92,10 @@ export function AllocationPanel({
     >
       <div className="row-between">
         <span className="field-label" id="hire-label">
-          <Users size={14} aria-hidden style={{ verticalAlign: "-2px", marginRight: 6 }} />
           Buy party workers
         </span>
         <span className="stat-sub" id="hire-help">
-          {fee} each · one-time, permanent
+          {fee} each, permanent
         </span>
       </div>
       <div className="row-between" style={{ alignItems: "flex-start" }}>
@@ -177,7 +156,7 @@ export function AllocationPanel({
             <td>{formatMoney(check.workerCostCents)}</td>
           </tr>
           <tr>
-            <td>Media in {draft.media.filter(Boolean).length} region(s)</td>
+            <td>Media ({draft.media.filter(Boolean).length} {draft.media.filter(Boolean).length === 1 ? "region" : "regions"})</td>
             <td>{formatMoney(check.mediaCostCents)}</td>
           </tr>
           <tr className="total">
@@ -185,7 +164,7 @@ export function AllocationPanel({
             <td>{formatMoney(check.costCents)}</td>
           </tr>
           <tr>
-            <td className="muted">Treasury {formatMoney(check.treasuryCents)} → after</td>
+            <td className="muted">Left after this round</td>
             <td className={check.remainingCents < 0 ? "bad" : ""}>{formatMoney(check.remainingCents)}</td>
           </tr>
         </tbody>

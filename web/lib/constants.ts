@@ -53,9 +53,9 @@ export const ROUNDS_MAX = 5;
 export const ROUNDS_DEFAULT = 5;
 /** Starting treasury chosen at setup (R17), whole credits. */
 export const BUDGET_MIN = 500;
-export const BUDGET_MAX = 1000;
+export const BUDGET_MAX = 1000000;
 export const BUDGET_DEFAULT = 500;
-export const BUDGET_PRESETS = [500, 750, 1000] as const;
+export const BUDGET_PRESETS = [1000, 10000, 100000, 1000000] as const;
 /** Blend picker (R20): how many regions may be blended. */
 export const BLEND_MIN = 2;
 export const BLEND_MAX = 4;

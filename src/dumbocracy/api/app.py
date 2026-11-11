@@ -28,7 +28,7 @@ from ..voting import similarity, vote_probability
 
 DEFAULT_MAX_GAMES = 8
 MAX_GRAPH_NODES = 10_000
-MIN_BUDGET, MAX_BUDGET = Decimal("500.00"), Decimal("1000.00")   # R17
+MIN_BUDGET, MAX_BUDGET = Decimal("500.00"), Decimal("1000000.00")   # R17
 MIN_ROUNDS, MAX_ROUNDS = 3, 5   # R31 / D11: X10 found T = 1 and T = 10 structurally unbalanced
 ORACLE_NOTE = "ORACLE: full-information benchmark"
 

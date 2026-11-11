@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useState, type ReactNode } from "react";
-import { AlertTriangle, CheckCircle2, Info, Minus, Moon, Plus, Sun, X, type LucideIcon } from "lucide-react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { AlertTriangle, CheckCircle2, Info, Minus, Moon, Plus, Sun, X } from "lucide-react";
 import { useGame } from "@/lib/game";
 import { REGION_META, SECTOR_META, sectorLabel } from "@/lib/constants";
 import type { RegionId, SectorId } from "@/lib/types";
@@ -9,7 +9,6 @@ import { SECTOR_IDS } from "@/lib/types";
 
 export function Panel({
   title,
-  icon: Icon,
   hint,
   children,
   className = "",
@@ -17,7 +16,6 @@ export function Panel({
   id,
 }: {
   title: ReactNode;
-  icon?: LucideIcon;
   hint?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -29,13 +27,64 @@ export function Panel({
   return (
     <section className={`panel ${className}`} aria-labelledby={headingId}>
       <div className="panel-head">
-        {Icon ? <Icon size={18} className="panel-icon" aria-hidden /> : null}
         <h2 id={headingId}>{title}</h2>
         {hint ? <span className="hint">{hint}</span> : null}
         {actions ? <div style={{ marginLeft: hint ? 8 : "auto" }}>{actions}</div> : null}
       </div>
       {children}
     </section>
+  );
+}
+
+/**
+ * Modal dialog: focus moves to the close button on open and back to the opener on close; Escape or a click on the
+ * backdrop closes it; Tab stays inside.
+ */
+export function Modal({ title, onClose, children, className = "" }: { title: ReactNode; onClose: () => void; children: ReactNode; className?: string }) {
+  const titleId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => {
+      if (opener && document.contains(opener)) opener.focus();
+    };
+  }, []);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === "Tab" && boxRef.current) {
+        const items = boxRef.current.querySelectorAll<HTMLElement>("button:not(:disabled), [href], [tabindex]:not([tabindex='-1'])");
+        if (!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="modal-backdrop" role="presentation" onClick={onClose}>
+      <div ref={boxRef} className={`panel modal ${className}`} role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}>
+        <div className="row-between modal-head">
+          <h2 id={titleId}>{title}</h2>
+          <button ref={closeRef} type="button" className="btn btn-ghost btn-icon" aria-label="Close" onClick={onClose}>
+            <X size={18} aria-hidden />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
   );
 }
 

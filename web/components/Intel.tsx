@@ -10,7 +10,7 @@ import { formatMoney, toCents } from "@/lib/money";
 import { fmtInt } from "@/lib/format";
 import type { RegionId, SectorId } from "@/lib/types";
 import { REGION_IDS, SECTOR_IDS } from "@/lib/types";
-import { Panel, RegionPip, SectorSwatch, StackBar } from "./ui";
+import { Modal, RegionPip, SectorSwatch, StackBar } from "./ui";
 
 /* ------------------------------------------------------------------ free global statistic */
 export function Top3Bars() {
@@ -49,8 +49,8 @@ export function Top3Bars() {
         })}
       </ul>
       <p className="stat-sub" style={{ marginTop: 10 }}>
-        % of all voters ranking the sector in their personal top 3 (sums to 300%). Tick = 60%, what a perfectly even
-        electorate would show. {prev ? `Change vs. round ${prev.round}.` : "Refreshed free every round."}
+        Share of voters with the sector in their top 3. The tick marks 60%, where it would sit if every sector were equally
+        popular.{prev ? ` Change since round ${prev.round}.` : ""}
       </p>
     </div>
   );
@@ -59,7 +59,7 @@ export function Top3Bars() {
 /* ------------------------------------------------------------------ query builder */
 export function QueryBuilder({ compact = false }: { compact?: boolean }) {
   const obs = useObservation();
-  const { query, busy, lastAnswer } = useGame();
+  const { query, busy } = useGame();
   const [a, setA] = useState<SectorId>("Edu");
   const [b, setB] = useState<SectorId>("Agri");
   const [region, setRegion] = useState<RegionId>("N");
@@ -89,6 +89,7 @@ export function QueryBuilder({ compact = false }: { compact?: boolean }) {
           e.preventDefault();
           if (!reason) void query(a, b, region);
         }}
+        className="qb-form"
         aria-label="Paid survey question"
       >
         <div className="qb">
@@ -129,7 +130,7 @@ export function QueryBuilder({ compact = false }: { compact?: boolean }) {
           <span className="field-label" id="q-region-label">
             Region
           </span>
-          <div className="seg" role="radiogroup" aria-labelledby="q-region-label">
+          <div className="seg seg-fill" role="radiogroup" aria-labelledby="q-region-label">
             {REGION_IDS.map((r) => (
               <button key={r} type="button" role="radio" aria-checked={region === r} aria-pressed={region === r} onClick={() => setRegion(r)}>
                 <span className="swatch" style={{ background: REGION_META[r].color, marginRight: 6 }} aria-hidden />
@@ -145,15 +146,15 @@ export function QueryBuilder({ compact = false }: { compact?: boolean }) {
           </p>
         ) : null}
         <p className="stat-sub" data-testid="qb-sample" style={{ margin: compact ? "10px 0 6px" : "0 0 6px" }}>
-          Surveys a fresh random sample of <b className="num">≈{fmtInt(m)}</b> {regionLabel(region)} voters (10%) · margin up to{" "}
+          Asks <b className="num">≈{fmtInt(m)}</b> random {regionLabel(region)} voters, accurate to{" "}
           <span className="num">±{typicalMoe.toFixed(1)}</span> pts.{" "}
           {pooled
-            ? `Asked ${pooled.answers.length}× this round — pooled ${formatEstimate(pooled.pct, pooled.moe, pooled.sampleSize)}. Ask again to narrow the margin.`
-            : "Asking the same question again this round pools the samples and narrows the estimate."}
+            ? `Asked ${pooled.answers.length}× this round, pooled: ${formatEstimate(pooled.pct, pooled.moe, pooled.sampleSize)}. Ask again to narrow the margin.`
+            : "Asking again this round pools the samples and narrows the estimate."}
         </p>
         <div className="row-between">
           <span className="stat-sub" role="status">
-            {reason ?? `Sampled answer, current state · costs ${formatMoney(obs.costs.query)}`}
+            {reason}
           </span>
           <button type="submit" className="btn btn-primary" disabled={Boolean(reason) || busy !== null}>
             {busy === "query" ? <Loader2 className="spin" size={16} aria-hidden /> : <Search size={16} aria-hidden />}
@@ -161,24 +162,6 @@ export function QueryBuilder({ compact = false }: { compact?: boolean }) {
           </button>
         </div>
       </form>
-      {lastAnswer ? (
-        <div className="answer-flash" role="status" aria-live="polite">
-          <span className="big num">{lastAnswer.pct_b_over_a.toFixed(1)}%</span>
-          <span>
-            <span className="num">± {lastAnswer.moe.toFixed(1)}</span> of a {fmtInt(lastAnswer.sample_size)}-voter{" "}
-            <b>{regionLabel(lastAnswer.region)}</b> sample rank <b>{sectorLabel(lastAnswer.sector_b)}</b> above{" "}
-            <b>{sectorLabel(lastAnswer.sector_a)}</b>.
-            {lastAnswer.repeat_index > 1 ? (
-              <span style={{ display: "block" }}>
-                Pooled over {lastAnswer.repeat_index} samples:{" "}
-                <b className="num">
-                  {formatEstimate(lastAnswer.pooled_pct, lastAnswer.pooled_moe, lastAnswer.pooled_sample_size)}
-                </b>
-              </span>
-            ) : null}
-          </span>
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -203,63 +186,92 @@ export function ErrorBar({ pct, moe, color, thin = false, label }: { pct: number
   );
 }
 
-export function KnowledgeLedger() {
+/** Responses per region: one button per region; each opens a dialog with that region's responses. */
+export function KnowledgeLedger({ row = false }: { row?: boolean }) {
   const obs = useObservation();
-  const [filter, setFilter] = useState<string>("all");
-  // one entry per (triple, phase, round); repeats are pooled. Newest activity first.
-  const groups = groupAnswers(obs.queries.filter((q) => filter === "all" || q.region === filter)).reverse();
+  const [open, setOpen] = useState<RegionId | null>(null);
   return (
     <div>
-      <div className="seg" role="group" aria-label="Filter answers by region" style={{ marginBottom: 10 }}>
-        {["all", ...REGION_IDS].map((r) => (
-          <button key={r} type="button" aria-pressed={filter === r} onClick={() => setFilter(r)}>
-            {r === "all" ? `All (${obs.queries.length})` : r}
-          </button>
-        ))}
+      <div className={`region-answers${row ? " region-answers-row" : ""}`} role="group" aria-label="Responses by region">
+        {REGION_IDS.map((r) => {
+          const n = obs.queries.filter((q) => q.region === r).length;
+          return (
+            <button key={r} type="button" className="region-answer-btn" disabled={n === 0} onClick={() => setOpen(r)}>
+              <RegionPip id={r} />
+              <span>
+                <b>{REGION_META[r].label}</b>{" "}
+                <small>{n ? `${n} response${n === 1 ? "" : "s"}` : "No responses yet"}</small>
+              </span>
+            </button>
+          );
+        })}
       </div>
-      {groups.length === 0 ? (
-        <div className="empty">No answers yet. Every paid question lands here.</div>
-      ) : (
-        <ul className="ledger list-plain" aria-label="Your survey answers">
-          {groups.map((g) => {
-            const q = g.latest;
-            const color = SECTOR_META[q.sector_b as SectorId]?.color;
-            const repeats = g.answers.length;
-            return (
-              <li className="ledger-item" key={g.key}>
-                <RegionPip id={q.region} />
-                <div style={{ minWidth: 0 }}>
-                  <div>
-                    <b>{sectorLabel(q.sector_b)}</b> <span className="muted">over</span> {sectorLabel(q.sector_a)}
-                  </div>
-                  <ErrorBar pct={g.pct} moe={g.moe} color={color} />
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <b className="num" data-testid="ledger-estimate">
-                    {formatEstimate(g.pct, g.moe, g.sampleSize)}
-                  </b>
-                  <div className="stat-sub mono">
-                    {q.phase === "SURVEY" ? "survey" : `R${q.round}`}
-                    {repeats > 1 ? ` · pooled ×${repeats}` : ""}
-                  </div>
-                </div>
-                {repeats > 1 ? (
-                  <ul className="ledger-repeats list-plain" aria-label="Individual samples">
-                    {g.answers.map((a) => (
-                      <li key={a.repeat_index}>
-                        <span className="muted mono">#{a.repeat_index}</span>
-                        <ErrorBar pct={a.pct_b_over_a} moe={a.moe} color={color} thin />
-                        <span className="num muted">{formatEstimate(a.pct_b_over_a, a.moe, a.sample_size)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      {open ? (
+        <Modal title={`Responses from ${REGION_META[open].label}`} onClose={() => setOpen(null)} className="answers-modal">
+          <RegionAnswers region={open} />
+        </Modal>
+      ) : null}
     </div>
+  );
+}
+
+/** Every question asked about a region, newest first: a short summary box over each, then its estimate and samples. */
+export function RegionAnswers({ region }: { region: RegionId }) {
+  const obs = useObservation();
+  // one entry per (triple, phase, round); repeats are pooled. Newest activity first.
+  const groups = groupAnswers(obs.queries.filter((q) => q.region === region)).reverse();
+  if (!groups.length) return <div className="empty">No responses yet.</div>;
+  return (
+    <ul className="ledger list-plain" aria-label="Your survey answers">
+      {groups.map((g) => {
+        const q = g.latest;
+        const color = SECTOR_META[q.sector_b as SectorId]?.color;
+        const repeats = g.answers.length;
+        return (
+          <li className="ledger-entry" key={g.key}>
+            <p className="answer-flash answer-flash-sm">
+              <b className="num">{q.pct_b_over_a.toFixed(1)}%</b> of {fmtInt(q.sample_size)} <b>{regionLabel(region)}</b> voters prefer{" "}
+              <b>{sectorLabel(q.sector_b)}</b> to <b>{sectorLabel(q.sector_a)}</b> <span className="num">(±{q.moe.toFixed(1)})</span>.
+              {repeats > 1 ? (
+                <>
+                  {" "}
+                  Pooled over {repeats} samples: <b className="num">{formatEstimate(g.pct, g.moe, g.sampleSize)}</b>
+                </>
+              ) : null}
+            </p>
+            <div className="ledger-item">
+              <RegionPip id={q.region} />
+              <div style={{ minWidth: 0 }}>
+                <div>
+                  <b>{sectorLabel(q.sector_b)}</b> <span className="muted">over</span> {sectorLabel(q.sector_a)}
+                </div>
+                <ErrorBar pct={g.pct} moe={g.moe} color={color} />
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <b className="num" data-testid="ledger-estimate">
+                  {formatEstimate(g.pct, g.moe, g.sampleSize)}
+                </b>
+                <div className="stat-sub mono">
+                  {q.phase === "SURVEY" ? "survey" : `R${q.round}`}
+                  {repeats > 1 ? ` · pooled ×${repeats}` : ""}
+                </div>
+              </div>
+              {repeats > 1 ? (
+                <ul className="ledger-repeats list-plain" aria-label="Individual samples">
+                  {g.answers.map((a) => (
+                    <li key={a.repeat_index}>
+                      <span className="muted mono">#{a.repeat_index}</span>
+                      <ErrorBar pct={a.pct_b_over_a} moe={a.moe} color={color} thin />
+                      <span className="num muted">{formatEstimate(a.pct_b_over_a, a.moe, a.sample_size)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -275,37 +287,38 @@ export function RegionDossiers() {
         return (
           <article className="dossier-card" key={r.id} style={{ ["--rc" as string]: REGION_META[r.id as RegionId]?.color }}>
             <div className="row-between">
-              <strong>
-                {r.label} <span className="muted">({r.id})</span>
-              </strong>
-              <span className="badge">{answers.length} answer{answers.length === 1 ? "" : "s"}</span>
+              <strong>{r.label}</strong>
+              {answers.length ? <span className="badge">{answers.length} answer{answers.length === 1 ? "" : "s"}</span> : null}
             </div>
             <div className="stat-sub num">
-              {fmtInt(r.voters)} voters · {((100 * r.voters) / obs.num_voters).toFixed(0)}% · avg {r.mean_degree.toFixed(1)} friends
+              {fmtInt(r.voters)} voters ({((100 * r.voters) / obs.num_voters).toFixed(0)}%)
             </div>
-            {answers.length === 0 ? (
-              <div className="stat-sub">Ask about this region to see which archetypes fit.</div>
-            ) : (
-              <div className="fit-list" aria-label={`Archetype fit for ${r.label}`}>
-                {fits.slice(0, 3).map((f, k) => (
-                  <div className="fit-row" key={f.id}>
-                    <span style={{ fontWeight: k === 0 ? 800 : 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {f.name}
-                    </span>
-                    <span className="meter" aria-hidden>
-                      <span style={{ width: `${Math.max(4, f.posterior * 100)}%`, background: k === 0 ? "var(--accent)" : "var(--ink-3)" }} />
-                    </span>
-                    <span
-                      className="num muted"
-                      title={`Plausibility given your answers, weighting each pooled estimate by its margin of error (typical gap ${f.rmse.toFixed(1)} pts)`}
-                    >
-                      {Math.round(f.posterior * 100)}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="field">
+            {/* fixed-height evidence area: cards keep their size as answers arrive */}
+            <div className="dossier-evidence">
+              {answers.length === 0 ? (
+                <div className="stat-sub">No answers yet.</div>
+              ) : (
+                <div className="fit-list" aria-label={`Archetype fit for ${r.label}`}>
+                  {fits.slice(0, 3).map((f, k) => (
+                    <div className="fit-row" key={f.id}>
+                      <span style={{ fontWeight: k === 0 ? 800 : 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {f.name}
+                      </span>
+                      <span className="meter" aria-hidden>
+                        <span style={{ width: `${Math.max(4, f.posterior * 100)}%`, background: k === 0 ? "var(--accent)" : "var(--ink-3)" }} />
+                      </span>
+                      <span
+                        className="num muted"
+                        title={`Plausibility given your answers, weighting each pooled estimate by its margin of error (typical gap ${f.rmse.toFixed(1)} pts)`}
+                      >
+                        {Math.round(f.posterior * 100)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="field dossier-hunch">
               <label htmlFor={`hunch-${r.id}`}>Your hunch</label>
               <select
                 id={`hunch-${r.id}`}
@@ -313,7 +326,7 @@ export function RegionDossiers() {
                 value={hunches[r.id] ?? ""}
                 onChange={(e) => setHunch(r.id, e.target.value || undefined)}
               >
-                <option value="">— undecided —</option>
+                <option value="">Undecided</option>
                 {obs.archetype_library.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name}
@@ -343,7 +356,13 @@ export function ArchetypeLibrary() {
           <article className="arch-card" key={a.id}>
             <div className="row-between">
               <h4>{a.name}</h4>
-              {claimed.get(a.id)?.map((r) => <RegionPip key={r} id={r} size={20} />)}
+              {claimed.get(a.id) ? (
+                <span className="arch-pips">
+                  {claimed.get(a.id)!.map((r) => (
+                    <RegionPip key={r} id={r} size={20} />
+                  ))}
+                </span>
+              ) : null}
             </div>
             <StackBar mean={a.mean} label={a.name} />
             <div className="stat-sub num">
@@ -352,11 +371,7 @@ export function ArchetypeLibrary() {
           </article>
         ))}
       </div>
-      <p className="stat-sub">
-        Each region secretly follows one of these six profiles (no two regions share one). Voters scatter around the
-        profile mean — the fit meter compares your answers with what each profile would predict, trusting
-        narrow-margin (pooled) estimates more than single noisy samples.
-      </p>
+      <p className="stat-sub">Each region follows one of these profiles, and no two regions share one.</p>
     </div>
   );
 }

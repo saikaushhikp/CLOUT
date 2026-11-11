@@ -1,0 +1,22 @@
+[r4] device cuda:2 ({'requested': 'cuda:2', 'need_bytes': 4294967296, 'free_bytes': {'0': 25372393472, '1': 137363456, '2': 19171115008}, 'chosen': 'cuda:2'})
+[r4] built 10/100 world pairs (+2 ORACLE manifestos) 20s
+[r4] built 20/100 world pairs (+2 ORACLE manifestos) 41s
+[r4] built 30/100 world pairs (+2 ORACLE manifestos) 57s
+[r4] built 40/100 world pairs (+2 ORACLE manifestos) 73s
+[r4] built 50/100 world pairs (+2 ORACLE manifestos) 90s
+[r4] built 60/100 world pairs (+2 ORACLE manifestos) 107s
+[r4] built 70/100 world pairs (+2 ORACLE manifestos) 125s
+[r4] built 80/100 world pairs (+2 ORACLE manifestos) 144s
+[r4] built 90/100 world pairs (+2 ORACLE manifestos) 161s
+[r4] built 100/100 world pairs (+2 ORACLE manifestos) 180s
+[r4] batch of 50 seeds × 2 populations done 388s
+[r4] batch of 50 seeds × 2 populations done 589s
+[r4] parity passed: True (45s)
+[r4] figure reports/v3/experimentation/figures/r4_share_over_rounds.png
+[r4] figure reports/v3/experimentation/figures/r4_regret_heatmap.png
+[r4] figure reports/v3/experimentation/figures/r4_optimum_drift.png
+[r4] figure reports/v3/experimentation/figures/r4_region_support.png
+[r4] figure reports/v3/experimentation/figures/r4_showcase_sectors.png
+[r4] figure reports/v3/experimentation/figures/r4_crossover_hist.png
+[r4] figure reports/v3/experimentation/figures/r4_divided_vs_united.png
+[r4] done in 634.0s; peak 2.66 GiB

@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Pause, Play } from "lucide-react";
+import { Maximize2, Minus, Pause, Play, Plus } from "lucide-react";
 import type { GraphSample, RegionId } from "@/lib/types";
-import { ALIGNMENT_HEX, ALIGNMENT_LABELS, REGION_HEX, REGION_META } from "@/lib/constants";
+import { ALIGNMENT_HEX, REGION_HEX, REGION_META } from "@/lib/constants";
+
+/**
+ * Two colours only: the engine sends 5 vote-probability bins (edges 10/40/60/90%), so the closest split to 50%
+ * the browser can draw is at 60% — bins 0–2 (<60%) red, bins 3–4 (≥60%) blue.
+ */
+const SIDE_HEX = [ALIGNMENT_HEX[0], ALIGNMENT_HEX[4]] as const;
+const SIDE_LABELS = ["<60%", "≥60%"] as const;
+const side = (bin: number): 0 | 1 => (bin >= 3 ? 1 : 0);
 import { fmtInt } from "@/lib/format";
 
 type Mode = "region" | "alignment";
@@ -109,7 +117,8 @@ export function NetworkView({
   revealRounds?: string[];
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const sigmaRef = useRef<{ kill: () => void; refresh: () => void } | null>(null);
+type Camera = { zoomIn: (o?: { duration?: number }) => Promise<void>; zoomOut: (o?: { duration?: number }) => Promise<void>; reset: (o?: { duration?: number }) => Promise<void> };
+  const sigmaRef = useRef<{ kill: () => void; refresh: () => void; getCamera: () => Camera } | null>(null);
   const graphRef = useRef<{ setNodeAttribute: (n: string, k: string, v: unknown) => void } | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "nowebgl">("idle");
   const revealed = Boolean(sample?.revealed && sample.alignment && sample.alignment.length > 0);
@@ -130,6 +139,7 @@ export function NetworkView({
     const el = containerRef.current;
     if (!sample || !el) return;
     let cancelled = false;
+    let resizeObs: ResizeObserver | null = null;
     setStatus("loading");
     (async () => {
       try {
@@ -176,9 +186,22 @@ export function NetworkView({
             // sigma v4 defaults to sizes in graph units; after ForceAtlas2 those are hundreds wide, which made
             // every node sub-pixel (only edges were visible). Our sizes are pixels.
             itemSizesReference: "screen",
+            // Zoom and pan without hijacking the page: in "shared" mode the wheel zooms only with Ctrl/⌘
+            // (plain scrolling scrolls the page), and on touch one finger scrolls while two fingers pan/pinch.
+            gestureTarget: "shared",
+            enableCameraZooming: true,
+            enableCameraPanning: true,
+            enableCameraRotation: false,
+            // keep the graph inside the view; ratio 1 = whole graph fitted
+            cameraPanBoundaries: true,
+            minCameraRatio: 0.08,
+            maxCameraRatio: 1.5,
           },
         });
-        sigmaRef.current = renderer as unknown as { kill: () => void; refresh: () => void };
+        // sigma only listens to window resizes; refit when the panel itself changes size.
+        resizeObs = new ResizeObserver(() => renderer.resize());
+        resizeObs.observe(el);
+        sigmaRef.current = renderer as unknown as { kill: () => void; refresh: () => void; getCamera: () => Camera };
         graphRef.current = graph as unknown as { setNodeAttribute: (n: string, k: string, v: unknown) => void };
         setStatus("ready");
       } catch {
@@ -187,6 +210,7 @@ export function NetworkView({
     })();
     return () => {
       cancelled = true;
+      resizeObs?.disconnect();
       sigmaRef.current?.kill();
       sigmaRef.current = null;
       graphRef.current = null;
@@ -199,7 +223,7 @@ export function NetworkView({
     if (!g || !sample || status !== "ready") return;
     const bins = mode === "alignment" && sample.alignment ? sample.alignment[Math.min(frame, sample.alignment.length - 1)] : null;
     sample.nodes.forEach((n, i) => {
-      const color = bins ? ALIGNMENT_HEX[Math.max(0, Math.min(4, bins[i] ?? 0))] : REGION_HEX[n.region as RegionId] ?? "#888";
+      const color = bins ? SIDE_HEX[side(bins[i] ?? 0)] : REGION_HEX[n.region as RegionId] ?? "#888";
       g.setNodeAttribute(String(i), "color", color);
     });
   }, [mode, frame, sample, status]);
@@ -222,15 +246,20 @@ export function NetworkView({
   const counts = useMemo(() => {
     if (!sample?.alignment || mode !== "alignment") return null;
     const bins = sample.alignment[Math.min(frame, sample.alignment.length - 1)];
-    const c = [0, 0, 0, 0, 0];
-    bins.forEach((b) => (c[Math.max(0, Math.min(4, b))] += 1));
+    const c = [0, 0];
+    bins.forEach((b) => (c[side(b)] += 1));
     return c;
   }, [sample, mode, frame]);
 
   return (
     <div className="stack" style={{ gap: 10 }}>
-      <div className="network" aria-label={sample ? `Sampled social network: ${sample.nodes.length} voters and ${sample.edges.length} friendships` : "Social network"} role="img">
-        <div ref={containerRef} className="network-canvas" />
+      <div className="network">
+        <div
+          ref={containerRef}
+          className="network-canvas"
+          role="img"
+          aria-label={sample ? `Sampled social network: ${sample.nodes.length} voters and ${sample.edges.length} friendships` : "Social network"}
+        />
         {!sample ? (
           <div className="network-msg">{error ? `Network unavailable: ${error}` : "Sampling the social network…"}</div>
         ) : status === "nowebgl" ? (
@@ -239,11 +268,25 @@ export function NetworkView({
           <div className="network-msg">Laying out {fmtInt(sample.nodes.length)} voters…</div>
         ) : null}
         {sample ? (
+          <div className="network-zoom" role="group" aria-label="Zoom the network">
+            <button type="button" className="btn btn-icon btn-sm" aria-label="Zoom in" title="Zoom in (or Ctrl/⌘ + scroll)" disabled={status !== "ready"} onClick={() => void sigmaRef.current?.getCamera().zoomIn({ duration: 250 })}>
+              <Plus size={15} aria-hidden />
+            </button>
+            <button type="button" className="btn btn-icon btn-sm" aria-label="Zoom out" title="Zoom out (or Ctrl/⌘ + scroll)" disabled={status !== "ready"} onClick={() => void sigmaRef.current?.getCamera().zoomOut({ duration: 250 })}>
+              <Minus size={15} aria-hidden />
+            </button>
+            <button type="button" className="btn btn-icon btn-sm" aria-label="Fit the whole network" title="Fit the whole network" disabled={status !== "ready"} onClick={() => void sigmaRef.current?.getCamera().reset({ duration: 300 })}>
+              <Maximize2 size={15} aria-hidden />
+            </button>
+          </div>
+        ) : null}
+        {sample ? (
           <div className="network-overlay">
             <span className="badge">
               {fmtInt(sample.nodes.length)} of {fmtInt(totalVoters)} voters · {fmtInt(sample.edges.length)} ties
             </span>
             {!revealed ? <span className="badge">opinions hidden until the vote</span> : null}
+            {status === "ready" ? <span className="badge network-hint">Drag to move · Ctrl/⌘ + scroll to zoom</span> : null}
           </div>
         ) : null}
       </div>
@@ -260,9 +303,9 @@ export function NetworkView({
         ) : (
           <div className="legend" aria-label="Each voter's probability of voting for you">
             <span className="muted">Chance of voting for you:</span>
-            {ALIGNMENT_LABELS.map((l, i) => (
+            {SIDE_LABELS.map((l, i) => (
               <span key={l}>
-                <span className="swatch" style={{ background: ALIGNMENT_HEX[i] }} aria-hidden />
+                <span className="swatch" style={{ background: SIDE_HEX[i] }} aria-hidden />
                 {l}
                 {counts ? <span className="muted num"> {Math.round((100 * counts[i]) / Math.max(1, sample!.nodes.length))}%</span> : null}
               </span>

@@ -1,0 +1,15 @@
+[r2] device cuda:2 ({'requested': 'cuda:2', 'need_bytes': 3221225472, 'free_bytes': {'0': 25372393472, '1': 137363456, '2': 24361566208}, 'chosen': 'cuda:2'}); seeds 10000..10049; N=10000; T=200; batch 50
+[r2] built 10/50 world pairs + manifestos, 18s
+[r2] built 20/50 world pairs + manifestos, 33s
+[r2] built 30/50 world pairs + manifestos, 48s
+[r2] built 40/50 world pairs + manifestos, 62s
+[r2] built 50/50 world pairs + manifestos, 77s
+[r2] identity check (normal vs zealot world): {'v0_equal': True, 'graph_equal': True, 'regions_equal': True, 'alpha_equal_on_non_zealots': True, 'zealot_alpha_zero': True, 'normal_has_no_zealots': True}
+[r2] simulated 200 rounds for 50 seeds × 2 populations in 2.6s (batch sizes [50])
+[r2] T=5 prefix vs oracle.anticipate: max |Δv| = 1.19e-07; FJ: [{'iterations': 56, 'max_rel_residual': 9.904511813565638e-11, 'stubborn_share': 0.04987}]
+[r2] CPU↔GPU parity on [10000, 10001, 10002]: passed=True (max |mean diff| 3.18e-07)
+[r2] saved /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/r2.json; total 81.6s, peak 1672899072 bytes
+[r2] wrote /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r2_region_sectors.png
+[r2] wrote /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r2_disagreement.png
+[r2] wrote /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r2_pca.png
+[r2] wrote /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/figures/r2_manifesto_share.png

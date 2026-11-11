@@ -78,11 +78,11 @@ export function PollChart({ obs, truth, height = 240 }: { obs: Observation; trut
       </div>
       <figcaption className="legend" style={{ marginTop: 6 }}>
         <span>
-          <span className="swatch" style={{ background: "var(--blue)" }} aria-hidden /> Poll (400 voters) with 95% margin of error
+          <span className="swatch" style={{ background: "var(--blue)" }} aria-hidden /> Poll of 400 voters, 95% interval
         </span>
         {truth ? (
           <span>
-            <span className="swatch" style={{ background: "var(--ink)" }} aria-hidden /> True expected share (revealed)
+            <span className="swatch" style={{ background: "var(--ink)" }} aria-hidden /> Actual expected share
           </span>
         ) : null}
       </figcaption>

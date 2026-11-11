@@ -47,9 +47,9 @@ const SECTOR_LABELS = ["Education", "Welfare", "Agriculture", "Industry", "Envir
 const REGION_LABELS = ["North", "South", "East", "West"];
 
 const P = {
-  budget: "500.00", // default starting treasury (R17: the player may choose 500.00..1000.00)
+  budget: "500.00", // default starting treasury (R17: the player may choose budgetMin..budgetMax)
   budgetMin: 50000, // cents
-  budgetMax: 100000,
+  budgetMax: 100000000,
   query: "10.00",
   worker: "20.00",
   minDegree: 3,
@@ -359,7 +359,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     if (typeof budget !== "string" || !/^\d+(\.\d{1,2})?$/.test(budget.trim()))
       throw new ApiError(422, "budget must be a decimal string with at most 2 dp");
     const budgetCents = toCents(budget);
-    if (budgetCents < P.budgetMin || budgetCents > P.budgetMax) throw new ApiError(422, "budget must be 500.00..1000.00");
+    if (budgetCents < P.budgetMin || budgetCents > P.budgetMax) throw new ApiError(422, `budget must be ${centsToString(P.budgetMin)}..${centsToString(P.budgetMax)}`);
 
     if (games.size >= maxGames) {
       const oldest = [...games.values()].sort((a, b) => a.lastTouched - b.lastTouched)[0];

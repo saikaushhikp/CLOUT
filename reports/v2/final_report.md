@@ -323,7 +323,7 @@ Paired differences in E (Wilcoxon, all p < 10⁻²¹):
 Sampled surveys (R12) gave the same outcome as the earlier exact-answer queries on 198 of 200 paired seeds
 (P4 handoff). The BayesPlanner shifts money toward media and spends it late.
 
-![E6](figures/e6_strategies.png)
+![E6](..figures/e6_strategies.png)
 
 ---
 
@@ -416,7 +416,7 @@ campaign randomness, and no survey can reveal those. Knowledge then grows throug
 from 0.68 at round 1 to 0.80 at round 5 at k = 2. This is the R13 conclusion: archetypes are cheap to learn,
 and what limits knowing *how* to win is what stays hidden.
 
-![E4](figures/e4_information.png)
+![E4](..figures/e4_information.png)
 
 ---
 
@@ -443,7 +443,7 @@ Laplacian form ρ_L = 1 − ā λ₂(L)/k̄ is the regular-graph version of "spe
   1.00 from low to high p_g. The best paid mechanism flips with k̄: media is best on about half the seeds at
   k̄ = 8, workers on 61–64 % at k̄ = 48. This is E3's threshold showing up through k̄.
 
-![E1](figures/e1_consensus_theory.png)
+![E1](..figures/e1_consensus_theory.png)
 
 ### 8.2 E2: zealots × W-MSR vs LeBlanc et al. (`e2_zealots.json`)
 
@@ -475,7 +475,7 @@ are upper bounds only, since the exact check is coNP-hard). The threat models fa
   social convergence, which a good manifesto relies on: ORACLE wins fall from 95.5 % to 91.5 % (F = 1) and 89 %
   (F = 2) at ζ = 0.
 
-![E2](figures/e2_zealots.png)
+![E2](..figures/e2_zealots.png)
 
 ### 8.3 E3: SIR spectral threshold; workers vs media (`e3_cascades.json`)
 
@@ -503,7 +503,7 @@ hop-synchronous cascade, the per-hop growth is g = 1 + ρ(x − 1) with x = τ_c
 The default τ_c = 0.03 sits just above threshold, so workers are usually but not always best. Criterion 4 of the
 balance gate needs exactly this.
 
-![E3](figures/e3_cascade_threshold.png)
+![E3](..figures/e3_cascade_threshold.png)
 
 ### 8.4 E5: budget (`e5_budget.json`)
 
@@ -522,7 +522,7 @@ because the electorate threshold is crossed. The spend mix moves from media to w
 60 % workers). The BayesPlanner stays within 0.011 E of the ORACLE at every budget. B = 500 reproduces E6 exactly,
 since it uses the same seeds.
 
-![E5](figures/e5_budget.png)
+![E5](..figures/e5_budget.png)
 
 ### 8.5 E7: scale (`e7_scale.json`)
 
@@ -543,7 +543,7 @@ kernels should stay latency-bound until the device saturates.
 All spec §9 targets are met with wide margins: N = 10k interactive in under 1 s per round; 10⁵ batched; 10⁶ on
 one GPU. The BayesPlanner's time is independent of N because it plans on 1 600-voter posterior worlds.
 
-![E7](figures/e7_scale.png)
+![E7](..figures/e7_scale.png)
 
 ---
 

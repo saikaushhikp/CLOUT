@@ -238,9 +238,9 @@ Zealot sweep, oracle/planner at ₫500 on 40 seeds (`zealot_sweep_oracle_planner
 | 0.30 | 0.75 | 0.183 [0.174, 0.193] |
 
 Figures:
-- ![X0 win rates](figures/x0_win_rates.png)
-- ![X0 gate](figures/x0_gate.png)
-- ![X0 best pattern](figures/x0_best_pattern.png)
+- ![X0 win rates](..figures/x0_win_rates.png)
+- ![X0 gate](..figures/x0_gate.png)
+- ![X0 best pattern](..figures/x0_best_pattern.png)
 
 **Theory vs observation: confirmed.**
 - **Split reaches 80%:** "split" wins 88% [80.2, 93.0] at ₫500 and ₫750 and 95% [88.8, 97.8] at ₫1000. Gate 4a fails at every treasury (`reports/v3/x0.json` → `per_treasury.<t>.max_paid_pattern`).
@@ -353,9 +353,9 @@ Converts per worker in absolute voters, mean [95% CI] (`cells.<N|T>.channels.con
 Media Δshare per ₫ is about 1.8e-4 at T = 1 and about 0.9e-4 at T = 10, at every N.
 
 Figures:
-- ![X10 gate map](figures/x10_gate_map.png)
-- ![X10 channel dominance](figures/x10_channel_dominance.png)
-- ![X10 scaling](figures/x10_scaling.png)
+- ![X10 gate map](..figures/x10_gate_map.png)
+- ![X10 channel dominance](..figures/x10_channel_dominance.png)
+- ![X10 scaling](..figures/x10_scaling.png)
 
 **Theory vs observation: partial.**
 1. **"Δshare per worker ∝ 1/N (slope ≈ −1), media Δshare per ₫ flat in N": partial.**
@@ -489,9 +489,9 @@ Its win rate differs by at most 0.02 (`cells.BayesPlanner`).
   - No win-rate difference survives Holm (all McNemar Holm p ≥ 0.42).
 
 Figures:
-- ![X7 win rates](figures/x7_win_rates.png)
-- ![X7 spend mix](figures/x7_spend_mix.png)
-- ![X7 workers vs media](figures/x7_workers_vs_media.png)
+- ![X7 win rates](..figures/x7_win_rates.png)
+- ![X7 spend mix](..figures/x7_spend_mix.png)
+- ![X7 workers vs media](..figures/x7_workers_vs_media.png)
 
 **Theory vs observation. Partial.**
 - **Diminishing returns: partly confirmed.** For the ORACLE, the second ₫250 buys less than the first at ₫20 and ₫50
@@ -617,9 +617,9 @@ uniform/none (0.10) are identical in every arm, as they must be.
   and the smallest degree in 50 worlds is 4 (`provenance.degree_check`).
 
 Figures:
-- ![X23 reach](figures/x23_reach.png)
-- ![X23 win rates](figures/x23_win_rates.png)
-- ![X23 cap binding](figures/x23_cap_binding.png)
+- ![X23 reach](..figures/x23_reach.png)
+- ![X23 win rates](..figures/x23_win_rates.png)
+- ![X23 cap binding](..figures/x23_cap_binding.png)
 
 **Theory vs observation. Partial.**
 - **Rule γ brings back saturation: confirmed.**
@@ -680,12 +680,12 @@ the mean TV distance of voters from the population mean (consensus drives it to 
 | split (half / half) | 0.783 → 0.873 [0.866, 0.881] | 0.343 → 0.641 [0.615, 0.668] | 0.217 → 0.136 | 0.88 |
 | ORACLE planner | 0.783 → 0.875 [0.868, 0.882] | 0.343 → 0.651 [0.624, 0.678] | 0.217 → 0.133 | 0.92 |
 
-![Consensus towards the manifesto over the rounds](figures/xc_consensus_rounds.png)
+![Consensus towards the manifesto over the rounds](..figures/xc_consensus_rounds.png)
 
 *Mean agreement with b (left), share of voters won over with a majority line (middle), and disagreement (right), by
 round; 50 seeds, mean and 95% CI (x_consensus.json).*
 
-![One world: agreement before and after, and voters moving towards b](figures/xc_consensus_example.png)
+![One world: agreement before and after, and voters moving towards b](..figures/xc_consensus_example.png)
 
 *Seed 10000 under the ORACLE planner (x_consensus.json → `example`).*
 - **Left:** distribution of agreement with b at round 0, at round 5 with no campaign (outline) and at round 5 with
@@ -795,8 +795,8 @@ high − low p_g, Holm over 12):
     at k̄ = 30.
 
 Figures:
-- ![X1 mixing and wins](figures/x1_mixing_and_wins.png)
-- ![X1 regional mixing](figures/x1_regional_mixing.png)
+- ![X1 mixing and wins](..figures/x1_mixing_and_wins.png)
+- ![X1 regional mixing](..figures/x1_regional_mixing.png)
 
 **Theory vs observation. Confirmed.**
 - **"The decay follows ā(1 − μ₂(D⁻¹A)), not λ₂(L)/k̄": confirmed.** It holds near-exactly for a uniform step
@@ -940,8 +940,8 @@ runs), log reports/v3/logs/x1.log. Command:
 - So W-MSR's guarantee fails against the zealots, but its threat model is satisfied by the workers.
 
 Figures:
-- ![X2 anchor vs cascade](figures/x2_anchor.png)
-- ![X2 long runs](figures/x2_long_runs.png)
+- ![X2 anchor vs cascade](..figures/x2_anchor.png)
+- ![X2 long runs](..figures/x2_long_runs.png)
 
 **Theory vs observation. Two predictions refuted, one confirmed with a qualification.**
 - **"Anchor share between 0.2 and 0.6": refuted.**
@@ -1085,8 +1085,8 @@ how often does the 3-attempt cap bind, and do converts drift back?
 - **Cross-region spread:** 85% of the converts lie outside the target region at θ = 0, and 30% at θ = 1.
 
 Figures:
-- ![X3 threshold](figures/x3_threshold.png)
-- ![X3 sweep](figures/x3_sweep.png)
+- ![X3 threshold](..figures/x3_threshold.png)
+- ![X3 sweep](..figures/x3_sweep.png)
 
 **Theory vs observation. Confirmed (with one qualification).**
 - **"Growth crosses 1 near λ_max(A D_q) ≈ 1": confirmed.**
@@ -1182,8 +1182,8 @@ did, the random pick in force would hide an important skill.
     changes a single win after Holm (McNemar Holm p = 1).
 
 Figures:
-- ![X4 timing × placement](figures/x4_timing_placement.png)
-- ![X4 pick rule](figures/x4_pick_rule.png)
+- ![X4 timing × placement](..figures/x4_timing_placement.png)
+- ![X4 pick rule](..figures/x4_pick_rule.png)
 
 **Theory vs observation. Confirmed.**
 - **"Buying early is worth more": confirmed, and the effect is large.** All workers in round 1 beat the even
@@ -1276,8 +1276,8 @@ Sources: `interaction.<fee>` and `tests.interaction`.
   buying the workers one round later costs a whole cascade hop: converts fall from 3,240 to 2,123 (`arms.*.converts_total`).
 
 Figures:
-- ![X11 interaction](figures/x11_interaction.png)
-- ![X11 sequencing](figures/x11_sequencing.png)
+- ![X11 interaction](..figures/x11_interaction.png)
+- ![X11 sequencing](..figures/x11_sequencing.png)
 
 **Theory vs observation. Partial.**
 - **"The interaction is positive": confirmed, but it is tiny.** I = +0.0011 at ₫20 and +0.0016 at ₫100. Both are
@@ -1384,8 +1384,8 @@ submodular in k? How far is the game's random pick from a node-level greedy (CEL
   neighbourhoods convert well.
 
 Figures:
-- ![X18 curve](figures/x18_curve.png)
-- ![X18 CELF](figures/x18_celf.png)
+- ![X18 curve](..figures/x18_curve.png)
+- ![X18 CELF](..figures/x18_celf.png)
 
 **Theory vs observation. Partial: submodular confirmed, early supermodularity refuted.**
 - **"Roughly submodular in k": confirmed, strongly.** Marginal gains fall by more than three orders of magnitude
@@ -1515,8 +1515,8 @@ Mean decision latency (`decision_seconds`):
   - Against the X13 bound: bound − II = +0.0328 [0.0304, 0.0352].
 
 Figures:
-- ![X6 tournament](figures/x6_tournament.png)
-- ![X6 ADMM residuals](figures/x6_admm_residuals.png)
+- ![X6 tournament](..figures/x6_tournament.png)
+- ![X6 ADMM residuals](..figures/x6_admm_residuals.png)
 
 **Theory vs observation. Partial.**
 - **II > I > III: confirmed.** II − I = +0.079, I − III = +0.47 in E, both on 100/100 seeds (Holm p ≤ 1e-17).
@@ -1658,8 +1658,8 @@ The sources are `oracle_arm_best_coalition_by_lambda`, `oracle_arm_all_coalition
   all-or-nothing conversions.
 
 Figures:
-- ![X12 interpolation](figures/x12_lambda.png)
-- ![X12 joint](figures/x12_joint.png)
+- ![X12 interpolation](..figures/x12_lambda.png)
+- ![X12 joint](..figures/x12_joint.png)
 
 **Theory vs observation. Partial.**
 - **"Best λ > 0 on receptive seeds": partial.**
@@ -1799,8 +1799,8 @@ A standardised OLS on five feature differences explains R² = 0.08 (`gap_ols`). 
 rule picks the wrong channel and timing everywhere), not a tail of special seeds.
 
 Figures:
-- ![X13 gap distribution](figures/x13_gap.png)
-- ![X13 plan features](figures/x13_features.png)
+- ![X13 gap distribution](..figures/x13_gap.png)
+- ![X13 plan features](..figures/x13_features.png)
 
 **Theory vs observation. Refuted.**
 - The search beats the ORACLE planner by 0.044 E on average [0.043, 0.046], more than four times the predicted
@@ -1917,8 +1917,8 @@ to zero at large N?
   already buys them in round 2.
 
 Figures:
-- ![X14 bias by arm](figures/x14_bias.png)
-- ![X14 bias by round](figures/x14_bias_by_round.png)
+- ![X14 bias by arm](..figures/x14_bias.png)
+- ![X14 bias by round](..figures/x14_bias_by_round.png)
 
 **Theory vs observation. Refuted on the sign; partly confirmed otherwise.**
 - **"Positive bias (over-optimism)": refuted.** The planner is **pessimistic** in every arm at both N: −0.010 to
@@ -2060,7 +2060,7 @@ E\* = 0.4690 [0.4560, 0.4820]. b\* alone, with no campaign, has E > 0.5 on 39/10
   - The carried regions hold 50.4% of voters on average. On 43 seeds they hold ≤ 50%.
   - The carried set is a minimal winning coalition on 44% [35%, 54%] of seeds.
 
-Figure: ![X19 optimisers and geometry](figures/x19_optimisers_geometry.png)
+Figure: ![X19 optimisers and geometry](..figures/x19_optimisers_geometry.png)
 
 **Theory vs observation. Partial (one part partly confirmed, two refuted).**
 - **"b\* is closer to a 2–3-region coalition blend than to the mean or median": partly confirmed.**
@@ -2199,9 +2199,9 @@ arm = `p10_k2_gain` and so on. The best k by mean E is 2 at ₫10 (gain) and 4 a
     k = 2; `arms.*.["P(win | guaranteed at round 1)"]`). With a 100% win rate this is not a strong test.
 
 Figures:
-- ![X5 curve](figures/x5_curve.png)
-- ![X5 marginal value and posterior](figures/x5_marginal.png)
-- ![X5 verdicts by round](figures/x5_verdicts.png)
+- ![X5 curve](..figures/x5_curve.png)
+- ![X5 marginal value and posterior](..figures/x5_marginal.png)
+- ![X5 verdicts by round](..figures/x5_verdicts.png)
 
 **Theory vs observation. Partial (direction confirmed everywhere; one clause not significant after Holm).**
 - **"About 2 questions are still enough": confirmed.**
@@ -2321,8 +2321,8 @@ Sources: `arms.<arm>.expected`, `win_rate`, `round1_spend`, `tau_by_round.<metri
     (`arms.*.truth_possible_by_round`).
 
 Figures:
-- ![X17 τ entropy](figures/x17_entropy.png)
-- ![X17 outcome](figures/x17_outcome.png)
+- ![X17 τ entropy](..figures/x17_entropy.png)
+- ![X17 outcome](..figures/x17_outcome.png)
 
 **Theory vs observation. Partial.**
 - **"Probing lowers τ entropy measurably": refuted for the plan's metric, confirmed only for the soft one.**
@@ -2479,9 +2479,9 @@ graded belief p̂ calibrated?
   reliability is 0.016 and resolution 0.031, against an uncertainty of 0.048.
 
 Figures:
-- ![X16 guaranteed vs worlds](figures/x16_guaranteed_vs_worlds.png)
-- ![X16 reliability of p̂](figures/x16_reliability.png)
-- ![X16 verdict errors](figures/x16_verdict_errors.png)
+- ![X16 guaranteed vs worlds](..figures/x16_guaranteed_vs_worlds.png)
+- ![X16 reliability of p̂](..figures/x16_reliability.png)
+- ![X16 verdict errors](..figures/x16_verdict_errors.png)
 
 **Theory vs observation. Partial.**
 - **"Guaranteed becomes rarer as the world count grows": confirmed.** It falls from 0.772 to 0.616 between 8 and 64
@@ -2669,9 +2669,9 @@ wins on all 8 salts.
   before round 2 (raw/x8.jsonl).
 
 Figures:
-- ![X8 viability](figures/x8_viability.png)
-- ![X8 point of no return](figures/x8_point_of_no_return.png)
-- ![X8 LTL properties](figures/x8_ltl.png)
+- ![X8 viability](..figures/x8_viability.png)
+- ![X8 point of no return](..figures/x8_point_of_no_return.png)
+- ![X8 LTL properties](..figures/x8_ltl.png)
 
 **Theory vs observation. Partial.**
 - **"Most winners come from behind": confirmed, in the strongest form.** All 548 winners (453 in the poll view)
@@ -2827,10 +2827,10 @@ and for the best observation-only player (BayesPlanner)? Can a simple model pred
   - 12086: E 0.494 is a close call, in a world the ORACLE won (E 0.533).
 
 Figures:
-- ![X15 coefficients](figures/x15_coefficients.png)
-- ![X15 PDP ORACLE loss](figures/x15_pdp_oracle_loss.png)
-- ![X15 PDP ORACLE margin](figures/x15_pdp_oracle_margin.png)
-- ![X15 channel by personality](figures/x15_channel_by_personality.png)
+- ![X15 coefficients](..figures/x15_coefficients.png)
+- ![X15 PDP ORACLE loss](..figures/x15_pdp_oracle_loss.png)
+- ![X15 PDP ORACLE margin](..figures/x15_pdp_oracle_margin.png)
+- ![X15 channel by personality](..figures/x15_channel_by_personality.png)
 
 **Theory vs observation. Partial.**
 - **"Losses concentrate where the two largest regions have distant archetypes": confirmed, and strongly.** All 11
@@ -2959,8 +2959,8 @@ V shares (`components.E`).
   and 0.467.
 
 Figures:
-- ![X20 components](figures/x20_components.png)
-- ![X20 shares](figures/x20_shares.png)
+- ![X20 components](..figures/x20_components.png)
+- ![X20 shares](..figures/x20_shares.png)
 
 **Theory vs observation. Partial.**
 - **"World draw first": confirmed, by a wide margin.** The world draw gives 99.4% of Var(V) for the planner and
@@ -3086,8 +3086,8 @@ t-CI and the Holm p.
   first-order heuristic, so a Δgap partly measures how the heuristic ORACLE reacts to the parameter.
 
 Figures:
-- ![X21 sensitivity](figures/x21_sensitivity.png)
-- ![X21 win rates](figures/x21_win_rates.png)
+- ![X21 sensitivity](..figures/x21_sensitivity.png)
+- ![X21 win rates](..figures/x21_win_rates.png)
 
 **Theory vs observation. Partial.**
 - **"Most sensitive to z": confirmed** on both measures (Δgap −0.034, misspecification cost −0.025, Holm p < 1e-4).
@@ -3194,8 +3194,8 @@ output also lists the factors whose μ* CI lower bound is above 2 × the noise f
   has σ ≈ μ*, which points to non-linear effects and interactions.
 
 Figures:
-- ![X22 Morris](figures/x22_morris.png): μ* vs σ per output.
-- ![X22 direction](figures/x22_direction.png): signed μ.
+- ![X22 Morris](..figures/x22_morris.png): μ* vs σ per output.
+- ![X22 direction](..figures/x22_direction.png): signed μ.
 
 **Theory vs observation.** No prediction was registered. The result agrees with X21:
 - the vote threshold z is by far the most influential parameter;
@@ -3281,7 +3281,7 @@ the cascade hop stay O(edges)?
 - **Batching:** at 10⁴ the GPU is latency-bound, so batching 32 worlds cuts the cost per world-round by 4×.
   At 10⁶ a single world already fills the GPU (11.1 ms, flat in B).
 
-Figure: ![X9 scaling](figures/x9_scaling.png)
+Figure: ![X9 scaling](..figures/x9_scaling.png)
 
 **Theory vs observation.** No prediction was registered. Descriptively:
 - the cascade hop and the whole round are at most linear in the number of edges, as the sparse
@@ -3426,7 +3426,7 @@ with the planned seed counts; no seed count was reduced.
 
 **Phase 0.**
 - The v2 reports were not moved to `reports/archive/v2.1/`: `reports/v2/final_report.md` (kept as the v2 record, D4)
-  links to `reports/v2/*.json` and `figures/`. The move is offered to the owner in `handoff_owner.md`.
+  links to `reports/v2/*.json` and `..figures/`. The move is offered to the owner in `handoff_owner.md`.
 
 **Device.** The plan's default device is cuda:2. X6, X7, X8, X12, X13, X14, X16, X19 and X23 ran on cuda:0 because
 cuda:2 was in use by other runs. X15 ran on the CPU (a §1.1 exception for model fitting).

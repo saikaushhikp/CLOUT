@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dices, Landmark, Loader2, Play, Users } from "lucide-react";
+import { BookOpen, Dices, Loader2, Play } from "lucide-react";
 import { useGame } from "@/lib/game";
 import {
   BUDGET_DEFAULT,
@@ -17,29 +17,37 @@ import {
 } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { fmtCompact, fmtInt } from "@/lib/format";
-import { Stepper } from "./ui";
+import { Modal, Stepper } from "./ui";
+import { HowToPlay } from "./HowToPlay";
 
 const LOG_MIN = Math.log10(N_MIN);
 const LOG_MAX = Math.log10(N_MAX);
 const SLIDER_STEPS = 600;
 
-/** Round to a "nice" number with 2 significant digits (1000, 1100 … 9900, 10000, 11000 …). */
-export function niceVoters(n: number): number {
-  const clamped = Math.min(N_MAX, Math.max(N_MIN, n));
+/** Round to a "nice" number with 2 significant digits (1000, 1100 … 9900, 10000, 11000 …), kept in [lo, hi]. */
+function nice2(n: number, lo: number, hi: number): number {
+  const clamped = Math.min(hi, Math.max(lo, n));
   const mag = Math.pow(10, Math.floor(Math.log10(clamped)) - 1);
-  return Math.min(N_MAX, Math.max(N_MIN, Math.round(clamped / mag) * mag));
+  return Math.min(hi, Math.max(lo, Math.round(clamped / mag) * mag));
 }
+export const niceVoters = (n: number) => nice2(n, N_MIN, N_MAX);
 export const sliderToVoters = (s: number) => niceVoters(Math.pow(10, LOG_MIN + ((LOG_MAX - LOG_MIN) * s) / SLIDER_STEPS));
 export const votersToSlider = (n: number) => Math.round(((Math.log10(n) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * SLIDER_STEPS);
 
+// The money slider is logarithmic too: Đ500 → Đ1M spans three orders of magnitude.
+const B_LOG_MIN = Math.log10(BUDGET_MIN);
+const B_LOG_MAX = Math.log10(BUDGET_MAX);
+export const sliderToBudget = (s: number) => nice2(Math.pow(10, B_LOG_MIN + ((B_LOG_MAX - B_LOG_MIN) * s) / SLIDER_STEPS), BUDGET_MIN, BUDGET_MAX);
+export const budgetToSlider = (b: number) => Math.round(((Math.log10(b) - B_LOG_MIN) / (B_LOG_MAX - B_LOG_MIN)) * SLIDER_STEPS);
+
 const PRESETS = [1_000, 10_000, 100_000, 1_000_000];
 
-/** Starting treasury (R17): whole credits clamped to ₫500–₫1000; non-numbers fall back to the default. */
+/** Starting treasury (R17): whole credits clamped to BUDGET_MIN–BUDGET_MAX; non-numbers fall back to the default. */
 export function clampBudget(x: number): number {
   if (!Number.isFinite(x)) return BUDGET_DEFAULT;
   return Math.min(BUDGET_MAX, Math.max(BUDGET_MIN, Math.round(x)));
 }
-/** Is this typed text a valid starting treasury (whole credits within ₫500–₫1000)? */
+/** Is this typed text a valid starting treasury (whole credits within BUDGET_MIN–BUDGET_MAX)? */
 export function budgetTextValid(text: string): boolean {
   if (!/^\d{1,7}$/.test(text.trim())) return false;
   const n = Number(text.trim());
@@ -48,8 +56,9 @@ export function budgetTextValid(text: string): boolean {
 /** The wire form of the budget: a 2-dp decimal string ("750.00"). */
 export const budgetToRequest = (credits: number): string => clampBudget(credits).toFixed(2);
 
-export function SetupScreen() {
-  const { createGame, busy, health, healthError, client } = useGame();
+export function SetupScreen({ howToPlay }: { howToPlay?: string }) {
+  const { createGame, busy } = useGame();
+  const [showHowTo, setShowHowTo] = useState(false);
   const [voters, setVoters] = useState(N_DEFAULT);
   const [votersText, setVotersText] = useState(String(N_DEFAULT));
   const [seedText, setSeedText] = useState("");
@@ -79,46 +88,14 @@ export function SetupScreen() {
   };
 
   return (
-    <div className="hero">
-      <div className="hero-copy">
-        <span className="kicker">Election night is {rounds} rounds away</span>
-        <h1>
-          Win the vote.
-          <br />
-          <em>Know</em> your voters.
-        </h1>
-        <p className="lede">
-          Four regions. Six possible archetypes. Hidden personalities. A treasury of Đ500–Đ1,000 (you choose) and a social network that
-          gossips. Survey the electorate, commit a budget manifesto, then buy party workers and media to pull voters
-          your way before the ballots open.
-        </p>
-        <ol className="howto list-plain">
-          <li>
-            <span className="n">1</span>
-            <span>
-              <b>Survey</b>Free top-3 stats + paid head-to-head questions per region (priced in game).
-            </span>
-          </li>
-          <li>
-            <span className="n">2</span>
-            <span>
-              <b>Commit</b>Split the budget across five sectors. No take-backs.
-            </span>
-          </li>
-          <li>
-            <span className="n">3</span>
-            <span>
-              <b>Campaign</b>Each round: buy permanent party workers and regional media airtime.
-            </span>
-          </li>
-          <li>
-            <span className="n">4</span>
-            <span>
-              <b>Debrief</b>See the hidden truth, the oracle&apos;s manifesto and how opinion spread.
-            </span>
-          </li>
-        </ol>
-      </div>
+    <div className="title-screen">
+      <header className="title-head">
+        <h1 className="hero-title">CLOUT</h1>
+        {/* easter egg: reads as plain text, but it's a link */}
+        <a className="hero-tagline" href="https://youtu.be/92cwKCU8Z5c?t=66&autoplay=1" target="_blank" rel="noopener noreferrer">
+          The winner takes it all....
+        </a>
+      </header>
 
       <form
         className="panel setup-card"
@@ -128,28 +105,13 @@ export function SetupScreen() {
           void start();
         }}
       >
-        <div className="row-between">
-          <span className="kicker">New campaign</span>
-          <span className="engine-status" role="status">
-            <span className={`engine-dot ${health ? "ok" : healthError ? "down" : ""}`} aria-hidden />
-            {health
-              ? `Engine online · ${health.device}`
-              : healthError
-                ? "Engine offline"
-                : "Checking engine…"}
-          </span>
-        </div>
 
         <div className="field">
-          <label htmlFor="voters-range">
-            <Users size={14} aria-hidden style={{ verticalAlign: "-2px", marginRight: 6 }} />
-            Electorate size
-          </label>
+          <label htmlFor="voters-range">Voters</label>
           <div className="row-between">
             <span className="big-n num" aria-hidden>
               {fmtInt(voters)}
             </span>
-            <span className="muted">voters</span>
           </div>
           <input
             id="voters-range"
@@ -180,7 +142,7 @@ export function SetupScreen() {
             />
           </div>
           {voters >= 300_000 ? (
-            <span className="stat-sub">Big electorate — generation takes a few seconds on the engine.</span>
+            <span className="stat-sub">Large electorates take a few seconds to generate.</span>
           ) : null}
         </div>
 
@@ -217,36 +179,32 @@ export function SetupScreen() {
         </div>
         <span id="seed-help" className="stat-sub">
           {seedValid
-            ? "Same voters + same seed = the same electorate. Leave blank for a surprise."
+            ? "Leave blank for a random electorate."
             : "Seed must be a whole number."}
         </span>
 
         <div className="field">
-          <label htmlFor="budget-range">
-            <Landmark size={14} aria-hidden style={{ verticalAlign: "-2px", marginRight: 6 }} />
-            Party fund (starting treasury)
-          </label>
+          <label htmlFor="budget-range">Starting money</label>
           <div className="row-between">
-            <span className="big-n num" aria-hidden>
+            <span className="big-n num" aria-hidden data-testid="summary-budget">
               {formatMoney(budget * 100)}
             </span>
-            <span className="muted">to spend on questions, hires and media</span>
           </div>
           <input
             id="budget-range"
             type="range"
-            min={BUDGET_MIN}
-            max={BUDGET_MAX}
-            step={10}
-            value={budget}
-            aria-valuetext={`${budget} credits`}
-            onChange={(e) => commitBudget(Number(e.target.value))}
+            min={0}
+            max={SLIDER_STEPS}
+            step={1}
+            value={budgetToSlider(budget)}
+            aria-valuetext={`${fmtInt(budget)} credits`}
+            onChange={(e) => commitBudget(sliderToBudget(Number(e.target.value)))}
           />
           <div className="row-between">
             <div className="seg" role="group" aria-label="Treasury presets">
               {BUDGET_PRESETS.map((p) => (
                 <button key={p} type="button" aria-pressed={budget === p && budgetOk} onClick={() => commitBudget(p)}>
-                  Đ{p}
+                  Đ{fmtCompact(p)}
                 </button>
               ))}
             </div>
@@ -255,7 +213,7 @@ export function SetupScreen() {
               style={{ maxWidth: 130 }}
               aria-label="Starting treasury in credits"
               aria-invalid={!budgetOk}
-              aria-describedby="budget-help"
+              aria-describedby={budgetOk ? undefined : "budget-help"}
               inputMode="numeric"
               value={budgetText}
               onChange={(e) => {
@@ -266,40 +224,29 @@ export function SetupScreen() {
               onBlur={() => commitBudget(budgetText === "" ? BUDGET_DEFAULT : Number(budgetText))}
             />
           </div>
-          <span id="budget-help" className={`stat-sub ${budgetOk ? "" : "bad"}`}>
-            {budgetOk ? `Between Đ${BUDGET_MIN} and Đ${BUDGET_MAX}. More money buys more questions, hires and airtime.` : `Enter a whole amount from Đ${BUDGET_MIN} to Đ${BUDGET_MAX}.`}
-          </span>
+          {budgetOk ? null : (
+            <span id="budget-help" className="stat-sub bad">
+              Enter a whole amount from Đ{BUDGET_MIN.toLocaleString("en-US")} to Đ{BUDGET_MAX.toLocaleString("en-US")}.
+            </span>
+          )}
         </div>
-
-        <dl className="setup-summary" aria-label="Game summary">
-          <div>
-            <dt>Voters</dt>
-            <dd className="num">{fmtInt(voters)}</dd>
-          </div>
-          <div>
-            <dt>Rounds</dt>
-            <dd className="num">{rounds}</dd>
-          </div>
-          <div>
-            <dt>Treasury</dt>
-            <dd className="num" data-testid="summary-budget">
-              {formatMoney(budget * 100)}
-            </dd>
-          </div>
-          <div>
-            <dt>Seed</dt>
-            <dd className="mono">{seedText.trim() || "random"}</dd>
-          </div>
-        </dl>
 
         <button type="submit" className="btn btn-primary btn-lg" disabled={creating || !seedValid || !budgetOk}>
           {creating ? <Loader2 className="spin" size={18} aria-hidden /> : <Play size={18} aria-hidden />}
-          {creating ? "Drawing the electorate…" : "Start campaign"}
+          {creating ? "Starting…" : "Start campaign"}
         </button>
-        {client.kind === "mock" ? (
-          <span className="stat-sub">Mock mode: a simplified in-browser engine stands in for the Python server.</span>
-        ) : null}
       </form>
+
+      {howToPlay ? (
+        <button type="button" className="btn btn-ghost hero-howto" onClick={() => setShowHowTo(true)}>
+          <BookOpen size={16} aria-hidden /> How to CLOUT?
+        </button>
+      ) : null}
+      {showHowTo && howToPlay ? (
+        <Modal title="How to CLOUT?" onClose={() => setShowHowTo(false)} className="howto-modal">
+          <HowToPlay markdown={howToPlay} />
+        </Modal>
+      ) : null}
     </div>
   );
 }

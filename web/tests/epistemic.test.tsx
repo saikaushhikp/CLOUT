@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
-import { EpistemicPanel, EpistemicTimelineView } from "@/components/EpistemicTimeline";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { EpistemicPanel, EpistemicTimelineView, spans } from "@/components/EpistemicTimeline";
 import { GameApp } from "@/components/GameApp";
 import { createMockClient } from "@/lib/mockApi";
 import type { DumbocracyClient } from "@/lib/api";
@@ -91,16 +91,22 @@ describe("epistemic timeline view", () => {
     expect(on("inevitable_defeat")).toEqual([false, false, false, true]);
     expect(screen.getByLabelText("Round 3: Knew a winning plan — yes")).toBeInTheDocument();
     expect(screen.getByLabelText("Round 4: Defeat inevitable — yes")).toBeInTheDocument();
-    expect(within(screen.getByTestId("ep-row-guaranteed_victory")).getByText(/knowing how/i)).toBeInTheDocument();
-    expect(within(screen.getByTestId("ep-row-knows_win_exists")).getByText(/knowing that/i)).toBeInTheDocument();
 
     // per-round plan + knowledge stats
     expect(screen.getByText("Canvass South")).toBeInTheDocument();
     expect(screen.getByText("75%")).toBeInTheDocument();
     expect(screen.getByText("5 q · 3 polls")).toBeInTheDocument();
+
+    // the formal notation, world counts, entropy and explainer stay hidden until asked for
+    expect(screen.queryByText(/knowing how/i)).toBeNull();
+    expect(screen.queryByText("1.44 bits")).toBeNull();
+    expect(screen.queryByText("How to read this")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Show formal details" }));
+    expect(screen.getByRole("button", { name: "Hide formal details" })).toHaveAttribute("aria-expanded", "true");
+    expect(within(screen.getByTestId("ep-row-guaranteed_victory")).getByText(/knowing how/i)).toBeInTheDocument();
+    expect(within(screen.getByTestId("ep-row-knows_win_exists")).getByText(/knowing that/i)).toBeInTheDocument();
     expect(screen.getAllByText("16")).toHaveLength(4);
     expect(screen.getByText("1.44 bits")).toBeInTheDocument(); // 1.00 nats from the engine = 1.44 bits
-    expect(screen.getByText("Lost")).toBeInTheDocument();
 
     // explainer ties worlds to K / M
     expect(screen.getByText("How to read this")).toBeInTheDocument();
@@ -131,6 +137,22 @@ async function finishedGame(client: DumbocracyClient, seed = 31, rounds = 3) {
   expect(obs.phase).toBe("DONE");
   return obs;
 }
+
+describe("repeated values span rounds", () => {
+  it("groups only neighbouring rounds with the same value", () => {
+    const rs = FIXTURE.rounds;
+    const key = (r: (typeof rs)[number]) => (r.round === 1 || r.round === 4 ? "a" : "b");
+    expect(spans(rs, key).map((s) => [s.r.round, s.n])).toEqual([[1, 1], [2, 2], [4, 1]]);
+    expect(spans(rs).map((s) => s.n)).toEqual(rs.map(() => 1)); // no key: one cell per round
+  });
+
+  it("draws a repeated treasury once, spanning its rounds", () => {
+    const flat = { ...FIXTURE, rounds: FIXTURE.rounds.map((r) => ({ ...r, treasury: "0.00" })) };
+    render(<EpistemicTimelineView timeline={flat} />);
+    const cell = screen.getByText("Đ0.00").closest("td")!;
+    expect(cell).toHaveAttribute("colspan", String(flat.rounds.length));
+  });
+});
 
 describe("mock engine — epistemic timeline", () => {
   it("is 409 before DONE, schema-valid and deterministic per seed after", async () => {
@@ -163,7 +185,7 @@ describe("mock engine — epistemic timeline", () => {
       return real(g, p);
     });
     render(<GameApp client={client} initialObservation={obs} />);
-    expect(await screen.findByText("The hidden map, revealed")).toBeInTheDocument();
+    expect(await screen.findByText("What each region was")).toBeInTheDocument();
     expect(await screen.findByTestId("ep-loading")).toHaveTextContent(/reasoning over possible worlds/i);
     expect(spy).toHaveBeenCalledWith(obs.game_id, obs.player_id);
     release();

@@ -1,0 +1,23 @@
+[r1] device cuda:2 ({'requested': 'cuda:2', 'need_bytes': 4294967296, 'free_bytes': {'0': 24979177472, '1': 137363456, '2': 24170725376}, 'chosen': 'cuda:2'})
+[r1] prepared 10/100 electorates (+ORACLE, library PG) 12s
+[r1] prepared 20/100 electorates (+ORACLE, library PG) 25s
+[r1] prepared 30/100 electorates (+ORACLE, library PG) 34s
+[r1] prepared 40/100 electorates (+ORACLE, library PG) 45s
+[r1] prepared 50/100 electorates (+ORACLE, library PG) 55s
+[r1] prepared 60/100 electorates (+ORACLE, library PG) 65s
+[r1] prepared 70/100 electorates (+ORACLE, library PG) 76s
+[r1] prepared 80/100 electorates (+ORACLE, library PG) 87s
+[r1] prepared 90/100 electorates (+ORACLE, library PG) 97s
+[r1] prepared 100/100 electorates (+ORACLE, library PG) 109s
+[r1] batch of 25 seeds done 113s
+[r1] batch of 25 seeds done 117s
+[r1] batch of 25 seeds done 121s
+[r1] batch of 25 seeds done 125s
+[r1] parity passed: True
+[r1] figure reports/v3/experimentation/figures/r1_share_by_manifesto.png
+[r1] figure reports/v3/experimentation/figures/r1_region_support_heatmap.png
+[r1] figure reports/v3/experimentation/figures/r1_agreement_histograms.png
+[r1] figure reports/v3/experimentation/figures/r1_convergence.png
+[r1] figure reports/v3/experimentation/figures/r1_ternary_landscape.png
+[r1] figure reports/v3/experimentation/figures/r1_divided_vs_aligned.png
+[r1] done in 139.9s; peak 0.58 GiB

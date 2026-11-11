@@ -126,13 +126,13 @@ describe("mock engine", () => {
     expect(await c.deleteGame(g)).toEqual({ deleted: true });
   });
 
-  it("accepts a starting treasury of 500.00..1000.00 (R17)", async () => {
+  it("accepts a starting treasury of 500.00..1000000.00 (R17)", async () => {
     const c = createMockClient();
     const g = await c.createGame({ num_voters: 2000, seed: 1, budget: "750.00" });
     expect(g.observation.treasury).toBe("750.00");
     expect(g.observation.initial_budget).toBe("750.00");
-    expect((await c.createGame({ num_voters: 2000, seed: 1, budget: "1000.00" })).observation.treasury).toBe("1000.00");
-    for (const bad of ["499.99", "1000.01", "abc", "750.123"]) {
+    expect((await c.createGame({ num_voters: 2000, seed: 1, budget: "1000000.00" })).observation.treasury).toBe("1000000.00");
+    for (const bad of ["499.99", "1000000.01", "abc", "750.123"]) {
       await expect(c.createGame({ num_voters: 2000, seed: 1, budget: bad })).rejects.toMatchObject({ status: 422 });
     }
   });

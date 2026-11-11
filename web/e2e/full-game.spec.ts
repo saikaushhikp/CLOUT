@@ -63,12 +63,19 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
       qTimes.push(Date.now() - t0);
     }
     timings.query_ms_max = Math.max(...qTimes);
-    const flash = page.locator(".answer-flash");
+    // answers open per region in a dialog (latest answer on top, then every answer)
+    await expect(page.locator(".answer-flash")).toHaveCount(0);
+    await page.getByRole("button", { name: "North 2 responses" }).click();
+    const answers = page.getByRole("dialog", { name: "Responses from North" });
+    const flash = answers.locator(".answer-flash").first(); // one summary box per question; North has one (pooled)
     await expect(flash).toContainText(/Pooled over 2 samples/);
     await expect(flash).toContainText(/±/);
-    const ledger = page.getByRole("list", { name: "Your survey answers" });
+    const ledger = answers.getByRole("list", { name: "Your survey answers" });
     await expect(ledger.getByText(/pooled ×2/)).toBeVisible();
     await expect(ledger.getByTestId("ledger-estimate").first()).toContainText(/%.*±/);
+    await shot(page, "desktop-03b-survey-answers-dialog", { fullPage: false });
+    await page.keyboard.press("Escape");
+    await expect(answers).toHaveCount(0);
     await expect(page.getByText("4 questions · Đ20.00 spent")).toBeVisible();
     await page.getByLabel("Your hunch").nth(0).selectOption({ index: 1 });
     await page.getByLabel("Your hunch").nth(1).selectOption({ index: 2 });
@@ -226,7 +233,7 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
     timings.round_ms_mean = Math.round(roundTimes.reduce((a, b) => a + b, 0) / roundTimes.length);
     const tDone = Date.now();
 
-    await expect(page.getByRole("heading", { name: "The hidden map, revealed" })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: "What each region was" })).toBeVisible({ timeout: 60_000 });
     const cards = page.locator(".reveal-card");
     await expect(cards).toHaveCount(4);
     await expect(cards.getByText("Archetype")).toHaveCount(4, { timeout: 10_000 }); // all flipped
