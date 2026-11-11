@@ -312,7 +312,8 @@ class WorldBatch:
         pinned = workers.pinned | new
         spreaders = workers.spreaders | new
         # 2. one IC hop: chance γ·P on v at the start of the round; workers and zealots are never targets
-        chance = conversion_chance(self.campaign, v, b, self.config.voting.sensitivity, self.config.voting.threshold)
+        chance = conversion_chance(self.campaign, v, b, self.config.voting.sensitivity, self.config.voting.threshold,
+                                   cfg_w.conversion_rule)
         counts = self._spreader_counts(spreaders, dtype)
         converted, attempts = ic_from_counts(counts, chance, workers.attempts, pinned | self.zealot,
                                              cfg_w.attempt_cap, generator)

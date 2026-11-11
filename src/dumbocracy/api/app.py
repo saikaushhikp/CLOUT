@@ -29,6 +29,7 @@ from ..voting import similarity, vote_probability
 DEFAULT_MAX_GAMES = 8
 MAX_GRAPH_NODES = 10_000
 MIN_BUDGET, MAX_BUDGET = Decimal("500.00"), Decimal("1000.00")   # R17
+MIN_ROUNDS, MAX_ROUNDS = 3, 5   # R31 / D11: X10 found T = 1 and T = 10 structurally unbalanced
 ORACLE_NOTE = "ORACLE: full-information benchmark"
 
 
@@ -37,7 +38,7 @@ ORACLE_NOTE = "ORACLE: full-information benchmark"
 class NewGameBody(BaseModel):
     num_voters: int = Field(10_000, ge=1_000, le=1_000_000)
     seed: int | None = Field(None, ge=0, lt=2**63)
-    rounds: int = Field(5, ge=1, le=10)
+    rounds: int = Field(5, ge=MIN_ROUNDS, le=MAX_ROUNDS)
     budget: StrictStr | None = None   # R17: decimal string "500.00".."1000.00", ≤ 2 dp; omitted/null → "500.00"
 
     @field_validator("budget")

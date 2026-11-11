@@ -1,0 +1,556 @@
+{
+ "device_selection": {
+  "requested": "cuda:2",
+  "need_bytes": 8589934592,
+  "free_bytes": {
+   "0": 25372393472,
+   "1": 137363456,
+   "2": 25392316416
+  },
+  "chosen": "cuda:2"
+ },
+ "x_batch": [
+  {
+   "n": 10000,
+   "seeds": [
+    20261107,
+    20261170
+   ],
+   "manifesto": "top3",
+   "generation": "cpu (R8), moved to device",
+   "electorate_generation_seconds_total": 29.066985834389925,
+   "policies": {
+    "pay_split": {
+     "cpu_simulate_world_seconds_per_world": 0.042095141019672155,
+     "cpu_worlds_timed": 8,
+     "gpu_simulate_world_seconds_per_world": 0.016132239252328873,
+     "batched": [
+      {
+       "B": 1,
+       "seconds": 0.013809464871883392,
+       "seconds_per_world": 0.013809464871883392,
+       "speedup_vs_cpu_single": 3.048281842215298,
+       "speedup_vs_gpu_single": 1.168201621278949,
+       "peak_bytes_above_inputs": 7258624,
+       "peak_gib_above_inputs": 0.006760120391845703
+      },
+      {
+       "B": 8,
+       "seconds": 0.03708091750741005,
+       "seconds_per_world": 0.004635114688426256,
+       "speedup_vs_cpu_single": 9.08179060267537,
+       "speedup_vs_gpu_single": 3.4804401480314167,
+       "peak_bytes_above_inputs": 94501888,
+       "peak_gib_above_inputs": 0.0880117416381836
+      },
+      {
+       "B": 32,
+       "seconds": 0.11324086785316467,
+       "seconds_per_world": 0.003538777120411396,
+       "speedup_vs_cpu_single": 11.89539199201628,
+       "speedup_vs_gpu_single": 4.558704519501765,
+       "peak_bytes_above_inputs": 375897600,
+       "peak_gib_above_inputs": 0.3500819206237793
+      },
+      {
+       "B": 64,
+       "seconds": 0.20912491530179977,
+       "seconds_per_world": 0.0032675768015906215,
+       "speedup_vs_cpu_single": 12.882678380866423,
+       "speedup_vs_gpu_single": 4.937065058264544,
+       "peak_bytes_above_inputs": 746697728,
+       "peak_gib_above_inputs": 0.6954164505004883
+      }
+     ]
+    },
+    "planner": {
+     "cpu_simulate_world_seconds_per_world": 0.05263649579137564,
+     "cpu_worlds_timed": 8,
+     "gpu_simulate_world_seconds_per_world": 0.025749972090125084,
+     "batched": [
+      {
+       "B": 1,
+       "seconds": 0.022747095674276352,
+       "seconds_per_world": 0.022747095674276352,
+       "speedup_vs_cpu_single": 2.313987532522661,
+       "speedup_vs_gpu_single": 1.1320114206599372,
+       "peak_bytes_above_inputs": 7253504,
+       "peak_gib_above_inputs": 0.006755352020263672
+      },
+      {
+       "B": 8,
+       "seconds": 0.11758352816104889,
+       "seconds_per_world": 0.014697941020131111,
+       "speedup_vs_cpu_single": 3.5812156083142384,
+       "speedup_vs_gpu_single": 1.7519441706056993,
+       "peak_bytes_above_inputs": 94496256,
+       "peak_gib_above_inputs": 0.08800649642944336
+      },
+      {
+       "B": 32,
+       "seconds": 0.4398946538567543,
+       "seconds_per_world": 0.013746707933023572,
+       "speedup_vs_cpu_single": 3.829025541811908,
+       "speedup_vs_gpu_single": 1.8731737238896446,
+       "peak_bytes_above_inputs": 375870464,
+       "peak_gib_above_inputs": 0.35005664825439453
+      },
+      {
+       "B": 64,
+       "seconds": 0.8662581518292427,
+       "seconds_per_world": 0.013535283622331917,
+       "speedup_vs_cpu_single": 3.88883582051657,
+       "speedup_vs_gpu_single": 1.9024331376137626,
+       "peak_bytes_above_inputs": 747247616,
+       "peak_gib_above_inputs": 0.6959285736083984
+      }
+     ]
+    }
+   },
+   "batch_sizer": {
+    "batch": 1024,
+    "per_item_bytes": 11818496,
+    "fixed_bytes": 0,
+    "free_bytes": 24739708928,
+    "probe_sizes": [
+     2,
+     4
+    ],
+    "probe_peaks": [
+     23230464,
+     46867456
+    ],
+    "input_bytes_per_world": 5355448,
+    "recommended_batch_incl_inputs": 1008
+   }
+  },
+  {
+   "n": 100000,
+   "seeds": [
+    20261107,
+    20261170
+   ],
+   "manifesto": "top3",
+   "generation": "cpu (R8), moved to device",
+   "electorate_generation_seconds_total": 23.570764921605587,
+   "policies": {
+    "pay_split": {
+     "cpu_simulate_world_seconds_per_world": 0.3824957199394703,
+     "cpu_worlds_timed": 3,
+     "gpu_simulate_world_seconds_per_world": 0.019709552638232708,
+     "batched": [
+      {
+       "B": 1,
+       "seconds": 0.014643508940935135,
+       "seconds_per_world": 0.014643508940935135,
+       "speedup_vs_cpu_single": 26.120496220016246,
+       "speedup_vs_gpu_single": 1.3459583162568176,
+       "peak_bytes_above_inputs": 67551232,
+       "peak_gib_above_inputs": 0.0629119873046875
+      },
+      {
+       "B": 8,
+       "seconds": 0.06366382911801338,
+       "seconds_per_world": 0.007957978639751673,
+       "speedup_vs_cpu_single": 48.06443159181513,
+       "speedup_vs_gpu_single": 2.476703385427501,
+       "peak_bytes_above_inputs": 930945536,
+       "peak_gib_above_inputs": 0.8670105934143066
+      },
+      {
+       "B": 32,
+       "seconds": 0.2297455072402954,
+       "seconds_per_world": 0.007179547101259232,
+       "speedup_vs_cpu_single": 53.27574491048102,
+       "speedup_vs_gpu_single": 2.7452362050491765,
+       "peak_bytes_above_inputs": 3711809024,
+       "peak_gib_above_inputs": 3.4568915367126465
+      },
+      {
+       "B": 64,
+       "seconds": 0.4638582281768322,
+       "seconds_per_world": 0.007247784815263003,
+       "speedup_vs_cpu_single": 52.77415509549596,
+       "speedup_vs_gpu_single": 2.7193898743691522,
+       "peak_bytes_above_inputs": 7420139520,
+       "peak_gib_above_inputs": 6.910543441772461
+      }
+     ]
+    },
+    "planner": {
+     "cpu_simulate_world_seconds_per_world": 0.3845195410152276,
+     "cpu_worlds_timed": 3,
+     "gpu_simulate_world_seconds_per_world": 0.028626304119825363,
+     "batched": [
+      {
+       "B": 1,
+       "seconds": 0.021840624511241913,
+       "seconds_per_world": 0.021840624511241913,
+       "speedup_vs_cpu_single": 17.605702658241565,
+       "speedup_vs_gpu_single": 1.3106907316267762,
+       "peak_bytes_above_inputs": 66558464,
+       "peak_gib_above_inputs": 0.06198740005493164
+      },
+      {
+       "B": 8,
+       "seconds": 0.15282254666090012,
+       "seconds_per_world": 0.019102818332612514,
+       "speedup_vs_cpu_single": 20.128942982134326,
+       "speedup_vs_gpu_single": 1.4985382586691023,
+       "peak_bytes_above_inputs": 931609600,
+       "peak_gib_above_inputs": 0.8676290512084961
+      },
+      {
+       "B": 32,
+       "seconds": 0.5531719848513603,
+       "seconds_per_world": 0.01728662452660501,
+       "speedup_vs_cpu_single": 22.243760800347815,
+       "speedup_vs_gpu_single": 1.6559799789581824,
+       "peak_bytes_above_inputs": 3711761920,
+       "peak_gib_above_inputs": 3.456847667694092
+      },
+      {
+       "B": 64,
+       "seconds": 1.1100482568144798,
+       "seconds_per_world": 0.017344504012726247,
+       "speedup_vs_cpu_single": 22.169532246819664,
+       "speedup_vs_gpu_single": 1.6504538901095862,
+       "peak_bytes_above_inputs": 7420170752,
+       "peak_gib_above_inputs": 6.910572528839111
+      }
+     ]
+    }
+   },
+   "batch_sizer": {
+    "batch": 128,
+    "per_item_bytes": 115929600,
+    "fixed_bytes": 2056192,
+    "free_bytes": 21354905600,
+    "probe_sizes": [
+     2,
+     4
+    ],
+    "probe_peaks": [
+     233915392,
+     465774592
+    ],
+    "input_bytes_per_world": 53646888,
+    "recommended_batch_incl_inputs": 88
+   }
+  }
+ ],
+ "parity": {
+  "n": 10000,
+  "seeds": [
+   10000,
+   10019
+  ],
+  "count": 20,
+  "policy": "planner (ORACLE)",
+  "manifesto": "oracle",
+  "cpu_batch_vs_simulate_world": {
+   "B": 20,
+   "bit_identical_worlds": 20,
+   "aggregation": "exact"
+  },
+  "gpu_batch_vs_simulate_world": {
+   "csr": {
+    "discrete_identical_worlds": 20,
+    "bit_identical_worlds": 0,
+    "max_abs_diff_expected_share": 0.0,
+    "max_abs_diff_trajectory": 5.960464477539063e-08
+   },
+   "exact": {
+    "discrete_identical_worlds": 20,
+    "bit_identical_worlds": 0,
+    "max_abs_diff_expected_share": 5.960464477539063e-08,
+    "max_abs_diff_trajectory": 5.960464477539063e-08
+   }
+  },
+  "gpu_simulate_world_run_to_run": {
+   "bit_identical_worlds": 0,
+   "discrete_identical_worlds": 20,
+   "note": "CUDA index_add_ (DeGroot aggregation) uses float atomics, so simulate_world itself is not bitwise reproducible on the GPU; only discrete outcomes are compared there."
+  },
+  "cpu_vs_gpu_statistical": {
+   "passed": true,
+   "seeds": [
+    10000,
+    10001,
+    10002,
+    10003,
+    10004,
+    10005,
+    10006,
+    10007,
+    10008,
+    10009,
+    10010,
+    10011,
+    10012,
+    10013,
+    10014,
+    10015,
+    10016,
+    10017,
+    10018,
+    10019
+   ],
+   "reference": "cpu",
+   "device": "cuda:2",
+   "metrics": {
+    "expected": {
+     "cpu_mean": 0.6265741348266601,
+     "gpu_mean": 0.6277820438146591,
+     "mean_diff": 0.0012079089879989623,
+     "tolerance": 0.01,
+     "passed": true
+    },
+    "victory": {
+     "cpu_mean": 0.85,
+     "gpu_mean": 0.85,
+     "mean_diff": 0.0,
+     "tolerance": 0.01,
+     "passed": true
+    },
+    "converted": {
+     "cpu_mean": 4456.75,
+     "gpu_mean": 4482.9,
+     "mean_diff": 26.15,
+     "tolerance": 51.87908385954076,
+     "passed": true,
+     "note": "tolerance in voters"
+    }
+   }
+  }
+ },
+ "bayes_planner": [
+  {
+   "num_worlds": 8,
+   "world_voters": 1600,
+   "device": "cpu",
+   "games": 2,
+   "player": "BayesPlanner",
+   "decision_seconds_mean": 0.21879615833361943,
+   "allocate_seconds_mean": 0.0796693865209818
+  },
+  {
+   "num_worlds": 8,
+   "world_voters": 1600,
+   "device": "cuda:2",
+   "games": 2,
+   "player": "BayesPlanner, manifesto worlds on CPU (workaround)",
+   "decision_seconds_mean": 0.17973850294947624,
+   "allocate_seconds_mean": 0.015290197357535363
+  },
+  {
+   "num_worlds": 32,
+   "world_voters": 1600,
+   "device": "cpu",
+   "games": 2,
+   "player": "BayesPlanner",
+   "decision_seconds_mean": 0.7125125356018543,
+   "allocate_seconds_mean": 0.2921659708023071
+  },
+  {
+   "num_worlds": 32,
+   "world_voters": 1600,
+   "device": "cuda:2",
+   "games": 2,
+   "player": "BayesPlanner, manifesto worlds on CPU (workaround)",
+   "decision_seconds_mean": 0.5110647437473138,
+   "allocate_seconds_mean": 0.019188021123409272
+  },
+  {
+   "num_worlds": 8,
+   "world_voters": 4000,
+   "device": "cpu",
+   "games": 2,
+   "player": "BayesPlanner",
+   "decision_seconds_mean": 0.649359405785799,
+   "allocate_seconds_mean": 0.18789200372993947
+  },
+  {
+   "num_worlds": 8,
+   "world_voters": 4000,
+   "device": "cuda:2",
+   "games": 2,
+   "player": "BayesPlanner, manifesto worlds on CPU (workaround)",
+   "decision_seconds_mean": 0.5275707436104615,
+   "allocate_seconds_mean": 0.016009265556931496
+  },
+  {
+   "num_worlds": 32,
+   "world_voters": 4000,
+   "device": "cpu",
+   "games": 2,
+   "player": "BayesPlanner",
+   "decision_seconds_mean": 2.37301317229867,
+   "allocate_seconds_mean": 0.9947483651340008
+  },
+  {
+   "num_worlds": 32,
+   "world_voters": 4000,
+   "device": "cuda:2",
+   "games": 2,
+   "player": "BayesPlanner, manifesto worlds on CPU (workaround)",
+   "decision_seconds_mean": 1.7284144038955371,
+   "allocate_seconds_mean": 0.03449757806956768
+  }
+ ],
+ "logic": [
+  {
+   "worlds": 16,
+   "world_voters": 1600,
+   "device": "cpu",
+   "games": 2,
+   "timeline_seconds_mean": 3.2511047925800085
+  },
+  {
+   "worlds": 16,
+   "world_voters": 1600,
+   "device": "cuda:2",
+   "games": 2,
+   "timeline_seconds_mean": 2.7619950845837593
+  },
+  {
+   "worlds": 64,
+   "world_voters": 1600,
+   "device": "cpu",
+   "games": 2,
+   "timeline_seconds_mean": 13.306739177554846
+  },
+  {
+   "worlds": 64,
+   "world_voters": 1600,
+   "device": "cuda:2",
+   "games": 2,
+   "timeline_seconds_mean": 10.403637073934078
+  }
+ ],
+ "spectra": [
+  {
+   "n": 10000,
+   "gpu_lobpcg_seconds": 2.460820708423853,
+   "scipy_seconds": 0.4786102846264839,
+   "lambda2_L": [
+    5.819664977298487,
+    5.8196649762385135
+   ],
+   "mu2": [
+    0.7930498636534398,
+    0.7930498636543067
+   ],
+   "mu_min": [
+    -0.364663829389694,
+    -0.3646638294954657
+   ]
+  },
+  {
+   "n": 100000,
+   "gpu_lobpcg_seconds": 5.357124663889408,
+   "scipy_seconds": 7.157237891107798,
+   "lambda2_L": [
+    5.848764787051124,
+    5.848764785843599
+   ],
+   "mu2": [
+    0.7933439659729997,
+    0.7933439659747782
+   ],
+   "mu_min": [
+    -0.3674418564344557,
+    -0.3674418566543021
+   ]
+  }
+ ],
+ "provenance": {
+  "git": "d8d9c4e+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:2",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 1,
+  "threads_per_worker": 4,
+  "seconds": 282.40506022423506,
+  "args": {
+   "device": "cuda:2",
+   "quick": false,
+   "sections": "x_batch,parity,bayes,logic,spectra",
+   "out": "reports/v3/gpu_benchmarks.json"
+  },
+  "command": "python experiments/x_gpu_benchmarks.py --device cuda:2 --out reports/v3/gpu_benchmarks.json",
+  "compute": {
+   "device": "cuda:2",
+   "batch_sizes": "see x_batch[*].batched[*].B",
+   "wall_seconds": 282.40506022423506,
+   "free_bytes_at_start": 25178013696,
+   "peak_bytes": 4044078080,
+   "grad_mode": "no_grad",
+   "dtype": "float32",
+   "device_name": "NVIDIA RTX A5000",
+   "gpu_util_mean": 6.116788321167883,
+   "gpu_util_max": 91,
+   "samples": 137,
+   "gpu_mem_used_mib_max": 12960,
+   "interval_s": 2.0,
+   "device_selection": {
+    "requested": "cuda:2",
+    "need_bytes": 8589934592,
+    "free_bytes": {
+     "0": 25372393472,
+     "1": 137363456,
+     "2": 25392316416
+    },
+    "chosen": "cuda:2"
+   }
+  }
+ },
+ "section_provenance": {
+  "x_batch": {
+   "git": "d8d9c4e+uncommitted",
+   "torch": "2.7.1+cu118",
+   "cuda": "11.8",
+   "python": "3.12.15",
+   "device": "cuda:2",
+   "gpu": "NVIDIA RTX A5000",
+   "workers": 1,
+   "threads_per_worker": 4,
+   "seconds": 62.72215447947383,
+   "args": {
+    "device": "cuda:2",
+    "quick": false,
+    "sections": "x_batch",
+    "out": "reports/v3/gpu_benchmarks.json",
+    "merge": true
+   },
+   "command": "python experiments/x_gpu_benchmarks.py --device cuda:2 --sections x_batch --merge --out reports/v3/gpu_benchmarks.json",
+   "compute": {
+    "device": "cuda:2",
+    "batch_sizes": "see x_batch[*].batched[*].B",
+    "wall_seconds": 62.72215447947383,
+    "free_bytes_at_start": 25178013696,
+    "peak_bytes": 4047147008,
+    "grad_mode": "no_grad",
+    "dtype": "float32",
+    "device_name": "NVIDIA RTX A5000",
+    "gpu_util_mean": 2.806451612903226,
+    "gpu_util_max": 46,
+    "samples": 31,
+    "gpu_mem_used_mib_max": 12014,
+    "interval_s": 2.0,
+    "device_selection": {
+     "requested": "cuda:2",
+     "need_bytes": 8589934592,
+     "free_bytes": {
+      "0": 25372393472,
+      "1": 137363456,
+      "2": 25392316416
+     },
+     "chosen": "cuda:2"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,42 @@
+[x7] device cuda:0, seeds 10000..10049
+[oracle] T=500.00 W=10.00: ORACLE win 0.92
+[oracle] T=500.00 W=20.00: ORACLE win 0.92
+[oracle] T=500.00 W=50.00: ORACLE win 0.90
+[oracle] T=500.00 W=100.00: ORACLE win 0.88
+[oracle] T=750.00 W=10.00: ORACLE win 0.94
+[oracle] T=750.00 W=20.00: ORACLE win 0.96
+[oracle] T=750.00 W=50.00: ORACLE win 0.96
+[oracle] T=750.00 W=100.00: ORACLE win 0.92
+[oracle] T=1000.00 W=10.00: ORACLE win 0.98
+[oracle] T=1000.00 W=20.00: ORACLE win 0.98
+[oracle] T=1000.00 W=50.00: ORACLE win 0.96
+[oracle] T=1000.00 W=100.00: ORACLE win 0.94
+[x7] pilot: seed 10000, 24 games in 42s (1.73 s/game); estimated remaining 20 min with 2 processes
+[x7 bayes] [2/49] 44s
+[x7 bayes] [4/49] 78s
+[x7 bayes] [6/49] 116s
+[x7 bayes] [8/49] 154s
+[x7 bayes] [10/49] 189s
+[x7 bayes] [12/49] 222s
+[x7 bayes] [14/49] 255s
+[x7 bayes] [16/49] 289s
+[x7 bayes] [18/49] 321s
+[x7 bayes] [20/49] 359s
+[x7 bayes] [22/49] 392s
+[x7 bayes] [24/49] 424s
+[x7 bayes] [26/49] 460s
+[x7 bayes] [28/49] 494s
+[x7 bayes] [30/49] 541s
+[x7 bayes] [32/49] 574s
+[x7 bayes] [34/49] 610s
+[x7 bayes] [36/49] 643s
+[x7 bayes] [38/49] 677s
+[x7 bayes] [40/49] 714s
+[x7 bayes] [42/49] 747s
+[x7 bayes] [44/49] 780s
+[x7 bayes] [46/49] 814s
+[x7 bayes] [48/49] 848s
+[x7 bayes] [49/49] 848s
+[x7] parity passed: True
+saved reports/v3/x7.json
+[x7] done in 16.5 min

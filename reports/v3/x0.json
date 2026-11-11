@@ -1,0 +1,1505 @@
+{
+ "experiment": "X0",
+ "title": "Balance gate at the new prices",
+ "prices": {
+  "worker": "20.00",
+  "query": "10.00"
+ },
+ "n": 10000,
+ "rounds": 5,
+ "seeds": [
+  10000,
+  10001,
+  10002,
+  10003,
+  10004,
+  10005,
+  10006,
+  10007,
+  10008,
+  10009,
+  10010,
+  10011,
+  10012,
+  10013,
+  10014,
+  10015,
+  10016,
+  10017,
+  10018,
+  10019,
+  10020,
+  10021,
+  10022,
+  10023,
+  10024,
+  10025,
+  10026,
+  10027,
+  10028,
+  10029,
+  10030,
+  10031,
+  10032,
+  10033,
+  10034,
+  10035,
+  10036,
+  10037,
+  10038,
+  10039,
+  10040,
+  10041,
+  10042,
+  10043,
+  10044,
+  10045,
+  10046,
+  10047,
+  10048,
+  10049,
+  10050,
+  10051,
+  10052,
+  10053,
+  10054,
+  10055,
+  10056,
+  10057,
+  10058,
+  10059,
+  10060,
+  10061,
+  10062,
+  10063,
+  10064,
+  10065,
+  10066,
+  10067,
+  10068,
+  10069,
+  10070,
+  10071,
+  10072,
+  10073,
+  10074,
+  10075,
+  10076,
+  10077,
+  10078,
+  10079,
+  10080,
+  10081,
+  10082,
+  10083,
+  10084,
+  10085,
+  10086,
+  10087,
+  10088,
+  10089,
+  10090,
+  10091,
+  10092,
+  10093,
+  10094,
+  10095,
+  10096,
+  10097,
+  10098,
+  10099
+ ],
+ "treasuries": [
+  "500",
+  "750",
+  "1000"
+ ],
+ "generation": "cpu",
+ "runs": [
+  "uniform/none",
+  "uniform/planner",
+  "top3/planner",
+  "informed/planner",
+  "oracle/none",
+  "oracle/planner",
+  "informed/free_even",
+  "informed/pay_workers",
+  "informed/front_workers",
+  "informed/pay_media",
+  "informed/pay_split"
+ ],
+ "gate_criteria": [
+  "1_uniform_no_campaign_le_30pct",
+  "2_oracle_planner_ge_85pct",
+  "3_informed_beats_top3_p_lt_0.01",
+  "4a_no_paid_pattern_ge_80pct",
+  "4b_workers_and_media_each_best_sometimes"
+ ],
+ "gate_by_treasury": {
+  "500": {
+   "1_uniform_no_campaign_le_30pct": true,
+   "2_oracle_planner_ge_85pct": true,
+   "3_informed_beats_top3_p_lt_0.01": true,
+   "4a_no_paid_pattern_ge_80pct": false,
+   "4b_workers_and_media_each_best_sometimes": false
+  },
+  "750": {
+   "1_uniform_no_campaign_le_30pct": true,
+   "2_oracle_planner_ge_85pct": true,
+   "3_informed_beats_top3_p_lt_0.01": true,
+   "4a_no_paid_pattern_ge_80pct": false,
+   "4b_workers_and_media_each_best_sometimes": false
+  },
+  "1000": {
+   "1_uniform_no_campaign_le_30pct": true,
+   "2_oracle_planner_ge_85pct": true,
+   "3_informed_beats_top3_p_lt_0.01": true,
+   "4a_no_paid_pattern_ge_80pct": false,
+   "4b_workers_and_media_each_best_sometimes": false
+  }
+ },
+ "per_treasury": {
+  "500": {
+   "num_seeds": 100,
+   "gate": {
+    "1_uniform_no_campaign_le_30pct": true,
+    "2_oracle_planner_ge_85pct": true,
+    "3_informed_beats_top3_p_lt_0.01": true,
+    "4a_no_paid_pattern_ge_80pct": false,
+    "4b_workers_and_media_each_best_sometimes": false
+   },
+   "gate_passed_all": false,
+   "gate_failed": [
+    "4a_no_paid_pattern_ge_80pct",
+    "4b_workers_and_media_each_best_sometimes"
+   ],
+   "summary": {
+    "informed/free_even": {
+     "rate": 0.44,
+     "k": 44,
+     "n": 100,
+     "ci95": [
+      0.34671865400968327,
+      0.537720722887437
+     ],
+     "mean_expected_share": 0.47351067066192626,
+     "expected_ci95": [
+      0.4602405186367625,
+      0.48678082268709
+     ]
+    },
+    "informed/front_workers": {
+     "rate": 0.86,
+     "k": 86,
+     "n": 100,
+     "ci95": [
+      0.7786263961619276,
+      0.914737342455351
+     ],
+     "mean_expected_share": 0.6019478443264962,
+     "expected_ci95": [
+      0.5871419932667624,
+      0.6167536953862299
+     ]
+    },
+    "informed/pay_media": {
+     "rate": 0.7,
+     "k": 70,
+     "n": 100,
+     "ci95": [
+      0.6041496156718804,
+      0.7810524613377188
+     ],
+     "mean_expected_share": 0.5259302711486816,
+     "expected_ci95": [
+      0.5128925036568781,
+      0.5389680386404851
+     ]
+    },
+    "informed/pay_split": {
+     "rate": 0.88,
+     "k": 88,
+     "n": 100,
+     "ci95": [
+      0.8018773199709163,
+      0.9300066263473222
+     ],
+     "mean_expected_share": 0.6226939344406128,
+     "expected_ci95": [
+      0.6070565610696596,
+      0.6383313078115661
+     ]
+    },
+    "informed/pay_workers": {
+     "rate": 0.86,
+     "k": 86,
+     "n": 100,
+     "ci95": [
+      0.7786263961619276,
+      0.914737342455351
+     ],
+     "mean_expected_share": 0.5998239710927009,
+     "expected_ci95": [
+      0.5842096205523083,
+      0.6154383216330935
+     ]
+    },
+    "informed/planner": {
+     "rate": 0.94,
+     "k": 94,
+     "n": 100,
+     "ci95": [
+      0.8752303146877748,
+      0.9722142547333433
+     ],
+     "mean_expected_share": 0.6324709817767143,
+     "expected_ci95": [
+      0.6178179563520572,
+      0.6471240072013715
+     ]
+    },
+    "oracle/none": {
+     "rate": 0.44,
+     "k": 44,
+     "n": 100,
+     "ci95": [
+      0.34671865400968327,
+      0.537720722887437
+     ],
+     "mean_expected_share": 0.47558061838150023,
+     "expected_ci95": [
+      0.4625197693885001,
+      0.48864146737450037
+     ]
+    },
+    "oracle/planner": {
+     "rate": 0.94,
+     "k": 94,
+     "n": 100,
+     "ci95": [
+      0.8752303146877748,
+      0.9722142547333433
+     ],
+     "mean_expected_share": 0.6329164397716522,
+     "expected_ci95": [
+      0.6182416986597812,
+      0.6475911808835233
+     ]
+    },
+    "top3/planner": {
+     "rate": 0.95,
+     "k": 95,
+     "n": 100,
+     "ci95": [
+      0.8882480347279118,
+      0.9784566385436864
+     ],
+     "mean_expected_share": 0.6176306429505348,
+     "expected_ci95": [
+      0.6044666317101581,
+      0.6307946541909115
+     ]
+    },
+    "uniform/none": {
+     "rate": 0.07,
+     "k": 7,
+     "n": 100,
+     "ci95": [
+      0.034318824364064096,
+      0.13749671006529757
+     ],
+     "mean_expected_share": 0.40030467793345453,
+     "expected_ci95": [
+      0.3851206581399323,
+      0.4154886977269768
+     ]
+    },
+    "uniform/planner": {
+     "rate": 0.83,
+     "k": 83,
+     "n": 100,
+     "ci95": [
+      0.7445181876635703,
+      0.8910652394022684
+     ],
+     "mean_expected_share": 0.5698608866333962,
+     "expected_ci95": [
+      0.555256479415046,
+      0.5844652938517464
+     ]
+    }
+   },
+   "informed_vs_top3": {
+    "mean_diff": 0.014840338826179505,
+    "wilcoxon_p": 7.488998843388211e-11,
+    "paired": {
+     "mean": 0.014840338826179505,
+     "ci95": [
+      0.010365343608324914,
+      0.019315334044034096
+     ],
+     "sd": 0.02255295326590548,
+     "n": 100,
+     "wilcoxon_p": 1.4977997686776422e-10,
+     "a_better": 82,
+     "wilcoxon_p_one_sided_greater": 7.488998843388211e-11
+    },
+    "mcnemar_wins": {
+     "a_only": 2,
+     "b_only": 3,
+     "p": 1.0
+    },
+    "wilcoxon_p_holm": 2.2466996530164634e-10
+   },
+   "max_paid_pattern": {
+    "pattern": "pay_split",
+    "rate": 0.88,
+    "ci95": [
+     0.8018773199709163,
+     0.9300066263473222
+    ]
+   },
+   "best_paid_pattern_counts": {
+    "pay_workers": 4,
+    "front_workers": 6,
+    "pay_media": 0,
+    "pay_split": 90
+   },
+   "best_pattern_by_largest_region_personality": {
+    "P2": {
+     "pay_workers": 1,
+     "front_workers": 5,
+     "pay_media": 0,
+     "pay_split": 18
+    },
+    "P3": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 0,
+     "pay_split": 27
+    },
+    "P0": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 0,
+     "pay_split": 25
+    },
+    "P1": {
+     "pay_workers": 3,
+     "front_workers": 1,
+     "pay_media": 0,
+     "pay_split": 20
+    }
+   },
+   "best_paid_pattern_per_seed": {
+    "10000": "pay_split",
+    "10001": "pay_split",
+    "10002": "pay_split",
+    "10003": "pay_split",
+    "10004": "pay_split",
+    "10005": "pay_split",
+    "10006": "pay_split",
+    "10007": "pay_split",
+    "10008": "pay_split",
+    "10009": "pay_split",
+    "10010": "pay_split",
+    "10011": "pay_split",
+    "10012": "pay_split",
+    "10013": "pay_split",
+    "10014": "pay_split",
+    "10015": "pay_split",
+    "10016": "pay_split",
+    "10017": "pay_split",
+    "10018": "pay_split",
+    "10019": "pay_split",
+    "10020": "pay_split",
+    "10021": "pay_split",
+    "10022": "pay_split",
+    "10023": "pay_split",
+    "10024": "pay_split",
+    "10025": "pay_split",
+    "10026": "pay_split",
+    "10027": "pay_split",
+    "10028": "pay_split",
+    "10029": "pay_split",
+    "10030": "front_workers",
+    "10031": "pay_workers",
+    "10032": "pay_split",
+    "10033": "pay_split",
+    "10034": "pay_split",
+    "10035": "pay_split",
+    "10036": "pay_split",
+    "10037": "pay_split",
+    "10038": "pay_split",
+    "10039": "pay_split",
+    "10040": "pay_split",
+    "10041": "pay_split",
+    "10042": "pay_split",
+    "10043": "front_workers",
+    "10044": "pay_split",
+    "10045": "pay_split",
+    "10046": "pay_split",
+    "10047": "pay_split",
+    "10048": "pay_split",
+    "10049": "pay_split",
+    "10050": "pay_split",
+    "10051": "pay_split",
+    "10052": "pay_workers",
+    "10053": "pay_split",
+    "10054": "pay_split",
+    "10055": "pay_split",
+    "10056": "pay_split",
+    "10057": "front_workers",
+    "10058": "pay_split",
+    "10059": "pay_split",
+    "10060": "pay_split",
+    "10061": "pay_split",
+    "10062": "pay_split",
+    "10063": "pay_split",
+    "10064": "pay_split",
+    "10065": "pay_split",
+    "10066": "pay_split",
+    "10067": "pay_split",
+    "10068": "pay_split",
+    "10069": "pay_split",
+    "10070": "pay_split",
+    "10071": "pay_split",
+    "10072": "front_workers",
+    "10073": "pay_split",
+    "10074": "pay_split",
+    "10075": "pay_split",
+    "10076": "pay_split",
+    "10077": "pay_split",
+    "10078": "pay_split",
+    "10079": "pay_workers",
+    "10080": "pay_split",
+    "10081": "pay_workers",
+    "10082": "pay_split",
+    "10083": "pay_split",
+    "10084": "pay_split",
+    "10085": "pay_split",
+    "10086": "pay_split",
+    "10087": "pay_split",
+    "10088": "pay_split",
+    "10089": "pay_split",
+    "10090": "pay_split",
+    "10091": "pay_split",
+    "10092": "pay_split",
+    "10093": "front_workers",
+    "10094": "pay_split",
+    "10095": "pay_split",
+    "10096": "pay_split",
+    "10097": "front_workers",
+    "10098": "pay_split",
+    "10099": "pay_split"
+   }
+  },
+  "750": {
+   "num_seeds": 100,
+   "gate": {
+    "1_uniform_no_campaign_le_30pct": true,
+    "2_oracle_planner_ge_85pct": true,
+    "3_informed_beats_top3_p_lt_0.01": true,
+    "4a_no_paid_pattern_ge_80pct": false,
+    "4b_workers_and_media_each_best_sometimes": false
+   },
+   "gate_passed_all": false,
+   "gate_failed": [
+    "4a_no_paid_pattern_ge_80pct",
+    "4b_workers_and_media_each_best_sometimes"
+   ],
+   "summary": {
+    "informed/free_even": {
+     "rate": 0.44,
+     "k": 44,
+     "n": 100,
+     "ci95": [
+      0.34671865400968327,
+      0.537720722887437
+     ],
+     "mean_expected_share": 0.4735106724500656,
+     "expected_ci95": [
+      0.46024052029947954,
+      0.4867808246006517
+     ]
+    },
+    "informed/front_workers": {
+     "rate": 0.87,
+     "k": 87,
+     "n": 100,
+     "ci95": [
+      0.7901947810519012,
+      0.9224290614158575
+     ],
+     "mean_expected_share": 0.6023001298308372,
+     "expected_ci95": [
+      0.5877695828665277,
+      0.6168306767951468
+     ]
+    },
+    "informed/pay_media": {
+     "rate": 0.75,
+     "k": 75,
+     "n": 100,
+     "ci95": [
+      0.6569535362992417,
+      0.8245490599627573
+     ],
+     "mean_expected_share": 0.5519386979937554,
+     "expected_ci95": [
+      0.5392413332377812,
+      0.5646360627497296
+     ]
+    },
+    "informed/pay_split": {
+     "rate": 0.88,
+     "k": 88,
+     "n": 100,
+     "ci95": [
+      0.8018773199709163,
+      0.9300066263473222
+     ],
+     "mean_expected_share": 0.6224009737372398,
+     "expected_ci95": [
+      0.6070977300573537,
+      0.6377042174171259
+     ]
+    },
+    "informed/pay_workers": {
+     "rate": 0.86,
+     "k": 86,
+     "n": 100,
+     "ci95": [
+      0.7786263961619276,
+      0.914737342455351
+     ],
+     "mean_expected_share": 0.6023386231064797,
+     "expected_ci95": [
+      0.5873426226116335,
+      0.6173346236013258
+     ]
+    },
+    "informed/planner": {
+     "rate": 0.96,
+     "k": 96,
+     "n": 100,
+     "ci95": [
+      0.9016278276739262,
+      0.984336949448152
+     ],
+     "mean_expected_share": 0.640500259399414,
+     "expected_ci95": [
+      0.6262213039251594,
+      0.6547792148736686
+     ]
+    },
+    "oracle/none": {
+     "rate": 0.44,
+     "k": 44,
+     "n": 100,
+     "ci95": [
+      0.34671865400968327,
+      0.537720722887437
+     ],
+     "mean_expected_share": 0.47558061897754667,
+     "expected_ci95": [
+      0.4625197699441176,
+      0.48864146801097574
+     ]
+    },
+    "oracle/planner": {
+     "rate": 0.98,
+     "k": 98,
+     "n": 100,
+     "ci95": [
+      0.9299868370580063,
+      0.9944981477650318
+     ],
+     "mean_expected_share": 0.6413879817724228,
+     "expected_ci95": [
+      0.6273652868752707,
+      0.655410676669575
+     ]
+    },
+    "top3/planner": {
+     "rate": 0.98,
+     "k": 98,
+     "n": 100,
+     "ci95": [
+      0.9299868370580063,
+      0.9944981477650318
+     ],
+     "mean_expected_share": 0.6295351308584213,
+     "expected_ci95": [
+      0.6171583384072549,
+      0.6419119233095877
+     ]
+    },
+    "uniform/none": {
+     "rate": 0.07,
+     "k": 7,
+     "n": 100,
+     "ci95": [
+      0.034318824364064096,
+      0.13749671006529757
+     ],
+     "mean_expected_share": 0.40030467823147775,
+     "expected_ci95": [
+      0.3851206585127545,
+      0.415488697950201
+     ]
+    },
+    "uniform/planner": {
+     "rate": 0.88,
+     "k": 88,
+     "n": 100,
+     "ci95": [
+      0.8018773199709163,
+      0.9300066263473222
+     ],
+     "mean_expected_share": 0.5870102909207344,
+     "expected_ci95": [
+      0.5735444607644103,
+      0.6004761210770585
+     ]
+    }
+   },
+   "informed_vs_top3": {
+    "mean_diff": 0.010965128540992736,
+    "wilcoxon_p": 6.178197693061115e-08,
+    "paired": {
+     "mean": 0.010965128540992736,
+     "ci95": [
+      0.006609515513265413,
+      0.01532074156872006
+     ],
+     "sd": 0.02195129430904686,
+     "n": 100,
+     "wilcoxon_p": 1.235639538612223e-07,
+     "a_better": 80,
+     "wilcoxon_p_one_sided_greater": 6.178197693061115e-08
+    },
+    "mcnemar_wins": {
+     "a_only": 1,
+     "b_only": 3,
+     "p": 0.625
+    },
+    "wilcoxon_p_holm": 1.235639538612223e-07
+   },
+   "max_paid_pattern": {
+    "pattern": "pay_split",
+    "rate": 0.88,
+    "ci95": [
+     0.8018773199709163,
+     0.9300066263473222
+    ]
+   },
+   "best_paid_pattern_counts": {
+    "pay_workers": 2,
+    "front_workers": 4,
+    "pay_media": 0,
+    "pay_split": 94
+   },
+   "best_pattern_by_largest_region_personality": {
+    "P2": {
+     "pay_workers": 0,
+     "front_workers": 3,
+     "pay_media": 0,
+     "pay_split": 21
+    },
+    "P3": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 0,
+     "pay_split": 27
+    },
+    "P0": {
+     "pay_workers": 2,
+     "front_workers": 1,
+     "pay_media": 0,
+     "pay_split": 22
+    },
+    "P1": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 0,
+     "pay_split": 24
+    }
+   },
+   "best_paid_pattern_per_seed": {
+    "10000": "pay_split",
+    "10001": "pay_split",
+    "10002": "pay_split",
+    "10003": "pay_split",
+    "10004": "pay_split",
+    "10005": "pay_split",
+    "10006": "pay_split",
+    "10007": "pay_split",
+    "10008": "pay_split",
+    "10009": "pay_split",
+    "10010": "pay_split",
+    "10011": "pay_split",
+    "10012": "pay_split",
+    "10013": "pay_split",
+    "10014": "pay_split",
+    "10015": "pay_split",
+    "10016": "pay_split",
+    "10017": "pay_split",
+    "10018": "pay_split",
+    "10019": "pay_split",
+    "10020": "pay_split",
+    "10021": "pay_split",
+    "10022": "pay_split",
+    "10023": "pay_split",
+    "10024": "pay_split",
+    "10025": "pay_split",
+    "10026": "pay_split",
+    "10027": "pay_split",
+    "10028": "pay_split",
+    "10029": "pay_split",
+    "10030": "front_workers",
+    "10031": "pay_split",
+    "10032": "pay_split",
+    "10033": "pay_split",
+    "10034": "front_workers",
+    "10035": "pay_split",
+    "10036": "pay_split",
+    "10037": "pay_split",
+    "10038": "pay_split",
+    "10039": "pay_split",
+    "10040": "pay_split",
+    "10041": "pay_split",
+    "10042": "pay_split",
+    "10043": "pay_split",
+    "10044": "pay_split",
+    "10045": "pay_split",
+    "10046": "pay_split",
+    "10047": "pay_split",
+    "10048": "pay_split",
+    "10049": "pay_split",
+    "10050": "pay_split",
+    "10051": "pay_split",
+    "10052": "pay_split",
+    "10053": "pay_workers",
+    "10054": "pay_split",
+    "10055": "pay_split",
+    "10056": "pay_split",
+    "10057": "pay_split",
+    "10058": "pay_split",
+    "10059": "pay_split",
+    "10060": "pay_split",
+    "10061": "pay_split",
+    "10062": "pay_split",
+    "10063": "pay_split",
+    "10064": "pay_split",
+    "10065": "pay_split",
+    "10066": "pay_workers",
+    "10067": "pay_split",
+    "10068": "pay_split",
+    "10069": "pay_split",
+    "10070": "pay_split",
+    "10071": "pay_split",
+    "10072": "pay_split",
+    "10073": "pay_split",
+    "10074": "pay_split",
+    "10075": "pay_split",
+    "10076": "pay_split",
+    "10077": "pay_split",
+    "10078": "pay_split",
+    "10079": "pay_split",
+    "10080": "pay_split",
+    "10081": "pay_split",
+    "10082": "pay_split",
+    "10083": "pay_split",
+    "10084": "pay_split",
+    "10085": "pay_split",
+    "10086": "pay_split",
+    "10087": "pay_split",
+    "10088": "front_workers",
+    "10089": "pay_split",
+    "10090": "pay_split",
+    "10091": "pay_split",
+    "10092": "pay_split",
+    "10093": "pay_split",
+    "10094": "pay_split",
+    "10095": "pay_split",
+    "10096": "pay_split",
+    "10097": "pay_split",
+    "10098": "pay_split",
+    "10099": "front_workers"
+   }
+  },
+  "1000": {
+   "num_seeds": 100,
+   "gate": {
+    "1_uniform_no_campaign_le_30pct": true,
+    "2_oracle_planner_ge_85pct": true,
+    "3_informed_beats_top3_p_lt_0.01": true,
+    "4a_no_paid_pattern_ge_80pct": false,
+    "4b_workers_and_media_each_best_sometimes": false
+   },
+   "gate_passed_all": false,
+   "gate_failed": [
+    "4a_no_paid_pattern_ge_80pct",
+    "4b_workers_and_media_each_best_sometimes"
+   ],
+   "summary": {
+    "informed/free_even": {
+     "rate": 0.44,
+     "k": 44,
+     "n": 100,
+     "ci95": [
+      0.34671865400968327,
+      0.537720722887437
+     ],
+     "mean_expected_share": 0.4735106712579727,
+     "expected_ci95": [
+      0.4602405191327459,
+      0.4867808233831995
+     ]
+    },
+    "informed/front_workers": {
+     "rate": 0.86,
+     "k": 86,
+     "n": 100,
+     "ci95": [
+      0.7786263961619276,
+      0.914737342455351
+     ],
+     "mean_expected_share": 0.602188221514225,
+     "expected_ci95": [
+      0.5878502586394466,
+      0.6165261843890034
+     ]
+    },
+    "informed/pay_media": {
+     "rate": 0.81,
+     "k": 81,
+     "n": 100,
+     "ci95": [
+      0.7222097592919214,
+      0.8748534600729574
+     ],
+     "mean_expected_share": 0.5772412559390068,
+     "expected_ci95": [
+      0.5647458270013804,
+      0.5897366848766331
+     ]
+    },
+    "informed/pay_split": {
+     "rate": 0.95,
+     "k": 95,
+     "n": 100,
+     "ci95": [
+      0.8882480347279118,
+      0.9784566385436864
+     ],
+     "mean_expected_share": 0.6385861110687255,
+     "expected_ci95": [
+      0.6239740552439601,
+      0.653198166893491
+     ]
+    },
+    "informed/pay_workers": {
+     "rate": 0.87,
+     "k": 87,
+     "n": 100,
+     "ci95": [
+      0.7901947810519012,
+      0.9224290614158575
+     ],
+     "mean_expected_share": 0.603243787586689,
+     "expected_ci95": [
+      0.5885706758281744,
+      0.6179168993452036
+     ]
+    },
+    "informed/planner": {
+     "rate": 0.97,
+     "k": 97,
+     "n": 100,
+     "ci95": [
+      0.915479219195973,
+      0.9897456617765851
+     ],
+     "mean_expected_share": 0.6437191674113274,
+     "expected_ci95": [
+      0.6297934818337304,
+      0.6576448529889244
+     ]
+    },
+    "oracle/none": {
+     "rate": 0.44,
+     "k": 44,
+     "n": 100,
+     "ci95": [
+      0.34671865400968327,
+      0.537720722887437
+     ],
+     "mean_expected_share": 0.47558061897754667,
+     "expected_ci95": [
+      0.4625197697622151,
+      0.48864146819287824
+     ]
+    },
+    "oracle/planner": {
+     "rate": 0.99,
+     "k": 99,
+     "n": 100,
+     "ci95": [
+      0.9455124752390653,
+      0.9982326134344526
+     ],
+     "mean_expected_share": 0.6443519607186318,
+     "expected_ci95": [
+      0.630636190302169,
+      0.6580677311350945
+     ]
+    },
+    "top3/planner": {
+     "rate": 1.0,
+     "k": 100,
+     "n": 100,
+     "ci95": [
+      0.9630051925239981,
+      0.9999999999999999
+     ],
+     "mean_expected_share": 0.6335067796707153,
+     "expected_ci95": [
+      0.6216211056911698,
+      0.6453924536502609
+     ]
+    },
+    "uniform/none": {
+     "rate": 0.07,
+     "k": 7,
+     "n": 100,
+     "ci95": [
+      0.034318824364064096,
+      0.13749671006529757
+     ],
+     "mean_expected_share": 0.40030467823147775,
+     "expected_ci95": [
+      0.3851206585127545,
+      0.415488697950201
+     ]
+    },
+    "uniform/planner": {
+     "rate": 0.9,
+     "k": 90,
+     "n": 100,
+     "ci95": [
+      0.8256326956323347,
+      0.9447714583868639
+     ],
+     "mean_expected_share": 0.5927193140983582,
+     "expected_ci95": [
+      0.5802088039135795,
+      0.6052298242831369
+     ]
+    }
+   },
+   "informed_vs_top3": {
+    "mean_diff": 0.01021238774061203,
+    "wilcoxon_p": 2.7757397597063653e-07,
+    "paired": {
+     "mean": 0.01021238774061203,
+     "ci95": [
+      0.005806039600344985,
+      0.014618735880879075
+     ],
+     "sd": 0.022206987682189136,
+     "n": 100,
+     "wilcoxon_p": 5.551479519412731e-07,
+     "a_better": 77,
+     "wilcoxon_p_one_sided_greater": 2.7757397597063653e-07
+    },
+    "mcnemar_wins": {
+     "a_only": 0,
+     "b_only": 3,
+     "p": 0.25
+    },
+    "wilcoxon_p_holm": 2.7757397597063653e-07
+   },
+   "max_paid_pattern": {
+    "pattern": "pay_split",
+    "rate": 0.95,
+    "ci95": [
+     0.8882480347279118,
+     0.9784566385436864
+    ]
+   },
+   "best_paid_pattern_counts": {
+    "pay_workers": 0,
+    "front_workers": 0,
+    "pay_media": 1,
+    "pay_split": 99
+   },
+   "best_pattern_by_largest_region_personality": {
+    "P2": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 1,
+     "pay_split": 23
+    },
+    "P3": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 0,
+     "pay_split": 27
+    },
+    "P0": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 0,
+     "pay_split": 25
+    },
+    "P1": {
+     "pay_workers": 0,
+     "front_workers": 0,
+     "pay_media": 0,
+     "pay_split": 24
+    }
+   },
+   "best_paid_pattern_per_seed": {
+    "10000": "pay_split",
+    "10001": "pay_split",
+    "10002": "pay_split",
+    "10003": "pay_split",
+    "10004": "pay_split",
+    "10005": "pay_split",
+    "10006": "pay_split",
+    "10007": "pay_split",
+    "10008": "pay_split",
+    "10009": "pay_split",
+    "10010": "pay_split",
+    "10011": "pay_split",
+    "10012": "pay_split",
+    "10013": "pay_split",
+    "10014": "pay_split",
+    "10015": "pay_split",
+    "10016": "pay_split",
+    "10017": "pay_split",
+    "10018": "pay_split",
+    "10019": "pay_split",
+    "10020": "pay_split",
+    "10021": "pay_split",
+    "10022": "pay_split",
+    "10023": "pay_split",
+    "10024": "pay_split",
+    "10025": "pay_split",
+    "10026": "pay_split",
+    "10027": "pay_split",
+    "10028": "pay_split",
+    "10029": "pay_split",
+    "10030": "pay_split",
+    "10031": "pay_split",
+    "10032": "pay_split",
+    "10033": "pay_split",
+    "10034": "pay_split",
+    "10035": "pay_split",
+    "10036": "pay_split",
+    "10037": "pay_split",
+    "10038": "pay_split",
+    "10039": "pay_split",
+    "10040": "pay_split",
+    "10041": "pay_split",
+    "10042": "pay_split",
+    "10043": "pay_split",
+    "10044": "pay_split",
+    "10045": "pay_split",
+    "10046": "pay_split",
+    "10047": "pay_split",
+    "10048": "pay_split",
+    "10049": "pay_split",
+    "10050": "pay_media",
+    "10051": "pay_split",
+    "10052": "pay_split",
+    "10053": "pay_split",
+    "10054": "pay_split",
+    "10055": "pay_split",
+    "10056": "pay_split",
+    "10057": "pay_split",
+    "10058": "pay_split",
+    "10059": "pay_split",
+    "10060": "pay_split",
+    "10061": "pay_split",
+    "10062": "pay_split",
+    "10063": "pay_split",
+    "10064": "pay_split",
+    "10065": "pay_split",
+    "10066": "pay_split",
+    "10067": "pay_split",
+    "10068": "pay_split",
+    "10069": "pay_split",
+    "10070": "pay_split",
+    "10071": "pay_split",
+    "10072": "pay_split",
+    "10073": "pay_split",
+    "10074": "pay_split",
+    "10075": "pay_split",
+    "10076": "pay_split",
+    "10077": "pay_split",
+    "10078": "pay_split",
+    "10079": "pay_split",
+    "10080": "pay_split",
+    "10081": "pay_split",
+    "10082": "pay_split",
+    "10083": "pay_split",
+    "10084": "pay_split",
+    "10085": "pay_split",
+    "10086": "pay_split",
+    "10087": "pay_split",
+    "10088": "pay_split",
+    "10089": "pay_split",
+    "10090": "pay_split",
+    "10091": "pay_split",
+    "10092": "pay_split",
+    "10093": "pay_split",
+    "10094": "pay_split",
+    "10095": "pay_split",
+    "10096": "pay_split",
+    "10097": "pay_split",
+    "10098": "pay_split",
+    "10099": "pay_split"
+   }
+  }
+ },
+ "holm_family": "informed-vs-top3 one-sided Wilcoxon, one test per treasury (3 tests)",
+ "zealot_sweep_oracle_planner": {
+  "0.0": {
+   "rate": 0.9,
+   "k": 36,
+   "n": 40,
+   "ci95": [
+    0.7694792561952611,
+    0.9604211124044252
+   ],
+   "win_rate": 0.9,
+   "mean_campaign_gain": 0.28243037723004816,
+   "campaign_gain": {
+    "mean": 0.28243037723004816,
+    "ci95": [
+     0.27145168982341866,
+     0.29340906463667765
+    ],
+    "sd": 0.034328188830081215,
+    "n": 40
+   }
+  },
+  "0.05": {
+   "rate": 0.9,
+   "k": 36,
+   "n": 40,
+   "ci95": [
+    0.7694792561952611,
+    0.9604211124044252
+   ],
+   "win_rate": 0.9,
+   "mean_campaign_gain": 0.2660275213420391,
+   "campaign_gain": {
+    "mean": 0.2660275213420391,
+    "ci95": [
+     0.2549210100866083,
+     0.27713403259746994
+    ],
+    "sd": 0.03472786877870526,
+    "n": 40
+   }
+  },
+  "0.15": {
+   "rate": 0.825,
+   "k": 33,
+   "n": 40,
+   "ci95": [
+    0.6804970794560755,
+    0.9125469700311694
+   ],
+   "win_rate": 0.825,
+   "mean_campaign_gain": 0.23323521837592126,
+   "campaign_gain": {
+    "mean": 0.23323521837592126,
+    "ci95": [
+     0.22253424728937252,
+     0.24393618946247
+    ],
+    "sd": 0.03345982470568055,
+    "n": 40
+   }
+  },
+  "0.3": {
+   "rate": 0.75,
+   "k": 30,
+   "n": 40,
+   "ci95": [
+    0.598057409330299,
+    0.8581303210445048
+   ],
+   "win_rate": 0.75,
+   "mean_campaign_gain": 0.18341804817318916,
+   "campaign_gain": {
+    "mean": 0.18341804817318916,
+    "ci95": [
+     0.1737451752217653,
+     0.193090921124613
+    ],
+    "sd": 0.030245164736665463,
+    "n": 40
+   }
+  }
+ },
+ "zealot_sweep_note": "oracle manifesto + ORACLE planner, treasury \u20ab500, first 40 seeds; not one of the five gate criteria",
+ "config": {
+  "seed": 20261107,
+  "rounds": 5,
+  "budget": "500.00",
+  "device": "cuda:2",
+  "dtype": "float32",
+  "generation": "cpu",
+  "electorate": {
+   "num_voters": 10000,
+   "min_region_fraction": 0.15,
+   "region_dirichlet_a": 2.0,
+   "mean_degree": 30.0,
+   "intra_prob_range": [
+    0.5,
+    0.9
+   ],
+   "inter_prob_range": [
+    0.01,
+    0.2
+   ],
+   "dirichlet_concentration": 60.0,
+   "zealot_fraction": 0.05
+  },
+  "dynamics": {
+   "social_step": 0.15,
+   "social_rule": "degroot",
+   "wmsr_trim": 1
+  },
+  "workers": {
+   "worker_cost": "20.00",
+   "min_degree": 3,
+   "attempt_cap": 3,
+   "conversion_rule": "gamma_p"
+  },
+  "media": {
+   "base_cost": "50.00",
+   "exposure_prob": 0.6,
+   "strength": 0.25,
+   "decay": 0.5
+  },
+  "voting": {
+   "sensitivity": 20.0,
+   "threshold": 0.825
+  },
+  "survey": {
+   "query_cost": "10.00",
+   "query_sample_fraction": 0.1,
+   "poll_size": 400,
+   "consistency_tolerance": 0.02
+  }
+ },
+ "provenance": {
+  "git": "d8d9c4e+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:2",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 1,
+  "threads_per_worker": 4,
+  "seconds": 288.6818241737783,
+  "args": {
+   "seeds": 100,
+   "first_seed": 10000,
+   "n": 10000,
+   "rounds": 5,
+   "treasuries": [
+    "500",
+    "750",
+    "1000"
+   ],
+   "device": "cuda:2",
+   "zealots": [
+    0.0,
+    0.05,
+    0.15,
+    0.3
+   ],
+   "zealot_seeds": 40,
+   "zealot_treasury": "500",
+   "parity_seeds": 3,
+   "set": [],
+   "out": "../reports/v3/x0.json",
+   "raw": "/data/ai23btech11017/MAS/CLOUT/reports/v3/raw/x0.jsonl"
+  },
+  "command": "python experiments/x0_balance.py --seeds 100 --first-seed 10000 --device cuda:2 --treasuries 500 750 1000 --out ../reports/v3/x0.json",
+  "compute": {
+   "device": "cuda:2",
+   "batch_sizes": {
+    "prepare_chunk": 100,
+    "run_batch_B": [
+     100
+    ]
+   },
+   "wall_seconds": 288.6818241737783,
+   "free_bytes_at_start": 25178013696,
+   "peak_bytes": 1736741376,
+   "grad_mode": "no_grad",
+   "dtype": "float32",
+   "device_name": "NVIDIA RTX A5000",
+   "gpu_util_mean": 19.178571428571427,
+   "gpu_util_max": 100,
+   "samples": 140,
+   "gpu_mem_used_mib_max": 9104,
+   "interval_s": 2.0,
+   "device_selection": {
+    "requested": "cuda:2",
+    "need_bytes": 4294967296,
+    "free_bytes": {
+     "0": 24300748800,
+     "1": 137363456,
+     "2": 25392316416
+    },
+    "chosen": "cuda:2"
+   }
+  },
+  "parity": {
+   "passed": true,
+   "seeds": [
+    10000,
+    10001,
+    10002
+   ],
+   "reference": "cpu",
+   "device": "cuda:2",
+   "metrics": {
+    "planner_expected": {
+     "cpu_mean": 0.6020644505818685,
+     "gpu_mean": 0.6058347423871359,
+     "mean_diff": 0.003770291805267334,
+     "tolerance": 0.010067251367495011,
+     "passed": true
+    },
+    "planner_victory": {
+     "cpu_mean": 0.6666666666666666,
+     "gpu_mean": 0.6666666666666666,
+     "mean_diff": 0.0,
+     "tolerance": 0.01,
+     "passed": true
+    },
+    "planner_converted": {
+     "cpu_mean": 4158.666666666667,
+     "gpu_mean": 4122.333333333333,
+     "mean_diff": -36.333333333333336,
+     "tolerance": 269.56817319557587,
+     "passed": true
+    },
+    "pay_split_expected": {
+     "cpu_mean": 0.6020372013250986,
+     "gpu_mean": 0.600888858238856,
+     "mean_diff": -0.0011483430862426758,
+     "tolerance": 0.01,
+     "passed": true
+    },
+    "pay_split_victory": {
+     "cpu_mean": 0.6666666666666666,
+     "gpu_mean": 0.6666666666666666,
+     "mean_diff": 0.0,
+     "tolerance": 0.01,
+     "passed": true
+    },
+    "pay_split_converted": {
+     "cpu_mean": 4204.666666666667,
+     "gpu_mean": 4127.333333333333,
+     "mean_diff": -77.33333333333333,
+     "tolerance": 122.5030611862414,
+     "passed": true
+    }
+   },
+   "rows": [
+    {
+     "seed": 10000,
+     "cpu": {
+      "planner_expected": 0.47694575786590576,
+      "planner_victory": 0.0,
+      "planner_converted": 2985.0,
+      "pay_split_expected": 0.46421512961387634,
+      "pay_split_victory": 0.0,
+      "pay_split_converted": 2925.0
+     },
+     "gpu": {
+      "planner_expected": 0.4817779064178467,
+      "planner_victory": 0.0,
+      "planner_converted": 3114.0,
+      "pay_split_expected": 0.4646156132221222,
+      "pay_split_victory": 0.0,
+      "pay_split_converted": 2888.0
+     }
+    },
+    {
+     "seed": 10001,
+     "cpu": {
+      "planner_expected": 0.6274728775024414,
+      "planner_victory": 1.0,
+      "planner_converted": 4522.0,
+      "pay_split_expected": 0.6476046442985535,
+      "pay_split_victory": 1.0,
+      "pay_split_converted": 4724.0
+     },
+     "gpu": {
+      "planner_expected": 0.6364513635635376,
+      "planner_victory": 1.0,
+      "planner_converted": 4342.0,
+      "pay_split_expected": 0.6463900208473206,
+      "pay_split_victory": 1.0,
+      "pay_split_converted": 4565.0
+     }
+    },
+    {
+     "seed": 10002,
+     "cpu": {
+      "planner_expected": 0.7017747163772583,
+      "planner_victory": 1.0,
+      "planner_converted": 4969.0,
+      "pay_split_expected": 0.6942918300628662,
+      "pay_split_victory": 1.0,
+      "pay_split_converted": 4965.0
+     },
+     "gpu": {
+      "planner_expected": 0.6992749571800232,
+      "planner_victory": 1.0,
+      "planner_converted": 4911.0,
+      "pay_split_expected": 0.6916609406471252,
+      "pay_split_victory": 1.0,
+      "pay_split_converted": 4929.0
+     }
+    }
+   ],
+   "cpu_run_batch_vs_simulate_world_bit_identical": "3/3"
+  },
+  "games_seconds": 158.82520074024796,
+  "batch_plan": {
+   "chunk": 100,
+   "batch": 100,
+   "input_bytes_per_world": 5380352,
+   "calibration": {
+    "batch": 1024,
+    "per_item_bytes": 16592896,
+    "fixed_bytes": 0,
+    "free_bytes": 25119293440,
+    "probe_sizes": [
+     1,
+     2
+    ],
+    "probe_peaks": [
+     6669824,
+     23262720
+    ]
+   },
+   "free_bytes": 25142362112
+  },
+  "oom_backoffs": []
+ }
+}

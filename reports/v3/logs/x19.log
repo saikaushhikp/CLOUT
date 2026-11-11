@@ -1,0 +1,16 @@
+[x19] tuned steps {'PG': 0.05, 'MD': 0.2} (32s)
+[x19] library check {'seed': 12100, 'pg_library_share': 0.4810620844364166, 'pg_experiment_best_share': 0.4810620844364166, 'pg_abs_diff': 0.0, 'admm_library_share': 0.4783830940723419, 'admm_experiment_share': 0.4783830940723419, 'admm_library_iterations': 32, 'admm_experiment_iterations': 31, 'admm_tv_between_solutions': 1.564621925354004e-07, 'admm_primal_final': [1.3328003944934608e-07, 1.3493576034306898e-07], 'admm_dual_final': [7.450580596923828e-07, 9.185692420032865e-07]}
+[x19] pilot seed 12000: 5.9s; estimated remaining 10.6 min
+[x19] [10/100] 95s
+[x19] [20/100] 159s
+[x19] [30/100] 208s
+[x19] [40/100] 275s
+[x19] [50/100] 316s
+[x19] [60/100] 344s
+[x19] [70/100] 367s
+[x19] [80/100] 414s
+[x19] [90/100] 468s
+[x19] [100/100] 518s
+[x19] parity passed: True
+saved reports/v3/x19.json
+[x19] done in 9.7 min

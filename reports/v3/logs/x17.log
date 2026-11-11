@@ -1,0 +1,58 @@
+[x17] device cuda:2 seeds 13000..13049 arms ('bayes', 'poll_planner', 'probe') draws 512
+[x17] seed 13000 (1/50) 52s, total 0.9 min; probe media r3; E bayes=0.567 poll_planner=0.569 probe=0.579; H_perm t5 3.13 3.14 3.15
+[x17] seed 13001 (2/50) 54s, total 1.8 min; probe media r3; E bayes=0.669 poll_planner=0.657 probe=0.608; H_perm t5 2.89 3.14 3.15
+[x17] seed 13002 (3/50) 53s, total 2.6 min; probe media r2; E bayes=0.586 poll_planner=0.596 probe=0.585; H_perm t5 2.99 2.83 3.16
+[x17] seed 13003 (4/50) 53s, total 3.5 min; probe media r1; E bayes=0.671 poll_planner=0.674 probe=0.657; H_perm t5 3.14 3.13 3.15
+[x17] seed 13004 (5/50) 53s, total 4.4 min; probe media r0; E bayes=0.719 poll_planner=0.716 probe=0.725; H_perm t5 3.13 3.12 3.15
+[x17] seed 13005 (6/50) 50s, total 5.2 min; probe media r0; E bayes=0.552 poll_planner=0.562 probe=0.482; H_perm t5 3.12 3.13 3.15
+[x17] seed 13006 (7/50) 49s, total 6.1 min; probe media r3; E bayes=0.644 poll_planner=0.615 probe=0.619; H_perm t5 3.15 3.15 3.15
+[x17] seed 13007 (8/50) 48s, total 6.8 min; probe media r3; E bayes=0.679 poll_planner=0.684 probe=0.699; H_perm t5 3.16 3.16 3.17
+[x17] seed 13008 (9/50) 48s, total 7.6 min; probe media r3; E bayes=0.697 poll_planner=0.689 probe=0.675; H_perm t5 3.06 3.09 3.06
+[x17] seed 13009 (10/50) 47s, total 8.4 min; probe media r0; E bayes=0.700 poll_planner=0.703 probe=0.706; H_perm t5 3.14 3.15 3.15
+[x17] seed 13010 (11/50) 46s, total 9.2 min; probe media r2; E bayes=0.721 poll_planner=0.723 probe=0.741; H_perm t5 3.16 3.16 3.16
+[x17] seed 13011 (12/50) 48s, total 10.0 min; probe media r1; E bayes=0.566 poll_planner=0.568 probe=0.475; H_perm t5 3.13 3.13 3.16
+[x17] seed 13012 (13/50) 46s, total 10.8 min; probe media r2; E bayes=0.653 poll_planner=0.668 probe=0.648; H_perm t5 3.14 3.15 3.15
+[x17] seed 13013 (14/50) 46s, total 11.5 min; probe media r3; E bayes=0.688 poll_planner=0.680 probe=0.655; H_perm t5 3.15 3.16 3.16
+[x17] seed 13014 (15/50) 48s, total 12.3 min; probe media r3; E bayes=0.741 poll_planner=0.734 probe=0.721; H_perm t5 3.13 3.14 3.14
+[x17] seed 13015 (16/50) 46s, total 13.1 min; probe media r3; E bayes=0.680 poll_planner=0.684 probe=0.673; H_perm t5 3.09 3.13 3.15
+[x17] seed 13016 (17/50) 51s, total 14.0 min; probe media r1; E bayes=0.703 poll_planner=0.692 probe=0.711; H_perm t5 3.02 2.97 3.16
+[x17] seed 13017 (18/50) 47s, total 14.7 min; probe media r1; E bayes=0.741 poll_planner=0.738 probe=0.742; H_perm t5 3.15 3.16 3.16
+[x17] seed 13018 (19/50) 48s, total 15.5 min; probe media r1; E bayes=0.702 poll_planner=0.705 probe=0.695; H_perm t5 3.16 3.15 3.16
+[x17] seed 13019 (20/50) 48s, total 16.3 min; probe media r1; E bayes=0.628 poll_planner=0.636 probe=0.592; H_perm t5 3.15 3.16 3.16
+[x17] seed 13020 (21/50) 48s, total 17.2 min; probe media r0; E bayes=0.662 poll_planner=0.667 probe=0.663; H_perm t5 3.16 3.17 3.16
+[x17] seed 13021 (22/50) 47s, total 17.9 min; probe media r0; E bayes=0.736 poll_planner=0.724 probe=0.742; H_perm t5 3.15 3.16 3.16
+[x17] seed 13022 (23/50) 47s, total 18.7 min; probe media r2; E bayes=0.693 poll_planner=0.688 probe=0.695; H_perm t5 3.15 3.16 3.16
+[x17] seed 13023 (24/50) 51s, total 19.6 min; probe media r2; E bayes=0.611 poll_planner=0.619 probe=0.569; H_perm t5 3.12 3.10 3.15
+[x17] seed 13024 (25/50) 50s, total 20.4 min; probe media r1; E bayes=0.708 poll_planner=0.705 probe=0.715; H_perm t5 3.15 3.16 3.15
+[x17] seed 13025 (26/50) 49s, total 21.2 min; probe media r1; E bayes=0.708 poll_planner=0.700 probe=0.704; H_perm t5 3.16 3.15 3.16
+[x17] seed 13026 (27/50) 50s, total 22.1 min; probe media r1; E bayes=0.576 poll_planner=0.580 probe=0.564; H_perm t5 3.14 3.15 3.15
+[x17] seed 13027 (28/50) 49s, total 22.9 min; probe media r1; E bayes=0.716 poll_planner=0.714 probe=0.722; H_perm t5 3.15 3.15 3.16
+[x17] seed 13028 (29/50) 50s, total 23.7 min; probe media r2; E bayes=0.543 poll_planner=0.563 probe=0.548; H_perm t5 3.16 3.15 3.16
+[x17] seed 13029 (30/50) 48s, total 24.5 min; probe media r3; E bayes=0.630 poll_planner=0.630 probe=0.624; H_perm t5 3.16 3.15 3.16
+[x17] seed 13030 (31/50) 53s, total 25.4 min; probe media r1; E bayes=0.591 poll_planner=0.579 probe=0.569; H_perm t5 3.14 3.09 3.16
+[x17] seed 13031 (32/50) 51s, total 26.2 min; probe media r2; E bayes=0.674 poll_planner=0.676 probe=0.681; H_perm t5 3.14 3.15 3.14
+[x17] seed 13032 (33/50) 48s, total 27.0 min; probe media r1; E bayes=0.679 poll_planner=0.688 probe=0.693; H_perm t5 3.16 3.15 3.16
+[x17] seed 13033 (34/50) 48s, total 27.8 min; probe media r3; E bayes=0.644 poll_planner=0.638 probe=0.598; H_perm t5 3.14 3.14 3.15
+[x17] seed 13034 (35/50) 47s, total 28.6 min; probe media r1; E bayes=0.629 poll_planner=0.607 probe=0.592; H_perm t5 3.16 3.16 3.16
+[x17] seed 13035 (36/50) 48s, total 29.4 min; probe media r0; E bayes=0.708 poll_planner=0.701 probe=0.701; H_perm t5 3.15 3.15 3.16
+[x17] seed 13036 (37/50) 47s, total 30.2 min; probe media r1; E bayes=0.565 poll_planner=0.572 probe=0.516; H_perm t5 3.15 3.15 3.15
+[x17] seed 13037 (38/50) 48s, total 31.0 min; probe media r1; E bayes=0.728 poll_planner=0.710 probe=0.723; H_perm t5 3.15 3.16 3.14
+[x17] seed 13038 (39/50) 48s, total 31.8 min; probe media r2; E bayes=0.669 poll_planner=0.689 probe=0.667; H_perm t5 3.15 3.13 3.15
+[x17] seed 13039 (40/50) 48s, total 32.6 min; probe media r2; E bayes=0.703 poll_planner=0.698 probe=0.684; H_perm t5 3.15 3.15 3.16
+[x17] seed 13040 (41/50) 48s, total 33.4 min; probe media r1; E bayes=0.680 poll_planner=0.683 probe=0.651; H_perm t5 3.16 3.16 3.16
+[x17] seed 13041 (42/50) 49s, total 34.2 min; probe media r2; E bayes=0.513 poll_planner=0.506 probe=0.486; H_perm t5 3.15 3.15 3.15
+[x17] seed 13042 (43/50) 49s, total 35.1 min; probe media r2; E bayes=0.581 poll_planner=0.574 probe=0.574; H_perm t5 3.16 3.16 3.10
+[x17] seed 13043 (44/50) 48s, total 35.9 min; probe media r1; E bayes=0.712 poll_planner=0.701 probe=0.707; H_perm t5 3.15 3.15 3.16
+[x17] seed 13044 (45/50) 48s, total 36.7 min; probe media r0; E bayes=0.655 poll_planner=0.654 probe=0.656; H_perm t5 3.15 3.16 3.16
+[x17] seed 13045 (46/50) 50s, total 37.5 min; probe media r2; E bayes=0.668 poll_planner=0.648 probe=0.612; H_perm t5 3.14 3.01 3.07
+[x17] seed 13046 (47/50) 47s, total 38.3 min; probe media r1; E bayes=0.671 poll_planner=0.670 probe=0.672; H_perm t5 3.15 3.16 3.16
+[x17] seed 13047 (48/50) 48s, total 39.1 min; probe media r0; E bayes=0.727 poll_planner=0.745 probe=0.722; H_perm t5 3.11 3.13 3.14
+[x17] seed 13048 (49/50) 50s, total 39.9 min; probe media r0; E bayes=0.672 poll_planner=0.677 probe=0.679; H_perm t5 3.06 2.95 3.15
+[x17] seed 13049 (50/50) 50s, total 40.7 min; probe media r3; E bayes=0.567 poll_planner=0.584 probe=0.571; H_perm t5 3.15 3.12 3.14
+[x17] library check: {'draws': 512, 'accepted_mine': 512, 'accepted_library': 512, 'identical_count': True, 'max_abs_diff_poll_shares': 5.960464477539063e-08, 'identical_tau': True}
+[x17] parity passed: True (61s)
+[x17] bayes: win 1.00 E 0.6585 H_perm by round 3.157 3.157 3.156 3.143 3.131
+[x17] poll_planner: win 1.00 E 0.6576 H_perm by round 3.157 3.157 3.156 3.145 3.128
+[x17] probe: win 0.94 E 0.6458 H_perm by round 3.157 3.157 3.155 3.155 3.150
+saved reports/v3/x17.json
+[x17] done in 42.2 min

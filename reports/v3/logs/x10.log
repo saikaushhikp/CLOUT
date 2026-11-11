@@ -1,0 +1,39 @@
+[x10] parity passed=True
+[pilot] N=1000: 4.03 s per seed (all 4 T, 11 runs each)
+[pilot] N=3000: 3.40 s per seed (all 4 T, 11 runs each)
+[pilot] N=10000: 4.49 s per seed (all 4 T, 11 runs each)
+[pilot] N=100000: 4.62 s per seed (all 4 T, 11 runs each)
+[pilot] N=1000000: 13.28 s per seed (all 4 T, 11 runs each)
+[x10] pilot estimate for the full grid: 24.9 min (0.41 h; budget 3.0 h)
+[batch] N=1000: input 0.5 MiB/world, run 1.6 MiB/world, free 23.4 GiB -> chunk/B = 50
+[x10] N=1000: seeds 50/50, 86s
+[x10] N=1000 done in 87s
+[batch] N=3000: input 1.5 MiB/world, run 4.7 MiB/world, free 23.4 GiB -> chunk/B = 50
+[x10] N=3000: seeds 50/50, 85s
+[x10] N=3000 done in 86s
+[batch] N=10000: input 5.1 MiB/world, run 15.8 MiB/world, free 23.4 GiB -> chunk/B = 50
+[x10] N=10000: seeds 50/50, 123s
+[x10] N=10000 done in 126s
+[batch] N=100000: input 52.0 MiB/world, run 159.1 MiB/world, free 23.4 GiB -> chunk/B = 50
+[x10] N=100000: seeds 50/50, 136s
+[x10] N=100000 done in 139s
+[batch] N=1000000: input 514.6 MiB/world, run 1578.5 MiB/world, free 23.4 GiB -> chunk/B = 8
+[x10] N=1000000: seeds 8/50, 90s
+[x10] N=1000000: seeds 16/50, 177s
+[x10] N=1000000: seeds 24/50, 268s
+[x10] N=1000000: seeds 32/50, 351s
+[x10] N=1000000: seeds 40/50, 432s
+[x10] N=1000000: seeds 48/50, 510s
+[x10] N=1000000: seeds 50/50, 530s
+[x10] N=1000000 done in 543s
+saved ../reports/v3/x10.json
+N=1000 T=1: fail workers N=1000 T=3: fail workers N=1000 T=5: fail workers N=1000 T=10: fail workers
+N=3000 T=1: fail media N=3000 T=3: fail workers N=3000 T=5: fail workers N=3000 T=10: fail workers
+N=10000 T=1: fail media N=10000 T=3: fail media N=10000 T=5: fail workers N=10000 T=10: fail workers
+N=100000 T=1: fail media N=100000 T=3: fail media N=100000 T=5: fail workers N=100000 T=10: fail workers
+N=1000000 T=1: fail media N=1000000 T=3: fail media N=1000000 T=5: fail media N=1000000 T=10: fail workers
+dshare_per_worker {'1': (-0.99, [-0.999, -0.982]), '3': (-0.751, [-0.786, -0.719]), '5': (-0.237, [-0.275, -0.205]), '10': (0.016, [0.008, 0.023])}
+converts_per_worker {'1': (0.015, [0.0, 0.03]), '3': (0.28, [0.234, 0.319]), '5': (0.806, [0.76, 0.844]), '10': (1.021, [1.015, 1.028])}
+dshare_per_rupee_media {'1': (-0.0, [-0.009, 0.008]), '3': (-0.002, [-0.011, 0.008]), '5': (-0.002, [-0.017, 0.012]), '10': (0.013, [-0.009, 0.034])}
+dshare_per_rupee_workers {'1': (-0.99, [-0.999, -0.982]), '3': (-0.751, [-0.785, -0.719]), '5': (-0.237, [-0.274, -0.206]), '10': (0.016, [0.008, 0.024])}
+[x10] wall 1058s, peak 13.23 GiB, GPU util mean 33.951076320939336

@@ -13,7 +13,7 @@ vi.mock("@/components/NetworkView", () => ({
 describe("graph sample fetch (R18)", () => {
   it("never requests graph_sample before DONE, then fetches it once for the debrief", async () => {
     const client = createMockClient({ latencyMs: 0 });
-    const { observation } = await client.createGame({ num_voters: 10_000, seed: 7, rounds: 2 });
+    const { observation } = await client.createGame({ num_voters: 10_000, seed: 7, rounds: 3 });
     const graphSample = vi.spyOn(client, "graphSample");
     render(<GameApp client={client} initialObservation={observation} />);
     expect(screen.queryByTestId("network-stub")).toBeNull();
@@ -23,13 +23,15 @@ describe("graph sample fetch (R18)", () => {
     fireEvent.click(await screen.findByRole("button", { name: /commit & start round 1/i }));
 
     // round 1: no network panel, no request
-    expect(await screen.findByRole("heading", { name: /round 1 of 2/i })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /round 1 of 3/i })).toBeInTheDocument();
     expect(screen.queryByTestId("network-stub")).toBeNull();
     expect(screen.queryByRole("heading", { name: /social network/i })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /launch round 1/i }));
 
-    // round 2: still nothing
-    expect(await screen.findByRole("heading", { name: /round 2 of 2/i })).toBeInTheDocument();
+    // rounds 2 and 3: still nothing
+    expect(await screen.findByRole("heading", { name: /round 2 of 3/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /launch round 2/i }));
+    expect(await screen.findByRole("heading", { name: /round 3 of 3/i })).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 20));
     expect(graphSample).not.toHaveBeenCalled();
     expect(screen.queryByTestId("network-stub")).toBeNull();

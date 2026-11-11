@@ -1,0 +1,10 @@
+[x0] device cuda:2; parity on 3 seeds
+[x0] parity passed=True (3/3 bit-identical CPU run_batch vs simulate_world)
+[batch] N=10000: input 5.1 MiB/world, run 15.8 MiB/world, free 23.4 GiB -> chunk/B = 100
+[x0] seeds 100/100 done, 159s
+[x0] zealot sweep: [0.0, 0.05, 0.15, 0.3] x 40 seeds at treasury 500
+saved ../reports/v3/x0.json
+₫500: gate FAIL {'1_uniform_no_campaign_le_30pct': True, '2_oracle_planner_ge_85pct': True, '3_informed_beats_top3_p_lt_0.01': True, '4a_no_paid_pattern_ge_80pct': False, '4b_workers_and_media_each_best_sometimes': False} | best {'pay_workers': 4, 'front_workers': 6, 'pay_media': 0, 'pay_split': 90} | max paid {'pattern': 'pay_split', 'rate': 0.88, 'ci95': [0.8018773199709163, 0.9300066263473222]}
+₫750: gate FAIL {'1_uniform_no_campaign_le_30pct': True, '2_oracle_planner_ge_85pct': True, '3_informed_beats_top3_p_lt_0.01': True, '4a_no_paid_pattern_ge_80pct': False, '4b_workers_and_media_each_best_sometimes': False} | best {'pay_workers': 2, 'front_workers': 4, 'pay_media': 0, 'pay_split': 94} | max paid {'pattern': 'pay_split', 'rate': 0.88, 'ci95': [0.8018773199709163, 0.9300066263473222]}
+₫1000: gate FAIL {'1_uniform_no_campaign_le_30pct': True, '2_oracle_planner_ge_85pct': True, '3_informed_beats_top3_p_lt_0.01': True, '4a_no_paid_pattern_ge_80pct': False, '4b_workers_and_media_each_best_sometimes': False} | best {'pay_workers': 0, 'front_workers': 0, 'pay_media': 1, 'pay_split': 99} | max paid {'pattern': 'pay_split', 'rate': 0.95, 'ci95': [0.8882480347279118, 0.9784566385436864]}
+[x0] wall 289s, peak 1.62 GiB, GPU util mean 19.178571428571427

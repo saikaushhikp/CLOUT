@@ -180,7 +180,7 @@ describe("mock engine", () => {
   it("is deterministic per seed (same hires → same cascade numbers)", async () => {
     const run = async () => {
       const c = createMockClient();
-      const { game_id: g, player_id: p } = await c.createGame({ num_voters: 5000, seed: 21, rounds: 2 });
+      const { game_id: g, player_id: p } = await c.createGame({ num_voters: 5000, seed: 21, rounds: 3 });
       await c.commit(g, p, { manifesto: [0.2, 0.2, 0.2, 0.2, 0.2] });
       const a = await c.allocate(g, p, { ...none, hires_by_region: [3, 3, 3, 3] });
       const b = await c.allocate(g, p, none);

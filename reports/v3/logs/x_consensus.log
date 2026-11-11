@@ -1,0 +1,9 @@
+[x_consensus] 10/50 seeds, 8s
+[x_consensus] 20/50 seeds, 15s
+[x_consensus] 30/50 seeds, 23s
+[x_consensus] 40/50 seeds, 30s
+[x_consensus] 50/50 seeds, 36s
+wrote reports/v3/figures/xc_consensus_rounds.png
+wrote reports/v3/figures/xc_consensus_example.png
+wrote /data/ai23btech11017/MAS/CLOUT/reports/v3/figures/xc_consensus_rounds.png
+wrote /data/ai23btech11017/MAS/CLOUT/reports/v3/figures/xc_consensus_example.png

@@ -178,8 +178,15 @@ def _label(a: Allocation, sizes: Sequence[int], pace: Decimal) -> str:
     return f"{where}, {media}, {spend}"
 
 
-def policy_set(observation_t: dict[str, Any], config: GameConfig) -> list[Plan]:
-    """Π_t: "No spend" + one stationary plan per candidate allocation at the decision point (labels unique)."""
+def policy_set(observation_t: dict[str, Any], config: GameConfig, max_policies: int | None = None) -> list[Plan]:
+    """Π_t: "No spend" + one stationary plan per candidate allocation at the decision point (labels unique).
+
+    ``max_policies`` (X16 plan-set size knob; default ``None`` = every candidate, the original behaviour) keeps
+    only the first ``max_policies`` plans of that list ("No spend" first, then the candidates in
+    :func:`~dumbocracy.strategies.planner.candidate_allocations` order), so a smaller Π is a prefix of the full Π.
+    """
+    if max_policies is not None and int(max_policies) < 1:
+        raise ValueError("max_policies must be >= 1")
     sizes = public_sizes(observation_t)
     treasury = Decimal(str(observation_t["treasury"]))
     cap = round_cap(treasury, rounds_left(observation_t))
@@ -201,7 +208,7 @@ def policy_set(observation_t: dict[str, Any], config: GameConfig) -> list[Plan]:
         n = labels.get(p.label, 0)
         labels[p.label] = n + 1
         out.append(p if n == 0 else Plan(f"{p.label} #{n + 1}", p.first, p.media, p.weights, p.pace))
-    return out
+    return out if max_policies is None else out[:int(max_policies)]
 
 
 # ----------------------------------------------------------------------------------- simulation

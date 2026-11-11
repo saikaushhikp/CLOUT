@@ -1,0 +1,31 @@
+N=10000 pay_split B=1: 0.01s (14 ms/world), x3.1 vs CPU, peak 0.01 GiB
+N=10000 pay_split B=8: 0.04s (5 ms/world), x7.8 vs CPU, peak 0.09 GiB
+N=10000 pay_split B=32: 0.14s (4 ms/world), x9.8 vs CPU, peak 0.35 GiB
+N=10000 pay_split B=64: 0.27s (4 ms/world), x10.1 vs CPU, peak 0.69 GiB
+N=10000 planner B=1: 0.02s (23 ms/world), x2.3 vs CPU, peak 0.01 GiB
+N=10000 planner B=8: 0.12s (15 ms/world), x3.4 vs CPU, peak 0.09 GiB
+N=10000 planner B=32: 0.46s (14 ms/world), x3.7 vs CPU, peak 0.35 GiB
+N=10000 planner B=64: 0.90s (14 ms/world), x3.7 vs CPU, peak 0.69 GiB
+N=100000 pay_split B=1: 0.01s (14 ms/world), x24.3 vs CPU, peak 0.06 GiB
+N=100000 pay_split B=8: 0.07s (9 ms/world), x39.9 vs CPU, peak 0.86 GiB
+N=100000 pay_split B=32: 0.26s (8 ms/world), x42.9 vs CPU, peak 3.44 GiB
+N=100000 pay_split B=64: 0.55s (9 ms/world), x40.5 vs CPU, peak 6.87 GiB
+N=100000 planner B=1: 0.02s (23 ms/world), x15.3 vs CPU, peak 0.06 GiB
+N=100000 planner B=8: 0.15s (19 ms/world), x18.8 vs CPU, peak 0.86 GiB
+N=100000 planner B=32: 0.58s (18 ms/world), x19.3 vs CPU, peak 3.44 GiB
+N=100000 planner B=64: 1.19s (19 ms/world), x18.8 vs CPU, peak 6.87 GiB
+BayesPlanner worlds=8 voters=1600 cpu: allocate 0.080s
+BayesPlanner worlds=8 voters=1600 cuda:2: allocate 0.015s
+BayesPlanner worlds=32 voters=1600 cpu: allocate 0.292s
+BayesPlanner worlds=32 voters=1600 cuda:2: allocate 0.019s
+BayesPlanner worlds=8 voters=4000 cpu: allocate 0.188s
+BayesPlanner worlds=8 voters=4000 cuda:2: allocate 0.016s
+BayesPlanner worlds=32 voters=4000 cpu: allocate 0.995s
+BayesPlanner worlds=32 voters=4000 cuda:2: allocate 0.034s
+logic timeline worlds=16 cpu: 3.25s
+logic timeline worlds=16 cuda:2: 2.76s
+logic timeline worlds=64 cpu: 13.31s
+logic timeline worlds=64 cuda:2: 10.40s
+spectra N=10000: gpu 2.46s scipy 0.48s
+spectra N=100000: gpu 5.36s scipy 7.16s
+saved reports/v3/gpu_benchmarks.json

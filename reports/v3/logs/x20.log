@@ -1,0 +1,18 @@
+[x20] device cuda:2; batch B = 250 (cap 10.0 GiB; {'batch': 250, 'per_item_bytes': 11662208, 'fixed_bytes': 225280, 'free_bytes': 24388894720, 'probe_sizes': [4, 8], 'probe_peaks': [46874112, 93522944], 'batch_uncapped': 250, 'cap_bytes': 10737418240})
+[x20] canonical + election done, 10s
+[x20] stream cascade: 22s
+[x20] stream media: 22s
+[x20] stream workers: 22s
+[x20] world: 175s
+[x20] world_graph: 216s
+[x20] world_prefs: 167s
+[x20] world_attrs: 156s
+[x20] parity passed: True
+saved reports/v3/x20.json
+wrote reports/v3/figures/x20_components.png
+wrote reports/v3/figures/x20_shares.png
+saved reports/v3/x20.json
+[x20] E: shares planner {'cascade': 0.001665272145656275, 'media': 4.0272553264659066e-05, 'workers': 0.0011798989058265173, 'election': 0.0, 'world': 0.9971145563952526, 'world_graph': 0.06329625531376801, 'world_prefs': 0.9283585497694516, 'world_attrs': 0.03922099312357524}; skill 0.496
+[x20] V: shares planner {'cascade': 0.0022021113679996955, 'media': 0.0002021804981737746, 'workers': 0.0013963266234859391, 'election': 0.002052359636689441, 'world': 0.9941470218736511, 'world_graph': 0.06427846371125627, 'world_prefs': 0.9214854999686284, 'world_attrs': 0.038736032521835384}; skill 0.493
+[x20] win: shares planner {'cascade': 0.20031924198250722, 'media': 0.044345481049562666, 'workers': 0.1697361516034985, 'election': 0.20490670553935855, 'world': 0.38069241982507307, 'world_graph': 0.5856661807580172, 'world_prefs': 0.8150393586005829, 'world_attrs': 0.133036443148688}; skill 0.306
+[x20] wall 793s, peak 3.13 GiB, util 27.486979166666668

@@ -1,0 +1,24 @@
+[x21] leak check passed (15 arms × 2 seeds)
+[x21] default: 45s; win bayes 0.94 oracle 0.92 bayes_true 0.94; E bayes 0.638 oracle 0.626
+[x21] zeta_x0.5: 71s; win bayes 0.94 oracle 0.94 bayes_true 0.94; E bayes 0.646 oracle 0.635
+[x21] zeta_x1.5: 72s; win bayes 0.92 oracle 0.88 bayes_true 0.92; E bayes 0.630 oracle 0.619
+[x21] kappa_x0.5: 70s; win bayes 0.82 oracle 0.80 bayes_true 0.82; E bayes 0.578 oracle 0.571
+[x21] kappa_x1.5: 61s; win bayes 0.94 oracle 0.94 bayes_true 0.96; E bayes 0.658 oracle 0.647
+[x21] kbar_x0.5: 69s; win bayes 0.80 oracle 0.80 bayes_true 0.80; E bayes 0.579 oracle 0.582
+[x21] kbar_x1.5: 66s; win bayes 0.94 oracle 0.92 bayes_true 0.94; E bayes 0.637 oracle 0.624
+[x21] omega_x0.5: 72s; win bayes 0.82 oracle 0.78 bayes_true 0.78; E bayes 0.590 oracle 0.573
+[x21] omega_x1.5: 71s; win bayes 0.96 oracle 0.98 bayes_true 1.00; E bayes 0.679 oracle 0.675
+[x21] beta_v_x0.5: 77s; win bayes 1.00 oracle 1.00 bayes_true 1.00; E bayes 0.626 oracle 0.626
+[x21] beta_v_x1.5: 68s; win bayes 0.88 oracle 0.82 bayes_true 0.86; E bayes 0.621 oracle 0.602
+[x21] z_x0.5: 104s; win bayes 1.00 oracle 1.00 bayes_true 1.00; E bayes 1.000 oracle 1.000
+[x21] p_m_x0.5: 66s; win bayes 0.90 oracle 0.88 bayes_true 0.90; E bayes 0.614 oracle 0.608
+[x21] p_m_x1.5: 67s; win bayes 0.96 oracle 0.98 bayes_true 0.96; E bayes 0.661 oracle 0.647
+[x21] z_margin_x0.5: 73s; win bayes 0.00 oracle 0.00 bayes_true 0.00; E bayes 0.267 oracle 0.286
+[x21] z_margin_x1.5: 65s; win bayes 1.00 oracle 1.00 bayes_true 1.00; E bayes 0.877 oracle 0.900
+[x21] parity passed: True
+saved reports/v3/x21.json
+wrote reports/v3/figures/x21_sensitivity.png
+wrote reports/v3/figures/x21_win_rates.png
+saved reports/v3/x21.json
+[x21] ranking Δgap ['z', 'kbar', 'beta_v', 'omega', 'p_m', 'kappa', 'zeta']; misspec cost ['z', 'omega', 'beta_v', 'kappa', 'p_m', 'zeta', 'kbar']
+[x21] wall 1132s, peak 1.28 GiB, util 24.010928961748633

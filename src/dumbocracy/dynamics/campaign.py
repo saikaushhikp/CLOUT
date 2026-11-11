@@ -132,10 +132,19 @@ def spreader_edge_counts(graph: Graph, spreaders: torch.Tensor, rows: torch.Tens
 
 
 def conversion_chance(campaign_susceptibility: torch.Tensor, v: torch.Tensor, manifesto: torch.Tensor,
-                      sensitivity: float, threshold: float) -> torch.Tensor:
-    """R25: per-attempt conversion chance ``γ_j · P_j`` with ``P_j = σ(β_v (S_j − z))`` on ``v`` ``[..., N, 5]``."""
+                      sensitivity: float, threshold: float, rule: str = "gamma_p") -> torch.Tensor:
+    """R25: per-attempt conversion chance ``γ_j · P_j`` with ``P_j = σ(β_v (S_j − z))`` on ``v`` ``[..., N, 5]``.
+
+    ``rule`` (``WorkerConfig.conversion_rule``, X23 ablation): ``"gamma_p"`` (default, R25) = γ·P;
+    ``"gamma"`` = γ (the literal pre-R25 rule); ``"gamma_p2"`` = γ·P². The default path is unchanged."""
     prob = vote_probability(similarity(v, manifesto), sensitivity, threshold)
-    return (campaign_susceptibility * prob).clamp(0.0, 1.0)
+    if rule == "gamma_p":
+        return (campaign_susceptibility * prob).clamp(0.0, 1.0)
+    if rule == "gamma":
+        return (campaign_susceptibility * torch.ones_like(prob)).clamp(0.0, 1.0)
+    if rule == "gamma_p2":
+        return (campaign_susceptibility * (prob * prob)).clamp(0.0, 1.0)
+    raise ValueError(f"unknown conversion rule {rule!r}")
 
 
 def ic_hop(graph: Graph, spreaders: torch.Tensor, chance: torch.Tensor, attempts: torch.Tensor,
@@ -359,7 +368,8 @@ def campaign_round(electorate: Electorate, allocation: Allocation, state: Worker
     pinned = state.pinned | new
     spreaders = state.spreaders | new
 
-    chance = conversion_chance(sus.campaign, preferences, manifesto, voting_cfg.sensitivity, voting_cfg.threshold)
+    chance = conversion_chance(sus.campaign, preferences, manifesto, voting_cfg.sensitivity, voting_cfg.threshold,
+                               worker_cfg.conversion_rule)
     converted, attempts = ic_hop(graph, spreaders, chance, state.attempts, others | new | zealot,
                                  worker_cfg.attempt_cap, generators["cascade"])
 

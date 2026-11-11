@@ -1,0 +1,13 @@
+[x23] degree check {'min_degree_over_worlds': 4, 'share_non_zealots_degree_lt_3': 0.0, 'share_non_zealots_degree_lt_10': 0.0006335975077094713}
+[x23] default: 4s; ORACLE planner win 0.92, reach/worker 228.9
+[x23] cap1: 4s; ORACLE planner win 0.76, reach/worker 100.2
+[x23] cap2: 4s; ORACLE planner win 0.84, reach/worker 173.7
+[x23] cap5: 4s; ORACLE planner win 0.98, reach/worker 301.2
+[x23] cap1000: 4s; ORACLE planner win 1.00, reach/worker 414.4
+[x23] min_degree1: 4s; ORACLE planner win 0.92, reach/worker 228.9
+[x23] min_degree10: 4s; ORACLE planner win 0.92, reach/worker 228.8
+[x23] rule_gamma: 4s; ORACLE planner win 1.00, reach/worker 431.1
+[x23] rule_gamma_p2: 4s; ORACLE planner win 0.78, reach/worker 133.1
+[x23] parity passed: True
+saved reports/v3/x23.json
+[x23] done in 1.7 min

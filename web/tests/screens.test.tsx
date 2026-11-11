@@ -32,10 +32,10 @@ describe("setup screen", () => {
     fireEvent.click(screen.getByRole("button", { name: "100k" }));
     expect(screen.getAllByText("100,000")).toHaveLength(2);
     fireEvent.change(screen.getByLabelText(/world seed/i), { target: { value: "4242" } });
-    fireEvent.click(screen.getByRole("button", { name: /increase campaign rounds/i }));
+    fireEvent.click(screen.getByRole("button", { name: /decrease campaign rounds/i }));
     fireEvent.click(screen.getByRole("button", { name: /start campaign/i }));
 
-    await waitFor(() => expect(spy).toHaveBeenCalledWith({ num_voters: 100_000, rounds: 6, seed: 4242, budget: "500.00" }));
+    await waitFor(() => expect(spy).toHaveBeenCalledWith({ num_voters: 100_000, rounds: 4, seed: 4242, budget: "500.00" }));
     expect(await screen.findByText(/find out what the regions want/i)).toBeInTheDocument();
     expect(screen.getByText(/national top-3/i)).toBeInTheDocument();
   });

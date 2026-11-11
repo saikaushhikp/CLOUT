@@ -1,0 +1,31 @@
+[x6] device cuda:0, seeds 12000..12099, players ('uniform', 'top3', 'random', 'people_pleaser', 'bayes', 'bayes_admm', 'bayes_blend', 'strong_arm', 'strong_arm_random')
+[x6] pilot seed 12000: 9.5s {'uniform': 0.11, 'top3': 0.04, 'random': 0.03, 'people_pleaser': 0.07, 'bayes': 2.04, 'bayes_admm': 4.44, 'bayes_blend': 1.04, 'strong_arm': 0.03, 'strong_arm_random': 0.03}; estimated remaining 9.0 min
+[x6] [4/99] 19s
+[x6] [8/99] 50s
+[x6] [12/99] 83s
+[x6] [16/99] 100s
+[x6] [20/99] 115s
+[x6] [24/99] 131s
+[x6] [28/99] 144s
+[x6] [32/99] 171s
+[x6] [36/99] 193s
+[x6] [40/99] 208s
+[x6] [44/99] 222s
+[x6] [48/99] 238s
+[x6] [52/99] 252s
+[x6] [56/99] 266s
+[x6] [60/99] 283s
+[x6] [64/99] 298s
+[x6] [68/99] 313s
+[x6] [72/99] 328s
+[x6] [76/99] 342s
+[x6] [80/99] 357s
+[x6] [84/99] 373s
+[x6] [88/99] 402s
+[x6] [92/99] 416s
+[x6] [96/99] 437s
+[x6] [99/99] 446s
+[x6] parity passed: True
+saved reports/v3/x6.json
+{"uniform": [0.09, 0.3885], "top3": [0.85, 0.6019], "random": [0.02, 0.1462], "people_pleaser": [0.73, 0.5601], "bayes": [0.98, 0.6391], "bayes_admm": [0.99, 0.6486], "bayes_blend": [0.84, 0.5965], "strong_arm": [0.0, 0.0883], "strong_arm_random": [0.03, 0.1568], "ORACLE": [0.95, 0.6276]}
+[x6] done in 8.9 min

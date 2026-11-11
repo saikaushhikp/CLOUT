@@ -106,18 +106,19 @@ def headline(rows: list[dict[str, Any]], actual: dict[str, Any]) -> str:
 
 
 def epistemic_timeline(state, player_id: str, *, worlds: int = 16, world_voters: int = 1600, seed: int = 0,
-                       device=None) -> dict:
+                       device=None, max_policies: int | None = None) -> dict:
     """``EpistemicTimeline`` (web_api_v2.md) for ``player_id`` of a finished game (raises ``ValueError``
     before DONE and ``KeyError`` for an unknown player). ``device`` is used for the synthetic worlds
     (default CPU); the true-world rollouts run on the electorate's own device."""
     return timeline_with_diagnostics(state, player_id, worlds=worlds, world_voters=world_voters, seed=seed,
-                                     device=device)[0]
+                                     device=device, max_policies=max_policies)[0]
 
 
 def timeline_with_diagnostics(state, player_id: str, *, worlds: int = 16, world_voters: int = 1600, seed: int = 0,
-                              device=None) -> tuple[dict, dict[str, Any]]:
+                              device=None, max_policies: int | None = None) -> tuple[dict, dict[str, Any]]:
     """:func:`epistemic_timeline` plus research diagnostics (timing, per-round draws/acceptance/fallback,
-    per-round plan win fractions and true-world shares). The diagnostics are NOT for players."""
+    per-round plan win fractions and true-world shares). The diagnostics are NOT for players.
+    ``max_policies`` caps |Π_t| (:func:`.epistemic.policy_set`; default ``None`` = all candidates)."""
     if not state.has_player(player_id):
         raise KeyError(player_id)
     if state.phase != "DONE":
@@ -129,13 +130,13 @@ def timeline_with_diagnostics(state, player_id: str, *, worlds: int = 16, world_
     world_seed = streams.derive("worlds", "logic-timeline", player_id)
     truth_states = decision_states(state, player_id)
     rows: list[dict[str, Any]] = []
-    max_policies = 0
+    largest_plan_set = 0
     diagnostics = []
     for t in decision_rounds(observation):
         obs_t = observation_at(observation, t, stage="decision")
         ws = consistent_worlds(obs_t, config, worlds, world_voters=world_voters, seed=world_seed, device=device)
-        plans = policy_set(obs_t, config)
-        max_policies = max(max_policies, len(plans))
+        plans = policy_set(obs_t, config, max_policies)
+        largest_plan_set = max(largest_plan_set, len(plans))
         eval_seed = streams.derive("worlds", "logic-eval", player_id, t)
         values = evaluate(ws, plans, obs_t, config, seed=eval_seed)
         props = properties(values, [p.label for p in plans])
@@ -160,8 +161,8 @@ def timeline_with_diagnostics(state, player_id: str, *, worlds: int = 16, world_
               "expected_share": float(result.get("expected_share", 0.0))}
     n_world = min(int(world_voters), int(observation["num_voters"]))
     out = {
-        "scope": {"worlds_per_round": int(worlds), "policies_per_round": int(max_policies), "world_voters": n_world,
-                  "note": SCOPE_NOTE.format(w=int(worlds), n=n_world, p=int(max_policies))},
+        "scope": {"worlds_per_round": int(worlds), "policies_per_round": int(largest_plan_set), "world_voters": n_world,
+                  "note": SCOPE_NOTE.format(w=int(worlds), n=n_world, p=int(largest_plan_set))},
         "rounds": rows,
         "actual": actual,
         "headline": headline(rows, actual),

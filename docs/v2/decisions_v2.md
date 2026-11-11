@@ -68,6 +68,7 @@ spec cites them. Changing one requires a new row here and a spec update.
 | R27 | At most 3 conversion attempts per voter per game (failures count); workers and zealots are never targets |
 | R28 | Media mechanism unchanged (already of the §5.1 form) |
 | R29 | Worker fee **₫50.00** (owner, 2026-11-10, after the P8 price check; ₫100 was the price passing all five balance checks, ₫50 fails 4a/4b: "split workers+media" wins 82%) |
+| R31 | The web game allows **T = 3–5 rounds** only (API and UI; default 5). X10 found T = 1 (the perfect-information player wins 12–36%) and T = 10 (no campaign wins 38–44%) structurally unbalanced at every N; N stays 10³–10⁶. The engine and experiments still accept T = 1–10 (owner, 2026-11-11, D11) |
 | R30 | Prices fixed by the owner (2026-11-10): worker fee **₫20.00** (supersedes R29's ₫50), survey query **₫10.00** (was ₫5.00, U8). Balance gate to be re-measured in the new experiment suite |
 | R10 | Word-of-mouth transmission τ_c calibrated near the SIR threshold ρ/λ_max(A_rr) (provisional 0.03; final value from P2) |
 | R5 | ER-SBM with one global sparsity factor s: P_rr = s·p_r, P_rs = s·p_g, s set for mean degree k̄ = 16 ⚙; ranges p_r ∈ [0.5,0.9], p_g ∈ [0.01,0.2] |

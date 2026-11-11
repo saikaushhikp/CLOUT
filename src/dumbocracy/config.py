@@ -18,6 +18,9 @@ SEED_STREAMS: tuple[str, ...] = (
 )
 
 
+CONVERSION_RULES: tuple[str, ...] = ("gamma", "gamma_p", "gamma_p2")
+
+
 class ConfigError(ValueError):
     """Raised for an invalid configuration value."""
 
@@ -87,9 +90,13 @@ class WorkerConfig:
     worker_cost: Decimal = Decimal("20.00")               # owner, 2026-11-10 (R30; was 50.00 R29)
     min_degree: int = 3                                   # R22: a bought worker has >= min_degree friends
     attempt_cap: int = 3                                  # R27: max conversion attempts per voter per game
+    # R25 conversion chance per attempt: "gamma_p" = γ_j·P_j (default, rule in force); "gamma" = γ_j (literal
+    # pre-R25 rule); "gamma_p2" = γ_j·P_j² (X23 ablation, plan D2). The default is bit-identical to before.
+    conversion_rule: Literal["gamma", "gamma_p", "gamma_p2"] = "gamma_p"
 
     def __post_init__(self) -> None:
         _money(self.worker_cost, "worker_cost")
+        _check(self.conversion_rule in CONVERSION_RULES, f"conversion_rule must be one of {CONVERSION_RULES}")
         _check(isinstance(self.min_degree, int) and not isinstance(self.min_degree, bool) and self.min_degree >= 0,
                "min_degree must be an integer >= 0")
         _check(isinstance(self.attempt_cap, int) and not isinstance(self.attempt_cap, bool) and self.attempt_cap >= 0,

@@ -352,7 +352,7 @@ export function createMockClient(options: MockOptions = {}): DumbocracyClient {
     const n = req.num_voters ?? 10000;
     const rounds = req.rounds ?? 5;
     if (!Number.isInteger(n) || n < 1000 || n > 1_000_000) throw new ApiError(422, "num_voters must be 1000..1000000");
-    if (!Number.isInteger(rounds) || rounds < 1 || rounds > 10) throw new ApiError(422, "rounds must be 1..10");
+    if (!Number.isInteger(rounds) || rounds < 3 || rounds > 5) throw new ApiError(422, "rounds must be 3..5");
     const seed = req.seed ?? Math.floor(Math.random() * 2 ** 31);
     if (!Number.isInteger(seed) || seed < 0) throw new ApiError(422, "seed must be a non-negative integer");
     const budget = req.budget ?? P.budget;

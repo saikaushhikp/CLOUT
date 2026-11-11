@@ -1,0 +1,20 @@
+[x9] N=10000 cuda:2 B=1: 2.8 ms/round, 2.83 ms/world-round, peak 0.01 GiB
+[x9] N=10000 cuda:2 B=8: 7.4 ms/round, 0.92 ms/world-round, peak 0.09 GiB
+[x9] N=10000 cuda:2 B=16: 12.3 ms/round, 0.77 ms/world-round, peak 0.18 GiB
+[x9] N=10000 cuda:2 B=32: 22.5 ms/round, 0.70 ms/world-round, peak 0.36 GiB
+[x9] N=100000 cuda:2 B=1: 2.9 ms/round, 2.95 ms/world-round, peak 0.12 GiB
+[x9] N=100000 cuda:2 B=8: 12.4 ms/round, 1.55 ms/world-round, peak 0.93 GiB
+[x9] N=100000 cuda:2 B=16: 23.2 ms/round, 1.45 ms/world-round, peak 1.80 GiB
+[x9] N=100000 cuda:2 B=32: 45.4 ms/round, 1.42 ms/world-round, peak 3.54 GiB
+[x9] N=1000000 cuda:2 B=1: 11.1 ms/round, 11.06 ms/world-round, peak 1.13 GiB
+[x9] N=1000000 cuda:2 B=8: 90.2 ms/round, 11.27 ms/world-round, peak 9.22 GiB
+[x9] N=1000000 cuda:2 B=16: 181.6 ms/round, 11.35 ms/world-round, peak 17.94 GiB
+[x9] N=1000000 cuda:2 B=32: OOM/failed
+[x9] N=10000 cpu B=1: 8.0 ms/round, 7.97 ms/world-round, peak 0.00 GiB
+[x9] N=10000 cpu B=8: 65.4 ms/round, 8.18 ms/world-round, peak 0.00 GiB
+[x9] N=100000 cpu B=1: 82.1 ms/round, 82.07 ms/world-round, peak 0.00 GiB
+[x9] N=100000 cpu B=8: 550.3 ms/round, 68.79 ms/world-round, peak 0.00 GiB
+[x9] N=1000000 cpu B=1: 762.6 ms/round, 762.62 ms/world-round, peak 0.00 GiB
+[x9] parity passed: True
+saved reports/v3/x9.json
+[x9] done in 2.1 min

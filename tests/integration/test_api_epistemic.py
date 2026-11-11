@@ -17,7 +17,7 @@ from dumbocracy.api.app import create_app  # noqa: E402
 from tests.privacy_scan import assert_no_leaks  # noqa: E402
 
 N = 1000
-ROUNDS = 2
+ROUNDS = 3
 ROUND_KEYS = {"round", "treasury", "knowledge", "possible_victory", "guaranteed_victory", "knows_win_exists",
               "inevitable_defeat", "truth_victory_possible", "best_plan"}
 

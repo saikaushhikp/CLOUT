@@ -27,7 +27,8 @@ from ..dynamics.campaign import Allocation, media_cost, worker_cost
 from ..sectors import NUM_REGIONS, REGIONS
 from .worlds import BatchWorkers, WorldBatch, public_sizes
 
-__all__ = ["allocation_cost", "candidate_allocations", "default_allocation", "plan_round", "round_cap",
+__all__ = ["allocation_cost", "candidate_allocations", "default_allocation", "front_allocation", "plan_round",
+           "round_cap",
            "split_by_weight", "workers_for"]
 
 CENT = Decimal("0.01")
@@ -107,6 +108,24 @@ def default_allocation(sizes: Sequence[int], budget: Decimal, left: int, airings
     cap = round_cap(budget, left)
     media = _media_set(sizes, _media_order(sizes, airings), NUM_REGIONS, cap / 2, config.media.base_cost)
     return _with_workers(sizes, media, cap, [float(s) for s in sizes], config)
+
+
+def front_allocation(sizes: Sequence[int], budget: Decimal, left: int, airings: Sequence[int], config: GameConfig,
+                     *, first: bool) -> Allocation:
+    """The "front" continuation (optional, X14; the default rollout stays "even").
+
+    In the first continuation round (``first``) media follows the even pace (half the per-round cap, least aired
+    first) and ALL the remaining worker money is spent at once: everything except a media reserve of
+    ``(left − 1) × cap/2`` for the later rounds buys new workers split by region size (workers bought earlier
+    cascade for more hops). Later rounds buy no workers and spend their even cap on media only."""
+    cap = round_cap(budget, left)
+    order = _media_order(sizes, airings)
+    if not first:
+        return Allocation((0, 0, 0, 0), _media_set(sizes, order, NUM_REGIONS, cap, config.media.base_cost))  # type: ignore[arg-type]
+    media = _media_set(sizes, order, NUM_REGIONS, cap / 2, config.media.base_cost)
+    reserve = ((cap / 2) * (left - 1)).quantize(CENT, rounding=ROUND_FLOOR)
+    money = max(Decimal("0.00"), budget - reserve)
+    return _with_workers(sizes, media, money, [float(s) for s in sizes], config)
 
 
 def candidate_allocations(observation: dict[str, Any], config: GameConfig) -> list[Allocation]:
@@ -231,10 +250,11 @@ def plan_round(observation: dict[str, Any], worlds: WorldBatch | Sequence, manif
     ``current`` is omitted both are replayed from the observation. ``value_guided`` adds
     :func:`value_guided_candidates` (computed on the same worlds) to the candidate set. ``rollout="even"``
     continues every candidate with :func:`default_allocation`; ``"none"`` continues with no spending (the
-    workers already bought keep their cascades going).
+    workers already bought keep their cascades going); ``"front"`` (optional, X14) spends the remaining worker
+    money in the next round and media only afterwards (:func:`front_allocation`).
     """
-    if rollout not in ("even", "none"):
-        raise ValueError("rollout must be 'even' or 'none'")
+    if rollout not in ("even", "none", "front"):
+        raise ValueError("rollout must be 'even', 'none' or 'front'")
     start = time.perf_counter()
     batch = worlds if isinstance(worlds, WorldBatch) else WorldBatch(list(worlds), config)
     if current is None:
@@ -267,6 +287,9 @@ def plan_round(observation: dict[str, Any], worlds: WorldBatch | Sequence, manif
             for c in range(C):
                 if rollout == "even":
                     a = default_allocation(sizes_true, budgets[c], remaining, airings[c].tolist(), config)
+                elif rollout == "front":
+                    a = front_allocation(sizes_true, budgets[c], remaining, airings[c].tolist(), config,
+                                         first=(step == 0))
                 else:
                     a = Allocation()
                 budgets[c] -= allocation_cost(a, sizes_true, config)

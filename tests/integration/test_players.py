@@ -144,3 +144,15 @@ def test_bayes_planner_beats_uniform_paired():
         diffs.append(shares["bayes"] - shares["uniform"])
     assert sum(diffs) / len(diffs) > 0.05
     assert sum(d > 0 for d in diffs) >= 9
+
+
+@pytest.mark.gpu
+def test_bayes_planner_runs_on_gpu(game2000):
+    """D12: the manifesto step must build its extra start tensors on the planner's device (was CPU -> crash)."""
+    import torch
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+    _, state = game2000
+    player = BayesPlanner(seed=3, num_worlds=4, manifesto_worlds=4, world_voters=1000, device="cuda:2")
+    manifesto = player.manifesto(observation_for(state, "p0"))
+    assert len(manifesto) == 5 and abs(sum(manifesto) - 1.0) < 1e-6

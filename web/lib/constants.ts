@@ -48,8 +48,8 @@ export const ERROR_COPY: Record<string, string> = {
 export const N_MIN = 1_000;
 export const N_MAX = 1_000_000;
 export const N_DEFAULT = 10_000;
-export const ROUNDS_MIN = 1;
-export const ROUNDS_MAX = 10;
+export const ROUNDS_MIN = 3; // R31: X10 found T = 1 and T = 10 unbalanced
+export const ROUNDS_MAX = 5;
 export const ROUNDS_DEFAULT = 5;
 /** Starting treasury chosen at setup (R17), whole credits. */
 export const BUDGET_MIN = 500;

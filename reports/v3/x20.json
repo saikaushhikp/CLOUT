@@ -1,0 +1,1754 @@
+{
+ "experiment": "X20",
+ "title": "Luck vs skill: variance decomposition",
+ "question": "How much of the outcome is decided by the player's decisions, and how much by randomness?",
+ "seeds": {
+  "first": 14000,
+  "count": 50,
+  "list": [
+   14000,
+   14001,
+   14002,
+   14003,
+   14004,
+   14005,
+   14006,
+   14007,
+   14008,
+   14009,
+   14010,
+   14011,
+   14012,
+   14013,
+   14014,
+   14015,
+   14016,
+   14017,
+   14018,
+   14019,
+   14020,
+   14021,
+   14022,
+   14023,
+   14024,
+   14025,
+   14026,
+   14027,
+   14028,
+   14029,
+   14030,
+   14031,
+   14032,
+   14033,
+   14034,
+   14035,
+   14036,
+   14037,
+   14038,
+   14039,
+   14040,
+   14041,
+   14042,
+   14043,
+   14044,
+   14045,
+   14046,
+   14047,
+   14048,
+   14049
+  ],
+  "salts_per_stream": 20,
+  "draws_per_cell": 21,
+  "paired": true
+ },
+ "n": 10000,
+ "rounds": 5,
+ "treasury": "500.00",
+ "prices": {
+  "worker": "20.00",
+  "query": "10.00"
+ },
+ "policies": {
+  "planner": "ORACLE manifesto + ORACLE planner (balance.policy_planner)",
+  "pay_split": "ORACLE manifesto + split (half media on the largest regions, half workers by size)",
+  "none": "ORACLE manifesto, no spending"
+ },
+ "streams": {
+  "cascade": [
+   "cascade"
+  ],
+  "media": [
+   "media"
+  ],
+  "workers": [
+   "workers"
+  ],
+  "election": [
+   "election"
+  ],
+  "world": [
+   "regions",
+   "block_probs",
+   "graph",
+   "preferences",
+   "attributes",
+   "zealots"
+  ],
+  "world_graph": [
+   "block_probs",
+   "graph"
+  ],
+  "world_prefs": [
+   "preferences"
+  ],
+  "world_attrs": [
+   "attributes",
+   "zealots"
+  ]
+ },
+ "metric_definitions": {
+  "E": "expected vote share after the campaign (mean vote probability), before the ballot draw",
+  "V": "realised vote share on election day",
+  "win": "V > 1/2 (victory)",
+  "within_var": "mean over worlds of the variance (ddof 1) over the 21 draws of that stream only",
+  "total_var": "variance over the 50 \u00d7 21 world-stream draws (each a fresh world)",
+  "world_var": "total_var \u2212 \u03a3 within_var over cascade, media, workers, election (additive model)",
+  "shares": "component / total_var (per policy)",
+  "anova_between_var": "one-way random-effects ANOVA per stream, groups = worlds: (MSB \u2212 MSW)/21",
+  "skill_share": "Var_p(policy means, ddof 0) / [that + mean_p total_var(p)], world-stream draws",
+  "bootstrap_ci": "2.5/97.5 percentiles over 2,000 resamples of the 50 worlds; key 'metric|policy|component'"
+ },
+ "canonical": {
+  "planner": {
+   "win": {
+    "rate": 0.92,
+    "k": 46,
+    "n": 50,
+    "ci95": [
+     0.8116149745493629,
+     0.9684509967442093
+    ]
+   },
+   "E": {
+    "mean": 0.6264623951911926,
+    "ci95": [
+     0.6053083345799031,
+     0.6476164558024822
+    ],
+    "sd": 0.07443453438072031,
+    "n": 50
+   }
+  },
+  "pay_split": {
+   "win": {
+    "rate": 0.88,
+    "k": 44,
+    "n": 50,
+    "ci95": [
+     0.7619492111337642,
+     0.9438247628937535
+    ]
+   },
+   "E": {
+    "mean": 0.6146990931034089,
+    "ci95": [
+     0.5920540900291739,
+     0.6373440961776439
+    ],
+    "sd": 0.07968069539240644,
+    "n": 50
+   }
+  },
+  "none": {
+   "win": {
+    "rate": 0.32,
+    "k": 16,
+    "n": 50,
+    "ci95": [
+     0.20758044093999403,
+     0.45810557136276076
+    ]
+   },
+   "E": {
+    "mean": 0.4670045703649521,
+    "ci95": [
+     0.4490172792390113,
+     0.48499186149089285
+    ],
+    "sd": 0.06329166131893048,
+    "n": 50
+   }
+  }
+ },
+ "components": {
+  "E": {
+   "planner": {
+    "cascade": {
+     "within_var": 9.281946844732385e-06,
+     "within_sd": 0.003046628767134648,
+     "anova_between_var": 0.005514795893184821,
+     "anova_msb": 0.11581999570372596
+    },
+    "media": {
+     "within_var": 2.2447243814127657e-07,
+     "within_sd": 0.00047378522364176424,
+     "anova_between_var": 0.005535297752434713,
+     "anova_msb": 0.11624147727356712
+    },
+    "workers": {
+     "within_var": 6.576558044645373e-06,
+     "within_sd": 0.002564480072967106,
+     "anova_between_var": 0.005489461333451875,
+     "anova_msb": 0.11528526456053402
+    },
+    "election": {
+     "within_var": 0.0,
+     "within_sd": 0.0,
+     "anova_between_var": 0.005540499908474635,
+     "anova_msb": 0.11635049807796734
+    },
+    "world": {
+     "within_var": 0.005650061756988921,
+     "within_sd": 0.07516689269212158,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.004018118438590129
+    },
+    "world_graph": {
+     "within_var": 0.0003528026808263636,
+     "within_sd": 0.018783042374076773,
+     "anova_between_var": 0.005036827700732142,
+     "anova_msb": 0.10612618439620136
+    },
+    "world_prefs": {
+     "within_var": 0.005174514408524494,
+     "within_sd": 0.07193409767644614,
+     "anova_between_var": 9.726168743870985e-05,
+     "anova_msb": 0.007217009844737401
+    },
+    "world_attrs": {
+     "within_var": 0.0002186112187850057,
+     "within_sd": 0.014785507052008926,
+     "anova_between_var": 0.005092037086310066,
+     "anova_msb": 0.10715139003129638
+    },
+    "total_var": 0.005573831802173343,
+    "world_var": 0.005557748824845824,
+    "sum_luck_streams_var": 1.6082977327519033e-05,
+    "shares": {
+     "cascade": 0.001665272145656275,
+     "media": 4.0272553264659066e-05,
+     "workers": 0.0011798989058265173,
+     "election": 0.0,
+     "world": 0.9971145563952526,
+     "world_graph": 0.06329625531376801,
+     "world_prefs": 0.9283585497694516,
+     "world_attrs": 0.03922099312357524
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.005540499908474635,
+     "world_plus_game_streams": 0.005573831802173343
+    }
+   },
+   "pay_split": {
+    "cascade": {
+     "within_var": 7.176403982903381e-05,
+     "within_sd": 0.008471365877415154,
+     "anova_between_var": 0.006122972856741563,
+     "anova_msb": 0.12865419403140185
+    },
+    "media": {
+     "within_var": 6.921082435001308e-07,
+     "within_sd": 0.0008319304318872647,
+     "anova_between_var": 0.006387905401062698,
+     "anova_msb": 0.13414670553056016
+    },
+    "workers": {
+     "within_var": 8.759401605741254e-05,
+     "within_sd": 0.009359167487411075,
+     "anova_between_var": 0.006268758909518476,
+     "anova_msb": 0.1317315311159454
+    },
+    "election": {
+     "within_var": 0.0,
+     "within_sd": 0.0,
+     "anova_between_var": 0.006349013218217461,
+     "anova_msb": 0.13332927758256669
+    },
+    "world": {
+     "within_var": 0.0063447401092151115,
+     "within_sd": 0.07965387692520128,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.004702571104557376
+    },
+    "world_graph": {
+     "within_var": 0.0004440035054596574,
+     "within_sd": 0.021071390686417862,
+     "anova_between_var": 0.005986264678519363,
+     "anova_msb": 0.12615556175436626
+    },
+    "world_prefs": {
+     "within_var": 0.005594300856812987,
+     "within_sd": 0.0747950590401063,
+     "anova_between_var": 0.0003158487530000479,
+     "anova_msb": 0.012227124669813993
+    },
+    "world_attrs": {
+     "within_var": 0.0005056819267459133,
+     "within_sd": 0.02248737260655218,
+     "anova_between_var": 0.005770766714574523,
+     "anova_msb": 0.12169178293281088
+    },
+    "total_var": 0.006268032500799259,
+    "world_var": 0.006107982336669312,
+    "sum_luck_streams_var": 0.0001600501641299465,
+    "shares": {
+     "cascade": 0.011449213101540704,
+     "media": 0.00011041873880071261,
+     "workers": 0.013974722697472153,
+     "election": 0.0,
+     "world": 0.9744656454621864,
+     "world_graph": 0.07083618430552825,
+     "world_prefs": 0.8925130583001345,
+     "world_attrs": 0.08067634089029245
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.006349013218217461,
+     "world_plus_game_streams": 0.006268032500799259
+    }
+   },
+   "none": {
+    "cascade": {
+     "within_var": 6.504849569041869e-17,
+     "within_sd": 8.065264762574053e-09,
+     "anova_between_var": 0.004005834483189074,
+     "anova_msb": 0.08412252414697062
+    },
+    "media": {
+     "within_var": 5.870436412113206e-17,
+     "within_sd": 7.661877323550153e-09,
+     "anova_between_var": 0.004005834478494513,
+     "anova_msb": 0.08412252404838483
+    },
+    "workers": {
+     "within_var": 5.726636096542711e-17,
+     "within_sd": 7.567454061005399e-09,
+     "anova_between_var": 0.004005834481882676,
+     "anova_msb": 0.08412252411953625
+    },
+    "election": {
+     "within_var": 0.0,
+     "within_sd": 0.0,
+     "anova_between_var": 0.0040058343925102,
+     "anova_msb": 0.0841225222427142
+    },
+    "world": {
+     "within_var": 0.00412178936755164,
+     "within_sd": 0.06420116328814954,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.002698663069088253
+    },
+    "world_graph": {
+     "within_var": 0.00018049173335688834,
+     "within_sd": 0.01343472118642171,
+     "anova_between_var": 0.003938143445599477,
+     "anova_msb": 0.08288150409094593
+    },
+    "world_prefs": {
+     "within_var": 0.003718335196137372,
+     "within_sd": 0.060978153433318825,
+     "anova_between_var": 0.00016491108395739868,
+     "anova_msb": 0.007181467959242745
+    },
+    "world_attrs": {
+     "within_var": 4.8593720335317484e-05,
+     "within_sd": 0.006970919619054396,
+     "anova_between_var": 0.00398468040424566,
+     "anova_msb": 0.08372688220949419
+    },
+    "total_var": 0.004055313496603398,
+    "world_var": 0.0040553134966032165,
+    "sum_luck_streams_var": 1.8101922077697787e-16,
+    "shares": {
+     "cascade": 1.6040312480132854e-14,
+     "media": 1.4475912693383873e-14,
+     "workers": 1.4121315408387441e-14,
+     "election": 0.0,
+     "world": 0.9999999999999553,
+     "world_graph": 0.04450746742713294,
+     "world_prefs": 0.9169045005402744,
+     "world_attrs": 0.011982728431727423
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.0040058343925102,
+     "world_plus_game_streams": 0.004055313496603398
+    }
+   }
+  },
+  "V": {
+   "planner": {
+    "cascade": {
+     "within_var": 1.2340378095238094e-05,
+     "within_sd": 0.00351288742991262,
+     "anova_between_var": 0.005578973250735343,
+     "anova_msb": 0.11717077864353743
+    },
+    "media": {
+     "within_var": 1.1329961904761932e-06,
+     "within_sd": 0.001064422937781873,
+     "anova_between_var": 0.005562692638396965,
+     "anova_msb": 0.11681767840252674
+    },
+    "workers": {
+     "within_var": 7.824853333333337e-06,
+     "within_sd": 0.002797293930450166,
+     "anova_between_var": 0.005552152777366838,
+     "anova_msb": 0.11660303317803694
+    },
+    "election": {
+     "within_var": 1.1501186666666664e-05,
+     "within_sd": 0.003391339951503928,
+     "anova_between_var": 0.005563598403726226,
+     "anova_msb": 0.11684706766491741
+    },
+    "world": {
+     "within_var": 0.005658385923809524,
+     "within_sd": 0.07522224354411083,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.004491613780369285
+    },
+    "world_graph": {
+     "within_var": 0.0003602090961904762,
+     "within_sd": 0.018979175329567832,
+     "anova_between_var": 0.005056086965098801,
+     "anova_msb": 0.10653803536326528
+    },
+    "world_prefs": {
+     "within_var": 0.00516389844952381,
+     "within_sd": 0.07186027031346187,
+     "anova_between_var": 0.00011780726820491527,
+     "anova_msb": 0.007637851081827031
+    },
+    "world_attrs": {
+     "within_var": 0.0002170722580952381,
+     "within_sd": 0.014733372258082604,
+     "anova_between_var": 0.0051591080910093,
+     "anova_msb": 0.10855834216929054
+    },
+    "total_var": 0.005603884651141676,
+    "world_var": 0.005571085236855962,
+    "sum_luck_streams_var": 3.2799414285714284e-05,
+    "shares": {
+     "cascade": 0.0022021113679996955,
+     "media": 0.0002021804981737746,
+     "workers": 0.0013963266234859391,
+     "election": 0.002052359636689441,
+     "world": 0.9941470218736511,
+     "world_graph": 0.06427846371125627,
+     "world_prefs": 0.9214854999686284,
+     "world_attrs": 0.038736032521835384
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.005563598403726226,
+     "world_plus_game_streams": 0.005592383464475009
+    }
+   },
+   "pay_split": {
+    "cascade": {
+     "within_var": 7.350264476190474e-05,
+     "within_sd": 0.008573368344000201,
+     "anova_between_var": 0.0061446580046989685,
+     "anova_msb": 0.12911132074344026
+    },
+    "media": {
+     "within_var": 1.2827171428571427e-06,
+     "within_sd": 0.0011325710321463916,
+     "anova_between_var": 0.00636035260761072,
+     "anova_msb": 0.13356868747696798
+    },
+    "workers": {
+     "within_var": 8.956969238095239e-05,
+     "within_sd": 0.00946412660423308,
+     "anova_between_var": 0.00627750909381924,
+     "anova_msb": 0.131917260662585
+    },
+    "election": {
+     "within_var": 1.2226841904761892e-05,
+     "within_sd": 0.003496690135651412,
+     "anova_between_var": 0.006363421218884724,
+     "anova_msb": 0.13364407243848397
+    },
+    "world": {
+     "within_var": 0.006358128063809523,
+     "within_sd": 0.07973787095107018,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.005144602629543245
+    },
+    "world_graph": {
+     "within_var": 0.0004447392476190476,
+     "within_sd": 0.021088841779932997,
+     "anova_between_var": 0.005957430924077931,
+     "anova_msb": 0.12555078865325559
+    },
+    "world_prefs": {
+     "within_var": 0.005582849686666665,
+     "within_sd": 0.07471846951501794,
+     "anova_between_var": 0.000334042706123375,
+     "anova_msb": 0.01259774651525754
+    },
+    "world_attrs": {
+     "within_var": 0.0005043347295238096,
+     "within_sd": 0.022457398102269318,
+     "anova_between_var": 0.005827324518539499,
+     "anova_msb": 0.12287814961885328
+    },
+    "total_var": 0.006301442890998229,
+    "world_var": 0.006124860994807753,
+    "sum_luck_streams_var": 0.00017658189619047617,
+    "shares": {
+     "cascade": 0.011664414965484355,
+     "media": 0.0002035592744464187,
+     "workers": 0.014214156016379195,
+     "election": 0.001940324163252871,
+     "world": 0.9719775455804371,
+     "world_graph": 0.0705773670113505,
+     "world_prefs": 0.8859637043829925,
+     "world_attrs": 0.08003480127452468
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.006363421218884724,
+     "world_plus_game_streams": 0.006289216049093467
+    }
+   },
+   "none": {
+    "cascade": {
+     "within_var": 9.577264427448848e-33,
+     "within_sd": 9.786349895363872e-17,
+     "anova_between_var": 0.004065137473469389,
+     "anova_msb": 0.08536788694285716
+    },
+    "media": {
+     "within_var": 9.577264427448848e-33,
+     "within_sd": 9.786349895363872e-17,
+     "anova_between_var": 0.004065137473469389,
+     "anova_msb": 0.08536788694285716
+    },
+    "workers": {
+     "within_var": 9.577264427448848e-33,
+     "within_sd": 9.786349895363872e-17,
+     "anova_between_var": 0.004065137473469389,
+     "anova_msb": 0.08536788694285716
+    },
+    "election": {
+     "within_var": 1.702868571428572e-05,
+     "within_sd": 0.004126582813210674,
+     "anova_between_var": 0.004029663233430518,
+     "anova_msb": 0.08463995658775515
+    },
+    "world": {
+     "within_var": 0.004129291517142857,
+     "within_sd": 0.06425956362396851,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.003128904471137029
+    },
+    "world_graph": {
+     "within_var": 0.00018530934380952375,
+     "within_sd": 0.01361283746356812,
+     "anova_between_var": 0.0039868383657004035,
+     "anova_msb": 0.083908915023518
+    },
+    "world_prefs": {
+     "within_var": 0.0037152989542857135,
+     "within_sd": 0.06095325220433864,
+     "anova_between_var": 0.00017062959656809662,
+     "anova_msb": 0.007298520482215742
+    },
+    "world_attrs": {
+     "within_var": 5.338322571428571e-05,
+     "within_sd": 0.00730638253270972,
+     "anova_between_var": 0.004072995730600213,
+     "anova_msb": 0.08558629356831876
+    },
+    "total_var": 0.004082562284297971,
+    "world_var": 0.004065533598583686,
+    "sum_luck_streams_var": 1.702868571428572e-05,
+    "shares": {
+     "cascade": 2.3458954843834636e-30,
+     "media": 2.3458954843834636e-30,
+     "workers": 2.3458954843834636e-30,
+     "election": 0.00417107799672282,
+     "world": 0.9958289220032772,
+     "world_graph": 0.045390451119936594,
+     "world_prefs": 0.910040973183729,
+     "world_attrs": 0.013075912134789482
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.004029663233430518,
+     "world_plus_game_streams": 0.004065533598583686
+    }
+   }
+  },
+  "win": {
+   "planner": {
+    "cascade": {
+     "within_var": 0.012476190476190474,
+     "within_sd": 0.11169686869465265,
+     "anova_between_var": 0.06156610671479477,
+     "anova_msb": 1.3053644314868806
+    },
+    "media": {
+     "within_var": 0.0027619047619047614,
+     "within_sd": 0.052553827281224354,
+     "anova_between_var": 0.0731018557082697,
+     "anova_msb": 1.5379008746355685
+    },
+    "workers": {
+     "within_var": 0.010571428571428572,
+     "within_sd": 0.10281745265969476,
+     "anova_between_var": 0.06022037114165394,
+     "anova_msb": 1.2751992225461615
+    },
+    "election": {
+     "within_var": 0.01276190476190476,
+     "within_sd": 0.11296860077873302,
+     "anova_between_var": 0.06209209125827201,
+     "anova_msb": 1.316695821185617
+    },
+    "world": {
+     "within_var": 0.062190476190476185,
+     "within_sd": 0.24938018403729711,
+     "anova_between_var": 9.283169049932924e-05,
+     "anova_msb": 0.0641399416909621
+    },
+    "world_graph": {
+     "within_var": 0.03647619047619047,
+     "within_sd": 0.1909874092085404,
+     "anova_between_var": 0.01865176546809199,
+     "anova_msb": 0.42816326530612225
+    },
+    "world_prefs": {
+     "within_var": 0.05076190476190476,
+     "within_sd": 0.22530402739832406,
+     "anova_between_var": 0.0006379749178583001,
+     "anova_msb": 0.06415937803692906
+    },
+    "world_attrs": {
+     "within_var": 0.008285714285714285,
+     "within_sd": 0.09102589898327995,
+     "anova_between_var": 0.057563700310056,
+     "anova_msb": 1.2171234207968902
+    },
+    "total_var": 0.0622815379726724,
+    "world_var": 0.02371010940124383,
+    "sum_luck_streams_var": 0.03857142857142857,
+    "shares": {
+     "cascade": 0.20031924198250722,
+     "media": 0.044345481049562666,
+     "workers": 0.1697361516034985,
+     "election": 0.20490670553935855,
+     "world": 0.38069241982507307,
+     "world_graph": 0.5856661807580172,
+     "world_prefs": 0.8150393586005829,
+     "world_attrs": 0.133036443148688
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.06209209125827201,
+     "world_plus_game_streams": 0.04951963321076763
+    }
+   },
+   "pay_split": {
+    "cascade": {
+     "within_var": 0.017142857142857144,
+     "within_sd": 0.13093073414159542,
+     "anova_between_var": 0.09829145263547596,
+     "anova_msb": 2.0812633624878525
+    },
+    "media": {
+     "within_var": 0.010190476190476193,
+     "within_sd": 0.1009478884894389,
+     "anova_between_var": 0.10537896246934146,
+     "anova_msb": 2.223148688046647
+    },
+    "workers": {
+     "within_var": 0.014857142857142855,
+     "within_sd": 0.1218898800440088,
+     "anova_between_var": 0.10418955065019209,
+     "anova_msb": 2.2028377065111764
+    },
+    "election": {
+     "within_var": 0.019714285714285712,
+     "within_sd": 0.14040757000349274,
+     "anova_between_var": 0.08913110278124854,
+     "anova_msb": 1.8914674441205053
+    },
+    "world": {
+     "within_var": 0.08133333333333333,
+     "within_sd": 0.2851899951494325,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.06999028182701653
+    },
+    "world_graph": {
+     "within_var": 0.03352380952380953,
+     "within_sd": 0.18309508328682542,
+     "anova_between_var": 0.07578712573464762,
+     "anova_msb": 1.6250534499514095
+    },
+    "world_prefs": {
+     "within_var": 0.07495238095238094,
+     "within_sd": 0.2737743248596934,
+     "anova_between_var": 0.0027513536026655566,
+     "anova_msb": 0.13273080660835762
+    },
+    "world_attrs": {
+     "within_var": 0.028095238095238093,
+     "within_sd": 0.16761634196950514,
+     "anova_between_var": 0.06782683141283725,
+     "anova_msb": 1.4524586977648204
+    },
+    "total_var": 0.08080348631349585,
+    "world_var": 0.01889872440873394,
+    "sum_luck_streams_var": 0.06190476190476191,
+    "shares": {
+     "cascade": 0.21215491960764488,
+     "media": 0.12611431332232223,
+     "workers": 0.1838675969932922,
+     "election": 0.24397815754879154,
+     "world": 0.2338850125279491,
+     "world_graph": 0.41488073167717227,
+     "world_prefs": 0.9275884540623137,
+     "world_attrs": 0.3476983404680846
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.08913110278124854,
+     "world_plus_game_streams": 0.061089200599210136
+    }
+   },
+   "none": {
+    "cascade": {
+     "within_var": 0.0,
+     "within_sd": 0.0,
+     "anova_between_var": 0.22204081632653067,
+     "anova_msb": 4.662857142857144
+    },
+    "media": {
+     "within_var": 0.0,
+     "within_sd": 0.0,
+     "anova_between_var": 0.22204081632653067,
+     "anova_msb": 4.662857142857144
+    },
+    "workers": {
+     "within_var": 0.0,
+     "within_sd": 0.0,
+     "anova_between_var": 0.22204081632653067,
+     "anova_msb": 4.662857142857144
+    },
+    "election": {
+     "within_var": 0.01933333333333333,
+     "within_sd": 0.1390443574307614,
+     "anova_between_var": 0.2054054329214679,
+     "anova_msb": 4.332847424684159
+    },
+    "world": {
+     "within_var": 0.24419047619047618,
+     "within_sd": 0.4941563276843434,
+     "anova_between_var": 0.0,
+     "anova_msb": 0.22655004859086497
+    },
+    "world_graph": {
+     "within_var": 0.05571428571428572,
+     "within_sd": 0.23603873774083295,
+     "anova_between_var": 0.1793784996991994,
+     "anova_msb": 3.822662779397473
+    },
+    "world_prefs": {
+     "within_var": 0.23419047619047614,
+     "within_sd": 0.48393230538007703,
+     "anova_between_var": 0.008525984543477257,
+     "anova_msb": 0.4132361516034985
+    },
+    "world_attrs": {
+     "within_var": 0.04161904761904761,
+     "within_sd": 0.2040074695177792,
+     "anova_between_var": 0.1953026053958999,
+     "anova_msb": 4.142973760932945
+    },
+    "total_var": 0.24336647146942667,
+    "world_var": 0.22403313813609332,
+    "sum_luck_streams_var": 0.01933333333333333,
+    "shares": {
+     "cascade": 0.0,
+     "media": 0.0,
+     "workers": 0.0,
+     "election": 0.07944123615960844,
+     "world": 0.9205587638403915,
+     "world_graph": 0.22893164114961057,
+     "world_prefs": 0.9622955651057986,
+     "world_attrs": 0.17101389261945263
+    },
+    "additivity_check": {
+     "anova_between_election_design": 0.2054054329214679,
+     "world_plus_game_streams": 0.22403313813609332
+    }
+   }
+  }
+ },
+ "skill": {
+  "E": {
+   "all3": {
+    "policies": [
+     "planner",
+     "pay_split",
+     "none"
+    ],
+    "policy_means": {
+     "planner": 0.631560768087705,
+     "pay_split": 0.6250296459027699,
+     "none": 0.47525147083259767
+    },
+    "var_policy_means": 0.005212083743636802,
+    "mean_within_policy_var": 0.005299059266525334,
+    "skill_share": 0.495862699099211
+   },
+   "planner_vs_split": {
+    "policies": [
+     "planner",
+     "pay_split"
+    ],
+    "policy_means": {
+     "planner": 0.631560768087705,
+     "pay_split": 0.6250296459027699
+    },
+    "var_policy_means": 1.0663889248637934e-05,
+    "mean_within_policy_var": 0.005920932151486301,
+    "skill_share": 0.0017978111077363004
+   }
+  },
+  "V": {
+   "all3": {
+    "policies": [
+     "planner",
+     "pay_split",
+     "none"
+    ],
+    "policy_means": {
+     "planner": 0.6311009523809523,
+     "pay_split": 0.6245534285714285,
+     "none": 0.4750891428571429
+    },
+    "var_policy_means": 0.0051913474981123645,
+    "mean_within_policy_var": 0.005329296608812626,
+    "skill_share": 0.4934438847423106
+   },
+   "planner_vs_split": {
+    "policies": [
+     "planner",
+     "pay_split"
+    ],
+    "policy_means": {
+     "planner": 0.6311009523809523,
+     "pay_split": 0.6245534285714285
+    },
+    "var_policy_means": 1.0717517009070383e-05,
+    "mean_within_policy_var": 0.005952663771069953,
+    "skill_share": 0.0017972214908503366
+   }
+  },
+  "win": {
+   "all3": {
+    "policies": [
+     "planner",
+     "pay_split",
+     "none"
+    ],
+    "policy_means": {
+     "planner": 0.9333333333333333,
+     "pay_split": 0.9114285714285715,
+     "none": 0.41714285714285715
+    },
+    "var_policy_means": 0.056805643738977084,
+    "mean_within_policy_var": 0.12881716525186496,
+    "skill_share": 0.3060272821417096
+   },
+   "planner_vs_split": {
+    "policies": [
+     "planner",
+     "pay_split"
+    ],
+    "policy_means": {
+     "planner": 0.9333333333333333,
+     "pay_split": 0.9114285714285715
+    },
+    "var_policy_means": 0.00011995464852607674,
+    "mean_within_policy_var": 0.07154251214308413,
+    "skill_share": 0.0016738838878502056
+   }
+  }
+ },
+ "bootstrap_ci95": {
+  "E|planner|cascade": [
+   0.0010620658811934323,
+   0.0024761477781054535
+  ],
+  "E|planner|media": [
+   3.4455122552817586e-05,
+   4.665250779080098e-05
+  ],
+  "E|planner|workers": [
+   0.0007471911238906864,
+   0.0016864876093544312
+  ],
+  "E|planner|election": [
+   0.0,
+   0.0
+  ],
+  "E|planner|world": [
+   0.9958809231438878,
+   0.9981122941929621
+  ],
+  "E|planner|world_graph": [
+   0.04671620684770639,
+   0.08573504188712493
+  ],
+  "E|planner|world_prefs": [
+   0.8611797016586042,
+   1.0045266967922977
+  ],
+  "E|planner|world_attrs": [
+   0.03258761941316756,
+   0.046995423577955824
+  ],
+  "E|planner|world_var": [
+   0.0051490140577702456,
+   0.005945999445868805
+  ],
+  "E|pay_split|cascade": [
+   0.00703869292536974,
+   0.01643831563575967
+  ],
+  "E|pay_split|media": [
+   7.685135753704707e-05,
+   0.00015113840021379333
+  ],
+  "E|pay_split|workers": [
+   0.008979016981261828,
+   0.020264783313530158
+  ],
+  "E|pay_split|election": [
+   0.0,
+   0.0
+  ],
+  "E|pay_split|world": [
+   0.9634908607064638,
+   0.9836348319567471
+  ],
+  "E|pay_split|world_graph": [
+   0.054969829302081386,
+   0.09057311166925759
+  ],
+  "E|pay_split|world_prefs": [
+   0.8301840887756504,
+   0.9578552723228316
+  ],
+  "E|pay_split|world_attrs": [
+   0.06645225582562282,
+   0.09651520462962308
+  ],
+  "E|pay_split|world_var": [
+   0.005626694949394874,
+   0.006552244034045223
+  ],
+  "E|none|cascade": [
+   6.790001818665152e-15,
+   2.956569795006105e-14
+  ],
+  "E|none|media": [
+   5.764007779972786e-15,
+   2.7410544097706908e-14
+  ],
+  "E|none|workers": [
+   5.6608207397418565e-15,
+   2.693730029842534e-14
+  ],
+  "E|none|election": [
+   0.0,
+   0.0
+  ],
+  "E|none|world": [
+   0.9999999999999163,
+   0.9999999999999815
+  ],
+  "E|none|world_graph": [
+   0.038068199902071054,
+   0.051958179522632084
+  ],
+  "E|none|world_prefs": [
+   0.8578357060308859,
+   0.9786866862083697
+  ],
+  "E|none|world_attrs": [
+   0.009843876567585567,
+   0.014405338531868489
+  ],
+  "E|none|world_var": [
+   0.0037827577312028533,
+   0.004317547578098817
+  ],
+  "E|skill|all3": [
+   0.47699637374475673,
+   0.5169057283017254
+  ],
+  "E|skill|planner_vs_split": [
+   0.0012142437538091536,
+   0.002480575205466294
+  ],
+  "V|planner|cascade": [
+   0.001524123631362372,
+   0.0030971682785319366
+  ],
+  "V|planner|media": [
+   0.0001786488507107045,
+   0.00022794616466016504
+  ],
+  "V|planner|workers": [
+   0.0009533813738242738,
+   0.0019090387702942139
+  ],
+  "V|planner|election": [
+   0.001816048972956155,
+   0.002313277437434484
+  ],
+  "V|planner|world": [
+   0.9928046075751651,
+   0.9952483225010232
+  ],
+  "V|planner|world_graph": [
+   0.047631108034854264,
+   0.08712217063145454
+  ],
+  "V|planner|world_prefs": [
+   0.8550984509255922,
+   0.9943155119945652
+  ],
+  "V|planner|world_attrs": [
+   0.03258615757041611,
+   0.04575202279178331
+  ],
+  "V|planner|world_var": [
+   0.005159723680059739,
+   0.0059472558700468916
+  ],
+  "V|pay_split|cascade": [
+   0.00737722610877118,
+   0.016533021732039882
+  ],
+  "V|pay_split|media": [
+   0.0001621157731207684,
+   0.0002538336612240953
+  ],
+  "V|pay_split|workers": [
+   0.009186601557267403,
+   0.020386412577625784
+  ],
+  "V|pay_split|election": [
+   0.0017230885662179157,
+   0.0022149623194205373
+  ],
+  "V|pay_split|world": [
+   0.9611444754906445,
+   0.981127185118571
+  ],
+  "V|pay_split|world_graph": [
+   0.05511760670840053,
+   0.09026634552716076
+  ],
+  "V|pay_split|world_prefs": [
+   0.8240735022651992,
+   0.9501847589317283
+  ],
+  "V|pay_split|world_attrs": [
+   0.06627463678839206,
+   0.09604825214850479
+  ],
+  "V|pay_split|world_var": [
+   0.0056384921716255395,
+   0.006569634855337213
+  ],
+  "V|none|cascade": [
+   1.5683077410625106e-30,
+   3.299958130785863e-30
+  ],
+  "V|none|media": [
+   1.5683077410625106e-30,
+   3.299958130785863e-30
+  ],
+  "V|none|workers": [
+   1.5683077410625106e-30,
+   3.299958130785863e-30
+  ],
+  "V|none|election": [
+   0.003696753327706711,
+   0.004723026700596528
+  ],
+  "V|none|world": [
+   0.9952769732994035,
+   0.9963032466722933
+  ],
+  "V|none|world_graph": [
+   0.03907501750919768,
+   0.052846311506814334
+  ],
+  "V|none|world_prefs": [
+   0.8505621970888296,
+   0.9705301611317925
+  ],
+  "V|none|world_attrs": [
+   0.010484124166982054,
+   0.016463015524077536
+  ],
+  "V|none|world_var": [
+   0.0037937179494059877,
+   0.004336968418021903
+  ],
+  "V|skill|all3": [
+   0.4748080496749037,
+   0.5141049953526088
+  ],
+  "V|skill|planner_vs_split": [
+   0.0012295172962447642,
+   0.0024761528240408296
+  ],
+  "win|planner|cascade": [
+   0.0,
+   0.44718435999252565
+  ],
+  "win|planner|media": [
+   0.0,
+   0.12020557902478231
+  ],
+  "win|planner|workers": [
+   0.014897182458532155,
+   0.3956011297305096
+  ],
+  "win|planner|election": [
+   0.0,
+   0.46338902564102535
+  ],
+  "win|planner|world": [
+   -0.34601950064565196,
+   0.9851028175414678
+  ],
+  "win|planner|world_graph": [
+   0.23382823702222696,
+   0.9966632316878741
+  ],
+  "win|planner|world_prefs": [
+   0.6107575495927353,
+   1.069295356726351
+  ],
+  "win|planner|world_attrs": [
+   0.014708150474614778,
+   0.3143497185429364
+  ],
+  "win|planner|world_var": [
+   -0.021522118570974604,
+   0.06120522947024374
+  ],
+  "win|pay_split|cascade": [
+   0.04300958508083614,
+   0.43621389062992455
+  ],
+  "win|pay_split|media": [
+   0.0,
+   0.30607100585172753
+  ],
+  "win|pay_split|workers": [
+   0.02330320709934642,
+   0.38614975785297273
+  ],
+  "win|pay_split|election": [
+   0.057418947368421035,
+   0.49156763677783805
+  ],
+  "win|pay_split|world": [
+   -0.5144647339603003,
+   0.8097180348422669
+  ],
+  "win|pay_split|world_graph": [
+   0.19221405840749806,
+   0.6559418291841935
+  ],
+  "win|pay_split|world_prefs": [
+   0.7224562362321387,
+   1.1662030036531712
+  ],
+  "win|pay_split|world_attrs": [
+   0.13330307706272126,
+   0.5994428388218483
+  ],
+  "win|pay_split|world_var": [
+   -0.04064982069090741,
+   0.06619233056425612
+  ],
+  "win|none|cascade": [
+   0.0,
+   0.0
+  ],
+  "win|none|media": [
+   0.0,
+   0.0
+  ],
+  "win|none|workers": [
+   0.0,
+   0.0
+  ],
+  "win|none|election": [
+   0.01917485638191268,
+   0.15902885042442846
+  ],
+  "win|none|world": [
+   0.8409711495755715,
+   0.9808251436180873
+  ],
+  "win|none|world_graph": [
+   0.1327706588475297,
+   0.33111520866469785
+  ],
+  "win|none|world_prefs": [
+   0.9231592860429394,
+   0.9973844057536668
+  ],
+  "win|none|world_attrs": [
+   0.08604533491860988,
+   0.27273062096121725
+  ],
+  "win|none|world_var": [
+   0.2044348540560171,
+   0.2400509351309636
+  ],
+  "win|skill|all3": [
+   0.2763163386218687,
+   0.33547613332908366
+  ],
+  "win|skill|planner_vs_split": [
+   0.00043835655028165855,
+   0.0037226629273618274
+  ]
+ },
+ "ranking_by_share": {
+  "E": {
+   "planner": [
+    "world",
+    "cascade",
+    "workers",
+    "media",
+    "election"
+   ],
+   "pay_split": [
+    "world",
+    "workers",
+    "cascade",
+    "media",
+    "election"
+   ],
+   "none": [
+    "world",
+    "cascade",
+    "media",
+    "workers",
+    "election"
+   ]
+  },
+  "V": {
+   "planner": [
+    "world",
+    "cascade",
+    "election",
+    "workers",
+    "media"
+   ],
+   "pay_split": [
+    "world",
+    "workers",
+    "cascade",
+    "election",
+    "media"
+   ],
+   "none": [
+    "world",
+    "election",
+    "cascade",
+    "media",
+    "workers"
+   ]
+  },
+  "win": {
+   "planner": [
+    "world",
+    "election",
+    "cascade",
+    "workers",
+    "media"
+   ],
+   "pay_split": [
+    "election",
+    "world",
+    "cascade",
+    "workers",
+    "media"
+   ],
+   "none": [
+    "world",
+    "election",
+    "cascade",
+    "media",
+    "workers"
+   ]
+  }
+ },
+ "predicted_order": [
+  "world",
+  "workers",
+  "cascade",
+  "media",
+  "election"
+ ],
+ "election_noise_sd_V": {
+  "planner": 0.003391339951503928,
+  "pay_split": 0.003496690135651412,
+  "none": 0.004126582813210674
+ },
+ "pair_tests": [
+  {
+   "metric": "V",
+   "policy": "planner",
+   "a": "workers",
+   "b": "cascade",
+   "mean": -0.0007194299387244059,
+   "ci95": [
+    -0.0009849921412534166,
+    -0.0004538677361953951
+   ],
+   "sd": 0.0009344304744884868,
+   "n": 50,
+   "wilcoxon_p": 2.1499046276574063e-07,
+   "a_better": 8,
+   "holm_p": 8.599618510629625e-07
+  },
+  {
+   "metric": "V",
+   "policy": "planner",
+   "a": "cascade",
+   "b": "media",
+   "mean": 0.002125147883231186,
+   "ci95": [
+    0.0016929353502904278,
+    0.0025573604161719444
+   ],
+   "sd": 0.0015208209541475815,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 50,
+   "holm_p": 2.1316282072803006e-14
+  },
+  {
+   "metric": "V",
+   "policy": "planner",
+   "a": "media",
+   "b": "election",
+   "mean": -0.002289494931351088,
+   "ci95": [
+    -0.002468720603845112,
+    -0.0021102692588570635
+   ],
+   "sd": 0.0006306391820606098,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 0,
+   "holm_p": 2.1316282072803006e-14
+  },
+  {
+   "metric": "V",
+   "policy": "pay_split",
+   "a": "workers",
+   "b": "cascade",
+   "mean": 0.0005191905837553824,
+   "ci95": [
+    -0.00031609986870330365,
+    0.0013544810362140685
+   ],
+   "sd": 0.0029391263003303585,
+   "n": 50,
+   "wilcoxon_p": 1.0,
+   "a_better": 22,
+   "holm_p": 1.0
+  },
+  {
+   "metric": "V",
+   "policy": "pay_split",
+   "a": "cascade",
+   "b": "media",
+   "mean": 0.005713166190242476,
+   "ci95": [
+    0.004262169745875972,
+    0.00716416263460898
+   ],
+   "sd": 0.005105603444610618,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 50,
+   "holm_p": 2.1316282072803006e-14
+  },
+  {
+   "metric": "V",
+   "policy": "pay_split",
+   "a": "media",
+   "b": "election",
+   "mean": -0.0023734092200930093,
+   "ci95": [
+    -0.0025776722458439537,
+    -0.002169146194342065
+   ],
+   "sd": 0.0007187378107848676,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 0,
+   "holm_p": 2.1316282072803006e-14
+  },
+  {
+   "metric": "E",
+   "policy": "planner",
+   "a": "workers",
+   "b": "cascade",
+   "mean": -0.0005279463070184955,
+   "ci95": [
+    -0.0007601772787144586,
+    -0.00029571533532253243
+   ],
+   "sd": 0.00081714828016263,
+   "n": 50,
+   "wilcoxon_p": 3.801371960321376e-06,
+   "a_better": 5,
+   "holm_p": 1.1404115880964127e-05
+  },
+  {
+   "metric": "E",
+   "policy": "planner",
+   "a": "cascade",
+   "b": "media",
+   "mean": 0.0021955927475673233,
+   "ci95": [
+    0.0017729618541461305,
+    0.002618223640988516
+   ],
+   "sd": 0.0014871061563436012,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 50,
+   "holm_p": 2.1316282072803006e-14
+  },
+  {
+   "metric": "E",
+   "policy": "planner",
+   "a": "media",
+   "b": "election",
+   "mean": 0.00045710824778829207,
+   "ci95": [
+    0.0004213385827930922,
+    0.0004928779127834919
+   ],
+   "sd": 0.00012586228279270068,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 50,
+   "holm_p": 2.1316282072803006e-14
+  },
+  {
+   "metric": "E",
+   "policy": "pay_split",
+   "a": "workers",
+   "b": "cascade",
+   "mean": 0.0006330357325884508,
+   "ci95": [
+    -0.0002041721756569577,
+    0.0014702436408338595
+   ],
+   "sd": 0.002945873228558603,
+   "n": 50,
+   "wilcoxon_p": 0.652772195247282,
+   "a_better": 23,
+   "holm_p": 1.0
+  },
+  {
+   "metric": "E",
+   "policy": "pay_split",
+   "a": "cascade",
+   "b": "media",
+   "mean": 0.005738929953637433,
+   "ci95": [
+    0.004244772225071508,
+    0.007233087682203358
+   ],
+   "sd": 0.005257474527505372,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 50,
+   "holm_p": 2.1316282072803006e-14
+  },
+  {
+   "metric": "E",
+   "policy": "pay_split",
+   "a": "media",
+   "b": "election",
+   "mean": 0.0007328195431755316,
+   "ci95": [
+    0.0006197646426081263,
+    0.0008458744437429369
+   ],
+   "sd": 0.00039780489608233537,
+   "n": 50,
+   "wilcoxon_p": 1.7763568394002505e-15,
+   "a_better": 50,
+   "holm_p": 2.1316282072803006e-14
+  }
+ ],
+ "test_family": "within-world sd of adjacent streams in the predicted order (workers>cascade, cascade>media, media>election) for V and E \u00d7 planner and pay_split: 12 Wilcoxon signed-rank tests on the per-world sd, Holm",
+ "deviations": [
+  "Electorates drawn on the GPU (generation='device', allowed by plan \u00a71.1 point 3) instead of the canonical CPU draw, so the 4,050 worlds take seconds; parity uses the canonical CPU draw.",
+  "Extra (beyond the plan): the world component split into graph / preferences / attributes sub-streams, and an E/V/win triple instead of E and win only."
+ ],
+ "config": {
+  "seed": 20261107,
+  "rounds": 5,
+  "budget": "500.00",
+  "device": "cuda:2",
+  "dtype": "float32",
+  "generation": "device",
+  "electorate": {
+   "num_voters": 10000,
+   "min_region_fraction": 0.15,
+   "region_dirichlet_a": 2.0,
+   "mean_degree": 30.0,
+   "intra_prob_range": [
+    0.5,
+    0.9
+   ],
+   "inter_prob_range": [
+    0.01,
+    0.2
+   ],
+   "dirichlet_concentration": 60.0,
+   "zealot_fraction": 0.05
+  },
+  "dynamics": {
+   "social_step": 0.15,
+   "social_rule": "degroot",
+   "wmsr_trim": 1
+  },
+  "workers": {
+   "worker_cost": "20.00",
+   "min_degree": 3,
+   "attempt_cap": 3,
+   "conversion_rule": "gamma_p"
+  },
+  "media": {
+   "base_cost": "50.00",
+   "exposure_prob": 0.6,
+   "strength": 0.25,
+   "decay": 0.5
+  },
+  "voting": {
+   "sensitivity": 20.0,
+   "threshold": 0.825
+  },
+  "survey": {
+   "query_cost": "10.00",
+   "query_sample_fraction": 0.1,
+   "poll_size": 400,
+   "consistency_tolerance": 0.02
+  }
+ },
+ "provenance": {
+  "git": "d8d9c4e+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:2",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 1,
+  "threads_per_worker": 4,
+  "seconds": 792.7393839992583,
+  "args": {
+   "seeds": 50,
+   "first_seed": 14000,
+   "salts": 20,
+   "n": 10000,
+   "device": "cuda:2",
+   "cap_gib": 10.0,
+   "world_chunk": 100,
+   "parity_seeds": 3,
+   "bootstrap": 2000,
+   "out": "reports/v3/x20.json",
+   "raw": "/data/ai23btech11017/MAS/CLOUT/reports/v3/raw/x20.jsonl",
+   "no_plots": false
+  },
+  "command": "python experiments/x20_luck_skill.py --seeds 50 --first-seed 14000 --salts 20 --device cuda:2 --out reports/v3/x20.json",
+  "compute": {
+   "device": "cuda:2",
+   "batch_sizes": [
+    100
+   ],
+   "wall_seconds": 792.7393839992583,
+   "free_bytes_at_start": 24739119104,
+   "peak_bytes": 3360720384,
+   "grad_mode": "no_grad",
+   "dtype": "float32",
+   "device_name": "NVIDIA RTX A5000",
+   "gpu_util_mean": 27.486979166666668,
+   "gpu_util_max": 93,
+   "samples": 384,
+   "gpu_mem_used_mib_max": 5616,
+   "interval_s": 2.0,
+   "device_selection": {
+    "requested": "cuda:2",
+    "chosen": "cuda:2",
+    "pinned": true,
+    "need_bytes": 10737418240,
+    "free_bytes": {
+     "0": 17669554176,
+     "1": 137363456,
+     "2": 24952963072
+    },
+    "util": {
+     "0": 100,
+     "1": 0,
+     "2": 1
+    }
+   }
+  },
+  "parity": {
+   "passed": true,
+   "seeds": [
+    14000,
+    14001,
+    14002
+   ],
+   "reference": "cpu",
+   "device": "cuda:2",
+   "metrics": {
+    "E_salt0": {
+     "cpu_mean": 0.6157465676466624,
+     "gpu_mean": 0.6163885792096456,
+     "mean_diff": 0.000642011562983195,
+     "tolerance": 0.030819428960482283,
+     "passed": true,
+     "tolerance_abs_or_se": 0.01
+    },
+    "win_salt0": {
+     "cpu_mean": 0.6666666666666666,
+     "gpu_mean": 0.6666666666666666,
+     "mean_diff": 0.0,
+     "tolerance": 0.03333333333333333,
+     "passed": true,
+     "tolerance_abs_or_se": 0.01
+    },
+    "E_cascade1": {
+     "cpu_mean": 0.6157347659269968,
+     "gpu_mean": 0.6176789204279581,
+     "mean_diff": 0.0019441545009613037,
+     "tolerance": 0.030883946021397907,
+     "passed": true,
+     "tolerance_abs_or_se": 0.01
+    },
+    "V_cascade1": {
+     "cpu_mean": 0.6134333333333334,
+     "gpu_mean": 0.6168333333333333,
+     "mean_diff": 0.003400000000000014,
+     "tolerance": 0.03084166666666667,
+     "passed": true,
+     "tolerance_abs_or_se": 0.01
+    }
+   },
+   "rows": [
+    {
+     "seed": 14000,
+     "cpu": {
+      "E_salt0": 0.6792919635772705,
+      "win_salt0": 1.0,
+      "E_cascade1": 0.6810413002967834,
+      "V_cascade1": 0.6776
+     },
+     "gpu": {
+      "E_salt0": 0.6815831661224365,
+      "win_salt0": 1.0,
+      "E_cascade1": 0.6796274185180664,
+      "V_cascade1": 0.681
+     }
+    },
+    {
+     "seed": 14001,
+     "cpu": {
+      "E_salt0": 0.47798940539360046,
+      "win_salt0": 0.0,
+      "E_cascade1": 0.47977080941200256,
+      "V_cascade1": 0.4784
+     },
+     "gpu": {
+      "E_salt0": 0.4795352816581726,
+      "win_salt0": 0.0,
+      "E_cascade1": 0.4818494915962219,
+      "V_cascade1": 0.4798
+     }
+    },
+    {
+     "seed": 14002,
+     "cpu": {
+      "E_salt0": 0.6899583339691162,
+      "win_salt0": 1.0,
+      "E_cascade1": 0.6863921880722046,
+      "V_cascade1": 0.6843
+     },
+     "gpu": {
+      "E_salt0": 0.6880472898483276,
+      "win_salt0": 1.0,
+      "E_cascade1": 0.6915598511695862,
+      "V_cascade1": 0.6897
+     }
+    }
+   ],
+   "rule": "|mean_gpu \u2212 mean_cpu| \u2264 max(0.01, 3.0\u00b7SE, 5%\u00b7|mean|)",
+   "salted_zero_equals_seedstreams": true
+  },
+  "calibration": {
+   "batch": 250,
+   "per_item_bytes": 11662208,
+   "fixed_bytes": 225280,
+   "free_bytes": 24388894720,
+   "probe_sizes": [
+    4,
+    8
+   ],
+   "probe_peaks": [
+    46874112,
+    93522944
+   ],
+   "batch_uncapped": 250,
+   "cap_bytes": 10737418240
+  },
+  "timings": {
+   "setup": 7.1123709641397,
+   "canonical_and_election": 2.743247661739588,
+   "cascade": 21.59555470570922,
+   "media": 21.580596916377544,
+   "workers": 21.649118941277266,
+   "world": 174.5974188707769,
+   "world_graph": 216.19201358407736,
+   "world_prefs": 167.2598307877779,
+   "world_attrs": 155.98229872062802
+  },
+  "games_seconds": 788.9809592999518,
+  "oom_backoffs": []
+ },
+ "figures": [
+  "reports/v3/figures/x20_components.png",
+  "reports/v3/figures/x20_shares.png"
+ ]
+}

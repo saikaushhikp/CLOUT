@@ -9,7 +9,7 @@ from dumbocracy.api.app import create_app  # noqa: E402
 from tests.privacy_scan import assert_no_leaks  # noqa: E402
 
 N = 1000
-ROUNDS = 2
+ROUNDS = 3   # R31: API allows 3..5
 ALLOC = {"hires_by_region": [1, 0, 0, 0], "media_regions": [False, True, False, False]}
 
 
@@ -38,7 +38,8 @@ def finished(client):
     payloads.append(client.post(url(game, "commit"), json={"manifesto": [0.2] * 5}).json())
     payloads.append(client.get(f"/api/games/{game['game_id']}/graph_sample?max_nodes=300").json())
     payloads.append(client.post(url(game, "allocate"), json=ALLOC).json())
-    payloads.append(client.post(url(game, "forfeit")).json())
+    for _ in range(ROUNDS - 1):   # forfeit the remaining rounds; the last one holds the election
+        payloads.append(client.post(url(game, "forfeit")).json())
     return game, payloads
 
 
@@ -49,7 +50,7 @@ def test_health(client):
 
 def test_full_flow_through_the_api(client, finished):
     game, payloads = finished
-    created, _, query, commit, _, allocate, forfeit = payloads
+    created, _, query, commit, _, allocate, *middle, forfeit = payloads
     obs = created["observation"]
     assert created["player_id"] == "p0" and obs["schema_version"] == "2.2" and obs["phase"] == "SURVEY"
     assert obs["seed"] == 42 and obs["num_voters"] == N and obs["rounds"] == ROUNDS and obs["treasury"] == "500.00"
@@ -64,11 +65,12 @@ def test_full_flow_through_the_api(client, finished):
     assert forfeit["accepted"] and forfeit["round_report"]["election_held"]
     final = forfeit["observation"]
     assert final["phase"] == "DONE" and final["round"] == ROUNDS and final["result"]["num_voters"] == N
-    assert [a["cost"] for a in final["allocations"]] == [allocate["round_report"]["cost"], "0.00"]
+    assert [a["cost"] for a in final["allocations"]] == [allocate["round_report"]["cost"]] + ["0.00"] * (ROUNDS - 1)
+    assert all(m["accepted"] and not m["round_report"]["election_held"] for m in middle)
     # R19: round_reports grow by one per resolved round and equal the reports returned by allocate/forfeit
     assert commit["observation"]["round_reports"] == []
     assert allocate["observation"]["round_reports"] == [allocate["round_report"]]
-    assert final["round_reports"] == [allocate["round_report"], forfeit["round_report"]]
+    assert final["round_reports"] == [allocate["round_report"], *(m["round_report"] for m in middle), forfeit["round_report"]]
     # P8: the one worker bought in round 1 persists; contract fields of the report, allocations and costs
     none = {"by_region": {"N": 0, "S": 0, "E": 0, "W": 0}, "total": 0}
     one = {"by_region": {"N": 1, "S": 0, "E": 0, "W": 0}, "total": 1}
@@ -78,7 +80,7 @@ def test_full_flow_through_the_api(client, finished):
     assert set(report) == {"round", "cost", "hires_by_region", "team_by_region", "spreaders", "converted",
                            "media_exposed", "election_held"}
     assert report["hires_by_region"] == [1, 0, 0, 0] and report["team_by_region"] == [1, 0, 0, 0]
-    assert report["spreaders"] == 1 and forfeit["round_report"]["spreaders"] == report["converted"]
+    assert report["spreaders"] == 1 and (middle or [forfeit])[0]["round_report"]["spreaders"] == report["converted"]
     assert final["allocations"][0] == {"round": 1, "hires_by_region": [1, 0, 0, 0],
                                        "media_regions": [False, True, False, False], "cost": report["cost"]}
     assert set(obs["costs"]) == {"query", "worker", "min_degree", "attempt_cap", "media_by_region"}
@@ -196,6 +198,8 @@ def test_http_errors(client):
     assert client.post(url(game, "commit"), content="not json", headers={"content-type": "application/json"}).status_code == 422
     assert client.post("/api/games", json={"num_voters": 999}).status_code == 422
     assert client.post("/api/games", json={"num_voters": 1000, "rounds": 11}).status_code == 422
+    for bad_rounds in (1, 2, 6, 10):   # R31: the web game allows T = 3..5 only
+        assert client.post("/api/games", json={"num_voters": 1000, "rounds": bad_rounds}).status_code == 422
     assert client.get(f"/api/games/{game['game_id']}/graph_sample?max_nodes=0").status_code == 422
     assert client.delete(f"/api/games/{game['game_id']}").json() == {"deleted": True}
     assert client.delete(f"/api/games/{game['game_id']}").status_code == 404
@@ -203,7 +207,7 @@ def test_http_errors(client):
 
 
 def test_random_seed_and_same_seed_reproduces(client):
-    random_game = client.post("/api/games", json={"num_voters": N, "rounds": 1}).json()
+    random_game = client.post("/api/games", json={"num_voters": N, "rounds": 3}).json()
     assert 0 <= random_game["observation"]["seed"] < 2**31
     a, b = new_game(client), new_game(client)
     strip = lambda obs: {k: v for k, v in obs.items() if k != "game_id"}  # noqa: E731

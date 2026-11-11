@@ -154,7 +154,7 @@ describe("mock engine — epistemic timeline", () => {
 
   it("the results screen loads the timeline lazily after the debrief", async () => {
     const client = createMockClient();
-    const obs = await finishedGame(client, 77, 2);
+    const obs = await finishedGame(client, 77, 3);
     let release: () => void = () => undefined;
     const gate = new Promise<void>((res) => (release = res));
     const real = client.epistemic.bind(client);

@@ -22,7 +22,7 @@ every route is player-keyed for a future second/LLM player).
 | Method & path | Body | Response |
 |---|---|---|
 | `GET /api/health` | – | `{status:"ok", device, active_games, max_games}` |
-| `POST /api/games` | `{num_voters?: int=10000 (1000..1000000), seed?: int (omit → random, returned), rounds?: int=5 (1..10), budget?: string="500.00" ("500.00".."1000.00", 2 dp; R17)}` | `{game_id, player_id, observation}` |
+| `POST /api/games` | `{num_voters?: int=10000 (1000..1000000), seed?: int (omit → random, returned), rounds?: int=5 (3..5; R31), budget?: string="500.00" ("500.00".."1000.00", 2 dp; R17)}` | `{game_id, player_id, observation}` |
 | `GET /api/games/{g}/players/{p}/observation` | – | `Observation` |
 | `POST /api/games/{g}/players/{p}/query` | `{sector_a, sector_b, region}` | `ActionResponse` (+ `answer`) |
 | `POST /api/games/{g}/players/{p}/commit` | `{manifesto: number[5]}` (≥0, sums to 1 ± 1e-6) | `ActionResponse` |

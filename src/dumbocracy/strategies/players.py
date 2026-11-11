@@ -276,8 +276,8 @@ class BayesPlanner(_Timed):
         v_t = torch.cat([anticipate(w, cfg) for w in worlds])
         stat = min(observation["free_stats"], key=lambda e: int(e["round"]))["top3_pct"]
         extra = torch.stack([top3_manifesto(v_t), v_t.mean(0),
-                             torch.tensor(simplex_list([stat[s] for s in SECTORS]), dtype=v_t.dtype)])
-        starts = project_simplex(torch.cat([extra, torch.full((1, NUM_SECTORS), 0.2, dtype=v_t.dtype)]))
+                             torch.tensor(simplex_list([stat[s] for s in SECTORS]), dtype=v_t.dtype, device=v_t.device)])
+        starts = project_simplex(torch.cat([extra, torch.full((1, NUM_SECTORS), 0.2, dtype=v_t.dtype, device=v_t.device)]))
         sol = optimise_manifesto(v_t, cfg.voting.sensitivity, cfg.voting.threshold, starts=starts)
         return simplex_list(sol.manifesto)
 

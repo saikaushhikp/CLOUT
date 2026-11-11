@@ -1,0 +1,12 @@
+[x1] k̄=10 low[.01,.05]: 140s (spectra 34s, long 15s); μ2 0.910; hom ρ_obs 0.9933 vs ρ_rw 0.9940 vs ρ_L 0.9959; ORACLE win 0.70, top3 win 0.56
+[x1] k̄=10 default[.01,.2]: 138s (spectra 34s, long 14s); μ2 0.784; hom ρ_obs 0.9853 vs ρ_rw 0.9857 vs ρ_L 0.9954; ORACLE win 0.82, top3 win 0.74
+[x1] k̄=10 high[.1,.4]: 130s (spectra 36s, long 14s); μ2 0.640; hom ρ_obs 0.9749 vs ρ_rw 0.9760 vs ρ_L 0.9949; ORACLE win 0.90, top3 win 0.84
+[x1] k̄=20 low[.01,.05]: 140s (spectra 32s, long 18s); μ2 0.896; hom ρ_obs 0.9925 vs ρ_rw 0.9931 vs ρ_L 0.9941; ORACLE win 0.80, top3 win 0.78
+[x1] k̄=20 default[.01,.2]: 137s (spectra 34s, long 18s); μ2 0.744; hom ρ_obs 0.9828 vs ρ_rw 0.9830 vs ρ_L 0.9892; ORACLE win 0.88, top3 win 0.84
+[x1] k̄=20 high[.1,.4]: 139s (spectra 43s, long 18s); μ2 0.533; hom ρ_obs 0.9686 vs ρ_rw 0.9689 vs ρ_L 0.9869; ORACLE win 0.96, top3 win 0.92
+[x1] k̄=30 low[.01,.05]: 151s (spectra 39s, long 22s); μ2 0.892; hom ρ_obs 0.9922 vs ρ_rw 0.9928 vs ρ_L 0.9933; ORACLE win 0.84, top3 win 0.80
+[x1] k̄=30 default[.01,.2]: 149s (spectra 40s, long 22s); μ2 0.731; hom ρ_obs 0.9820 vs ρ_rw 0.9822 vs ρ_L 0.9857; ORACLE win 0.90, top3 win 0.90
+[x1] k̄=30 high[.1,.4]: 153s (spectra 51s, long 22s); μ2 0.500; hom ρ_obs 0.9664 vs ρ_rw 0.9667 vs ρ_L 0.9801; ORACLE win 1.00, top3 win 1.00
+[x1] parity passed: True
+saved reports/v3/x1.json
+[x1] done in 21.6 min

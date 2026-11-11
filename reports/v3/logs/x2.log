@@ -1,0 +1,90 @@
+[x2] setup 98s
+[x2] A|degroot|z0.0|none: 0.1s; E 0.4845 within 0.0708
+[x2] A|degroot|z0.0|pay_split: 0.2s; E 0.6415 within 0.0768
+[x2] A|degroot|z0.0|planner: 0.8s; E 0.6468 within 0.0763
+[x2] A|degroot|z0.05|none: 0.1s; E 0.4787 within 0.0708
+[x2] A|degroot|z0.05|pay_split: 0.2s; E 0.6238 within 0.0764
+[x2] A|degroot|z0.05|planner: 0.8s; E 0.6319 within 0.0761
+[x2] A|degroot|z0.15|none: 0.1s; E 0.4672 within 0.0708
+[x2] A|degroot|z0.15|pay_split: 0.3s; E 0.5926 within 0.0759
+[x2] A|degroot|z0.15|planner: 9.8s; E 0.6023 within 0.0759
+[x2] A|degroot|z0.3|none: 0.1s; E 0.4500 within 0.0709
+[x2] A|degroot|z0.3|pay_split: 0.2s; E 0.5411 within 0.0749
+[x2] A|degroot|z0.3|planner: 1.0s; E 0.5566 within 0.0747
+[x2] B|degroot|on|k0: 0.1s; E 0.4787 within 0.0708
+[x2] B|degroot|on|k5: 0.1s; E 0.6001 within 0.0803
+[x2] B|degroot|on|k10: 0.1s; E 0.6032 within 0.0806
+[x2] B|degroot|on|k20: 0.1s; E 0.6033 within 0.0806
+[x2] B|degroot|off|k0: 0.1s; E 0.4787 within 0.0708
+[x2] B|degroot|off|k5: 0.1s; E 0.4790 within 0.0709
+[x2] B|degroot|off|k10: 0.1s; E 0.4793 within 0.0709
+[x2] B|degroot|off|k20: 0.1s; E 0.4799 within 0.0711
+[x2] A|wmsr_F1|z0.0|none: 0.2s; E 0.4758 within 0.0712
+[x2] A|wmsr_F1|z0.0|pay_split: 0.3s; E 0.6347 within 0.0774
+[x2] A|wmsr_F1|z0.0|planner: 1.0s; E 0.6404 within 0.0769
+[x2] A|wmsr_F1|z0.05|none: 0.2s; E 0.4705 within 0.0712
+[x2] A|wmsr_F1|z0.05|pay_split: 0.3s; E 0.6171 within 0.0770
+[x2] A|wmsr_F1|z0.05|planner: 0.9s; E 0.6258 within 0.0767
+[x2] A|wmsr_F1|z0.15|none: 0.2s; E 0.4599 within 0.0712
+[x2] A|wmsr_F1|z0.15|pay_split: 0.3s; E 0.5866 within 0.0765
+[x2] A|wmsr_F1|z0.15|planner: 2.2s; E 0.5968 within 0.0765
+[x2] A|wmsr_F1|z0.3|none: 0.8s; E 0.4440 within 0.0712
+[x2] A|wmsr_F1|z0.3|pay_split: 1.5s; E 0.5357 within 0.0755
+[x2] A|wmsr_F1|z0.3|planner: 6.9s; E 0.5516 within 0.0754
+[x2] B|wmsr_F1|on|k0: 0.2s; E 0.4705 within 0.0712
+[x2] B|wmsr_F1|on|k5: 0.2s; E 0.5933 within 0.0809
+[x2] B|wmsr_F1|on|k10: 0.3s; E 0.5968 within 0.0813
+[x2] B|wmsr_F1|on|k20: 0.2s; E 0.5973 within 0.0812
+[x2] B|wmsr_F1|off|k0: 0.2s; E 0.4705 within 0.0712
+[x2] B|wmsr_F1|off|k5: 0.2s; E 0.4708 within 0.0712
+[x2] B|wmsr_F1|off|k10: 0.2s; E 0.4711 within 0.0713
+[x2] B|wmsr_F1|off|k20: 0.3s; E 0.4717 within 0.0714
+[x2] A|wmsr_F2|z0.0|none: 0.2s; E 0.4675 within 0.0714
+[x2] A|wmsr_F2|z0.0|pay_split: 0.3s; E 0.6282 within 0.0780
+[x2] A|wmsr_F2|z0.0|planner: 1.0s; E 0.6344 within 0.0775
+[x2] A|wmsr_F2|z0.05|none: 0.2s; E 0.4626 within 0.0714
+[x2] A|wmsr_F2|z0.05|pay_split: 0.3s; E 0.6108 within 0.0776
+[x2] A|wmsr_F2|z0.05|planner: 0.9s; E 0.6196 within 0.0773
+[x2] A|wmsr_F2|z0.15|none: 0.2s; E 0.4528 within 0.0714
+[x2] A|wmsr_F2|z0.15|pay_split: 0.3s; E 0.5808 within 0.0771
+[x2] A|wmsr_F2|z0.15|planner: 1.0s; E 0.5913 within 0.0771
+[x2] A|wmsr_F2|z0.3|none: 0.2s; E 0.4383 within 0.0715
+[x2] A|wmsr_F2|z0.3|pay_split: 1.2s; E 0.5306 within 0.0761
+[x2] A|wmsr_F2|z0.3|planner: 9.1s; E 0.5470 within 0.0759
+[x2] B|wmsr_F2|on|k0: 0.2s; E 0.4626 within 0.0714
+[x2] B|wmsr_F2|on|k5: 0.2s; E 0.5869 within 0.0815
+[x2] B|wmsr_F2|on|k10: 0.2s; E 0.5907 within 0.0819
+[x2] B|wmsr_F2|on|k20: 0.3s; E 0.5915 within 0.0818
+[x2] B|wmsr_F2|off|k0: 0.2s; E 0.4626 within 0.0714
+[x2] B|wmsr_F2|off|k5: 0.2s; E 0.4629 within 0.0715
+[x2] B|wmsr_F2|off|k10: 0.2s; E 0.4632 within 0.0715
+[x2] B|wmsr_F2|off|k20: 0.2s; E 0.4638 within 0.0717
+[x2] B0|degroot|off|k20: 0.1s; E 0.4856 within 0.0710
+[x2] B0|wmsr_F1|off|k20: 0.3s; E 0.4770 within 0.0714
+[x2] B0|wmsr_F2|off|k20: 0.2s; E 0.4687 within 0.0716
+[x2] FJ degroot|z0.05|k0: CG 58 it, share FJ 0.8847 T5 0.4787 T200 0.8304
+[x2] long degroot|z0.05|k0: 1.8s; share T200 0.8304; disagreement T200 0.0283
+[x2] FJ degroot|z0.05|k5: CG 58 it, share FJ 0.8856 T5 0.4790 T200 0.8311
+[x2] long degroot|z0.05|k5: 1.0s; share T200 0.8311; disagreement T200 0.0282
+[x2] FJ degroot|z0.05|k10: CG 57 it, share FJ 0.8864 T5 0.4793 T200 0.8317
+[x2] long degroot|z0.05|k10: 1.2s; share T200 0.8317; disagreement T200 0.0282
+[x2] FJ degroot|z0.05|k20: CG 57 it, share FJ 0.8880 T5 0.4799 T200 0.8330
+[x2] long degroot|z0.05|k20: 2.1s; share T200 0.8330; disagreement T200 0.0282
+[x2] long degroot|z0.0|k0: 1.3s; share T200 0.8282; disagreement T200 0.0147
+[x2] FJ degroot|z0.0|k20: CG 95 it, share FJ 0.9707 T5 0.4856 T200 0.8326
+[x2] long degroot|z0.0|k20: 2.8s; share T200 0.8326; disagreement T200 0.0147
+[x2] long wmsr_F1|z0.05|k0: 11.5s; share T200 0.8327; disagreement T200 0.0248
+[x2] long wmsr_F1|z0.05|k5: 6.0s; share T200 0.8333; disagreement T200 0.0247
+[x2] long wmsr_F1|z0.05|k10: 5.5s; share T200 0.8340; disagreement T200 0.0247
+[x2] long wmsr_F1|z0.05|k20: 10.5s; share T200 0.8352; disagreement T200 0.0247
+[x2] long wmsr_F1|z0.0|k0: 10.1s; share T200 0.8596; disagreement T200 0.0197
+[x2] long wmsr_F1|z0.0|k20: 5.9s; share T200 0.8619; disagreement T200 0.0196
+[x2] long wmsr_F2|z0.05|k0: 5.7s; share T200 0.8378; disagreement T200 0.0272
+[x2] long wmsr_F2|z0.05|k5: 12.0s; share T200 0.8384; disagreement T200 0.0272
+[x2] long wmsr_F2|z0.05|k10: 8.5s; share T200 0.8389; disagreement T200 0.0271
+[x2] long wmsr_F2|z0.05|k20: 5.8s; share T200 0.8401; disagreement T200 0.0270
+[x2] long wmsr_F2|z0.0|k0: 7.3s; share T200 0.8694; disagreement T200 0.0278
+[x2] long wmsr_F2|z0.0|k20: 11.9s; share T200 0.8715; disagreement T200 0.0276
+[x2] parity passed: True
+saved reports/v3/x2.json
+[x2] done in 4.8 min

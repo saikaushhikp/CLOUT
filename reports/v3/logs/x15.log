@@ -1,0 +1,11 @@
+[x15] X10 default cell: 550/550 rows identical to X0 ₫500
+[x15] features for 200 worlds in 87s
+[x15] oracle_loss: n=200 events=11 cv logit 0.912 tree 0.760; top3 ['tv_mean_pair', 'inter_edge_share', 'two_largest_share']
+[x15] oracle_loss_with_start: n=200 events=11 cv logit 0.943 tree 0.753; top3 ['start_share', 'tv_mean_pair', 'inter_edge_share']
+[x15] oracle_margin: n=200 cv logit 0.835 tree 0.796; top3 ['tv_mean_pair', 'tv_two_largest', 'inter_edge_share']
+[x15] bayes_margin: n=100 cv logit 0.827 tree 0.710; top3 ['tv_mean_pair', 'tv_two_largest', 'two_largest_share']
+[x15] people_pleaser_loss: n=100 events=27 cv logit 0.986 tree 0.926; top3 ['tv_mean_pair', 'tv_two_largest', 'largest_P3']
+[x15] start_share: n=200 cv logit 0.858 tree 0.816; top3 ['tv_mean_pair', 'tv_two_largest', 'largest_share']
+saved reports/v3/x15.json
+{"events": {"oracle_loss_500": 11, "oracle_loss_500_x0": 6, "oracle_loss_500_x6": 5, "bayes_loss": 2, "people_pleaser_loss": 27}, "hypotheses": [["H1 tv_two_largest higher in ORACLE-loss worlds", 0.011], ["H2 p_g_mean lower in ORACLE-loss worlds", 0.0316], ["H3 largest-region personality ~ best paid channel (chi-square, X0 \u20ab500)", 0.0316]]}
+[x15] done in 131s

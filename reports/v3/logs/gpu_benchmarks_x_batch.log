@@ -1,0 +1,17 @@
+N=10000 pay_split B=1: 0.01s (14 ms/world), x3.0 vs CPU, peak 0.01 GiB
+N=10000 pay_split B=8: 0.04s (5 ms/world), x9.1 vs CPU, peak 0.09 GiB
+N=10000 pay_split B=32: 0.11s (4 ms/world), x11.9 vs CPU, peak 0.35 GiB
+N=10000 pay_split B=64: 0.21s (3 ms/world), x12.9 vs CPU, peak 0.70 GiB
+N=10000 planner B=1: 0.02s (23 ms/world), x2.3 vs CPU, peak 0.01 GiB
+N=10000 planner B=8: 0.12s (15 ms/world), x3.6 vs CPU, peak 0.09 GiB
+N=10000 planner B=32: 0.44s (14 ms/world), x3.8 vs CPU, peak 0.35 GiB
+N=10000 planner B=64: 0.87s (14 ms/world), x3.9 vs CPU, peak 0.70 GiB
+N=100000 pay_split B=1: 0.01s (15 ms/world), x26.1 vs CPU, peak 0.06 GiB
+N=100000 pay_split B=8: 0.06s (8 ms/world), x48.1 vs CPU, peak 0.87 GiB
+N=100000 pay_split B=32: 0.23s (7 ms/world), x53.3 vs CPU, peak 3.46 GiB
+N=100000 pay_split B=64: 0.46s (7 ms/world), x52.8 vs CPU, peak 6.91 GiB
+N=100000 planner B=1: 0.02s (22 ms/world), x17.6 vs CPU, peak 0.06 GiB
+N=100000 planner B=8: 0.15s (19 ms/world), x20.1 vs CPU, peak 0.87 GiB
+N=100000 planner B=32: 0.55s (17 ms/world), x22.2 vs CPU, peak 3.46 GiB
+N=100000 planner B=64: 1.11s (17 ms/world), x22.2 vs CPU, peak 6.91 GiB
+saved reports/v3/gpu_benchmarks.json

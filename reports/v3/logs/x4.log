@@ -1,0 +1,32 @@
+[x4] none: 0.5s; E 0.4787
+[x4] K4|front|largest: 0.6s; E 0.5947
+[x4] K4|front|best_matched: 1.2s; E 0.5995
+[x4] K4|front|proportional: 0.6s; E 0.5972
+[x4] K4|even|largest: 1.0s; E 0.5701
+[x4] K4|even|best_matched: 1.6s; E 0.5800
+[x4] K4|even|proportional: 0.7s; E 0.5701
+[x4] K4|late|largest: 0.6s; E 0.4796
+[x4] K4|late|best_matched: 1.2s; E 0.4795
+[x4] K4|late|proportional: 0.6s; E 0.4796
+[x4] K10|front|largest: 0.2s; E 0.6019
+[x4] K10|front|best_matched: 0.2s; E 0.6031
+[x4] K10|front|proportional: 0.1s; E 0.6032
+[x4] K10|even|largest: 0.2s; E 0.5902
+[x4] K10|even|best_matched: 0.3s; E 0.5946
+[x4] K10|even|proportional: 0.2s; E 0.5932
+[x4] K10|late|largest: 0.1s; E 0.4809
+[x4] K10|late|best_matched: 0.2s; E 0.4807
+[x4] K10|late|proportional: 0.1s; E 0.4810
+[x4] pick|random|K10|front|proportional: 0.2s; E 0.6032
+[x4] pick|sample10|K10|front|proportional: 0.2s; E 0.6032
+[x4] pick|top_degree|K10|front|proportional: 0.2s; E 0.6035
+[x4] pick|random|K10|even|proportional: 0.3s; E 0.5932
+[x4] pick|sample10|K10|even|proportional: 0.4s; E 0.6001
+[x4] pick|top_degree|K10|even|proportional: 0.3s; E 0.5995
+[x4] pick|random|K4|front|largest: 0.1s; E 0.5947
+[x4] pick|sample10|K4|front|largest: 0.1s; E 0.5999
+[x4] pick|top_degree|K4|front|largest: 0.1s; E 0.6009
+[x4] random pick_fn == library pick: True
+[x4] parity passed: True
+saved reports/v3/x4.json
+[x4] done in 0.8 min

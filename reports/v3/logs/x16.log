@@ -1,0 +1,94 @@
+[x16] device cuda:0 seeds 13000..13049 grid [(8, 800), (8, 1600), (8, 4000), (16, 800), (16, 1600), (16, 4000), (32, 800), (32, 1600), (32, 4000), (64, 800), (64, 1600), (64, 4000)] (resumed rows: 0)
+[x16] seed 13000 (1/50) 69s, total 1.1 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13001 (2/50) 75s, total 2.4 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13002 (3/50) 75s, total 3.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 0
+[x16] seed 13003 (4/50) 73s, total 4.9 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13004 (5/50) 65s, total 6.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (23s) won 1
+[x16] seed 13005 (6/50) 63s, total 7.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 0] (21s) won 0
+[x16] seed 13006 (7/50) 66s, total 8.1 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13007 (8/50) 62s, total 9.1 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13008 (9/50) 68s, total 10.2 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13009 (10/50) 92s, total 11.8 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (20s) won 1
+[x16] seed 13010 (11/50) 70s, total 13.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13011 (12/50) 62s, total 14.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 0, 0, 0] (22s) won 0
+[x16] seed 13012 (13/50) 137s, total 16.3 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13013 (14/50) 87s, total 17.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13014 (15/50) 73s, total 19.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13015 (16/50) 66s, total 20.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13016 (17/50) 152s, total 22.6 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13017 (18/50) 66s, total 23.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13018 (19/50) 62s, total 24.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13019 (20/50) 61s, total 25.8 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13020 (21/50) 63s, total 26.8 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13021 (22/50) 66s, total 27.9 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13022 (23/50) 74s, total 29.1 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13023 (24/50) 62s, total 30.2 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (20s) won 1
+[x16] seed 13024 (25/50) 76s, total 31.4 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13025 (26/50) 60s, total 32.4 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13026 (27/50) 61s, total 33.4 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 0
+[x16] seed 13027 (28/50) 76s, total 34.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13028 (29/50) 61s, total 35.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 0
+[x16] seed 13029 (30/50) 78s, total 37.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (20s) won 1
+[x16] seed 13030 (31/50) 80s, total 38.4 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13031 (32/50) 71s, total 39.5 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13032 (33/50) 69s, total 40.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13033 (34/50) 71s, total 41.9 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13034 (35/50) 65s, total 43.0 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13035 (36/50) 66s, total 44.1 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13036 (37/50) 63s, total 45.1 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13037 (38/50) 74s, total 46.3 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13038 (39/50) 68s, total 47.5 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (20s) won 1
+[x16] seed 13039 (40/50) 63s, total 48.5 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13040 (41/50) 68s, total 49.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13041 (42/50) 63s, total 50.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13042 (43/50) 65s, total 51.8 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13043 (44/50) 63s, total 52.8 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13044 (45/50) 72s, total 54.1 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13045 (46/50) 66s, total 55.2 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13046 (47/50) 65s, total 56.2 min; long-run bayes [1, 1, 1, 1, 1] (21s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] seed 13047 (48/50) 68s, total 57.4 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13048 (49/50) 80s, total 58.7 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (22s) won 1
+[x16] seed 13049 (50/50) 62s, total 59.8 min; long-run bayes [1, 1, 1, 1, 1] (20s) won 1; top3 [1, 1, 1, 1, 1] (21s) won 1
+[x16] library identity passed: True (102 round comparisons)
+[x16] parity passed: True (97s); timing {"cpu_W16": 3.348778116206328, "cpu_W64": 12.851099532097578, "cuda_W16": 2.4889063201844692, "cuda_W64": 9.43172057469686, "speedup_W16": 1.345481784126824, "speedup_W64": 1.3625403159815959}
+[x16] summarised W8_n800_pi8
+[x16] summarised W8_n800_pi16
+[x16] summarised W8_n800_piall
+[x16] summarised W8_n1600_pi8
+[x16] summarised W8_n1600_pi16
+[x16] summarised W8_n1600_piall
+[x16] summarised W8_n4000_pi8
+[x16] summarised W8_n4000_pi16
+[x16] summarised W8_n4000_piall
+[x16] summarised W16_n800_pi8
+[x16] summarised W16_n800_pi16
+[x16] summarised W16_n800_piall
+[x16] summarised W16_n1600_pi8
+[x16] summarised W16_n1600_pi16
+[x16] summarised W16_n1600_piall
+[x16] summarised W16_n4000_pi8
+[x16] summarised W16_n4000_pi16
+[x16] summarised W16_n4000_piall
+/data/ai23btech11017/MAS/CLOUT/experiments/x16_verdicts.py:809: RuntimeWarning: overflow encountered in exp
+  mu = 1 / (1 + np.exp(-(X @ beta)))
+[x16] summarised W32_n800_pi8
+[x16] summarised W32_n800_pi16
+[x16] summarised W32_n800_piall
+[x16] summarised W32_n1600_pi8
+[x16] summarised W32_n1600_pi16
+[x16] summarised W32_n1600_piall
+[x16] summarised W32_n4000_pi8
+[x16] summarised W32_n4000_pi16
+[x16] summarised W32_n4000_piall
+[x16] summarised W64_n800_pi8
+[x16] summarised W64_n800_pi16
+[x16] summarised W64_n800_piall
+[x16] summarised W64_n1600_pi8
+[x16] summarised W64_n1600_pi16
+[x16] summarised W64_n1600_piall
+[x16] summarised W64_n4000_pi8
+[x16] summarised W64_n4000_pi16
+[x16] summarised W64_n4000_piall
+saved reports/v3/x16.json
+saved reports/v3/x16.json
+[x16] done in 64.2 min; figures ['/data/ai23btech11017/MAS/CLOUT/reports/v3/figures/x16_guaranteed_vs_worlds.png', '/data/ai23btech11017/MAS/CLOUT/reports/v3/figures/x16_reliability.png', '/data/ai23btech11017/MAS/CLOUT/reports/v3/figures/x16_verdict_errors.png']

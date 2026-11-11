@@ -1,0 +1,55 @@
+{
+ "seed": 10017,
+ "num_voters": 10000,
+ "sizes": [
+  2195,
+  2139,
+  2625,
+  3041
+ ],
+ "size_gini": 0.0784,
+ "sigma": [
+  1,
+  0,
+  5,
+  4
+ ],
+ "tau": [
+  2,
+  1,
+  0,
+  3
+ ],
+ "tau_ids": [
+  "P2",
+  "P1",
+  "P0",
+  "P3"
+ ],
+ "tv_two_largest": 0.25,
+ "tv_min_pair": 0.2,
+ "tv_mean_pair": 0.283333333,
+ "largest_region": 3,
+ "largest_region_personality": "P3",
+ "zealots_by_region": [
+  90,
+  96,
+  131,
+  139
+ ],
+ "lambda2_L": 4.32885674,
+ "rw_gap": 0.153869306,
+ "rw_abs_gap": 0.153869306,
+ "mu2": 0.846130694,
+ "mu_min": -0.367352473,
+ "lambda_max_rr": [
+  21.6388233,
+  20.4057806,
+  29.7439513,
+  24.5942474
+ ],
+ "inter_edge_share": 0.222301406,
+ "total_edges": 150143,
+ "spectra_method": "scipy",
+ "config_key": null
+}

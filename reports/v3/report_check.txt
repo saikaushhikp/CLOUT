@@ -1,0 +1,21 @@
+report: /data/ai23btech11017/MAS/CLOUT/reports/v3/report.md
+numbers checked: 5380; matched: 5367; documented derivations: 13; unmatched: 0; no cited source: 0
+
+## Unmatched (number not found, after rounding, in the cited JSON files)
+
+## Documented derivations (not a JSON value; the line says how it is derived)
+L1203: 94  [x4.json]  | round 1. Four front-loaded workers (₫80) already get 94–97% of what ten do (derived: Δ(K = 4, front) / Δ(K = 10, front) per placement, `arms
+L1628: 36  [x12.json]  | - Search arm: λ > 0 on 36/50 (λ = 0: 14; derived: 50 − 14). Source: `*_best_lambda_counts`.
+L1666: 36  [x12.json]  | - The best λ is > 0 on most seeds: 41/50 with the ORACLE planner, 36/50 with the search (derived: 50 − 14). A half-way move towards
+L1715: 26  [x13.json]  | - **Cross-entropy method:** 256 plans per iteration, 10% elite (26 plans, derived: ⌈0.1 × 256⌉), 30 iterations, smoothing 0.7.
+L1785: 4.85  [x13.json]  | - **ORACLE:** 0, 0, 0.05, 1.62, 2.01. The ORACLE buys 5.0, 5.0, 4.85, 0.81 and 0.46 workers per round (derived: mean of
+L2163: 0.4859  [x5.json]  | against 0.4859 for the ORACLE manifesto (`arms.*.static_share_anticipated`; derived: mean of `seed_info[*].oracle_static_share`).
+L2219: 0.4859  [x5.json]  | manifesto (static share 0.4842 vs ORACLE 0.4859 with no queries at all; the latter derived as the mean of `seed_info`).
+L2930: 0.0746  [x20.json]  | | world draw (sd derived: √`world_var`) | 0.0746 | 0.994 [0.993, 0.995] | 0.0783 | 0.972 | 0.38 [−0.35, 0.99] |
+L2930: 0.0783  [x20.json]  | | world draw (sd derived: √`world_var`) | 0.0746 | 0.994 [0.993, 0.995] | 0.0783 | 0.972 | 0.38 [−0.35, 0.99] |
+L3000: 1,550  [raw/x21.jsonl]  | **Runs:** 16 arms × 50 paired seeds; 1,550 BayesPlanner engine games and 800 ORACLE games; derived: 50 × (16 `bayes` + 15 `bayes_true` arms)
+L3037: 1,550  [x21.json]  | - No observation key (initial or final, in every one of the 1,550 games, derived as above) is named like a perturbed config field,
+L3048: 0.175  [x21.json]  | replaced by two arms on the margin 1 − z₀ = 0.175 (derived: 1 − 0.825): z = 0.9125 (margin × 0.5, the "×1.5 direction") and
+L3122: 27,500  [x22.json]  | **Status:** done (r = 10 trajectories, 110 design points × 50 paired seeds × 5 policies; 27,500 games, derived: 110 × 50 × 5). Sobol was not
+
+## No cited source (line outside any experiment section and without a JSON link)

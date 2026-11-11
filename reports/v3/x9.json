@@ -1,0 +1,1004 @@
+{
+ "experiment": "X9",
+ "question": "Scale and GPU performance; is the cascade hop O(edges)?",
+ "seeds": {
+  "canonical": 20261107,
+  "repeats": 3,
+  "parity": [
+   20261107,
+   20261108,
+   20261109
+  ]
+ },
+ "ns": [
+  10000,
+  100000,
+  1000000
+ ],
+ "gpu_batches": [
+  1,
+  8,
+  16,
+  32
+ ],
+ "cpu_plan": {
+  "10000": [
+   1,
+   8
+  ],
+  "100000": [
+   1,
+   8
+  ],
+  "1000000": [
+   1
+  ]
+ },
+ "metric_definitions": {
+  "ms_per_round": "min over repeats of run_batch wall time / T (one call, B worlds)",
+  "ms_per_world_round": "ms_per_round / B",
+  "peak_bytes": "torch.cuda.max_memory_allocated in the child",
+  "cascade_hop": "spreader_edge_counts + ic_from_counts, median of 20 synchronised repetitions",
+  "loglog_slope_time_vs_edges": "slope of log(hop ms) on log(edges) over N (1 = O(edges))"
+ },
+ "results": [
+  {
+   "n": 10000,
+   "device": "cuda:2",
+   "B": 1,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.3271290436387062,
+   "edges_undirected": 150349,
+   "mean_degree": 30.0698,
+   "input_bytes": 5385728,
+   "run_batch_seconds": [
+    0.014158293604850769,
+    0.014324352145195007,
+    0.014127284288406372
+   ],
+   "ms_per_round": 2.8254568576812744,
+   "ms_per_world_round": 2.8254568576812744,
+   "games_per_second": 70.78501285775462,
+   "expected_share": 0.46243569254875183,
+   "converts": 2450,
+   "peak_bytes": 12182016,
+   "peak_bytes_above_inputs": 6796288,
+   "simulate_world_ms_per_round": 3.3346638083457947,
+   "cascade_hop": {
+    "0.001": {
+     "median_ms": 0.39110705256462097,
+     "min_ms": 0.384502112865448,
+     "spreader_edges": 312
+    },
+    "0.01": {
+     "median_ms": 0.3888942301273346,
+     "min_ms": 0.3828220069408417,
+     "spreader_edges": 3079
+    },
+    "0.1": {
+     "median_ms": 0.39333105087280273,
+     "min_ms": 0.39079785346984863,
+     "spreader_edges": 29902
+    }
+   },
+   "oom": false,
+   "host_peak_rss_mib": 876.7578125,
+   "wall_seconds": 2.774814274162054
+  },
+  {
+   "n": 10000,
+   "device": "cuda:2",
+   "B": 8,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.33617548644542694,
+   "edges_undirected": 150349,
+   "mean_degree": 30.0698,
+   "input_bytes": 5385728,
+   "run_batch_seconds": [
+    0.03689837083220482,
+    0.037463389337062836,
+    0.037536848336458206
+   ],
+   "ms_per_round": 7.379674166440964,
+   "ms_per_world_round": 0.9224592708051205,
+   "games_per_second": 216.81174045271445,
+   "expected_share": 0.46243569254875183,
+   "converts": 2450,
+   "peak_bytes": 100697088,
+   "peak_bytes_above_inputs": 95311360,
+   "oom": false,
+   "host_peak_rss_mib": 883.82421875,
+   "wall_seconds": 2.7132679037749767
+  },
+  {
+   "n": 10000,
+   "device": "cuda:2",
+   "B": 16,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.3260475993156433,
+   "edges_undirected": 150349,
+   "mean_degree": 30.0698,
+   "input_bytes": 5385728,
+   "run_batch_seconds": [
+    0.062244050204753876,
+    0.061436016112565994,
+    0.06170237436890602
+   ],
+   "ms_per_round": 12.287203222513199,
+   "ms_per_world_round": 0.7679502014070749,
+   "games_per_second": 260.43355367776513,
+   "expected_share": 0.46243569254875183,
+   "converts": 2450,
+   "peak_bytes": 197001728,
+   "peak_bytes_above_inputs": 191616000,
+   "oom": false,
+   "host_peak_rss_mib": 877.0078125,
+   "wall_seconds": 2.774621196091175
+  },
+  {
+   "n": 10000,
+   "device": "cuda:2",
+   "B": 32,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.31900829449296,
+   "edges_undirected": 150349,
+   "mean_degree": 30.0698,
+   "input_bytes": 5385728,
+   "run_batch_seconds": [
+    0.11421295255422592,
+    0.11237828806042671,
+    0.11253147199749947
+   ],
+   "ms_per_round": 22.475657612085342,
+   "ms_per_world_round": 0.702364300377667,
+   "games_per_second": 284.75251360648366,
+   "expected_share": 0.46243569254875183,
+   "converts": 2450,
+   "peak_bytes": 386221568,
+   "peak_bytes_above_inputs": 380835840,
+   "oom": false,
+   "host_peak_rss_mib": 867.81640625,
+   "wall_seconds": 2.959311418235302
+  },
+  {
+   "n": 100000,
+   "device": "cuda:2",
+   "B": 1,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.34168825671076775,
+   "edges_undirected": 1500944,
+   "mean_degree": 30.01888,
+   "input_bytes": 54884352,
+   "run_batch_seconds": [
+    0.01491326093673706,
+    0.014747634530067444,
+    0.014728143811225891
+   ],
+   "ms_per_round": 2.9456287622451782,
+   "ms_per_world_round": 2.9456287622451782,
+   "games_per_second": 67.89721860522528,
+   "expected_share": 0.3590638339519501,
+   "converts": 2182,
+   "peak_bytes": 124269056,
+   "peak_bytes_above_inputs": 69384704,
+   "simulate_world_ms_per_round": 3.990963101387024,
+   "cascade_hop": {
+    "0.001": {
+     "median_ms": 0.42529404163360596,
+     "min_ms": 0.4199109971523285,
+     "spreader_edges": 3350
+    },
+    "0.01": {
+     "median_ms": 0.43420493602752686,
+     "min_ms": 0.43079257011413574,
+     "spreader_edges": 29866
+    },
+    "0.1": {
+     "median_ms": 0.436633825302124,
+     "min_ms": 0.4332810640335083,
+     "spreader_edges": 302864
+    }
+   },
+   "oom": false,
+   "host_peak_rss_mib": 906.265625,
+   "wall_seconds": 2.7062213979661465
+  },
+  {
+   "n": 100000,
+   "device": "cuda:2",
+   "B": 8,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.3570123426616192,
+   "edges_undirected": 1500944,
+   "mean_degree": 30.01888,
+   "input_bytes": 54884352,
+   "run_batch_seconds": [
+    0.062401946634054184,
+    0.062128178775310516,
+    0.06216997280716896
+   ],
+   "ms_per_round": 12.425635755062103,
+   "ms_per_world_round": 1.553204469382763,
+   "games_per_second": 128.76604718983276,
+   "expected_share": 0.3590638339519501,
+   "converts": 2182,
+   "peak_bytes": 994045952,
+   "peak_bytes_above_inputs": 939161600,
+   "oom": false,
+   "host_peak_rss_mib": 914.0234375,
+   "wall_seconds": 2.801479436457157
+  },
+  {
+   "n": 100000,
+   "device": "cuda:2",
+   "B": 16,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.3447338864207268,
+   "edges_undirected": 1500944,
+   "mean_degree": 30.01888,
+   "input_bytes": 54884352,
+   "run_batch_seconds": [
+    0.11952920630574226,
+    0.11702942848205566,
+    0.11622881144285202
+   ],
+   "ms_per_round": 23.245762288570404,
+   "ms_per_world_round": 1.4528601430356503,
+   "games_per_second": 137.6594994079154,
+   "expected_share": 0.3590638339519501,
+   "converts": 2182,
+   "peak_bytes": 1931361280,
+   "peak_bytes_above_inputs": 1876476928,
+   "oom": false,
+   "host_peak_rss_mib": 906.34375,
+   "wall_seconds": 2.990974437445402
+  },
+  {
+   "n": 100000,
+   "device": "cuda:2",
+   "B": 32,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.3630996122956276,
+   "edges_undirected": 1500944,
+   "mean_degree": 30.01888,
+   "input_bytes": 54884352,
+   "run_batch_seconds": [
+    0.23001275956630707,
+    0.22693120688199997,
+    0.22965601831674576
+   ],
+   "ms_per_round": 45.386241376399994,
+   "ms_per_world_round": 1.4183200430124998,
+   "games_per_second": 141.0118971280993,
+   "expected_share": 0.3590638339519501,
+   "converts": 2182,
+   "peak_bytes": 3801576960,
+   "peak_bytes_above_inputs": 3746692608,
+   "oom": false,
+   "host_peak_rss_mib": 902.92578125,
+   "wall_seconds": 3.5383631624281406
+  },
+  {
+   "n": 1000000,
+   "device": "cuda:2",
+   "B": 1,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.38575049489736557,
+   "edges_undirected": 15000296,
+   "mean_degree": 30.000592,
+   "input_bytes": 537984000,
+   "run_batch_seconds": [
+    0.05588259547948837,
+    0.0555008240044117,
+    0.05531562119722366
+   ],
+   "ms_per_round": 11.063124239444733,
+   "ms_per_world_round": 11.063124239444733,
+   "games_per_second": 18.078075927857263,
+   "expected_share": 0.3502664268016815,
+   "converts": 3394,
+   "peak_bytes": 1215666688,
+   "peak_bytes_above_inputs": 677682688,
+   "simulate_world_ms_per_round": 14.204293489456177,
+   "cascade_hop": {
+    "0.001": {
+     "median_ms": 1.2212693691253662,
+     "min_ms": 1.2116357684135437,
+     "spreader_edges": 29326
+    },
+    "0.01": {
+     "median_ms": 1.2252815067768097,
+     "min_ms": 1.2146122753620148,
+     "spreader_edges": 300061
+    },
+    "0.1": {
+     "median_ms": 1.6085878014564514,
+     "min_ms": 1.6010403633117676,
+     "spreader_edges": 3016429
+    }
+   },
+   "oom": false,
+   "host_peak_rss_mib": 906.83984375,
+   "wall_seconds": 3.196777805685997
+  },
+  {
+   "n": 1000000,
+   "device": "cuda:2",
+   "B": 8,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.39490408822894096,
+   "edges_undirected": 15000296,
+   "mean_degree": 30.000592,
+   "input_bytes": 537984000,
+   "run_batch_seconds": [
+    0.4514338858425617,
+    0.4510235823690891,
+    0.4507780857384205
+   ],
+   "ms_per_round": 90.1556171476841,
+   "ms_per_world_round": 11.269452143460512,
+   "games_per_second": 17.747091646869176,
+   "expected_share": 0.3502664268016815,
+   "converts": 3394,
+   "peak_bytes": 9901538816,
+   "peak_bytes_above_inputs": 9363554816,
+   "oom": false,
+   "host_peak_rss_mib": 904.68359375,
+   "wall_seconds": 4.386767998337746
+  },
+  {
+   "n": 1000000,
+   "device": "cuda:2",
+   "B": 16,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.3899278789758682,
+   "edges_undirected": 15000296,
+   "mean_degree": 30.000592,
+   "input_bytes": 537984000,
+   "run_batch_seconds": [
+    0.9084444083273411,
+    0.9103151150047779,
+    0.9081798270344734
+   ],
+   "ms_per_round": 181.63596540689468,
+   "ms_per_world_round": 11.352247837930918,
+   "games_per_second": 17.61765624352792,
+   "expected_share": 0.3502664268016815,
+   "converts": 3394,
+   "peak_bytes": 19258297856,
+   "peak_bytes_above_inputs": 18720313856,
+   "oom": false,
+   "host_peak_rss_mib": 907.15234375,
+   "wall_seconds": 6.257670875638723
+  },
+  {
+   "n": 1000000,
+   "device": "cuda:2",
+   "B": 32,
+   "repeats": 3,
+   "generation": "device",
+   "generation_seconds": 0.3852832354605198,
+   "edges_undirected": 15000296,
+   "mean_degree": 30.000592,
+   "input_bytes": 537984000,
+   "oom": true,
+   "error": "CUDA out of memory. Tried to allocate 7.15 GiB. GPU 2 has a total capacity of 23.68 GiB of which 483.62 MiB is free. Including non-PyTorch memory, this process has 23.17 GiB memory in use. Of the allocated memory 22.67 GiB is allocated by PyTorch, and 275.43 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+   "host_peak_rss_mib": 878.8359375,
+   "wall_seconds": 2.9508275128901005
+  },
+  {
+   "n": 10000,
+   "device": "cpu",
+   "B": 1,
+   "repeats": 3,
+   "generation": "cpu",
+   "generation_seconds": 0.5476597957313061,
+   "edges_undirected": 149545,
+   "mean_degree": 29.909,
+   "run_batch_seconds": [
+    0.04004741832613945,
+    0.04018401354551315,
+    0.039858415722846985
+   ],
+   "ms_per_round": 7.971683144569397,
+   "ms_per_world_round": 7.971683144569397,
+   "games_per_second": 25.088804506266325,
+   "expected_share": 0.43988749384880066,
+   "converts": 1985,
+   "simulate_world_ms_per_round": 9.06723067164421,
+   "cascade_hop": {
+    "0.001": {
+     "median_ms": 1.1051669716835022,
+     "min_ms": 1.0953769087791443,
+     "spreader_edges": 214
+    },
+    "0.01": {
+     "median_ms": 1.1200159788131714,
+     "min_ms": 1.1109672486782074,
+     "spreader_edges": 3570
+    },
+    "0.1": {
+     "median_ms": 1.2318380177021027,
+     "min_ms": 1.2205764651298523,
+     "spreader_edges": 30333
+    }
+   },
+   "oom": false,
+   "host_peak_rss_mib": 415.23828125,
+   "wall_seconds": 2.8999211713671684
+  },
+  {
+   "n": 10000,
+   "device": "cpu",
+   "B": 8,
+   "repeats": 3,
+   "generation": "cpu",
+   "generation_seconds": 0.6123254895210266,
+   "edges_undirected": 149545,
+   "mean_degree": 29.909,
+   "run_batch_seconds": [
+    0.32713601365685463,
+    0.3345382809638977,
+    0.331165436655283
+   ],
+   "ms_per_round": 65.42720273137093,
+   "ms_per_world_round": 8.178400341421366,
+   "games_per_second": 24.454660037495913,
+   "expected_share": 0.43988749384880066,
+   "converts": 1985,
+   "oom": false,
+   "host_peak_rss_mib": 533.734375,
+   "wall_seconds": 3.859583828598261
+  },
+  {
+   "n": 100000,
+   "device": "cpu",
+   "B": 1,
+   "repeats": 3,
+   "generation": "cpu",
+   "generation_seconds": 0.48462436348199844,
+   "edges_undirected": 1498340,
+   "mean_degree": 29.9668,
+   "run_batch_seconds": [
+    0.41036346182227135,
+    0.450557678937912,
+    0.4115610904991627
+   ],
+   "ms_per_round": 82.07269236445427,
+   "ms_per_world_round": 82.07269236445427,
+   "games_per_second": 2.4368641290805284,
+   "expected_share": 0.3581094443798065,
+   "converts": 2114,
+   "simulate_world_ms_per_round": 128.2545953989029,
+   "cascade_hop": {
+    "0.001": {
+     "median_ms": 6.570104509592056,
+     "min_ms": 6.477918475866318,
+     "spreader_edges": 2894
+    },
+    "0.01": {
+     "median_ms": 6.911776959896088,
+     "min_ms": 6.76177442073822,
+     "spreader_edges": 30201
+    },
+    "0.1": {
+     "median_ms": 8.383885025978088,
+     "min_ms": 8.244384080171585,
+     "spreader_edges": 297118
+    }
+   },
+   "oom": false,
+   "host_peak_rss_mib": 654.97265625,
+   "wall_seconds": 7.298725616186857
+  },
+  {
+   "n": 100000,
+   "device": "cpu",
+   "B": 8,
+   "repeats": 3,
+   "generation": "cpu",
+   "generation_seconds": 0.49072955548763275,
+   "edges_undirected": 1498340,
+   "mean_degree": 29.9668,
+   "run_batch_seconds": [
+    2.7577625699341297,
+    2.751580074429512,
+    2.8003099150955677
+   ],
+   "ms_per_round": 550.3160148859024,
+   "ms_per_world_round": 68.7895018607378,
+   "games_per_second": 2.9074203852339817,
+   "expected_share": 0.3581094443798065,
+   "converts": 2114,
+   "oom": false,
+   "host_peak_rss_mib": 1831.00390625,
+   "wall_seconds": 13.732767514884472
+  },
+  {
+   "n": 1000000,
+   "device": "cpu",
+   "B": 1,
+   "repeats": 3,
+   "generation": "cpu",
+   "generation_seconds": 6.21577775105834,
+   "edges_undirected": 14995208,
+   "mean_degree": 29.990416,
+   "run_batch_seconds": [
+    3.8826107271015644,
+    3.813103210180998,
+    3.870568674057722
+   ],
+   "ms_per_round": 762.6206420361996,
+   "ms_per_world_round": 762.6206420361996,
+   "games_per_second": 0.26225358844995245,
+   "expected_share": 0.34885668754577637,
+   "converts": 1386,
+   "simulate_world_ms_per_round": 1184.0595938265324,
+   "cascade_hop": {
+    "0.001": {
+     "median_ms": 62.457166612148285,
+     "min_ms": 61.77546828985214,
+     "spreader_edges": 30501
+    },
+    "0.01": {
+     "median_ms": 65.50632789731026,
+     "min_ms": 64.76666405797005,
+     "spreader_edges": 303152
+    },
+    "0.1": {
+     "median_ms": 92.32821315526962,
+     "min_ms": 89.85821157693863,
+     "spreader_edges": 2993372
+    }
+   },
+   "oom": false,
+   "host_peak_rss_mib": 3001.7578125,
+   "wall_seconds": 54.56539070606232
+  }
+ ],
+ "table": {
+  "cuda:2|N10000|B1": {
+   "ms_per_round": 2.8254568576812744,
+   "ms_per_world_round": 2.8254568576812744,
+   "games_per_second": 70.78501285775462,
+   "peak_bytes": 12182016,
+   "peak_bytes_above_inputs": 6796288,
+   "generation_seconds": 0.3271290436387062,
+   "simulate_world_ms_per_round": 3.3346638083457947,
+   "host_peak_rss_mib": 876.7578125,
+   "edges_undirected": 150349
+  },
+  "cuda:2|N10000|B8": {
+   "ms_per_round": 7.379674166440964,
+   "ms_per_world_round": 0.9224592708051205,
+   "games_per_second": 216.81174045271445,
+   "peak_bytes": 100697088,
+   "peak_bytes_above_inputs": 95311360,
+   "generation_seconds": 0.33617548644542694,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 883.82421875,
+   "edges_undirected": 150349
+  },
+  "cuda:2|N10000|B16": {
+   "ms_per_round": 12.287203222513199,
+   "ms_per_world_round": 0.7679502014070749,
+   "games_per_second": 260.43355367776513,
+   "peak_bytes": 197001728,
+   "peak_bytes_above_inputs": 191616000,
+   "generation_seconds": 0.3260475993156433,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 877.0078125,
+   "edges_undirected": 150349
+  },
+  "cuda:2|N10000|B32": {
+   "ms_per_round": 22.475657612085342,
+   "ms_per_world_round": 0.702364300377667,
+   "games_per_second": 284.75251360648366,
+   "peak_bytes": 386221568,
+   "peak_bytes_above_inputs": 380835840,
+   "generation_seconds": 0.31900829449296,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 867.81640625,
+   "edges_undirected": 150349
+  },
+  "cuda:2|N100000|B1": {
+   "ms_per_round": 2.9456287622451782,
+   "ms_per_world_round": 2.9456287622451782,
+   "games_per_second": 67.89721860522528,
+   "peak_bytes": 124269056,
+   "peak_bytes_above_inputs": 69384704,
+   "generation_seconds": 0.34168825671076775,
+   "simulate_world_ms_per_round": 3.990963101387024,
+   "host_peak_rss_mib": 906.265625,
+   "edges_undirected": 1500944
+  },
+  "cuda:2|N100000|B8": {
+   "ms_per_round": 12.425635755062103,
+   "ms_per_world_round": 1.553204469382763,
+   "games_per_second": 128.76604718983276,
+   "peak_bytes": 994045952,
+   "peak_bytes_above_inputs": 939161600,
+   "generation_seconds": 0.3570123426616192,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 914.0234375,
+   "edges_undirected": 1500944
+  },
+  "cuda:2|N100000|B16": {
+   "ms_per_round": 23.245762288570404,
+   "ms_per_world_round": 1.4528601430356503,
+   "games_per_second": 137.6594994079154,
+   "peak_bytes": 1931361280,
+   "peak_bytes_above_inputs": 1876476928,
+   "generation_seconds": 0.3447338864207268,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 906.34375,
+   "edges_undirected": 1500944
+  },
+  "cuda:2|N100000|B32": {
+   "ms_per_round": 45.386241376399994,
+   "ms_per_world_round": 1.4183200430124998,
+   "games_per_second": 141.0118971280993,
+   "peak_bytes": 3801576960,
+   "peak_bytes_above_inputs": 3746692608,
+   "generation_seconds": 0.3630996122956276,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 902.92578125,
+   "edges_undirected": 1500944
+  },
+  "cuda:2|N1000000|B1": {
+   "ms_per_round": 11.063124239444733,
+   "ms_per_world_round": 11.063124239444733,
+   "games_per_second": 18.078075927857263,
+   "peak_bytes": 1215666688,
+   "peak_bytes_above_inputs": 677682688,
+   "generation_seconds": 0.38575049489736557,
+   "simulate_world_ms_per_round": 14.204293489456177,
+   "host_peak_rss_mib": 906.83984375,
+   "edges_undirected": 15000296
+  },
+  "cuda:2|N1000000|B8": {
+   "ms_per_round": 90.1556171476841,
+   "ms_per_world_round": 11.269452143460512,
+   "games_per_second": 17.747091646869176,
+   "peak_bytes": 9901538816,
+   "peak_bytes_above_inputs": 9363554816,
+   "generation_seconds": 0.39490408822894096,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 904.68359375,
+   "edges_undirected": 15000296
+  },
+  "cuda:2|N1000000|B16": {
+   "ms_per_round": 181.63596540689468,
+   "ms_per_world_round": 11.352247837930918,
+   "games_per_second": 17.61765624352792,
+   "peak_bytes": 19258297856,
+   "peak_bytes_above_inputs": 18720313856,
+   "generation_seconds": 0.3899278789758682,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 907.15234375,
+   "edges_undirected": 15000296
+  },
+  "cpu|N10000|B1": {
+   "ms_per_round": 7.971683144569397,
+   "ms_per_world_round": 7.971683144569397,
+   "games_per_second": 25.088804506266325,
+   "peak_bytes": null,
+   "peak_bytes_above_inputs": null,
+   "generation_seconds": 0.5476597957313061,
+   "simulate_world_ms_per_round": 9.06723067164421,
+   "host_peak_rss_mib": 415.23828125,
+   "edges_undirected": 149545
+  },
+  "cpu|N10000|B8": {
+   "ms_per_round": 65.42720273137093,
+   "ms_per_world_round": 8.178400341421366,
+   "games_per_second": 24.454660037495913,
+   "peak_bytes": null,
+   "peak_bytes_above_inputs": null,
+   "generation_seconds": 0.6123254895210266,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 533.734375,
+   "edges_undirected": 149545
+  },
+  "cpu|N100000|B1": {
+   "ms_per_round": 82.07269236445427,
+   "ms_per_world_round": 82.07269236445427,
+   "games_per_second": 2.4368641290805284,
+   "peak_bytes": null,
+   "peak_bytes_above_inputs": null,
+   "generation_seconds": 0.48462436348199844,
+   "simulate_world_ms_per_round": 128.2545953989029,
+   "host_peak_rss_mib": 654.97265625,
+   "edges_undirected": 1498340
+  },
+  "cpu|N100000|B8": {
+   "ms_per_round": 550.3160148859024,
+   "ms_per_world_round": 68.7895018607378,
+   "games_per_second": 2.9074203852339817,
+   "peak_bytes": null,
+   "peak_bytes_above_inputs": null,
+   "generation_seconds": 0.49072955548763275,
+   "simulate_world_ms_per_round": null,
+   "host_peak_rss_mib": 1831.00390625,
+   "edges_undirected": 1498340
+  },
+  "cpu|N1000000|B1": {
+   "ms_per_round": 762.6206420361996,
+   "ms_per_world_round": 762.6206420361996,
+   "games_per_second": 0.26225358844995245,
+   "peak_bytes": null,
+   "peak_bytes_above_inputs": null,
+   "generation_seconds": 6.21577775105834,
+   "simulate_world_ms_per_round": 1184.0595938265324,
+   "host_peak_rss_mib": 3001.7578125,
+   "edges_undirected": 14995208
+  }
+ },
+ "speedup": {
+  "N10000": {
+   "single_world_gpu_over_cpu": 2.821378469431453,
+   "best_batched_gpu_world_round_ms": 0.702364300377667,
+   "best_cpu_world_round_ms": 7.971683144569397,
+   "batched_gpu_over_best_cpu": 11.34978406545287,
+   "largest_B_that_fit": 32
+  },
+  "N100000": {
+   "single_world_gpu_over_cpu": 27.862537674943773,
+   "best_batched_gpu_world_round_ms": 1.4183200430124998,
+   "best_cpu_world_round_ms": 68.7895018607378,
+   "batched_gpu_over_best_cpu": 48.50069079939777,
+   "largest_B_that_fit": 32
+  },
+  "N1000000": {
+   "single_world_gpu_over_cpu": 68.93356935440835,
+   "best_batched_gpu_world_round_ms": 11.063124239444733,
+   "best_cpu_world_round_ms": 762.6206420361996,
+   "batched_gpu_over_best_cpu": 68.93356935440835,
+   "largest_B_that_fit": 16
+  }
+ },
+ "cascade_hop_scaling": {
+  "gpu|f0.001": {
+   "loglog_slope_time_vs_edges": 0.24739826661438238,
+   "ns": [
+    10000,
+    100000,
+    1000000
+   ],
+   "median_ms": [
+    0.39110705256462097,
+    0.42529404163360596,
+    1.2212693691253662
+   ],
+   "ns_per_edge": [
+    1.3006639637264663,
+    0.14167551941764847,
+    0.04070817566284579
+   ]
+  },
+  "gpu|f0.01": {
+   "loglog_slope_time_vs_edges": 0.24934277165575927,
+   "ns": [
+    10000,
+    100000,
+    1000000
+   ],
+   "median_ms": [
+    0.3888942301273346,
+    0.43420493602752686,
+    1.2252815067768097
+   ],
+   "ns_per_edge": [
+    1.2933050107660662,
+    0.14464394941700917,
+    0.040841910945517666
+   ]
+  },
+  "gpu|f0.1": {
+   "loglog_slope_time_vs_edges": 0.3060168567839183,
+   "ns": [
+    10000,
+    100000,
+    1000000
+   ],
+   "median_ms": [
+    0.39333105087280273,
+    0.436633825302124,
+    1.6085878014564514
+   ],
+   "ns_per_edge": [
+    1.3080600831159592,
+    0.14545306996867438,
+    0.053618535309451605
+   ]
+  },
+  "cpu|f0.001": {
+   "loglog_slope_time_vs_edges": 0.8755519079781177,
+   "ns": [
+    10000,
+    100000,
+    1000000
+   ],
+   "median_ms": [
+    1.1051669716835022,
+    6.570104509592056,
+    62.457166612148285
+   ],
+   "ns_per_edge": [
+    3.695098370669371,
+    2.1924611602146564,
+    2.0825708657108417
+   ]
+  },
+  "cpu|f0.01": {
+   "loglog_slope_time_vs_edges": 0.8830005634242334,
+   "ns": [
+    10000,
+    100000,
+    1000000
+   ],
+   "median_ms": [
+    1.1200159788131714,
+    6.911776959896088,
+    65.50632789731026
+   ],
+   "ns_per_edge": [
+    3.7447456578727856,
+    2.3064781557911047,
+    2.184242055772426
+   ]
+  },
+  "cpu|f0.1": {
+   "loglog_slope_time_vs_edges": 0.9368287460474102,
+   "ns": [
+    10000,
+    100000,
+    1000000
+   ],
+   "median_ms": [
+    1.2318380177021027,
+    8.383885025978088,
+    92.32821315526962
+   ],
+   "ns_per_edge": [
+    4.1186198726206245,
+    2.7977244904287706,
+    3.078590612256583
+   ]
+  }
+ },
+ "deviations": [
+  "Batched B uses B copies of the canonical world (timing does not depend on which worlds are joined); GPU generation uses generation='device' (\u00a71.1 point 3), CPU the canonical CPU draw.",
+  "CPU batched runs only up to B = 8 and N \u2264 10\u2075 (CPU time), B = 1 at 10\u2076."
+ ],
+ "provenance": {
+  "git": "d8d9c4e+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:2",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 1,
+  "threads_per_worker": 4,
+  "seconds": 125.71533733606339,
+  "args": {
+   "device": "cuda:2",
+   "repeats": 3,
+   "ns": [
+    10000,
+    100000,
+    1000000
+   ],
+   "out": "reports/v3/x9.json",
+   "child": null
+  },
+  "command": "python experiments/x9_scale.py --device cuda:2 --repeats 3 --out reports/v3/x9.json",
+  "compute": {
+   "device": "cuda:2",
+   "batch_sizes": [
+    1,
+    8,
+    16,
+    32
+   ],
+   "wall_seconds": 125.71533733606339,
+   "free_bytes_at_start": null,
+   "peak_bytes": 12333568,
+   "grad_mode": "no_grad",
+   "dtype": "float32",
+   "device_name": "NVIDIA RTX A5000",
+   "gpu_util_mean": 6.737704918032787,
+   "gpu_util_max": 99,
+   "samples": 61,
+   "gpu_mem_used_mib_max": 20726,
+   "interval_s": 2.0,
+   "device_selection": {
+    "requested": "cuda:2",
+    "need_bytes": 1073741824,
+    "free_bytes": {
+     "0": 21329084416,
+     "1": 137363456,
+     "2": 25392316416
+    },
+    "chosen": "cuda:2"
+   }
+  },
+  "parity": {
+   "passed": true,
+   "seeds": [
+    20261107,
+    20261108,
+    20261109
+   ],
+   "reference": "cpu",
+   "device": "cuda:2",
+   "metrics": {
+    "expected": {
+     "cpu_mean": 0.553994486729304,
+     "gpu_mean": 0.5452869236469269,
+     "mean_diff": -0.008707563082377115,
+     "tolerance": 0.027699724336465198,
+     "passed": true,
+     "tolerance_abs_or_se": 0.018749253469344442
+    },
+    "converts_share_of_n": {
+     "cpu_mean": 0.36366666666666664,
+     "gpu_mean": 0.355,
+     "mean_diff": -0.008666666666666684,
+     "tolerance": 0.0650214579965721,
+     "passed": true,
+     "tolerance_abs_or_se": 0.0650214579965721
+    }
+   },
+   "rows": [
+    {
+     "seed": 20261107,
+     "cpu": {
+      "expected": 0.43988749384880066,
+      "converts_share_of_n": 0.1985
+     },
+     "gpu": {
+      "expected": 0.4209447205066681,
+      "converts_share_of_n": 0.1584
+     }
+    },
+    {
+     "seed": 20261108,
+     "cpu": {
+      "expected": 0.6539305448532104,
+      "converts_share_of_n": 0.4928
+     },
+     "gpu": {
+      "expected": 0.6565541625022888,
+      "converts_share_of_n": 0.5257
+     }
+    },
+    {
+     "seed": 20261109,
+     "cpu": {
+      "expected": 0.5681654214859009,
+      "converts_share_of_n": 0.3997
+     },
+     "gpu": {
+      "expected": 0.5583618879318237,
+      "converts_share_of_n": 0.3809
+     }
+    }
+   ],
+   "rule": "|mean_gpu \u2212 mean_cpu| \u2264 max(0.01, 3.0\u00b7SE, 5%\u00b7|mean|)",
+   "cell": "N = 10\u2074, pay_split, top-3 manifesto, canonical CPU generation"
+  },
+  "note": "peak memory per configuration is in results[*].peak_bytes (fresh subprocess each)"
+ }
+}

@@ -1,0 +1,30 @@
+[x13] device cuda:0, seeds 12000..12099, settings {'population': 256, 'iterations': 30, 'elite_frac': 0.1, 'smoothing': 0.7, 'replicates': 4, 'hc_replicates': 8, 'hc_max_passes': 40, 'init_scale': 1.0, 'init_media': 0.25, 'chunk': 256}
+[x13] pilot seed 12000: 7.5s (search 5.8s), gap +0.0577; estimated remaining 7.2 min with 2 processes
+[x13] [4/99] 29s
+[x13] [8/99] 57s
+[x13] [12/99] 84s
+[x13] [16/99] 111s
+[x13] [20/99] 139s
+[x13] [24/99] 166s
+[x13] [28/99] 194s
+[x13] [32/99] 221s
+[x13] [36/99] 249s
+[x13] [40/99] 277s
+[x13] [44/99] 305s
+[x13] [48/99] 332s
+[x13] [52/99] 360s
+[x13] [56/99] 388s
+[x13] [60/99] 415s
+[x13] [64/99] 443s
+[x13] [68/99] 471s
+[x13] [72/99] 498s
+[x13] [76/99] 526s
+[x13] [80/99] 553s
+[x13] [84/99] 581s
+[x13] [88/99] 609s
+[x13] [92/99] 637s
+[x13] [96/99] 665s
+[x13] [99/99] 685s
+[x13] parity passed: True
+saved reports/v3/x13.json
+[x13] mean gap +0.0442 [0.04250102702670003, 0.04593343027539347], done in 12.0 min
