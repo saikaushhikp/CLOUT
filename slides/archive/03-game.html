@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · The game</title>
+<style>
+  .flow { display: grid; grid-template-columns: 1fr 48px 1fr 48px 1.25fr 48px 1fr; align-items: stretch; margin-top: 52px; }
+  .arrow { display: grid; place-items: center; color: var(--axis); font-size: 40px; font-weight: 700; }
+  .step { display: flex; flex-direction: column; gap: 12px; padding: 32px 30px; }
+  .step .k { font: 700 20px var(--font-mono); color: var(--ink-3); letter-spacing: 0.04em; }
+  .step h3 { font-size: 38px; }
+  .step p { font-size: 24px; color: var(--ink-2); line-height: 1.35; }
+  .step.hl { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent), var(--shadow); }
+  .step.hl .k { color: var(--accent); }
+  .loop { margin-top: auto; display: inline-flex; align-self: flex-start; }
+
+  .bottom { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; margin-top: 40px; }
+  .prices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .price { padding: 24px 26px; display: flex; flex-direction: column; gap: 4px; }
+  .price .v { font-size: 52px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .price .v small { font-size: 0.42em; color: var(--ink-3); font-weight: 500; margin-left: 4px; letter-spacing: 0; }
+  .price .l { font-size: 22px; color: var(--ink-2); margin-top: 6px; }
+
+  .manifesto { padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .manifesto .bar { display: flex; height: 44px; border-radius: 12px; overflow: hidden; }
+  .manifesto .bar span { display: block; }
+  .manifesto .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 19px; color: var(--ink-2); }
+  .manifesto .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; margin-right: 8px; vertical-align: -1px; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+    <nav class="phase-track"></nav>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">The game</p>
+    <h1>Win a majority in five rounds, without seeing the voters</h1>
+
+    <div class="flow">
+      <div class="panel step"><span class="k">01</span><h3>Setup</h3><p>A hidden electorate of 10,000 voters is drawn. You get 500 coins.</p></div>
+      <div class="arrow">→</div>
+      <div class="panel step"><span class="k">02</span><h3>Survey</h3><p>Buy questions, then commit a <b>manifesto</b>: fixed for the game.</p></div>
+      <div class="arrow">→</div>
+      <div class="panel step hl"><span class="k">03 · ×5 rounds</span><h3>Campaign</h3><p>Hire party workers, air media. Voters drift towards their friends.</p><span class="badge live loop"><span class="dot"></span>repeat each round</span></div>
+      <div class="arrow">→</div>
+      <div class="panel step"><span class="k">04</span><h3>Election</h3><p>More than half the votes wins. Then the hidden truth is revealed.</p></div>
+    </div>
+
+    <div class="bottom">
+      <div class="prices">
+        <div class="panel flat price"><span class="v">10<small>coins</small></span><span class="l">Survey question</span></div>
+        <div class="panel flat price"><span class="v">20<small>coins</small></span><span class="l">Party worker</span></div>
+        <div class="panel flat price"><span class="v">~50<small>coins</small></span><span class="l">Media airing</span></div>
+      </div>
+      <div class="panel flat manifesto">
+        <div class="panel-head" style="margin:0">Manifesto = a budget split</div>
+        <div class="bar">
+          <span style="width:25%;background:var(--sector-edu)"></span>
+          <span style="width:20%;background:var(--sector-welfare)"></span>
+          <span style="width:20%;background:var(--sector-agri)"></span>
+          <span style="width:20%;background:var(--sector-industry)"></span>
+          <span style="width:15%;background:var(--sector-env)"></span>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--sector-edu)"></i>Education</span>
+          <span><i style="background:var(--sector-welfare)"></i>Welfare</span>
+          <span><i style="background:var(--sector-agri)"></i>Agriculture</span>
+          <span><i style="background:var(--sector-industry)"></i>Industry</span>
+          <span><i style="background:var(--sector-env)"></i>Environment</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

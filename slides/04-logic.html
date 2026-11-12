@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Logic</title>
+<style>
+  .main { display: grid; grid-template-columns: 560px 1fr; gap: 64px; margin-top: 40px; flex: 1; min-height: 0; }
+  .left { display: flex; flex-direction: column; gap: 22px; justify-content: center; }
+  .left .lead { font-size: 32px; }
+  .def { display: grid; grid-template-columns: 64px 1fr; gap: 18px; align-items: baseline; font-size: 26px; color: var(--ink-2); }
+  .def .op { font: 700 34px var(--font-mono); color: var(--accent); }
+
+  .mats { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .mat { display: flex; flex-direction: column; gap: 18px; padding: 30px 34px; }
+  .mat h3 { font-size: 32px; }
+  .mat .sub { font-size: 22px; color: var(--ink-3); margin-top: -10px; }
+  .grid { display: grid; grid-template-columns: 70px repeat(3, 1fr); gap: 10px; font-family: var(--font-mono); font-size: 22px; }
+  .grid .h { text-align: center; color: var(--ink-3); padding-bottom: 2px; }
+  .grid .rl { color: var(--ink-3); display: grid; align-items: center; }
+  .grid .c { height: 62px; border-radius: 12px; display: grid; place-items: center; font-weight: 700; background: var(--surface-2); color: var(--ink-3); }
+  .grid .c.w { background: var(--good); color: #fff; }
+  .grid .c.col { outline: 3px solid var(--good-text); outline-offset: 2px; }
+  .verdict { font-size: 22px; font-weight: 700; padding: 10px 16px; border-radius: 12px; align-self: flex-start; }
+  .verdict.no { background: var(--accent-soft); color: var(--accent); }
+  .verdict.yes { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good-text); }
+
+  .ladder { display: flex; align-items: center; gap: 18px; margin-top: 32px; font-size: 24px; color: var(--ink-2); flex-wrap: wrap; }
+  .ladder .badge { font-size: 22px; padding: 9px 20px; }
+  .ladder .imp { font-family: var(--font-mono); color: var(--ink-3); font-size: 26px; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Epistemic &amp; temporal logic</p>
+    <h1>Knowing a win exists ≠ knowing how to win</h1>
+
+    <div class="main">
+      <div class="left">
+        <p class="lead">The player can't see the world, so we track every world that <b>matches what they have seen</b>.</p>
+        <div class="def"><span class="op">K</span><span>true in <b>every</b> such world: the player <i>knows</i> it</span></div>
+        <div class="def"><span class="op">M</span><span>true in <b>some</b> world: it is <i>possible</i></span></div>
+        <p class="small muted">After each game, the debrief shows these verdicts for every round, alongside the hidden truth.</p>
+      </div>
+
+      <div class="col">
+        <div class="mats">
+          <div class="panel mat">
+            <h3>Knows <i>that</i></h3>
+            <p class="sub">every world has some winning plan</p>
+            <div class="grid">
+              <span></span><span class="h">π1</span><span class="h">π2</span><span class="h">π3</span>
+              <span class="rl">w1</span><span class="c w">1</span><span class="c">0</span><span class="c">0</span>
+              <span class="rl">w2</span><span class="c">0</span><span class="c w">1</span><span class="c">0</span>
+              <span class="rl">w3</span><span class="c">0</span><span class="c">0</span><span class="c w">1</span>
+            </div>
+            <span class="verdict no">No single plan is safe</span>
+          </div>
+          <div class="panel mat">
+            <h3>Knows <i>how</i></h3>
+            <p class="sub">one plan wins in every world</p>
+            <div class="grid">
+              <span></span><span class="h">π1</span><span class="h">π2</span><span class="h">π3</span>
+              <span class="rl">w1</span><span class="c w">1</span><span class="c w col">1</span><span class="c">0</span>
+              <span class="rl">w2</span><span class="c">0</span><span class="c w col">1</span><span class="c">0</span>
+              <span class="rl">w3</span><span class="c">0</span><span class="c w col">1</span><span class="c w">1</span>
+            </div>
+            <span class="verdict yes">Play π2: guaranteed victory</span>
+          </div>
+        </div>
+        <div class="ladder">
+          <span class="badge live">Guaranteed</span><span class="imp">⇒</span>
+          <span class="badge">Knows a win exists</span><span class="imp">⇒</span>
+          <span class="badge">Possible</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

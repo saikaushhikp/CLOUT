@@ -1,0 +1,8 @@
+{
+ "num_voters": 100000,
+ "seed": 250288,
+ "rounds": 5,
+ "budget": "850.00",
+ "player_id": "p0",
+ "why_this_seed": "Chosen from 5,893 screened seeds and 10 full-information stress tests: the best expected share ANY attack found (121+ manifestos x 21 patterns, X13 plan search, X12 joint manifesto+plan optimisation, 24 alternative random streams, dice-overfit, CPU engine) is 47.07%, i.e. about 2,928 votes short of a majority. The largest region (South, 34% of voters, Industrial belt, 'Independent' personality) barely moves, so the other three regions would need ~75% support. A campaign still helps visibly: ~31% with no campaign vs ~46% with the best-effort plan."
+}

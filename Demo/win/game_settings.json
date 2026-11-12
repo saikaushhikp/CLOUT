@@ -1,0 +1,9 @@
+{
+ "num_voters": 100000,
+ "seed": 3685,
+ "rounds": 5,
+ "budget": "850.00",
+ "player_id": "p0",
+ "why_this_seed": "Screened 4,060 seeds (1-4000 plus 60 low-no-campaign seeds from Demo/lose's screen). 1,566 had an ORACLE no-campaign share <= 0.46. The 13 best by campaign proxy got the joint plan + manifesto search (the 14th, seed 62, was not finished). Seed 3685 gave the largest campaign share (0.738 on the CUDA engine, 0.737 on CPU, 0.730-0.742 on 10 alternative streams, 10/10 wins). With no campaign it loses: 45.4% with its own manifesto. Even the best possible no-campaign manifesto (ORACLE election-day optimum = 78-start PG optimum, 0.455) loses on every engine and every stream: 0/10, at most 45.6% of the vote, a 4.5-point margin below 50%. The gap of +28 points is the largest found.",
+ "headline": "Without campaigning you lose with 45.4%; with this campaign you win with 73.8% (CUDA engine; CPU 45.3% vs 73.6%)."
+}

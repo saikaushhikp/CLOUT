@@ -1,0 +1,16 @@
+[179569] 121 manifestos, 21 patterns; 41s
+[179569] phase A done 167s; top: joint_x12_from_oracle=0.4489, eday_blend_R1R2R4=0.4327, dirichlet5_11=0.4278, eday_top3=0.4266, eday_median=0.4256, r0_median=0.4252, uniform=0.4250, r0_blend_R1R2R4=0.4247
+[179569] search oracle: hc 0.4561, fresh mean 0.4548 max 0.4598 (planner max 0.4335); 304s
+[179569] search round0_opt: hc 0.4275, fresh mean 0.4278 max 0.4367 (planner max 0.4108); 408s
+[179569] search joint_x12_from_oracle: hc 0.4786, fresh mean 0.4815 max 0.4919 (planner max 0.4565); 511s
+[179569] search joint_x12_from_bestA: hc 0.4820, fresh mean 0.4846 max 0.4950 (planner max 0.4580); 612s
+[179569] search eday_blend_R1R2R4: hc 0.4346, fresh mean 0.4306 max 0.4425 (planner max 0.4274); 728s
+[179569] search dirichlet5_11: hc 0.4617, fresh mean 0.4594 max 0.4695 (planner max 0.4385); 837s
+[179569] search eday_top3: hc 0.4586, fresh mean 0.4583 max 0.4695 (planner max 0.4462); 910s
+[179569] joint alternation from joint_x12_from_bestA: EV 0.5636->0.5666; fresh mean 0.4870 max 0.4985
+  manifesto hc step 0.04: 0.4868
+  manifesto hc step 0.02: 0.4868
+  manifesto hc step 0.01: 0.4872
+  manifesto hc step 0.005: 0.4875
+[179569] manifesto HC from joint_search_alternation: 0.4868->0.4875; re-searched fresh mean 0.4857 max 0.4967; 1071s
+[179569] MAX E any attack/stream 0.4985 by joint_search_alternation/search; max vote share 0.4970; best mean search 0.4870; 1117s

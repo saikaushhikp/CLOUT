@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Section</title>
+<style>
+  .sec { flex: 1; display: grid; grid-template-columns: 520px 1fr; align-items: end; gap: 64px; padding-bottom: 40px; }
+  .big-n { font-size: 440px; line-height: 0.78; font-weight: 700; letter-spacing: -0.06em; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .sec h1 { font-size: 120px; letter-spacing: -0.04em; line-height: 0.95; }
+  .sec .lead { margin-top: 32px; max-width: 1000px; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+  <div class="sec">
+    <div class="big-n">02</div>
+    <div>
+      <p class="eyebrow">Section</p>
+      <h1>[Section title]</h1>
+      <p class="lead">[One or two sentences on what this section covers and why it matters.]</p>
+    </div>
+  </div>
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

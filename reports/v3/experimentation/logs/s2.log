@@ -1,0 +1,3 @@
+[s2 test] 42 arms × 100 seeds on cuda:0
+[s2 test] pairing check vs raw/x6.jsonl (max |ΔE|): {'uniform': 5.960464477539063e-08, 'top3': 5.960464477539063e-08, 'people_pleaser': 1.1920928955078125e-07}
+[s2] done in 4.1 min

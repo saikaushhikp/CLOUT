@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Strategies</title>
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 44px; margin-bottom: 16px; flex: 1; min-height: 0; }
+  .strat { display: flex; flex-direction: column; padding: 44px 48px; }
+  .strat .tag { font: 700 20px var(--font-mono); color: var(--accent); letter-spacing: 0.04em; }
+  .strat h2 { font-size: 52px; margin-top: 10px; }
+  .strat .idea { font-size: 26px; color: var(--ink-3); margin-top: 10px; }
+  .rows { margin-top: 36px; display: flex; flex-direction: column; }
+  .r { display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: baseline; padding: 24px 0; border-top: 1.5px solid var(--line); }
+  .r:last-child { border-bottom: 1.5px solid var(--line); }
+  .r .k { font-size: 20px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  .r p { font-size: 27px; color: var(--ink-2); line-height: 1.35; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="body">
+    <h1>Strategies</h1>
+
+    <div class="two">
+      <div class="panel strat">
+        <span class="tag">STRATEGY 1</span>
+        <h2>Majority appeasement</h2>
+        <p class="idea">The manifesto wins the big two; money wins the rest.</p>
+        <div class="rows">
+          <div class="r"><span class="k">Manifesto</span><p>A size-weighted blend of the two largest regions.</p></div>
+          <div class="r"><span class="k">Spending</span><p>Workers and media on the two smaller regions.</p></div>
+          <div class="r"><span class="k">Keep</span><p>A light nudge in the appeased regions against drift.</p></div>
+        </div>
+      </div>
+
+      <div class="panel strat">
+        <span class="tag">STRATEGY 2</span>
+        <h2>Four-region blend</h2>
+        <p class="idea">The manifesto reaches everyone; money locks in the big regions.</p>
+        <div class="rows">
+          <div class="r"><span class="k">Manifesto</span><p>A size-weighted blend of all four regions.</p></div>
+          <div class="r"><span class="k">Spending</span><p>Hyper-focus workers and media on the larger regions. Spend everything as early as possible, When to spend matters.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

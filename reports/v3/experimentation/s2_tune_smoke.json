@@ -1,0 +1,315 @@
+{
+ "experiment": "S2_TUNE_SMOKE",
+ "question": "Playbook player (Method 1) tuned by a small policy search (Method 2); human-executable rules",
+ "n": 10000,
+ "rounds": 5,
+ "treasury": "500.00",
+ "tv_table": {
+  "A0": {
+   "A0": 0.0,
+   "A1": 0.35,
+   "A2": 0.4,
+   "A3": 0.25,
+   "A4": 0.4,
+   "A5": 0.2
+  },
+  "A1": {
+   "A0": 0.35,
+   "A1": 0.0,
+   "A2": 0.35,
+   "A3": 0.35,
+   "A4": 0.25,
+   "A5": 0.25
+  },
+  "A2": {
+   "A0": 0.4,
+   "A1": 0.35,
+   "A2": 0.0,
+   "A3": 0.4,
+   "A4": 0.25,
+   "A5": 0.25
+  },
+  "A3": {
+   "A0": 0.25,
+   "A1": 0.35,
+   "A2": 0.4,
+   "A3": 0.0,
+   "A4": 0.4,
+   "A5": 0.25
+  },
+  "A4": {
+   "A0": 0.4,
+   "A1": 0.25,
+   "A2": 0.25,
+   "A3": 0.4,
+   "A4": 0.0,
+   "A5": 0.25
+  },
+  "A5": {
+   "A0": 0.2,
+   "A1": 0.25,
+   "A2": 0.25,
+   "A3": 0.25,
+   "A4": 0.25,
+   "A5": 0.0
+  }
+ },
+ "survey_sets": {
+  "AI": [
+   [
+    "Agri",
+    "Industry"
+   ]
+  ],
+  "WA+IE": [
+   [
+    "Welfare",
+    "Agri"
+   ],
+   [
+    "Industry",
+    "Env"
+   ]
+  ]
+ },
+ "stages": {
+  "A": {
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.6528984606266022,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.6528422385454178,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=1,survey_set=AI,worker_place=friendly,workers=3": 0.6505702883005142,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.649115726351738,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.6428529620170593,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.6428509056568146,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.6425822973251343,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=1,survey_set=AI,worker_place=friendly,workers=3": 0.6410077065229416,
+   "pb|later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.6390097737312317,
+   "pb|later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": 0.6346556097269058,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": 0.6346556097269058,
+   "pb|later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=AI,worker_place=friendly,workers=3": 0.6319597959518433,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=AI,worker_place=friendly,workers=3": 0.6319597959518433,
+   "pb|later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.6319597959518433,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.6140250712633133,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.6140250712633133,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.6140167564153671,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.6140167564153671,
+   "pb|later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.609423503279686,
+   "pb|later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.6094234883785248,
+   "pb|later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": 0.6072511225938797,
+   "pb|later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": 0.6072511076927185,
+   "pb|later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5976905077695847,
+   "pb|later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5976905077695847,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5976905077695847,
+   "pb|later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5976905077695847,
+   "pb|later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5976905077695847,
+   "pb|later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5976905077695847,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=1,survey_set=AI,worker_place=friendly,workers=3": 0.5947449952363968,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=1,survey_set=AI,worker_place=friendly,workers=3": 0.5947449803352356,
+   "pb|later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=AI,worker_place=friendly,workers=3": 0.5934527665376663,
+   "pb|later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=AI,worker_place=friendly,workers=3": 0.5934527665376663,
+   "pb|later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.5934527516365051,
+   "pb|later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.5934527516365051,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.576793447136879,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=1,survey_set=AI,worker_place=friendly,workers=3": 0.5767934322357178,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.5767934322357178,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=1,survey_set=AI,worker_place=friendly,workers=3": 0.5767934173345566,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.5767803639173508,
+   "pb|hunch_source=bayes_map,later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.5767803639173508,
+   "pb|later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5721754282712936,
+   "pb|later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5721754133701324,
+   "pb|later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5709174424409866,
+   "pb|later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": 0.5709174424409866,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.5624489784240723,
+   "pb|later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.5624489635229111,
+   "pb|later=front,manifesto_rule=two_largest,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.5624489486217499,
+   "pb|later=front,manifesto_rule=coalition,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.5624489486217499,
+   "pb|later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.5624489486217499,
+   "pb|later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=2,survey_set=AI,worker_place=friendly,workers=3": 0.5624489486217499,
+   "pb|later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=AI,worker_place=friendly,workers=3": 0.5445396229624748,
+   "pb|later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=AI,worker_place=friendly,workers=3": 0.5445396229624748,
+   "pb|later=front,manifesto_rule=anchor,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.5445396229624748,
+   "pb|later=front,manifesto_rule=divided,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": 0.5445396229624748
+  },
+  "A_election_day": {
+   "pb|election_day=True,later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": {
+    "E": 0.6576629281044006,
+    "today_twin_E": 0.649115726351738
+   },
+   "pb|election_day=True,later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=AI,worker_place=friendly,workers=3": {
+    "E": 0.6510221809148788,
+    "today_twin_E": 0.6425822973251343
+   },
+   "pb|election_day=True,later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": {
+    "E": 0.6466203182935715,
+    "today_twin_E": 0.6390097737312317
+   },
+   "pb|election_day=True,later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": {
+    "E": 0.6427042335271835,
+    "today_twin_E": 0.6346556097269058
+   },
+   "pb|election_day=True,later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=friendly,workers=3": {
+    "E": 0.6427042335271835,
+    "today_twin_E": 0.6346556097269058
+   },
+   "pb|election_day=True,later=front,manifesto_rule=three_largest,media1=4,media2=4,media_order=size,survey_regions=3,survey_set=AI,worker_place=friendly,workers=3": {
+    "E": 0.6398298889398575,
+    "today_twin_E": 0.6319597959518433
+   }
+  },
+  "B_top30": {
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.651302233338356,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.651302233338356,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.651302233338356,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.651302233338356,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.651302233338356,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.6513022184371948,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=3": 0.6510441303253174,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=3": 0.6510441303253174,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=3": 0.6510441303253174,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=3": 0.6510441303253174,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=3,media_order=match,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6510326415300369,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=2,media_order=match,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6510326266288757,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=match,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6510326266288757,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=match,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6510326266288757,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=4,media_order=match,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6510326266288757,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=3,media_order=match,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6510326117277145,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=3": 0.6508088558912277,
+   "pb|later=front,manifesto_rule=all,media1=3,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.6505247801542282,
+   "pb|later=even,manifesto_rule=all,media1=2,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.6502880156040192,
+   "pb|later=front,manifesto_rule=all,media1=2,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.650288000702858,
+   "pb|later=front,manifesto_rule=all,media1=2,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.6501660346984863,
+   "pb|later=front,manifesto_rule=all,media1=2,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.6499861180782318,
+   "pb|later=front,manifesto_rule=all,media1=2,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=3": 0.6493358761072159,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.649115726351738,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.649115726351738,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.649115726351738,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.649115726351738,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3": 0.6487906724214554,
+   "pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6486604511737823,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=3,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=6": 0.6486604362726212
+  },
+  "B_by_workers": {
+   "0": 0.5099288150668144,
+   "1": 0.6081809550523758,
+   "2": 0.6321942359209061,
+   "3": 0.6510441303253174,
+   "4": 0.651302233338356,
+   "6": 0.6510326415300369,
+   "8": 0.647410199046135
+  },
+  "C": {
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.651302233338356,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=AI,worker_place=size,workers=4": 0.6437533348798752,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=size,workers=4": 0.6355098336935043,
+   "pb|later=even,manifesto_rule=three_largest,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=size,workers=4": 0.6355098187923431,
+   "pb|later=even,manifesto_rule=three_largest,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.6312488466501236,
+   "pb|later=even,manifesto_rule=three_largest,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=AI,worker_place=size,workers=4": 0.6280210763216019,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=AI,worker_place=size,workers=4": 0.6280210763216019,
+   "pb|later=even,manifesto_rule=three_largest,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=AI,worker_place=size,workers=4": 0.6236484199762344,
+   "pb|later=even,manifesto_rule=two_largest,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=size,workers=4": 0.6001093089580536,
+   "pb|later=even,manifesto_rule=coalition,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=size,workers=4": 0.6001093089580536,
+   "pb|later=even,manifesto_rule=divided,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=size,workers=4": 0.5992534756660461,
+   "pb|later=even,manifesto_rule=two_largest,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=size,workers=4": 0.599253460764885,
+   "pb|later=even,manifesto_rule=three_largest,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=size,workers=4": 0.599253460764885,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=size,workers=4": 0.599253460764885,
+   "pb|later=even,manifesto_rule=coalition,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=size,workers=4": 0.599253460764885,
+   "pb|later=even,manifesto_rule=anchor,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=WA+IE,worker_place=size,workers=4": 0.599253460764885,
+   "pb|later=even,manifesto_rule=two_largest,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.5957800298929214,
+   "pb|later=even,manifesto_rule=coalition,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.5957800298929214,
+   "pb|later=even,manifesto_rule=two_largest,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=AI,worker_place=size,workers=4": 0.586002841591835,
+   "pb|later=even,manifesto_rule=three_largest,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=AI,worker_place=size,workers=4": 0.586002841591835,
+   "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=AI,worker_place=size,workers=4": 0.586002841591835,
+   "pb|later=even,manifesto_rule=coalition,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=AI,worker_place=size,workers=4": 0.586002841591835,
+   "pb|later=even,manifesto_rule=anchor,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=AI,worker_place=size,workers=4": 0.5860028266906738,
+   "pb|later=even,manifesto_rule=divided,media1=4,media2=2,media_order=size,survey_regions=2,survey_set=AI,worker_place=size,workers=4": 0.5860028266906738,
+   "pb|later=even,manifesto_rule=two_largest,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=AI,worker_place=size,workers=4": 0.5839943885803223,
+   "pb|later=even,manifesto_rule=coalition,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=AI,worker_place=size,workers=4": 0.5839943736791611,
+   "pb|later=even,manifesto_rule=two_largest,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=AI,worker_place=size,workers=4": 0.5804030746221542,
+   "pb|later=even,manifesto_rule=coalition,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=AI,worker_place=size,workers=4": 0.5804030746221542,
+   "pb|later=even,manifesto_rule=anchor,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=size,workers=4": 0.5691778063774109,
+   "pb|later=even,manifesto_rule=divided,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=WA+IE,worker_place=size,workers=4": 0.5691778063774109,
+   "pb|later=even,manifesto_rule=anchor,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.5656083226203918,
+   "pb|later=even,manifesto_rule=divided,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4": 0.5656083226203918,
+   "pb|later=even,manifesto_rule=anchor,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=AI,worker_place=size,workers=4": 0.5533412992954254,
+   "pb|later=even,manifesto_rule=divided,media1=4,media2=2,media_order=size,survey_regions=3,survey_set=AI,worker_place=size,workers=4": 0.5533412992954254,
+   "pb|later=even,manifesto_rule=anchor,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=AI,worker_place=size,workers=4": 0.5499898716807365,
+   "pb|later=even,manifesto_rule=divided,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=AI,worker_place=size,workers=4": 0.5499898716807365
+  }
+ },
+ "chosen": {
+  "workers": 4,
+  "worker_place": "size",
+  "media1": 4,
+  "media2": 2,
+  "media_order": "size",
+  "later": "even",
+  "survey_regions": 4,
+  "survey_set": "WA+IE",
+  "manifesto_rule": "all"
+ },
+ "chosen_arm": "pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4",
+ "chosen_train_E": 0.651302233338356,
+ "method1_default": {
+  "survey_regions": 2,
+  "survey_set": "WA+IE",
+  "manifesto_rule": "coalition",
+  "workers": 3,
+  "worker_place": "friendly",
+  "media1": 4,
+  "media2": 4,
+  "media_order": "size",
+  "later": "front"
+ },
+ "method1_default_train_E": 0.5976905077695847,
+ "seeds": {
+  "first": 13000,
+  "count": 4,
+  "role": "training (disjoint from 12000\u201312099)"
+ },
+ "num_arms": 778,
+ "games": 3120,
+ "provenance": {
+  "git": "e43333f+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:0",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 2,
+  "threads_per_worker": 4,
+  "seconds": 123.0653675571084,
+  "args": {
+   "stage": "tune",
+   "seeds": 4,
+   "first_seed": 13000,
+   "device": "cuda:0",
+   "workers": 2,
+   "tag": "_smoke"
+  },
+  "command": "OMP_NUM_THREADS=4 python experiments/s2_playbook.py --stage tune --seeds 4 --first-seed 13000 --workers 2 --tag _smoke",
+  "compute": {
+   "device": "cuda:0",
+   "batch_sizes": null,
+   "wall_seconds": 123.0653675571084,
+   "free_bytes_at_start": 22061121536,
+   "peak_bytes": 0,
+   "grad_mode": "no_grad",
+   "dtype": "float32",
+   "device_name": "NVIDIA RTX A5000",
+   "gpu_util_mean": 75.88333333333334,
+   "gpu_util_max": 99,
+   "samples": 60,
+   "gpu_mem_used_mib_max": 4249,
+   "interval_s": 2.0,
+   "device_selection": {
+    "requested": "cuda:0",
+    "need_bytes": 2147483648,
+    "free_bytes": {
+     "0": 22274899968,
+     "1": 137363456,
+     "2": 4194304
+    },
+    "chosen": "cuda:0"
+   }
+  }
+ }
+}

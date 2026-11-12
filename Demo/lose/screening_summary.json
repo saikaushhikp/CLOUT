@@ -1,0 +1,465 @@
+{
+ "settings": {
+  "num_voters": 100000,
+  "budget": "850.00",
+  "rounds": 5,
+  "device": "cuda:2",
+  "player_id": "p0"
+ },
+ "chosen_seed": 250288,
+ "why": "lowest full-information upper bound among the 10 stress-tested seeds (largest margin below 50%), while a campaign still lifts support visibly (no campaign about 31% of the vote, best effort about 46%).",
+ "stages": {
+  "S1_contiguous_oracle": {
+   "seeds": "100000..105912",
+   "count": 3948,
+   "proxy": "ORACLE manifesto x {ORACLE greedy planner, pay_workers, front_workers, pay_media, pay_split}, canonical streams",
+   "min_best_found": 0.4240601062774658,
+   "quantiles_0_1_5_50": [
+    0.4240601062774658,
+    0.4713700857758522,
+    0.5015322118997574,
+    0.6598589718341827
+   ]
+  },
+  "S2_contiguous_flat": {
+   "count": 1348,
+   "proxy": "S1 + ORACLE planner with 5 flat manifestos (election-day mean, TV geometric medians on v_T and v0, election-day median, uniform): stress tests showed the ORACLE manifesto is far from the best manifesto in hard worlds (a pilot seed rose from 0.43 to 0.50 with joint manifesto optimisation)",
+   "min_best_found": 0.4511745870113373
+  },
+  "structural_predictor": {
+   "what": "ridge regression of the S2 proxy on cheap per-seed structure (region sizes, archetype sigma, personality tau, block edge probabilities; no voters, no graph) fitted on the S2 seeds (holdout R^2 0.94, residual sd 0.017); structure drawn for seeds 100000..399999 (300,000 seeds)",
+   "selected": "the 1,600 seeds with the lowest predicted proxy"
+  },
+  "S3_targeted_flat": {
+   "count": 1600,
+   "proxy": "same as S2",
+   "min_best_found": 0.41666364669799805,
+   "bottom_10": [
+    327608,
+    349546,
+    140236,
+    250288,
+    210435,
+    179569,
+    110450,
+    348964,
+    314537,
+    319446
+   ]
+  }
+ },
+ "total_seeds_screened_on_full_N": 5893,
+ "shortlist_stress": [
+  {
+   "seed": 250288,
+   "screen_best_found": 0.4228053390979767,
+   "stress_max_E_any_attack_any_stream": 0.4707188904285431,
+   "stress_max_vote_share_any_stream": 0.47103,
+   "stress_best_mean_E": 0.46129245807727176,
+   "stress_max_by": [
+    "joint_search_alternation",
+    "search"
+   ],
+   "votes_short_at_max": 2928,
+   "features": {
+    "sizes": [
+     21940,
+     33676,
+     17026,
+     27358
+    ],
+    "sigma": [
+     3,
+     1,
+     2,
+     0
+    ],
+    "tau_ids": [
+     "P0",
+     "P2",
+     "P3",
+     "P1"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     1036,
+     1679,
+     840,
+     1350
+    ],
+    "inter_edge_share": 0.118467431,
+    "rw_gap": 0.0700268421
+   }
+  },
+  {
+   "seed": 349546,
+   "screen_best_found": 0.419333279132843,
+   "stress_max_E_any_attack_any_stream": 0.4773555099964142,
+   "stress_max_vote_share_any_stream": 0.47995,
+   "stress_best_mean_E": 0.47120427961150807,
+   "stress_max_by": [
+    "joint_search_alternation",
+    "search"
+   ],
+   "votes_short_at_max": 2264,
+   "features": {
+    "sizes": [
+     23022,
+     33829,
+     18436,
+     24713
+    ],
+    "sigma": [
+     2,
+     1,
+     0,
+     3
+    ],
+    "tau_ids": [
+     "P0",
+     "P2",
+     "P1",
+     "P3"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     1177,
+     1673,
+     935,
+     1212
+    ],
+    "inter_edge_share": 0.193830944,
+    "rw_gap": 0.146289048
+   }
+  },
+  {
+   "seed": 140236,
+   "screen_best_found": 0.42260444164276123,
+   "stress_max_E_any_attack_any_stream": 0.4817574620246887,
+   "stress_max_vote_share_any_stream": 0.4823,
+   "stress_best_mean_E": 0.47530658294757205,
+   "stress_max_by": [
+    "joint_search_alternation",
+    "search"
+   ],
+   "votes_short_at_max": 1824,
+   "features": {
+    "sizes": [
+     18731,
+     22598,
+     34800,
+     23871
+    ],
+    "sigma": [
+     2,
+     0,
+     1,
+     3
+    ],
+    "tau_ids": [
+     "P3",
+     "P0",
+     "P2",
+     "P1"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     982,
+     1110,
+     1713,
+     1211
+    ],
+    "inter_edge_share": 0.139838941,
+    "rw_gap": 0.10430975
+   }
+  },
+  {
+   "seed": 319446,
+   "screen_best_found": 0.4275663495063782,
+   "stress_max_E_any_attack_any_stream": 0.48597443103790283,
+   "stress_max_vote_share_any_stream": 0.48684,
+   "stress_best_mean_E": 0.4741439235707124,
+   "stress_max_by": [
+    "joint_search_alternation",
+    "search"
+   ],
+   "votes_short_at_max": 1403,
+   "features": {
+    "sizes": [
+     19731,
+     29548,
+     16624,
+     34097
+    ],
+    "sigma": [
+     3,
+     2,
+     0,
+     1
+    ],
+    "tau_ids": [
+     "P0",
+     "P2",
+     "P3",
+     "P1"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     953,
+     1438,
+     812,
+     1690
+    ],
+    "inter_edge_share": 0.179100331,
+    "rw_gap": 0.0908058569
+   }
+  },
+  {
+   "seed": 110450,
+   "screen_best_found": 0.42571771144866943,
+   "stress_max_E_any_attack_any_stream": 0.4863567054271698,
+   "stress_max_vote_share_any_stream": 0.4851,
+   "stress_best_mean_E": 0.4809865678350131,
+   "stress_max_by": [
+    "joint_search_alternation",
+    "search"
+   ],
+   "votes_short_at_max": 1364,
+   "features": {
+    "sizes": [
+     17322,
+     29785,
+     19644,
+     33249
+    ],
+    "sigma": [
+     0,
+     2,
+     1,
+     3
+    ],
+    "tau_ids": [
+     "P1",
+     "P0",
+     "P3",
+     "P2"
+    ],
+    "tv_two_largest": 0.4,
+    "zealots_by_region": [
+     850,
+     1469,
+     1001,
+     1634
+    ],
+    "inter_edge_share": 0.112648116,
+    "rw_gap": 0.0769663454
+   }
+  },
+  {
+   "seed": 327608,
+   "screen_best_found": 0.41666364669799805,
+   "stress_max_E_any_attack_any_stream": 0.48992472887039185,
+   "stress_max_vote_share_any_stream": 0.48888,
+   "stress_best_mean_E": 0.4804845303297043,
+   "stress_max_by": [
+    "joint_x12_from_bestA",
+    "search"
+   ],
+   "votes_short_at_max": 1008,
+   "features": {
+    "sizes": [
+     27979,
+     17134,
+     27207,
+     27680
+    ],
+    "sigma": [
+     0,
+     3,
+     2,
+     1
+    ],
+    "tau_ids": [
+     "P2",
+     "P3",
+     "P1",
+     "P0"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     1372,
+     836,
+     1317,
+     1430
+    ],
+    "inter_edge_share": 0.137027886,
+    "rw_gap": 0.0861307857
+   }
+  },
+  {
+   "seed": 314537,
+   "screen_best_found": 0.4272642135620117,
+   "stress_max_E_any_attack_any_stream": 0.4903965890407562,
+   "stress_max_vote_share_any_stream": 0.49248,
+   "stress_best_mean_E": 0.4821292931834857,
+   "stress_max_by": [
+    "joint_search_alternation",
+    "search"
+   ],
+   "votes_short_at_max": 960,
+   "features": {
+    "sizes": [
+     22533,
+     20477,
+     25387,
+     31603
+    ],
+    "sigma": [
+     0,
+     3,
+     2,
+     1
+    ],
+    "tau_ids": [
+     "P1",
+     "P0",
+     "P3",
+     "P2"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     1086,
+     1078,
+     1257,
+     1548
+    ],
+    "inter_edge_share": 0.169679667,
+    "rw_gap": 0.0956515754
+   }
+  },
+  {
+   "seed": 179569,
+   "screen_best_found": 0.42448192834854126,
+   "stress_max_E_any_attack_any_stream": 0.49846377968788147,
+   "stress_max_vote_share_any_stream": 0.49705,
+   "stress_best_mean_E": 0.48699498549103737,
+   "stress_max_by": [
+    "joint_search_alternation",
+    "search"
+   ],
+   "votes_short_at_max": 154,
+   "features": {
+    "sizes": [
+     23123,
+     19546,
+     28452,
+     28879
+    ],
+    "sigma": [
+     1,
+     3,
+     0,
+     2
+    ],
+    "tau_ids": [
+     "P0",
+     "P3",
+     "P2",
+     "P1"
+    ],
+    "tv_two_largest": 0.4,
+    "zealots_by_region": [
+     1261,
+     1018,
+     1500,
+     1404
+    ],
+    "inter_edge_share": 0.194955265,
+    "rw_gap": 0.151735322
+   }
+  },
+  {
+   "seed": 348964,
+   "screen_best_found": 0.4269472062587738,
+   "stress_max_E_any_attack_any_stream": 0.504849910736084,
+   "stress_max_vote_share_any_stream": 0.50424,
+   "stress_best_mean_E": 0.49526440848906833,
+   "stress_max_by": [
+    "manifesto_hc",
+    "search"
+   ],
+   "votes_short_at_max": -485,
+   "features": {
+    "sizes": [
+     21634,
+     26857,
+     26025,
+     25484
+    ],
+    "sigma": [
+     0,
+     1,
+     3,
+     2
+    ],
+    "tau_ids": [
+     "P0",
+     "P3",
+     "P2",
+     "P1"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     1080,
+     1325,
+     1273,
+     1261
+    ],
+    "inter_edge_share": 0.145480125,
+    "rw_gap": 0.10210504
+   }
+  },
+  {
+   "seed": 210435,
+   "screen_best_found": 0.423209547996521,
+   "stress_max_E_any_attack_any_stream": 0.5064787268638611,
+   "stress_max_vote_share_any_stream": 0.50773,
+   "stress_best_mean_E": 0.5014103365441164,
+   "stress_max_by": [
+    "manifesto_hc",
+    "search"
+   ],
+   "votes_short_at_max": -648,
+   "features": {
+    "sizes": [
+     19739,
+     35943,
+     16110,
+     28208
+    ],
+    "sigma": [
+     2,
+     1,
+     3,
+     0
+    ],
+    "tau_ids": [
+     "P1",
+     "P2",
+     "P3",
+     "P0"
+    ],
+    "tv_two_largest": 0.35,
+    "zealots_by_region": [
+     981,
+     1735,
+     820,
+     1393
+    ],
+    "inter_edge_share": 0.145554368,
+    "rw_gap": 0.13137404
+   }
+  }
+ ],
+ "note": "The owner's target (max E <= 0.45, >= 5,000 votes short) was NOT reachable: in every stress-tested world the full-information attacks (joint manifesto + plan optimisation) reach 0.47-0.51. The chosen seed has the largest margin found."
+}

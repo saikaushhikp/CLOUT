@@ -113,8 +113,8 @@ describe("survey desk — sampled queries (R12)", () => {
     const m = Math.round(0.1 * observation.regions.find((r) => r.id === "N")!.voters);
 
     // the builder announces the ~10% sample size of the selected region (North by default)
-    expect(screen.getByTestId("qb-sample")).toHaveTextContent(`≈${m.toLocaleString("en-US")}`);
-    expect(screen.getByTestId("qb-sample")).toHaveTextContent(/narrows the estimate/i);
+    // the answer line stays empty until the question has been asked
+    expect(screen.getByTestId("qb-sample")).toBeEmptyDOMElement();
 
     const askBtn = () => screen.getByRole("button", { name: /^ask( again)? · /i });
     const northBtn = () => screen.getByRole("button", { name: /^North \d+ responses?$/ });
@@ -122,9 +122,9 @@ describe("survey desk — sampled queries (R12)", () => {
     expect(screen.getByRole("button", { name: "North No responses yet" })).toBeDisabled();
     fireEvent.click(askBtn());
     await waitFor(() => expect(query).toHaveBeenCalledTimes(1));
-    // no answer box under the question any more: answers open per region, in a dialog
+    // the answer appears, highlighted, under the question; all responses also open per region in a dialog
     await waitFor(() => expect(northBtn()).toHaveAccessibleName("North 1 response"));
-    expect(document.querySelector(".answer-flash")).toBeNull();
+    expect(screen.getByTestId("qb-sample")).toHaveClass("answer-flash");
     expect(screen.getByRole("button", { name: "South No responses yet" })).toBeDisabled();
     northBtn().focus(); // jsdom does not focus on click; a real click (or keyboard) does
     fireEvent.click(northBtn());
@@ -140,7 +140,8 @@ describe("survey desk — sampled queries (R12)", () => {
     // repeat: allowed, not blocked, and pooled into one ledger row
     expect(askBtn()).toHaveTextContent(/ask again/i);
     expect(askBtn()).toBeEnabled();
-    expect(screen.getByTestId("qb-sample")).toHaveTextContent(/ask again to narrow the margin/i);
+    // once asked, the line under the question shows the answer itself
+    expect(screen.getByTestId("qb-sample")).toHaveTextContent(new RegExp(`% of ${m.toLocaleString("en-US")} North voters prefer Agriculture to Education`));
     fireEvent.click(askBtn());
     await waitFor(() => expect(query).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(northBtn()).toHaveAccessibleName("North 2 responses"));

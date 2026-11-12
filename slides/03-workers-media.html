@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Workers vs media</title>
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; flex: 1; min-height: 0; }
+  .tool { display: grid; grid-template-columns: 1fr 420px; gap: 24px; padding: 34px 34px; align-items: center; }
+  .tool .head { display: flex; align-items: baseline; gap: 16px; }
+  .tool h2 { font-size: 50px; }
+  .tool .price { font: 700 22px var(--font-mono); color: var(--ink-3); }
+  .tool ul.points { gap: 14px; margin-top: 22px; font-size: 25px; color: var(--ink-2); }
+  .tool .formula { display: inline-block; white-space: nowrap; margin-top: 26px; padding: 12px 18px; border-radius: 14px; background: var(--surface-2); font-size: 22px; color: var(--ink-2); }
+  .tool .formula b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+  .viz svg { width: 100%; height: auto; display: block; }
+  .viz .lg { display: flex; gap: 18px; justify-content: center; font-size: 17px; color: var(--ink-3); margin-top: 6px; }
+  .viz .lg i { display: inline-block; width: 13px; height: 13px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+  .bars text { font-family: var(--font-sans); font-size: 20px; fill: var(--ink-3); }
+  .bars .v { fill: var(--ink); font-weight: 700; font-size: 22px; }
+  .slide .takeaway { margin-top: 32px; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Two ways to spend</p>
+    <h1>Workers start cascades. Media gives a nudge.</h1>
+
+    <div class="two">
+      <div class="panel tool" style="grid-template-columns: 1fr 330px">
+        <div>
+          <div class="head"><h2>Workers</h2><span class="price">20 coins</span></div>
+          <ul class="points">
+            <li>A real voter, pinned to your manifesto</li>
+            <li>Converts friends, <b>one hop per round</b></li>
+            <li>Hire early: more rounds to spread</li>
+          </ul>
+        </div>
+        <div class="viz">
+          <svg viewBox="40 10 440 440" aria-label="A worker's cascade spreading outward">
+<g stroke="var(--axis)" stroke-width="2.5">
+<line x1="260" y1="230" x2="360" y2="261"/>
+<line x1="260" y1="230" x2="283" y2="332"/>
+<line x1="260" y1="230" x2="183" y2="301"/>
+<line x1="260" y1="230" x2="160" y2="199"/>
+<line x1="260" y1="230" x2="237" y2="128"/>
+<line x1="260" y1="230" x2="337" y2="159"/>
+<line x1="360" y1="261" x2="460" y2="240"/>
+<line x1="360" y1="261" x2="428" y2="339"/>
+<line x1="283" y1="332" x2="351" y2="408"/>
+<line x1="283" y1="332" x2="250" y2="430"/>
+<line x1="183" y1="301" x2="151" y2="398"/>
+<line x1="183" y1="301" x2="82" y2="321"/>
+<line x1="160" y1="199" x2="60" y2="220"/>
+<line x1="160" y1="199" x2="92" y2="121"/>
+<line x1="237" y1="128" x2="169" y2="52"/>
+<line x1="237" y1="128" x2="270" y2="30"/>
+<line x1="337" y1="159" x2="369" y2="62"/>
+<line x1="337" y1="159" x2="438" y2="139"/>
+</g><g stroke="var(--surface)" stroke-width="4">
+<circle cx="460" cy="240" r="17" fill="var(--accent)" opacity="0.55"/>
+<circle cx="428" cy="339" r="17" fill="var(--surface-3)"/>
+<circle cx="351" cy="408" r="17" fill="var(--accent)" opacity="0.55"/>
+<circle cx="250" cy="430" r="17" fill="var(--surface-3)"/>
+<circle cx="151" cy="398" r="17" fill="var(--surface-3)"/>
+<circle cx="82" cy="321" r="17" fill="var(--accent)" opacity="0.55"/>
+<circle cx="60" cy="220" r="17" fill="var(--surface-3)"/>
+<circle cx="92" cy="121" r="17" fill="var(--accent)" opacity="0.55"/>
+<circle cx="169" cy="52" r="17" fill="var(--surface-3)"/>
+<circle cx="270" cy="30" r="17" fill="var(--surface-3)"/>
+<circle cx="369" cy="62" r="17" fill="var(--accent)" opacity="0.55"/>
+<circle cx="438" cy="139" r="17" fill="var(--surface-3)"/>
+<circle cx="360" cy="261" r="21" fill="var(--accent)" opacity="0.8"/>
+<circle cx="283" cy="332" r="21" fill="var(--accent)" opacity="0.8"/>
+<circle cx="183" cy="301" r="21" fill="var(--surface-3)"/>
+<circle cx="160" cy="199" r="21" fill="var(--accent)" opacity="0.8"/>
+<circle cx="237" cy="128" r="21" fill="var(--surface-3)"/>
+<circle cx="337" cy="159" r="21" fill="var(--accent)" opacity="0.8"/>
+<circle cx="260" cy="230" r="34" fill="var(--accent)"/></g>
+<text x="260" y="230" text-anchor="middle" dominant-baseline="central" fill="var(--accent-ink)" font-size="22" font-weight="700">W</text>
+          </svg>
+          <div class="lg"><span><i style="background:var(--accent)"></i>converted</span><span><i style="background:var(--surface-3)"></i>not yet</span></div>
+        </div>
+      </div>
+
+      <div class="panel tool" style="grid-template-columns: 1fr 300px">
+        <div>
+          <div class="head"><h2>Media</h2><span class="price">~50 coins</span></div>
+          <ul class="points">
+            <li>Reaches <b>60%</b> of a region at once</li>
+            <li>A temporary pull, no network needed</li>
+            <li>Each repeat airing is weaker</li>
+          </ul>
+          <div class="formula">Strength <b>∝ 1 / (1 + 0.5·n)</b></div>
+        </div>
+        <div class="viz">
+          <svg class="bars" viewBox="0 0 340 330" aria-label="Diminishing returns of repeated airings">
+            <line x1="10" y1="280" x2="330" y2="280" stroke="var(--axis)" stroke-width="2"/>
+            <rect x="20"  y="40"  width="60" height="240" rx="8" fill="var(--blue)"/>
+            <rect x="100" y="120" width="60" height="160" rx="8" fill="var(--blue)" opacity="0.8"/>
+            <rect x="180" y="160" width="60" height="120" rx="8" fill="var(--blue)" opacity="0.65"/>
+            <rect x="260" y="184" width="60" height="96"  rx="8" fill="var(--blue)" opacity="0.5"/>
+            <text class="v" x="50"  y="28"  text-anchor="middle">1</text>
+            <text class="v" x="130" y="108" text-anchor="middle">⅔</text>
+            <text class="v" x="210" y="148" text-anchor="middle">½</text>
+            <text class="v" x="290" y="172" text-anchor="middle">⅖</text>
+            <text x="50"  y="310" text-anchor="middle">1st</text>
+            <text x="130" y="310" text-anchor="middle">2nd</text>
+            <text x="210" y="310" text-anchor="middle">3rd</text>
+            <text x="290" y="310" text-anchor="middle">4th</text>
+          </svg>
+          <div class="lg"><span>airing in the same region</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway"><span class="tag">Link</span>The manifesto matters for both: voters who already like it convert more easily.</div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

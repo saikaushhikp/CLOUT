@@ -1,0 +1,13 @@
+[s1] device cuda:0, seeds 12000..12099, N 10000, arms ['bayes', 'cands', 'taper', 'worlds', 'admm', 'cands_taper', 'cands_worlds', 'planner_all', 'smart_no_taper', 'smart']
+[s1] bayes        E 0.6391 win 0.98 game 1.9s
+[s1] cands        E 0.6508 win 0.99 Δ +0.0117 [+0.0095, +0.0139] game 2.0s
+[s1] taper        E 0.6380 win 0.99 Δ -0.0011 [-0.0032, +0.0010] game 1.9s
+[s1] worlds       E 0.6453 win 0.99 Δ +0.0062 [+0.0037, +0.0087] game 4.2s
+[s1] admm         E 0.6486 win 0.99 Δ +0.0095 [+0.0066, +0.0125] game 4.9s
+[s1] cands_taper  E 0.6506 win 0.99 Δ +0.0115 [+0.0093, +0.0136] game 2.0s
+[s1] cands_worlds E 0.6575 win 0.99 Δ +0.0184 [+0.0163, +0.0204] game 4.3s
+[s1] planner_all  E 0.6594 win 0.99 Δ +0.0203 [+0.0182, +0.0223] game 4.3s
+[s1] smart_no_taper E 0.6660 win 1.00 Δ +0.0269 [+0.0238, +0.0301] game 7.4s
+[s1] smart        E 0.6687 win 0.99 Δ +0.0296 [+0.0266, +0.0326] game 7.2s
+[s1] reproduction vs x6: {"x6_bayes_expected_mean_same_seeds": 0.6390907689929008, "s1_bayes_expected_mean": 0.6390907657146454, "seeds_compared": 100, "max_abs_diff": 2.980232238769531e-07, "identical_within_1e-6": 100}
+[s1] done in 23.1 min

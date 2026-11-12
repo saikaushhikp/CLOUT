@@ -1,0 +1,263 @@
+{
+ "schema_version": "2.2",
+ "game_id": "be2099a654ef",
+ "player_id": "p0",
+ "phase": "SURVEY",
+ "round": 0,
+ "rounds": 5,
+ "num_voters": 100000,
+ "seed": 3685,
+ "treasury": "850.00",
+ "initial_budget": "850.00",
+ "workers": {
+  "by_region": {
+   "N": 0,
+   "S": 0,
+   "E": 0,
+   "W": 0
+  },
+  "total": 0
+ },
+ "costs": {
+  "query": "10.00",
+  "worker": "20.00",
+  "min_degree": 3,
+  "attempt_cap": 3,
+  "media_by_region": {
+   "N": "39.85",
+   "S": "47.88",
+   "E": "31.74",
+   "W": "80.53"
+  }
+ },
+ "sectors": [
+  {
+   "id": "Edu",
+   "label": "Education"
+  },
+  {
+   "id": "Welfare",
+   "label": "Freebies / Social Welfare"
+  },
+  {
+   "id": "Agri",
+   "label": "Agriculture & Rural Development"
+  },
+  {
+   "id": "Industry",
+   "label": "Industry & Trade"
+  },
+  {
+   "id": "Env",
+   "label": "Environment / Climate Action"
+  }
+ ],
+ "archetype_library": [
+  {
+   "id": "A0",
+   "name": "Agrarian heartland",
+   "mean": [
+    0.15,
+    0.2,
+    0.4,
+    0.1,
+    0.15
+   ]
+  },
+  {
+   "id": "A1",
+   "name": "Industrial belt",
+   "mean": [
+    0.15,
+    0.15,
+    0.1,
+    0.45,
+    0.15
+   ]
+  },
+  {
+   "id": "A2",
+   "name": "Green urban",
+   "mean": [
+    0.25,
+    0.1,
+    0.1,
+    0.15,
+    0.4
+   ]
+  },
+  {
+   "id": "A3",
+   "name": "Welfare-reliant",
+   "mean": [
+    0.15,
+    0.45,
+    0.15,
+    0.1,
+    0.15
+   ]
+  },
+  {
+   "id": "A4",
+   "name": "Knowledge hub",
+   "mean": [
+    0.4,
+    0.1,
+    0.1,
+    0.25,
+    0.15
+   ]
+  },
+  {
+   "id": "A5",
+   "name": "Balanced middle",
+   "mean": [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2
+   ]
+  }
+ ],
+ "personality_library": [
+  {
+   "id": "P0",
+   "name": "Socially driven",
+   "social": 0.6666666666666666,
+   "media": 0.2857142857142857,
+   "campaign": 0.42857142857142855
+  },
+  {
+   "id": "P1",
+   "name": "Media-savvy",
+   "social": 0.42857142857142855,
+   "media": 0.6666666666666666,
+   "campaign": 0.2857142857142857
+  },
+  {
+   "id": "P2",
+   "name": "Independent",
+   "social": 0.25,
+   "media": 0.25,
+   "campaign": 0.25
+  },
+  {
+   "id": "P3",
+   "name": "Receptive to canvassing",
+   "social": 0.42857142857142855,
+   "media": 0.42857142857142855,
+   "campaign": 0.6666666666666666
+  }
+ ],
+ "regions": [
+  {
+   "id": "N",
+   "label": "North",
+   "voters": 19923,
+   "intra_edges": 144231,
+   "mean_degree": 30.057
+  },
+  {
+   "id": "S",
+   "label": "South",
+   "voters": 23941,
+   "intra_edges": 210715,
+   "mean_degree": 27.512
+  },
+  {
+   "id": "E",
+   "label": "East",
+   "voters": 15869,
+   "intra_edges": 99140,
+   "mean_degree": 24.503
+  },
+  {
+   "id": "W",
+   "label": "West",
+   "voters": 40267,
+   "intra_edges": 583015,
+   "mean_degree": 33.701
+  }
+ ],
+ "inter_edges": [
+  {
+   "regions": [
+    "N",
+    "S"
+   ],
+   "edges": 101774
+  },
+  {
+   "regions": [
+    "N",
+    "E"
+   ],
+   "edges": 76596
+  },
+  {
+   "regions": [
+    "N",
+    "W"
+   ],
+   "edges": 132002
+  },
+  {
+   "regions": [
+    "S",
+    "E"
+   ],
+   "edges": 95207
+  },
+  {
+   "regions": [
+    "S",
+    "W"
+   ],
+   "edges": 40252
+  },
+  {
+   "regions": [
+    "E",
+    "W"
+   ],
+   "edges": 18752
+  }
+ ],
+ "free_stats": [
+  {
+   "round": 0,
+   "top3_pct": {
+    "Edu": 68.393,
+    "Welfare": 67.625,
+    "Agri": 41.632000000000005,
+    "Industry": 60.263000000000005,
+    "Env": 62.087
+   }
+  }
+ ],
+ "queries": [],
+ "polls": [],
+ "allocations": [],
+ "round_reports": [],
+ "manifesto": null,
+ "media_airings": {
+  "N": 0,
+  "S": 0,
+  "E": 0,
+  "W": 0
+ },
+ "legal_actions": [
+  "query",
+  "commit"
+ ],
+ "result": null,
+ "events": [
+  {
+   "seq": 1,
+   "round": 0,
+   "type": "game_created",
+   "message": "New game: 100000 voters, 5 rounds"
+  }
+ ]
+}

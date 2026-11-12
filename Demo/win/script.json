@@ -1,0 +1,188 @@
+{
+ "settings": {
+  "num_voters": 100000,
+  "seed": 3685,
+  "rounds": 5,
+  "budget": "850.00",
+  "player_id": "p0"
+ },
+ "queries": [
+  {
+   "sector_a": "Industry",
+   "sector_b": "Env",
+   "region": "N"
+  },
+  {
+   "sector_a": "Agri",
+   "sector_b": "Industry",
+   "region": "S"
+  }
+ ],
+ "manifesto_pct": [
+  19,
+  28,
+  14,
+  23,
+  16
+ ],
+ "allocations": [
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    10
+   ],
+   "media": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    true,
+    true,
+    false,
+    true
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    false,
+    true,
+    false,
+    false
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    false,
+    false,
+    false,
+    false
+   ]
+  }
+ ],
+ "no_campaign_allocations": [
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "workers": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media": [
+    false,
+    false,
+    false,
+    false
+   ]
+  }
+ ],
+ "expected": {
+  "cuda": {
+   "campaign_votes": 73821,
+   "campaign_vote_share": 0.73821,
+   "campaign_expected_share": 0.738460898399353,
+   "no_campaign_votes": 45439,
+   "no_campaign_vote_share": 0.45439,
+   "no_campaign_expected_share": 0.45505857467651367
+  },
+  "cpu": {
+   "campaign_votes": 73565,
+   "no_campaign_votes": 45283
+  },
+  "campaign_min_vote_share": 0.73,
+  "no_campaign_max_vote_share": 0.46
+ }
+}

@@ -5,7 +5,7 @@ import { ArrowLeftRight, Loader2, Search } from "lucide-react";
 import { useGame, useObservation } from "@/lib/game";
 import { REGION_META, SECTOR_META, regionLabel, sectorLabel } from "@/lib/constants";
 import { fitArchetypes } from "@/lib/insight";
-import { formatEstimate, groupAnswers, querySampleSize, sampleMoe } from "@/lib/survey";
+import { formatEstimate, groupAnswers, type AnswerGroup } from "@/lib/survey";
 import { formatMoney, toCents } from "@/lib/money";
 import { fmtInt } from "@/lib/format";
 import type { RegionId, SectorId } from "@/lib/types";
@@ -56,6 +56,24 @@ export function Top3Bars() {
   );
 }
 
+/* ------------------------------------------------------------------ answer summary */
+/** "51.2% of 244 North voters prefer Agriculture to Education (±6.0). Pooled over 17 samples: 50.6% ± 1.5 (n = 4,148)" */
+function AnswerSummary({ g }: { g: AnswerGroup }) {
+  const q = g.latest;
+  return (
+    <>
+      <b className="num">{q.pct_b_over_a.toFixed(1)}%</b> of {fmtInt(q.sample_size)} <b>{regionLabel(q.region)}</b> voters prefer{" "}
+      <b>{sectorLabel(q.sector_b)}</b> to <b>{sectorLabel(q.sector_a)}</b> <span className="num">(±{q.moe.toFixed(1)})</span>.
+      {g.answers.length > 1 ? (
+        <>
+          {" "}
+          Pooled over {g.answers.length} samples: <b className="num">{formatEstimate(g.pct, g.moe, g.sampleSize)}</b>
+        </>
+      ) : null}
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------ query builder */
 export function QueryBuilder({ compact = false }: { compact?: boolean }) {
   const obs = useObservation();
@@ -67,10 +85,6 @@ export function QueryBuilder({ compact = false }: { compact?: boolean }) {
   const cost = toCents(obs.costs.query);
   const affordable = toCents(obs.treasury) >= cost;
   const phase = obs.phase;
-  const regionVoters = obs.regions.find((r) => r.id === region)?.voters ?? 0;
-  const m = querySampleSize(regionVoters);
-  // worst-case (p = 50%) margin of a single sample of this size
-  const typicalMoe = sampleMoe(m / 2, m, regionVoters);
   const pooled = phase === "DONE" ? undefined : groupAnswers(
     obs.queries.filter((q) => q.round === obs.round && q.phase === phase && q.sector_a === a && q.sector_b === b && q.region === region),
   )[0];
@@ -145,12 +159,16 @@ export function QueryBuilder({ compact = false }: { compact?: boolean }) {
             <b>{sectorLabel(a)}</b>?”
           </p>
         ) : null}
-        <p className="stat-sub" data-testid="qb-sample" style={{ margin: compact ? "10px 0 6px" : "0 0 6px" }}>
-          Asks <b className="num">≈{fmtInt(m)}</b> random {regionLabel(region)} voters, accurate to{" "}
-          <span className="num">±{typicalMoe.toFixed(1)}</span> pts.{" "}
-          {pooled
-            ? `Asked ${pooled.answers.length}× this round, pooled: ${formatEstimate(pooled.pct, pooled.moe, pooled.sampleSize)}. Ask again to narrow the margin.`
-            : "Asking again this round pools the samples and narrows the estimate."}
+        {/* empty until this question has an answer this round; the space is reserved so the panel doesn't move.
+            Keyed by the sample count so the highlight replays with every new answer. */}
+        <p
+          key={pooled ? pooled.answers.length : "none"}
+          className={`qb-sample${pooled ? " answer-flash answer-flash-sm" : ""}`}
+          data-testid="qb-sample"
+          aria-live="polite"
+          style={{ margin: compact ? "10px 0 6px" : "0 0 6px" }}
+        >
+          {pooled ? <AnswerSummary g={pooled} /> : null}
         </p>
         <div className="row-between">
           <span className="stat-sub" role="status">
@@ -230,14 +248,7 @@ export function RegionAnswers({ region }: { region: RegionId }) {
         return (
           <li className="ledger-entry" key={g.key}>
             <p className="answer-flash answer-flash-sm">
-              <b className="num">{q.pct_b_over_a.toFixed(1)}%</b> of {fmtInt(q.sample_size)} <b>{regionLabel(region)}</b> voters prefer{" "}
-              <b>{sectorLabel(q.sector_b)}</b> to <b>{sectorLabel(q.sector_a)}</b> <span className="num">(±{q.moe.toFixed(1)})</span>.
-              {repeats > 1 ? (
-                <>
-                  {" "}
-                  Pooled over {repeats} samples: <b className="num">{formatEstimate(g.pct, g.moe, g.sampleSize)}</b>
-                </>
-              ) : null}
+              <AnswerSummary g={g} />
             </p>
             <div className="ledger-item">
               <RegionPip id={q.region} />

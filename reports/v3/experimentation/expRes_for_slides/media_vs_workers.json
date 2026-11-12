@@ -1,0 +1,4670 @@
+{
+ "experiment": "S7 all media vs all workers, same money, single-region electorate",
+ "design": {
+  "voters": 2500,
+  "rounds": 3,
+  "seeds": [
+   14000,
+   14001,
+   14002,
+   14003,
+   14004,
+   14005,
+   14006,
+   14007,
+   14008,
+   14009,
+   14010,
+   14011,
+   14012,
+   14013,
+   14014,
+   14015,
+   14016,
+   14017,
+   14018,
+   14019,
+   14020,
+   14021,
+   14022,
+   14023,
+   14024,
+   14025,
+   14026,
+   14027,
+   14028,
+   14029,
+   14030,
+   14031,
+   14032,
+   14033,
+   14034,
+   14035,
+   14036,
+   14037,
+   14038,
+   14039,
+   14040,
+   14041,
+   14042,
+   14043,
+   14044,
+   14045,
+   14046,
+   14047,
+   14048,
+   14049
+  ],
+  "manifesto": [
+   0.2,
+   0.2,
+   0.2,
+   0.2,
+   0.2
+  ],
+  "surveys": "none",
+  "budget": "600.00",
+  "metric": "expected vote share E (mean vote probability), %; mean over worlds, t-based 95% CI",
+  "rounds_axis": "round 0 = before round 1; round t = after round t"
+ },
+ "single_region": {
+  "how": "ElectorateConfig(min_region_fraction=0.0, region_dirichlet_a=0.001): Dirichlet split is one-hot, all voters in one region, other three empty; no library change",
+  "verified_all_worlds_single_region": true,
+  "region_counts": {
+   "N": 12,
+   "S": 15,
+   "E": 13,
+   "W": 10
+  },
+  "archetype_counts": {
+   "A1 Industrial belt": 13,
+   "A0 Agrarian heartland": 12,
+   "A2 Green urban": 5,
+   "A4 Knowledge hub": 8,
+   "A3 Welfare-reliant": 7,
+   "A5 Balanced middle": 5
+  },
+  "personality_counts": {
+   "P0": 11,
+   "P3": 16,
+   "P1": 11,
+   "P2": 12
+  },
+  "mean_degree": {
+   "mean": 29.974207999999997,
+   "ci95": [
+    29.92843842244623,
+    30.019977577553764
+   ],
+   "sd": 0.16104885282397502,
+   "n": 50
+  },
+  "zealots": {
+   "mean": 124.64,
+   "ci95": [
+    121.54549382310019,
+    127.73450617689981
+   ],
+   "sd": 10.88860104205592,
+   "n": 50
+  },
+  "round3_mean_pct_by_archetype": {
+   "A1 Industrial belt": {
+    "No campaign": 19.88,
+    "All media": 28.43,
+    "All workers": 33.32
+   },
+   "A0 Agrarian heartland": {
+    "No campaign": 31.29,
+    "All media": 43.37,
+    "All workers": 50.67
+   },
+   "A2 Green urban": {
+    "No campaign": 20.23,
+    "All media": 32.33,
+    "All workers": 33.23
+   },
+   "A4 Knowledge hub": {
+    "No campaign": 20.21,
+    "All media": 28.12,
+    "All workers": 30.25
+   },
+   "A3 Welfare-reliant": {
+    "No campaign": 19.85,
+    "All media": 30.72,
+    "All workers": 32.58
+   },
+   "A5 Balanced middle": {
+    "No campaign": 84.59,
+    "All media": 87.06,
+    "All workers": 91.55
+   }
+  }
+ },
+ "money": {
+  "airing_price": "200.00",
+  "M": "600.00",
+  "worker_fee": "20.00",
+  "workers": 30,
+  "leftover": "0.00",
+  "price_source": "dynamics.campaign.media_cost(sizes, region, media.base_cost) = m0\u00b74\u00b7n_r/N"
+ },
+ "arms": {
+  "No campaign": "nothing bought",
+  "All media": "air the region in rounds 1..3 (\u20ab200.00 each, total \u20ab600.00)",
+  "All workers": "30 workers in round 1 in the region (\u20ab600.00), nothing afterwards"
+ },
+ "series_pct": {
+  "No campaign": {
+   "0": {
+    "mean": 27.985397666692734,
+    "ci95": [
+     22.99247788141647,
+     32.978317451969
+    ],
+    "sd": 17.568525790220374,
+    "n": 50
+   },
+   "1": {
+    "mean": 28.4641914665699,
+    "ci95": [
+     23.28181350405583,
+     33.64656942908397
+    ],
+    "sd": 18.23516996159001,
+    "n": 50
+   },
+   "2": {
+    "mean": 28.85682362318039,
+    "ci95": [
+     23.51426294236584,
+     34.19938430399494
+    ],
+    "sd": 18.79880293360538,
+    "n": 50
+   },
+   "3": {
+    "mean": 29.174879014492035,
+    "ci95": [
+     23.6968851408503,
+     34.65287288813377
+    ],
+    "sd": 19.2753500529989,
+    "n": 50
+   }
+  },
+  "All media": {
+   "0": {
+    "mean": 27.985397666692734,
+    "ci95": [
+     22.99247788141647,
+     32.978317451969
+    ],
+    "sd": 17.568525790220374,
+    "n": 50
+   },
+   "1": {
+    "mean": 32.76328790187836,
+    "ci95": [
+     27.753178878862535,
+     37.77339692489418
+    ],
+    "sd": 17.62900935084801,
+    "n": 50
+   },
+   "2": {
+    "mean": 36.04187145829201,
+    "ci95": [
+     31.00425025716165,
+     41.079492659422364
+    ],
+    "sd": 17.72581611553421,
+    "n": 50
+   },
+   "3": {
+    "mean": 38.537741899490356,
+    "ci95": [
+     33.475905892954025,
+     43.59957790602669
+    ],
+    "sd": 17.811020455194253,
+    "n": 50
+   }
+  },
+  "All workers": {
+   "0": {
+    "mean": 27.985397666692734,
+    "ci95": [
+     22.99247788141647,
+     32.978317451969
+    ],
+    "sd": 17.568525790220374,
+    "n": 50
+   },
+   "1": {
+    "mean": 31.333607405424118,
+    "ci95": [
+     26.241102728578113,
+     36.42611208227012
+    ],
+    "sd": 17.918933930366876,
+    "n": 50
+   },
+   "2": {
+    "mean": 37.22833091020584,
+    "ci95": [
+     31.715540017575158,
+     42.741121802836524
+    ],
+    "sd": 19.397789898183852,
+    "n": 50
+   },
+   "3": {
+    "mean": 42.70336815714836,
+    "ci95": [
+     37.16065478404017,
+     48.24608153025655
+    ],
+    "sd": 19.503077764319148,
+    "n": 50
+   }
+  }
+ },
+ "round3": {
+  "workers_minus_media_pp": {
+   "mean": 4.165626257658005,
+   "ci95": [
+    1.7940314865806557,
+    6.537221028735354
+   ],
+   "sd": 8.344901518845212,
+   "n": 50,
+   "wilcoxon_p": 0.0009504084140701252,
+   "a_better": 31
+  },
+  "head_to_head_worlds": {
+   "workers_higher": 31,
+   "media_higher": 19,
+   "ties": 0
+  },
+  "engine_victories": {
+   "No campaign": 5,
+   "All media": 6,
+   "All workers": 12
+  },
+  "E_at_least_50pct_worlds": {
+   "No campaign": 5,
+   "All media": 5,
+   "All workers": 13
+  },
+  "lift_over_no_campaign_pp": {
+   "All media": {
+    "mean": 9.362862884998322,
+    "ci95": [
+     8.0299969252916,
+     10.695728844705043
+    ],
+    "sd": 4.689939152851565,
+    "n": 50,
+    "wilcoxon_p": 1.7763568394002505e-15,
+    "a_better": 50
+   },
+   "All workers": {
+    "mean": 13.528489142656326,
+    "ci95": [
+     11.290743445723319,
+     15.766234839589334
+    ],
+    "sd": 7.873928418488892,
+    "n": 50,
+    "wilcoxon_p": 1.7763568394002505e-15,
+    "a_better": 50
+   }
+  }
+ },
+ "per_world": [
+  {
+   "seed": 14000,
+   "region": "N",
+   "archetype": "A1 Industrial belt",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     19.107,
+     19.267,
+     19.345,
+     19.353
+    ],
+    "All media": [
+     19.107,
+     22.223,
+     24.378,
+     26.033
+    ],
+    "All workers": [
+     19.107,
+     21.95,
+     25.794,
+     32.019
+    ]
+   }
+  },
+  {
+   "seed": 14001,
+   "region": "S",
+   "archetype": "A1 Industrial belt",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     19.674,
+     19.881,
+     20.002,
+     20.048
+    ],
+    "All media": [
+     19.674,
+     22.732,
+     24.916,
+     26.581
+    ],
+    "All workers": [
+     19.674,
+     22.804,
+     27.105,
+     32.902
+    ]
+   }
+  },
+  {
+   "seed": 14002,
+   "region": "S",
+   "archetype": "A1 Industrial belt",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.562,
+     19.7,
+     19.801,
+     19.869
+    ],
+    "All media": [
+     19.562,
+     24.377,
+     27.645,
+     30.244
+    ],
+    "All workers": [
+     19.562,
+     23.923,
+     33.277,
+     41.744
+    ]
+   }
+  },
+  {
+   "seed": 14003,
+   "region": "S",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     29.361,
+     29.946,
+     30.473,
+     30.948
+    ],
+    "All media": [
+     29.361,
+     38.539,
+     44.392,
+     48.717
+    ],
+    "All workers": [
+     29.361,
+     32.515,
+     36.866,
+     42.569
+    ]
+   }
+  },
+  {
+   "seed": 14004,
+   "region": "N",
+   "archetype": "A1 Industrial belt",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     19.407,
+     19.503,
+     19.586,
+     19.654
+    ],
+    "All media": [
+     19.407,
+     21.948,
+     23.721,
+     25.104
+    ],
+    "All workers": [
+     19.407,
+     21.458,
+     22.979,
+     24.847
+    ]
+   }
+  },
+  {
+   "seed": 14005,
+   "region": "W",
+   "archetype": "A2 Green urban",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     20.58,
+     20.675,
+     20.721,
+     20.723
+    ],
+    "All media": [
+     20.58,
+     25.377,
+     28.786,
+     31.336
+    ],
+    "All workers": [
+     20.58,
+     24.163,
+     32.582,
+     42.941
+    ]
+   }
+  },
+  {
+   "seed": 14006,
+   "region": "S",
+   "archetype": "A1 Industrial belt",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     19.663,
+     19.845,
+     19.921,
+     19.919
+    ],
+    "All media": [
+     19.663,
+     22.854,
+     25.038,
+     26.643
+    ],
+    "All workers": [
+     19.663,
+     22.873,
+     27.494,
+     33.045
+    ]
+   }
+  },
+  {
+   "seed": 14007,
+   "region": "N",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     20.172,
+     20.235,
+     20.263,
+     20.255
+    ],
+    "All media": [
+     20.172,
+     27.85,
+     32.919,
+     36.888
+    ],
+    "All workers": [
+     20.172,
+     22.395,
+     24.709,
+     27.551
+    ]
+   }
+  },
+  {
+   "seed": 14008,
+   "region": "S",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     20.283,
+     20.328,
+     20.362,
+     20.387
+    ],
+    "All media": [
+     20.283,
+     22.779,
+     24.57,
+     25.891
+    ],
+    "All workers": [
+     20.283,
+     22.366,
+     23.85,
+     26.302
+    ]
+   }
+  },
+  {
+   "seed": 14009,
+   "region": "S",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     29.754,
+     30.357,
+     30.92,
+     31.438
+    ],
+    "All media": [
+     29.754,
+     35.558,
+     39.629,
+     42.76
+    ],
+    "All workers": [
+     29.754,
+     34.714,
+     48.96,
+     57.94
+    ]
+   }
+  },
+  {
+   "seed": 14010,
+   "region": "E",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     29.255,
+     29.831,
+     30.352,
+     30.811
+    ],
+    "All media": [
+     29.255,
+     38.013,
+     43.754,
+     48.118
+    ],
+    "All workers": [
+     29.255,
+     32.428,
+     36.95,
+     42.611
+    ]
+   }
+  },
+  {
+   "seed": 14011,
+   "region": "E",
+   "archetype": "A3 Welfare-reliant",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     19.623,
+     19.707,
+     19.776,
+     19.828
+    ],
+    "All media": [
+     19.623,
+     22.22,
+     24.009,
+     25.452
+    ],
+    "All workers": [
+     19.623,
+     21.805,
+     23.189,
+     24.732
+    ]
+   }
+  },
+  {
+   "seed": 14012,
+   "region": "E",
+   "archetype": "A5 Balanced middle",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     78.432,
+     81.66,
+     84.241,
+     86.292
+    ],
+    "All media": [
+     78.432,
+     82.984,
+     85.917,
+     87.986
+    ],
+    "All workers": [
+     78.432,
+     83.399,
+     91.087,
+     92.638
+    ]
+   }
+  },
+  {
+   "seed": 14013,
+   "region": "E",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     29.443,
+     30.376,
+     31.18,
+     31.864
+    ],
+    "All media": [
+     29.443,
+     33.709,
+     36.898,
+     39.345
+    ],
+    "All workers": [
+     29.443,
+     33.348,
+     40.407,
+     50.471
+    ]
+   }
+  },
+  {
+   "seed": 14014,
+   "region": "S",
+   "archetype": "A1 Industrial belt",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.695,
+     19.823,
+     19.911,
+     19.966
+    ],
+    "All media": [
+     19.695,
+     24.519,
+     27.853,
+     30.46
+    ],
+    "All workers": [
+     19.695,
+     23.95,
+     31.989,
+     40.352
+    ]
+   }
+  },
+  {
+   "seed": 14015,
+   "region": "N",
+   "archetype": "A1 Industrial belt",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     19.141,
+     19.242,
+     19.318,
+     19.376
+    ],
+    "All media": [
+     19.141,
+     21.769,
+     23.469,
+     24.841
+    ],
+    "All workers": [
+     19.141,
+     21.215,
+     22.707,
+     24.472
+    ]
+   }
+  },
+  {
+   "seed": 14016,
+   "region": "E",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     20.228,
+     20.315,
+     20.357,
+     20.364
+    ],
+    "All media": [
+     20.228,
+     25.047,
+     28.32,
+     30.874
+    ],
+    "All workers": [
+     20.228,
+     24.46,
+     34.179,
+     43.933
+    ]
+   }
+  },
+  {
+   "seed": 14017,
+   "region": "S",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     29.201,
+     29.815,
+     30.368,
+     30.87
+    ],
+    "All media": [
+     29.201,
+     34.979,
+     39.034,
+     42.078
+    ],
+    "All workers": [
+     29.201,
+     35.18,
+     51.633,
+     58.565
+    ]
+   }
+  },
+  {
+   "seed": 14018,
+   "region": "E",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     20.229,
+     20.299,
+     20.357,
+     20.403
+    ],
+    "All media": [
+     20.229,
+     22.896,
+     24.657,
+     26.11
+    ],
+    "All workers": [
+     20.229,
+     22.245,
+     24.101,
+     26.031
+    ]
+   }
+  },
+  {
+   "seed": 14019,
+   "region": "W",
+   "archetype": "A3 Welfare-reliant",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     19.853,
+     19.973,
+     20.052,
+     20.092
+    ],
+    "All media": [
+     19.853,
+     27.642,
+     32.907,
+     37.125
+    ],
+    "All workers": [
+     19.853,
+     22.057,
+     24.134,
+     26.845
+    ]
+   }
+  },
+  {
+   "seed": 14020,
+   "region": "N",
+   "archetype": "A3 Welfare-reliant",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.48,
+     19.648,
+     19.772,
+     19.847
+    ],
+    "All media": [
+     19.48,
+     24.199,
+     27.539,
+     30.153
+    ],
+    "All workers": [
+     19.48,
+     23.658,
+     31.536,
+     40.469
+    ]
+   }
+  },
+  {
+   "seed": 14021,
+   "region": "E",
+   "archetype": "A3 Welfare-reliant",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.948,
+     20.117,
+     20.242,
+     20.324
+    ],
+    "All media": [
+     19.948,
+     24.849,
+     28.17,
+     30.7
+    ],
+    "All workers": [
+     19.948,
+     24.241,
+     34.56,
+     43.086
+    ]
+   }
+  },
+  {
+   "seed": 14022,
+   "region": "S",
+   "archetype": "A3 Welfare-reliant",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.547,
+     19.716,
+     19.834,
+     19.905
+    ],
+    "All media": [
+     19.547,
+     24.253,
+     27.504,
+     30.072
+    ],
+    "All workers": [
+     19.547,
+     23.58,
+     32.007,
+     42.816
+    ]
+   }
+  },
+  {
+   "seed": 14023,
+   "region": "W",
+   "archetype": "A3 Welfare-reliant",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     18.887,
+     18.963,
+     19.023,
+     19.063
+    ],
+    "All media": [
+     18.887,
+     21.408,
+     23.238,
+     24.626
+    ],
+    "All workers": [
+     18.887,
+     20.819,
+     21.933,
+     23.339
+    ]
+   }
+  },
+  {
+   "seed": 14024,
+   "region": "W",
+   "archetype": "A5 Balanced middle",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     78.836,
+     80.897,
+     82.66,
+     84.165
+    ],
+    "All media": [
+     78.836,
+     82.805,
+     85.314,
+     87.093
+    ],
+    "All workers": [
+     78.836,
+     83.166,
+     93.839,
+     94.382
+    ]
+   }
+  },
+  {
+   "seed": 14025,
+   "region": "W",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     20.159,
+     20.318,
+     20.38,
+     20.39
+    ],
+    "All media": [
+     20.159,
+     23.28,
+     25.477,
+     27.132
+    ],
+    "All workers": [
+     20.159,
+     23.565,
+     29.088,
+     36.096
+    ]
+   }
+  },
+  {
+   "seed": 14026,
+   "region": "N",
+   "archetype": "A1 Industrial belt",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.249,
+     19.397,
+     19.507,
+     19.579
+    ],
+    "All media": [
+     19.249,
+     23.995,
+     27.37,
+     29.939
+    ],
+    "All workers": [
+     19.249,
+     23.104,
+     31.879,
+     41.628
+    ]
+   }
+  },
+  {
+   "seed": 14027,
+   "region": "E",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     28.819,
+     29.409,
+     29.957,
+     30.446
+    ],
+    "All media": [
+     28.819,
+     37.445,
+     43.393,
+     47.841
+    ],
+    "All workers": [
+     28.819,
+     31.737,
+     35.759,
+     41.829
+    ]
+   }
+  },
+  {
+   "seed": 14028,
+   "region": "W",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     29.097,
+     29.682,
+     30.209,
+     30.678
+    ],
+    "All media": [
+     29.097,
+     34.702,
+     38.585,
+     41.552
+    ],
+    "All workers": [
+     29.097,
+     34.619,
+     49.892,
+     58.536
+    ]
+   }
+  },
+  {
+   "seed": 14029,
+   "region": "E",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     29.406,
+     30.382,
+     31.219,
+     31.938
+    ],
+    "All media": [
+     29.406,
+     33.843,
+     37.007,
+     39.501
+    ],
+    "All workers": [
+     29.406,
+     33.943,
+     42.154,
+     50.936
+    ]
+   }
+  },
+  {
+   "seed": 14030,
+   "region": "N",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     20.168,
+     20.177,
+     20.173,
+     20.156
+    ],
+    "All media": [
+     20.168,
+     22.712,
+     24.474,
+     25.868
+    ],
+    "All workers": [
+     20.168,
+     22.121,
+     23.346,
+     24.887
+    ]
+   }
+  },
+  {
+   "seed": 14031,
+   "region": "W",
+   "archetype": "A2 Green urban",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     19.83,
+     19.87,
+     19.889,
+     19.893
+    ],
+    "All media": [
+     19.83,
+     22.51,
+     24.298,
+     25.681
+    ],
+    "All workers": [
+     19.83,
+     21.733,
+     23.206,
+     25.548
+    ]
+   }
+  },
+  {
+   "seed": 14032,
+   "region": "E",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     19.982,
+     20.029,
+     20.061,
+     20.074
+    ],
+    "All media": [
+     19.982,
+     22.512,
+     24.24,
+     25.674
+    ],
+    "All workers": [
+     19.982,
+     21.737,
+     22.912,
+     24.215
+    ]
+   }
+  },
+  {
+   "seed": 14033,
+   "region": "E",
+   "archetype": "A2 Green urban",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     20.471,
+     20.549,
+     20.579,
+     20.579
+    ],
+    "All media": [
+     20.471,
+     25.104,
+     28.369,
+     30.865
+    ],
+    "All workers": [
+     20.471,
+     25.062,
+     36.151,
+     44.72
+    ]
+   }
+  },
+  {
+   "seed": 14034,
+   "region": "W",
+   "archetype": "A1 Industrial belt",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     19.844,
+     19.952,
+     20.036,
+     20.101
+    ],
+    "All media": [
+     19.844,
+     22.557,
+     24.472,
+     25.876
+    ],
+    "All workers": [
+     19.844,
+     22.385,
+     24.526,
+     27.094
+    ]
+   }
+  },
+  {
+   "seed": 14035,
+   "region": "E",
+   "archetype": "A5 Balanced middle",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     78.669,
+     80.749,
+     82.533,
+     84.057
+    ],
+    "All media": [
+     78.669,
+     83.641,
+     86.454,
+     88.267
+    ],
+    "All workers": [
+     78.669,
+     81.918,
+     87.399,
+     90.034
+    ]
+   }
+  },
+  {
+   "seed": 14036,
+   "region": "N",
+   "archetype": "A1 Industrial belt",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     20.047,
+     20.209,
+     20.325,
+     20.401
+    ],
+    "All media": [
+     20.047,
+     27.902,
+     33.376,
+     37.526
+    ],
+    "All workers": [
+     20.047,
+     22.25,
+     24.068,
+     26.199
+    ]
+   }
+  },
+  {
+   "seed": 14037,
+   "region": "S",
+   "archetype": "A1 Industrial belt",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.942,
+     20.095,
+     20.202,
+     20.266
+    ],
+    "All media": [
+     19.942,
+     24.697,
+     27.941,
+     30.507
+    ],
+    "All workers": [
+     19.942,
+     24.002,
+     33.442,
+     42.469
+    ]
+   }
+  },
+  {
+   "seed": 14038,
+   "region": "N",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     29.181,
+     29.775,
+     30.328,
+     30.838
+    ],
+    "All media": [
+     29.181,
+     35.151,
+     39.195,
+     42.289
+    ],
+    "All workers": [
+     29.181,
+     33.768,
+     46.882,
+     57.315
+    ]
+   }
+  },
+  {
+   "seed": 14039,
+   "region": "S",
+   "archetype": "A2 Green urban",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     19.572,
+     19.644,
+     19.664,
+     19.651
+    ],
+    "All media": [
+     19.572,
+     27.265,
+     32.665,
+     36.543
+    ],
+    "All workers": [
+     19.572,
+     21.841,
+     23.401,
+     25.652
+    ]
+   }
+  },
+  {
+   "seed": 14040,
+   "region": "W",
+   "archetype": "A5 Balanced middle",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     78.534,
+     79.762,
+     80.874,
+     81.88
+    ],
+    "All media": [
+     78.534,
+     80.895,
+     82.56,
+     83.862
+    ],
+    "All workers": [
+     78.534,
+     80.885,
+     85.141,
+     87.998
+    ]
+   }
+  },
+  {
+   "seed": 14041,
+   "region": "S",
+   "archetype": "A1 Industrial belt",
+   "personality": "P3",
+   "E_pct": {
+    "No campaign": [
+     19.899,
+     20.061,
+     20.172,
+     20.245
+    ],
+    "All media": [
+     19.899,
+     24.55,
+     27.939,
+     30.528
+    ],
+    "All workers": [
+     19.899,
+     23.71,
+     31.959,
+     42.224
+    ]
+   }
+  },
+  {
+   "seed": 14042,
+   "region": "S",
+   "archetype": "A3 Welfare-reliant",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     19.571,
+     19.735,
+     19.848,
+     19.914
+    ],
+    "All media": [
+     19.571,
+     27.3,
+     32.754,
+     36.9
+    ],
+    "All workers": [
+     19.571,
+     21.917,
+     23.808,
+     26.742
+    ]
+   }
+  },
+  {
+   "seed": 14043,
+   "region": "N",
+   "archetype": "A5 Balanced middle",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     79.188,
+     82.231,
+     84.653,
+     86.573
+    ],
+    "All media": [
+     79.188,
+     83.365,
+     86.152,
+     88.111
+    ],
+    "All workers": [
+     79.188,
+     83.924,
+     91.227,
+     92.684
+    ]
+   }
+  },
+  {
+   "seed": 14044,
+   "region": "E",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     29.585,
+     30.208,
+     30.77,
+     31.279
+    ],
+    "All media": [
+     29.585,
+     38.361,
+     44.332,
+     48.706
+    ],
+    "All workers": [
+     29.585,
+     33.055,
+     37.471,
+     43.161
+    ]
+   }
+  },
+  {
+   "seed": 14045,
+   "region": "S",
+   "archetype": "A2 Green urban",
+   "personality": "P1",
+   "E_pct": {
+    "No campaign": [
+     20.217,
+     20.28,
+     20.305,
+     20.298
+    ],
+    "All media": [
+     20.217,
+     27.924,
+     33.185,
+     37.201
+    ],
+    "All workers": [
+     20.217,
+     22.51,
+     24.594,
+     27.298
+    ]
+   }
+  },
+  {
+   "seed": 14046,
+   "region": "W",
+   "archetype": "A4 Knowledge hub",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     19.505,
+     19.647,
+     19.711,
+     19.69
+    ],
+    "All media": [
+     19.505,
+     22.666,
+     24.881,
+     26.527
+    ],
+    "All workers": [
+     19.505,
+     22.684,
+     27.241,
+     33.013
+    ]
+   }
+  },
+  {
+   "seed": 14047,
+   "region": "S",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     29.943,
+     30.863,
+     31.658,
+     32.346
+    ],
+    "All media": [
+     29.943,
+     34.304,
+     37.386,
+     39.843
+    ],
+    "All workers": [
+     29.943,
+     34.067,
+     42.409,
+     51.737
+    ]
+   }
+  },
+  {
+   "seed": 14048,
+   "region": "N",
+   "archetype": "A0 Agrarian heartland",
+   "personality": "P0",
+   "E_pct": {
+    "No campaign": [
+     29.586,
+     30.521,
+     31.33,
+     32.024
+    ],
+    "All media": [
+     29.586,
+     33.94,
+     37.147,
+     39.64
+    ],
+    "All workers": [
+     29.586,
+     34.055,
+     43.066,
+     52.361
+    ]
+   }
+  },
+  {
+   "seed": 14049,
+   "region": "N",
+   "archetype": "A1 Industrial belt",
+   "personality": "P2",
+   "E_pct": {
+    "No campaign": [
+     19.444,
+     19.542,
+     19.624,
+     19.687
+    ],
+    "All media": [
+     19.444,
+     22.017,
+     23.867,
+     25.277
+    ],
+    "All workers": [
+     19.444,
+     21.377,
+     22.528,
+     24.189
+    ]
+   }
+  }
+ ],
+ "rows": [
+  {
+   "seed": 14000,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.35311257839203,
+   "trajectory_pct": [
+    19.1069,
+    19.2669,
+    19.3447,
+    19.3531
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14001,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.048269629478455,
+   "trajectory_pct": [
+    19.6744,
+    19.8814,
+    20.0017,
+    20.0483
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14002,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.868898391723633,
+   "trajectory_pct": [
+    19.5623,
+    19.7,
+    19.8012,
+    19.8689
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14003,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 30.948323011398315,
+   "trajectory_pct": [
+    29.3607,
+    29.9465,
+    30.4726,
+    30.9483
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14004,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.654177129268646,
+   "trajectory_pct": [
+    19.4073,
+    19.5031,
+    19.5856,
+    19.6542
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14005,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.72273939847946,
+   "trajectory_pct": [
+    20.5802,
+    20.6752,
+    20.7207,
+    20.7227
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14006,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.918623566627502,
+   "trajectory_pct": [
+    19.6633,
+    19.8451,
+    19.9208,
+    19.9186
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14007,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.255032181739807,
+   "trajectory_pct": [
+    20.1718,
+    20.2353,
+    20.2632,
+    20.255
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14008,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.387275516986847,
+   "trajectory_pct": [
+    20.2834,
+    20.3283,
+    20.3622,
+    20.3873
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14009,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 31.4382404088974,
+   "trajectory_pct": [
+    29.754,
+    30.3571,
+    30.9196,
+    31.4382
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14010,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 30.810630321502686,
+   "trajectory_pct": [
+    29.2551,
+    29.8307,
+    30.3518,
+    30.8106
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14011,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.828210771083832,
+   "trajectory_pct": [
+    19.6226,
+    19.7066,
+    19.7762,
+    19.8282
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14012,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 86.29169464111328,
+   "trajectory_pct": [
+    78.4317,
+    81.6604,
+    84.2412,
+    86.2917
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14013,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 31.863638758659363,
+   "trajectory_pct": [
+    29.4432,
+    30.3755,
+    31.1795,
+    31.8636
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14014,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.966205954551697,
+   "trajectory_pct": [
+    19.6949,
+    19.8232,
+    19.9109,
+    19.9662
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14015,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.375719130039215,
+   "trajectory_pct": [
+    19.1412,
+    19.2421,
+    19.3183,
+    19.3757
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14016,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.36382704973221,
+   "trajectory_pct": [
+    20.2277,
+    20.315,
+    20.3565,
+    20.3638
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14017,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 30.870190262794495,
+   "trajectory_pct": [
+    29.2006,
+    29.8147,
+    30.368,
+    30.8702
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14018,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.403388142585754,
+   "trajectory_pct": [
+    20.2291,
+    20.2993,
+    20.3567,
+    20.4034
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14019,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.091918110847473,
+   "trajectory_pct": [
+    19.8528,
+    19.9731,
+    20.0516,
+    20.0919
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14020,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.84715759754181,
+   "trajectory_pct": [
+    19.4804,
+    19.6484,
+    19.7719,
+    19.8472
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14021,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.324024558067322,
+   "trajectory_pct": [
+    19.9476,
+    20.1168,
+    20.242,
+    20.324
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14022,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.905056059360504,
+   "trajectory_pct": [
+    19.5466,
+    19.7163,
+    19.8337,
+    19.9051
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14023,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.063466787338257,
+   "trajectory_pct": [
+    18.8868,
+    18.9635,
+    19.0234,
+    19.0635
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14024,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 84.16476249694824,
+   "trajectory_pct": [
+    78.8362,
+    80.8974,
+    82.6596,
+    84.1648
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14025,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.39027512073517,
+   "trajectory_pct": [
+    20.1587,
+    20.3179,
+    20.3805,
+    20.3903
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14026,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.578728079795837,
+   "trajectory_pct": [
+    19.2488,
+    19.397,
+    19.5073,
+    19.5787
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14027,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 30.44610619544983,
+   "trajectory_pct": [
+    28.8191,
+    29.4089,
+    29.9572,
+    30.4461
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14028,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 30.67760169506073,
+   "trajectory_pct": [
+    29.0974,
+    29.6821,
+    30.2093,
+    30.6776
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14029,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 31.937530636787415,
+   "trajectory_pct": [
+    29.4063,
+    30.382,
+    31.2188,
+    31.9375
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14030,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.155532658100128,
+   "trajectory_pct": [
+    20.1681,
+    20.1773,
+    20.1733,
+    20.1555
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14031,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.892607629299164,
+   "trajectory_pct": [
+    19.8304,
+    19.8697,
+    19.8893,
+    19.8926
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14032,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.07357031106949,
+   "trajectory_pct": [
+    19.9819,
+    20.0291,
+    20.0605,
+    20.0736
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14033,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.578627288341522,
+   "trajectory_pct": [
+    20.4706,
+    20.5491,
+    20.5789,
+    20.5786
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14034,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.101314783096313,
+   "trajectory_pct": [
+    19.8439,
+    19.9519,
+    20.0355,
+    20.1013
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14035,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 84.05677676200867,
+   "trajectory_pct": [
+    78.6689,
+    80.7491,
+    82.5326,
+    84.0568
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14036,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.40061354637146,
+   "trajectory_pct": [
+    20.0471,
+    20.2086,
+    20.3253,
+    20.4006
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14037,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.266295969486237,
+   "trajectory_pct": [
+    19.9415,
+    20.0953,
+    20.2021,
+    20.2663
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14038,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 30.837514996528625,
+   "trajectory_pct": [
+    29.1814,
+    29.775,
+    30.3279,
+    30.8375
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14039,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.65096890926361,
+   "trajectory_pct": [
+    19.5723,
+    19.6442,
+    19.6639,
+    19.651
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14040,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 81.88042044639587,
+   "trajectory_pct": [
+    78.5337,
+    79.7617,
+    80.874,
+    81.8804
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14041,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.244723558425903,
+   "trajectory_pct": [
+    19.8995,
+    20.0606,
+    20.172,
+    20.2447
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14042,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.914089143276215,
+   "trajectory_pct": [
+    19.5709,
+    19.735,
+    19.8483,
+    19.9141
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14043,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 86.57279014587402,
+   "trajectory_pct": [
+    79.1883,
+    82.2312,
+    84.6532,
+    86.5728
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14044,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 31.278711557388306,
+   "trajectory_pct": [
+    29.5848,
+    30.2083,
+    30.7705,
+    31.2787
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14045,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 20.297645032405853,
+   "trajectory_pct": [
+    20.2174,
+    20.2804,
+    20.3053,
+    20.2976
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14046,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.689838588237762,
+   "trajectory_pct": [
+    19.505,
+    19.647,
+    19.7106,
+    19.6898
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14047,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 32.34630823135376,
+   "trajectory_pct": [
+    29.9428,
+    30.8634,
+    31.6577,
+    32.3463
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14048,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 32.02387988567352,
+   "trajectory_pct": [
+    29.5862,
+    30.5208,
+    31.3297,
+    32.0239
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14049,
+   "arm": "No campaign",
+   "spent": "0.00",
+   "workers": 0,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 19.686897099018097,
+   "trajectory_pct": [
+    19.4445,
+    19.542,
+    19.6239,
+    19.6869
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14000,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 26.032909750938416,
+   "trajectory_pct": [
+    19.1069,
+    22.2231,
+    24.3784,
+    26.0329
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14001,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 26.581254601478577,
+   "trajectory_pct": [
+    19.6744,
+    22.7317,
+    24.9156,
+    26.5813
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14002,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.244114995002747,
+   "trajectory_pct": [
+    19.5623,
+    24.3773,
+    27.6447,
+    30.2441
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14003,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 48.717060685157776,
+   "trajectory_pct": [
+    29.3607,
+    38.5391,
+    44.3918,
+    48.7171
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14004,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.10356903076172,
+   "trajectory_pct": [
+    19.4073,
+    21.9477,
+    23.7208,
+    25.1036
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14005,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 31.335920095443726,
+   "trajectory_pct": [
+    20.5802,
+    25.3772,
+    28.7855,
+    31.3359
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14006,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 26.643407344818115,
+   "trajectory_pct": [
+    19.6633,
+    22.8538,
+    25.0376,
+    26.6434
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14007,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 36.88795268535614,
+   "trajectory_pct": [
+    20.1718,
+    27.85,
+    32.9192,
+    36.888
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14008,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.891220569610596,
+   "trajectory_pct": [
+    20.2834,
+    22.7788,
+    24.57,
+    25.8912
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14009,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 42.759549617767334,
+   "trajectory_pct": [
+    29.754,
+    35.5583,
+    39.6292,
+    42.7595
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14010,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 48.11847507953644,
+   "trajectory_pct": [
+    29.2551,
+    38.0126,
+    43.7539,
+    48.1185
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14011,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.451770424842834,
+   "trajectory_pct": [
+    19.6226,
+    22.2198,
+    24.0091,
+    25.4518
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14012,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": true,
+   "expected_final_pct": 87.985759973526,
+   "trajectory_pct": [
+    78.4317,
+    82.9839,
+    85.9174,
+    87.9858
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14013,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 39.34502899646759,
+   "trajectory_pct": [
+    29.4432,
+    33.7092,
+    36.8979,
+    39.345
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14014,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.46017587184906,
+   "trajectory_pct": [
+    19.6949,
+    24.5188,
+    27.8531,
+    30.4602
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14015,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 24.840644001960754,
+   "trajectory_pct": [
+    19.1412,
+    21.7686,
+    23.469,
+    24.8406
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14016,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.87359070777893,
+   "trajectory_pct": [
+    20.2277,
+    25.0467,
+    28.3203,
+    30.8736
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14017,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 42.078348994255066,
+   "trajectory_pct": [
+    29.2006,
+    34.9789,
+    39.0339,
+    42.0783
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14018,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 26.110461354255676,
+   "trajectory_pct": [
+    20.2291,
+    22.8965,
+    24.6567,
+    26.1105
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14019,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 37.12467551231384,
+   "trajectory_pct": [
+    19.8528,
+    27.6419,
+    32.9073,
+    37.1247
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14020,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.152621865272522,
+   "trajectory_pct": [
+    19.4804,
+    24.1987,
+    27.5391,
+    30.1526
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14021,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.700448155403137,
+   "trajectory_pct": [
+    19.9476,
+    24.849,
+    28.1701,
+    30.7004
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14022,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.072394013404846,
+   "trajectory_pct": [
+    19.5466,
+    24.2526,
+    27.5041,
+    30.0724
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14023,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 24.625763297080994,
+   "trajectory_pct": [
+    18.8868,
+    21.4075,
+    23.2376,
+    24.6258
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14024,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": true,
+   "expected_final_pct": 87.09255456924438,
+   "trajectory_pct": [
+    78.8362,
+    82.8048,
+    85.3137,
+    87.0926
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14025,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 27.132493257522583,
+   "trajectory_pct": [
+    20.1587,
+    23.2796,
+    25.4766,
+    27.1325
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14026,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 29.93887960910797,
+   "trajectory_pct": [
+    19.2488,
+    23.9952,
+    27.3699,
+    29.9389
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14027,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 47.84071147441864,
+   "trajectory_pct": [
+    28.8191,
+    37.4448,
+    43.3929,
+    47.8407
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14028,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 41.55155122280121,
+   "trajectory_pct": [
+    29.0974,
+    34.7017,
+    38.5845,
+    41.5516
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14029,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 39.500901103019714,
+   "trajectory_pct": [
+    29.4063,
+    33.8434,
+    37.0068,
+    39.5009
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14030,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.867965817451477,
+   "trajectory_pct": [
+    20.1681,
+    22.7123,
+    24.4736,
+    25.868
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14031,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.681304931640625,
+   "trajectory_pct": [
+    19.8304,
+    22.5098,
+    24.298,
+    25.6813
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14032,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.67417323589325,
+   "trajectory_pct": [
+    19.9819,
+    22.5118,
+    24.2395,
+    25.6742
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14033,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.865207314491272,
+   "trajectory_pct": [
+    20.4706,
+    25.1042,
+    28.3694,
+    30.8652
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14034,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.876158475875854,
+   "trajectory_pct": [
+    19.8439,
+    22.5574,
+    24.4717,
+    25.8762
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14035,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": true,
+   "expected_final_pct": 88.26690912246704,
+   "trajectory_pct": [
+    78.6689,
+    83.6411,
+    86.4537,
+    88.2669
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14036,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 37.52567768096924,
+   "trajectory_pct": [
+    20.0471,
+    27.902,
+    33.376,
+    37.5257
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14037,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.506977438926697,
+   "trajectory_pct": [
+    19.9415,
+    24.6967,
+    27.9411,
+    30.507
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14038,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 42.28924810886383,
+   "trajectory_pct": [
+    29.1814,
+    35.1513,
+    39.1952,
+    42.2892
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14039,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 36.542728543281555,
+   "trajectory_pct": [
+    19.5723,
+    27.265,
+    32.6645,
+    36.5427
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14040,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": true,
+   "expected_final_pct": 83.86238217353821,
+   "trajectory_pct": [
+    78.5337,
+    80.8951,
+    82.5602,
+    83.8624
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14041,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 30.528387427330017,
+   "trajectory_pct": [
+    19.8995,
+    24.5498,
+    27.9392,
+    30.5284
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14042,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 36.90028786659241,
+   "trajectory_pct": [
+    19.5709,
+    27.3002,
+    32.7537,
+    36.9003
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14043,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": true,
+   "expected_final_pct": 88.11110854148865,
+   "trajectory_pct": [
+    79.1883,
+    83.3651,
+    86.1523,
+    88.1111
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14044,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": true,
+   "expected_final_pct": 48.70647192001343,
+   "trajectory_pct": [
+    29.5848,
+    38.3606,
+    44.3322,
+    48.7065
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14045,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 37.20117509365082,
+   "trajectory_pct": [
+    20.2174,
+    27.9241,
+    33.1855,
+    37.2012
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14046,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 26.52730941772461,
+   "trajectory_pct": [
+    19.505,
+    22.6657,
+    24.8811,
+    26.5273
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14047,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 39.842987060546875,
+   "trajectory_pct": [
+    29.9428,
+    34.3039,
+    37.3862,
+    39.843
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14048,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 39.639878273010254,
+   "trajectory_pct": [
+    29.5862,
+    33.9403,
+    37.1466,
+    39.6399
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14049,
+   "arm": "All media",
+   "spent": "600.00",
+   "workers": 0,
+   "airings": 3,
+   "victory": false,
+   "expected_final_pct": 25.27654767036438,
+   "trajectory_pct": [
+    19.4445,
+    22.0172,
+    23.8671,
+    25.2765
+   ],
+   "converted_by_round": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "seed": 14000,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 32.01887905597687,
+   "trajectory_pct": [
+    19.1069,
+    21.9502,
+    25.7937,
+    32.0189
+   ],
+   "converted_by_round": [
+    59,
+    144,
+    264
+   ]
+  },
+  {
+   "seed": 14001,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 32.90175795555115,
+   "trajectory_pct": [
+    19.6744,
+    22.8036,
+    27.1051,
+    32.9018
+   ],
+   "converted_by_round": [
+    68,
+    166,
+    271
+   ]
+  },
+  {
+   "seed": 14002,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 41.74371063709259,
+   "trajectory_pct": [
+    19.5623,
+    23.9228,
+    33.2771,
+    41.7437
+   ],
+   "converted_by_round": [
+    121,
+    409,
+    459
+   ]
+  },
+  {
+   "seed": 14003,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 42.56879687309265,
+   "trajectory_pct": [
+    29.3607,
+    32.5155,
+    36.8662,
+    42.5688
+   ],
+   "converted_by_round": [
+    71,
+    169,
+    279
+   ]
+  },
+  {
+   "seed": 14004,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 24.846798181533813,
+   "trajectory_pct": [
+    19.4073,
+    21.4575,
+    22.9794,
+    24.8468
+   ],
+   "converted_by_round": [
+    34,
+    55,
+    80
+   ]
+  },
+  {
+   "seed": 14005,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 42.941299080848694,
+   "trajectory_pct": [
+    20.5802,
+    24.1635,
+    32.5824,
+    42.9413
+   ],
+   "converted_by_round": [
+    93,
+    347,
+    551
+   ]
+  },
+  {
+   "seed": 14006,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 33.04499387741089,
+   "trajectory_pct": [
+    19.6633,
+    22.8729,
+    27.4939,
+    33.045
+   ],
+   "converted_by_round": [
+    76,
+    184,
+    262
+   ]
+  },
+  {
+   "seed": 14007,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 27.551445364952087,
+   "trajectory_pct": [
+    20.1718,
+    22.3951,
+    24.7094,
+    27.5514
+   ],
+   "converted_by_round": [
+    44,
+    87,
+    127
+   ]
+  },
+  {
+   "seed": 14008,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 26.301944255828857,
+   "trajectory_pct": [
+    20.2834,
+    22.3655,
+    23.8496,
+    26.3019
+   ],
+   "converted_by_round": [
+    43,
+    56,
+    105
+   ]
+  },
+  {
+   "seed": 14009,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 57.93967247009277,
+   "trajectory_pct": [
+    29.754,
+    34.7145,
+    48.9598,
+    57.9397
+   ],
+   "converted_by_round": [
+    151,
+    673,
+    564
+   ]
+  },
+  {
+   "seed": 14010,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 42.61118173599243,
+   "trajectory_pct": [
+    29.2551,
+    32.4279,
+    36.9499,
+    42.6112
+   ],
+   "converted_by_round": [
+    81,
+    184,
+    275
+   ]
+  },
+  {
+   "seed": 14011,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 24.732179939746857,
+   "trajectory_pct": [
+    19.6226,
+    21.8053,
+    23.189,
+    24.7322
+   ],
+   "converted_by_round": [
+    45,
+    48,
+    65
+   ]
+  },
+  {
+   "seed": 14012,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 92.6381528377533,
+   "trajectory_pct": [
+    78.4317,
+    83.3989,
+    91.0869,
+    92.6382
+   ],
+   "converted_by_round": [
+    284,
+    1322,
+    350
+   ]
+  },
+  {
+   "seed": 14013,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 50.471144914627075,
+   "trajectory_pct": [
+    29.4432,
+    33.3479,
+    40.4067,
+    50.4711
+   ],
+   "converted_by_round": [
+    90,
+    293,
+    489
+   ]
+  },
+  {
+   "seed": 14014,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 40.35201668739319,
+   "trajectory_pct": [
+    19.6949,
+    23.9502,
+    31.9895,
+    40.352
+   ],
+   "converted_by_round": [
+    111,
+    355,
+    432
+   ]
+  },
+  {
+   "seed": 14015,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 24.472253024578094,
+   "trajectory_pct": [
+    19.1412,
+    21.2154,
+    22.7075,
+    24.4723
+   ],
+   "converted_by_round": [
+    38,
+    56,
+    71
+   ]
+  },
+  {
+   "seed": 14016,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 43.9331978559494,
+   "trajectory_pct": [
+    20.2277,
+    24.4604,
+    34.1794,
+    43.9332
+   ],
+   "converted_by_round": [
+    115,
+    407,
+    523
+   ]
+  },
+  {
+   "seed": 14017,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 58.5654079914093,
+   "trajectory_pct": [
+    29.2006,
+    35.1799,
+    51.6332,
+    58.5654
+   ],
+   "converted_by_round": [
+    193,
+    795,
+    421
+   ]
+  },
+  {
+   "seed": 14018,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 26.030975580215454,
+   "trajectory_pct": [
+    20.2291,
+    22.2448,
+    24.1008,
+    26.031
+   ],
+   "converted_by_round": [
+    42,
+    70,
+    95
+   ]
+  },
+  {
+   "seed": 14019,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 26.845240592956543,
+   "trajectory_pct": [
+    19.8528,
+    22.0571,
+    24.1343,
+    26.8452
+   ],
+   "converted_by_round": [
+    48,
+    78,
+    124
+   ]
+  },
+  {
+   "seed": 14020,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 40.46891629695892,
+   "trajectory_pct": [
+    19.4804,
+    23.6584,
+    31.5358,
+    40.4689
+   ],
+   "converted_by_round": [
+    109,
+    333,
+    477
+   ]
+  },
+  {
+   "seed": 14021,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 43.08633804321289,
+   "trajectory_pct": [
+    19.9476,
+    24.2409,
+    34.5603,
+    43.0863
+   ],
+   "converted_by_round": [
+    117,
+    437,
+    456
+   ]
+  },
+  {
+   "seed": 14022,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 42.816364765167236,
+   "trajectory_pct": [
+    19.5466,
+    23.5805,
+    32.007,
+    42.8164
+   ],
+   "converted_by_round": [
+    102,
+    355,
+    546
+   ]
+  },
+  {
+   "seed": 14023,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 23.339442908763885,
+   "trajectory_pct": [
+    18.8868,
+    20.8191,
+    21.9333,
+    23.3394
+   ],
+   "converted_by_round": [
+    33,
+    39,
+    54
+   ]
+  },
+  {
+   "seed": 14024,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 94.38179731369019,
+   "trajectory_pct": [
+    78.8362,
+    83.1663,
+    93.8389,
+    94.3818
+   ],
+   "converted_by_round": [
+    388,
+    1948,
+    194
+   ]
+  },
+  {
+   "seed": 14025,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 36.09628677368164,
+   "trajectory_pct": [
+    20.1587,
+    23.5646,
+    29.0884,
+    36.0963
+   ],
+   "converted_by_round": [
+    82,
+    215,
+    308
+   ]
+  },
+  {
+   "seed": 14026,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 41.62827432155609,
+   "trajectory_pct": [
+    19.2488,
+    23.1041,
+    31.8785,
+    41.6283
+   ],
+   "converted_by_round": [
+    102,
+    362,
+    510
+   ]
+  },
+  {
+   "seed": 14027,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 41.828879714012146,
+   "trajectory_pct": [
+    28.8191,
+    31.7369,
+    35.7592,
+    41.8289
+   ],
+   "converted_by_round": [
+    61,
+    158,
+    288
+   ]
+  },
+  {
+   "seed": 14028,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 58.5362434387207,
+   "trajectory_pct": [
+    29.0974,
+    34.6191,
+    49.8924,
+    58.5362
+   ],
+   "converted_by_round": [
+    171,
+    725,
+    566
+   ]
+  },
+  {
+   "seed": 14029,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 50.93566179275513,
+   "trajectory_pct": [
+    29.4063,
+    33.9434,
+    42.1545,
+    50.9357
+   ],
+   "converted_by_round": [
+    110,
+    337,
+    438
+   ]
+  },
+  {
+   "seed": 14030,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 24.886630475521088,
+   "trajectory_pct": [
+    20.1681,
+    22.1207,
+    23.3458,
+    24.8866
+   ],
+   "converted_by_round": [
+    36,
+    48,
+    72
+   ]
+  },
+  {
+   "seed": 14031,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 25.548264384269714,
+   "trajectory_pct": [
+    19.8304,
+    21.7325,
+    23.206,
+    25.5483
+   ],
+   "converted_by_round": [
+    35,
+    56,
+    101
+   ]
+  },
+  {
+   "seed": 14032,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 24.214662611484528,
+   "trajectory_pct": [
+    19.9819,
+    21.7367,
+    22.9115,
+    24.2147
+   ],
+   "converted_by_round": [
+    29,
+    43,
+    54
+   ]
+  },
+  {
+   "seed": 14033,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 44.720131158828735,
+   "trajectory_pct": [
+    20.4706,
+    25.0623,
+    36.1514,
+    44.7201
+   ],
+   "converted_by_round": [
+    133,
+    471,
+    511
+   ]
+  },
+  {
+   "seed": 14034,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 27.093717455863953,
+   "trajectory_pct": [
+    19.8439,
+    22.3853,
+    24.5256,
+    27.0937
+   ],
+   "converted_by_round": [
+    57,
+    89,
+    110
+   ]
+  },
+  {
+   "seed": 14035,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 90.0336503982544,
+   "trajectory_pct": [
+    78.6689,
+    81.9179,
+    87.3989,
+    90.0337
+   ],
+   "converted_by_round": [
+    171,
+    794,
+    469
+   ]
+  },
+  {
+   "seed": 14036,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 26.198849081993103,
+   "trajectory_pct": [
+    20.0471,
+    22.2497,
+    24.0682,
+    26.1988
+   ],
+   "converted_by_round": [
+    40,
+    68,
+    91
+   ]
+  },
+  {
+   "seed": 14037,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 42.46911108493805,
+   "trajectory_pct": [
+    19.9415,
+    24.0025,
+    33.4416,
+    42.4691
+   ],
+   "converted_by_round": [
+    111,
+    384,
+    472
+   ]
+  },
+  {
+   "seed": 14038,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 57.315075397491455,
+   "trajectory_pct": [
+    29.1814,
+    33.7676,
+    46.8822,
+    57.3151
+   ],
+   "converted_by_round": [
+    136,
+    600,
+    667
+   ]
+  },
+  {
+   "seed": 14039,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 25.65237581729889,
+   "trajectory_pct": [
+    19.5723,
+    21.8412,
+    23.4005,
+    25.6524
+   ],
+   "converted_by_round": [
+    44,
+    59,
+    101
+   ]
+  },
+  {
+   "seed": 14040,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 87.99835443496704,
+   "trajectory_pct": [
+    78.5337,
+    80.8847,
+    85.1413,
+    87.9984
+   ],
+   "converted_by_round": [
+    141,
+    640,
+    503
+   ]
+  },
+  {
+   "seed": 14041,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 42.22440421581268,
+   "trajectory_pct": [
+    19.8995,
+    23.7099,
+    31.9593,
+    42.2244
+   ],
+   "converted_by_round": [
+    102,
+    344,
+    535
+   ]
+  },
+  {
+   "seed": 14042,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 26.74204409122467,
+   "trajectory_pct": [
+    19.5709,
+    21.9172,
+    23.808,
+    26.742
+   ],
+   "converted_by_round": [
+    47,
+    68,
+    126
+   ]
+  },
+  {
+   "seed": 14043,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 92.68421530723572,
+   "trajectory_pct": [
+    79.1883,
+    83.9237,
+    91.2267,
+    92.6842
+   ],
+   "converted_by_round": [
+    276,
+    1304,
+    347
+   ]
+  },
+  {
+   "seed": 14044,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 43.16076934337616,
+   "trajectory_pct": [
+    29.5848,
+    33.0548,
+    37.4705,
+    43.1608
+   ],
+   "converted_by_round": [
+    85,
+    175,
+    266
+   ]
+  },
+  {
+   "seed": 14045,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 27.2978276014328,
+   "trajectory_pct": [
+    20.2174,
+    22.5096,
+    24.5937,
+    27.2978
+   ],
+   "converted_by_round": [
+    52,
+    82,
+    127
+   ]
+  },
+  {
+   "seed": 14046,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 33.012670278549194,
+   "trajectory_pct": [
+    19.505,
+    22.6835,
+    27.2408,
+    33.0127
+   ],
+   "converted_by_round": [
+    74,
+    168,
+    262
+   ]
+  },
+  {
+   "seed": 14047,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 51.7366886138916,
+   "trajectory_pct": [
+    29.9428,
+    34.0669,
+    42.4088,
+    51.7367
+   ],
+   "converted_by_round": [
+    107,
+    347,
+    447
+   ]
+  },
+  {
+   "seed": 14048,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": true,
+   "expected_final_pct": 52.36106514930725,
+   "trajectory_pct": [
+    29.5862,
+    34.0551,
+    43.0658,
+    52.3611
+   ],
+   "converted_by_round": [
+    113,
+    374,
+    468
+   ]
+  },
+  {
+   "seed": 14049,
+   "arm": "All workers",
+   "spent": "600.00",
+   "workers": 30,
+   "airings": 0,
+   "victory": false,
+   "expected_final_pct": 24.18864667415619,
+   "trajectory_pct": [
+    19.4445,
+    21.3766,
+    22.5278,
+    24.1886
+   ],
+   "converted_by_round": [
+    35,
+    42,
+    68
+   ]
+  }
+ ],
+ "provenance": {
+  "git": "e43333f+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:0",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 1,
+  "threads_per_worker": 4,
+  "seconds": 3.4121508598327637,
+  "args": {
+   "seeds": 50,
+   "first_seed": 14000,
+   "voters": 2500,
+   "region_dirichlet_a": 0.001,
+   "device": "cuda:0",
+   "out_dir": "/data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/expRes_for_slides",
+   "tag": "media_vs_workers"
+  },
+  "command": "OMP_NUM_THREADS=4 python experiments/s7_media_vs_workers.py --seeds 50 --first-seed 14000 --device cuda:0",
+  "compute": {
+   "device": "cuda:0",
+   "batch_sizes": null,
+   "wall_seconds": 3.4121508598327637,
+   "free_bytes_at_start": null,
+   "peak_bytes": 214452736,
+   "grad_mode": "no_grad",
+   "dtype": "float32",
+   "device_name": "NVIDIA RTX A5000",
+   "device_selection": {
+    "requested": "cuda:0",
+    "need_bytes": 2147483648,
+    "free_bytes": {
+     "0": 25372393472,
+     "1": 137363456,
+     "2": 24931991552
+    },
+    "chosen": "cuda:0"
+   }
+  }
+ }
+}

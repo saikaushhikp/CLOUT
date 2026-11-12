@@ -1,0 +1,19 @@
+[s3 tune] 108 spending arms × 12 conditions × 40 seeds; fixed {'media_order': 'size', 'survey_regions': 4, 'survey_set': 'AI', 'manifesto_rule': 'all'}
+[s3 tune] base: best workers=3,worker_place=size,media1=4,media2=4,later=front E=0.6751; s2 tuned 0.6751
+[s3 tune] k10: best workers=3,worker_place=size,media1=4,media2=4,later=front E=0.5521; s2 tuned 0.5521
+[s3 tune] k15: best workers=12,worker_place=size,media1=4,media2=2,later=even E=0.5962; s2 tuned 0.5847
+[s3 tune] k20: best workers=12,worker_place=size,media1=4,media2=0,later=even E=0.6373; s2 tuned 0.6240
+[s3 tune] n1000: best workers=2,worker_place=size,media1=4,media2=4,later=front E=0.6716; s2 tuned 0.6716
+[s3 tune] n2000: best workers=3,worker_place=size,media1=4,media2=4,later=front E=0.6830; s2 tuned 0.6830
+[s3 tune] n5000: best workers=3,worker_place=size,media1=4,media2=4,later=front E=0.6829; s2 tuned 0.6829
+[s3 tune] t3: best workers=12,worker_place=size,media1=4,media2=2,later=front E=0.5379; s2 tuned 0.5265
+[s3 tune] t8: best workers=1,worker_place=size,media1=4,media2=4,later=front E=0.7294; s2 tuned 0.7251
+[s3 tune] t10: best workers=1,worker_place=size,media1=4,media2=4,later=front E=0.7495; s2 tuned 0.7447
+[s3 tune] n2000_t3: best workers=12,worker_place=size,media1=4,media2=0,later=front E=0.6029; s2 tuned 0.5705
+[s3 tune] frag: best workers=3,worker_place=size,media1=4,media2=4,later=front E=0.6294; s2 tuned 0.6294
+[s3 tune] branch sparse ← workers=6,worker_place=size,media1=4,media2=0,later=even (mean over ('k10', 'k15'): 0.5720)
+[s3 tune] branch small_or_long ← workers=2,worker_place=size,media1=4,media2=4,later=front (mean over ('n1000', 'n2000', 't8', 't10'): 0.7063)
+[s3 tune] branch short_large ← workers=12,worker_place=size,media1=4,media2=2,later=front (mean over ('t3',): 0.5379)
+[s3 tune] branch fragmented ← workers=3,worker_place=size,media1=4,media2=4,later=front (mean over ('frag',): 0.6294)
+[s3 tune] thresholds {'sparse_k': 22.5, 'small_n': 1500, 'long_t': 8, 'short_t': 3, 'large_n': 1500, 'fragmented_share': None}: train mean E over conditions 0.6444 (non-adaptive 0.6391, per-condition best 0.6456, with fragmented branch 0.6444)
+[s3_tune] done in 21.7 min

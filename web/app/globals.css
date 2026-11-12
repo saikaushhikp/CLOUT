@@ -2446,3 +2446,23 @@ button.round-dot:hover {
     gap: 20px;
   }
 }
+
+/* "Ask a region": the answer line, highlighted like the Responses dialog; empty (but reserved) until answered */
+.qb-sample {
+  font-size: 12px;
+  line-height: 1.45;
+  min-height: calc(2 * 1.45em + 16px); /* two lines + the box padding */
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+.qb-sample.answer-flash.answer-flash-sm {
+  font-size: 12px;
+  margin: 0;
+}
+
+/* setup: the exact-voters and money boxes share the Rounds stepper's width (34 + 42 + 34 + 2px border), so the
+   three right-hand boxes line up on both edges */
+.setup-num {
+  width: 112px;
+  flex: none;
+}

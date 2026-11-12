@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Electorate</title>
+<style>
+  .main { display: grid; grid-template-columns: 720px 1fr; gap: 72px; margin-top: 36px; margin-bottom: 8px; flex: 1; min-height: 0; }
+  .sbm { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 28px; }
+  .sbm svg { width: 100%; height: 100%; max-height: 470px; }
+  .sbm text { font-family: var(--font-sans); font-weight: 700; font-size: 26px; fill: #fff; }
+  .sbm .cap { font-size: 21px; color: var(--ink-3); text-align: center; margin-top: 8px; }
+
+  .rows { display: flex; flex-direction: column; justify-content: center; gap: 0; }
+  .r { display: grid; grid-template-columns: 210px 1fr; gap: 24px; padding: 24px 0; border-top: 1.5px solid var(--line); align-items: baseline; }
+  .r:last-child { border-bottom: 1.5px solid var(--line); }
+  .r .k { font-size: 20px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  .r h3 { font-size: 34px; }
+  .r p { font-size: 24px; color: var(--ink-2); margin-top: 6px; }
+  .r .big { font-size: 34px; font-weight: 700; color: var(--ink); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+    <nav class="phase-track"></nav>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">The electorate</p>
+    <h1>Four regions, one friendship network, hidden tastes</h1>
+
+    <div class="main">
+      <div class="panel sbm">
+        <svg viewBox="-10 -20 620 540" aria-label="Four regions joined by a stochastic block model">
+          <g stroke="var(--axis)" stroke-width="3">
+            <line x1="300" y1="95" x2="110" y2="250"/><line x1="300" y1="95" x2="490" y2="250"/>
+            <line x1="300" y1="405" x2="110" y2="250"/><line x1="300" y1="405" x2="490" y2="250"/>
+            <line x1="300" y1="95" x2="300" y2="405"/><line x1="110" y1="250" x2="490" y2="250"/>
+          </g>
+          <g fill="none" stroke-width="9" stroke-linecap="round">
+            <path d="M268 50 C 250 -10, 350 -10, 332 50" stroke="var(--region-n)"/>
+            <path d="M268 450 C 250 510, 350 510, 332 450" stroke="var(--region-s)"/>
+            <path d="M60 218 C 0 200, 0 300, 60 282" stroke="var(--region-w)"/>
+            <path d="M540 218 C 600 200, 600 300, 540 282" stroke="var(--region-e)"/>
+          </g>
+          <g stroke="var(--surface)" stroke-width="6">
+            <circle cx="300" cy="95" r="66" fill="var(--region-n)"/>
+            <circle cx="300" cy="405" r="66" fill="var(--region-s)"/>
+            <circle cx="110" cy="250" r="66" fill="var(--region-w)"/>
+            <circle cx="490" cy="250" r="66" fill="var(--region-e)"/>
+          </g>
+          <g text-anchor="middle" dominant-baseline="central">
+            <text x="300" y="95">North</text><text x="300" y="405">South</text>
+            <text x="110" y="250">West</text><text x="490" y="250">East</text>
+          </g>
+        </svg>
+        <p class="cap">Thick loops: ~¾ of friendships stay inside a region.</p>
+      </div>
+
+      <div class="rows">
+        <div class="r"><span class="k">Wants</span><div><h3>A budget split</h3><p>Each region has a hidden archetype, e.g. <i>agrarian</i> or <i>industrial</i>.</p></div></div>
+        <div class="r"><span class="k">Moved by</span><div><h3>Friends, media or canvassing</h3><p>Each region has a hidden personality.</p></div></div>
+        <div class="r"><span class="k">Zealots</span><div><h3><span class="big">5%</span> never change</h3><p>But their friends still listen to them.</p></div></div>
+        <div class="r"><span class="k">Votes</span><div><h3>Only when close enough</h3><p>Leans your way once it agrees with <b>82.5%</b> of your budget.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

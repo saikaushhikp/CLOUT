@@ -1,0 +1,9 @@
+[manifesto_no_campaign_10r] device=cuda:0 seeds=14000..14049 N=2500
+[manifesto_no_campaign_10r] parity vs run_batch: max |ΔE| = 1.19e-07 ok=True
+[manifesto_no_campaign_10r] 1 region   r0=33.3 r1=34.3 r2=35.2 r3=36.0 r4=36.7 r5=37.3 r6=37.9 r7=38.4 r8=38.9 r9=39.3 r10=39.7 r20=42.6
+[manifesto_no_campaign_10r] 2 regions  r0=33.4 r1=35.3 r2=37.0 r3=38.8 r4=40.4 r5=42.0 r6=43.5 r7=44.9 r8=46.3 r9=47.6 r10=48.8 r20=57.9
+[manifesto_no_campaign_10r] 3 regions  r0=34.0 r1=36.0 r2=38.0 r3=40.0 r4=41.9 r5=43.8 r6=45.6 r7=47.3 r8=49.0 r9=50.5 r10=52.0 r20=63.1
+[manifesto_no_campaign_10r] 4 regions  r0=34.6 r1=36.7 r2=38.8 r3=40.9 r4=42.9 r5=44.9 r6=46.9 r7=48.7 r8=50.5 r9=52.2 r10=53.8 r20=65.9
+[manifesto_no_campaign_10r] Balanced   r0=31.2 r1=32.9 r2=34.6 r3=36.2 r4=37.9 r5=39.5 r6=41.0 r7=42.5 r8=43.9 r9=45.3 r10=46.6 r20=56.5
+[manifesto_no_campaign_10r] saved /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/expRes_for_slides/manifesto_no_campaign_10r.json (3.4s)
+saved /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/expRes_for_slides/manifesto_no_campaign_10r.png/.svg

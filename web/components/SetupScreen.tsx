@@ -132,8 +132,7 @@ export function SetupScreen({ howToPlay }: { howToPlay?: string }) {
               ))}
             </div>
             <input
-              className="input num"
-              style={{ maxWidth: 130 }}
+              className="input num setup-num"
               aria-label="Exact number of voters"
               inputMode="numeric"
               value={votersText}
@@ -209,8 +208,7 @@ export function SetupScreen({ howToPlay }: { howToPlay?: string }) {
               ))}
             </div>
             <input
-              className="input num"
-              style={{ maxWidth: 130 }}
+              className="input num setup-num"
               aria-label="Starting treasury in credits"
               aria-invalid={!budgetOk}
               aria-describedby={budgetOk ? undefined : "budget-help"}

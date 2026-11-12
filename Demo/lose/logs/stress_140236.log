@@ -1,0 +1,24 @@
+[140236] 121 manifestos, 21 patterns; 39s
+[140236] phase A done 169s; top: joint_x12_from_oracle=0.4494, dirichlet5_5=0.4247, oracle=0.4226, eday_opt_regionstarts=0.4226, eday_blend_R1R2=0.4201, eday_blend_R1R3=0.4173, eday_blend_R1R2R4=0.4151, r0_blend_R1R2=0.4151
+[x13] CUDA out of memory: chunk halved to 16
+[140236] search oracle: hc 0.4528, fresh mean 0.4527 max 0.4554 (planner max 0.4247); 315s
+[x13] CUDA out of memory: chunk halved to 16
+[140236] search round0_opt: hc 0.4292, fresh mean 0.4290 max 0.4309 (planner max 0.4040); 418s
+[x13] CUDA out of memory: chunk halved to 16
+[140236] search joint_x12_from_oracle: hc 0.4756, fresh mean 0.4747 max 0.4815 (planner max 0.4588); 519s
+[x13] CUDA out of memory: chunk halved to 16
+[140236] search joint_x12_from_bestA: hc 0.4756, fresh mean 0.4747 max 0.4815 (planner max 0.4588); 622s
+[x13] CUDA out of memory: chunk halved to 16
+[140236] search dirichlet5_5: hc 0.4456, fresh mean 0.4465 max 0.4566 (planner max 0.4367); 724s
+[x13] CUDA out of memory: chunk halved to 16
+[140236] search eday_opt_regionstarts: hc 0.4528, fresh mean 0.4527 max 0.4554 (planner max 0.4247); 800s
+[x13] CUDA out of memory: chunk halved to 16
+[140236] search eday_blend_R1R2: hc 0.4395, fresh mean 0.4379 max 0.4436 (planner max 0.4270); 866s
+[x13] CUDA out of memory: chunk halved to 16
+[140236] joint alternation from joint_x12_from_oracle: EV 0.5235->0.5238; fresh mean 0.4746 max 0.4818
+  manifesto hc step 0.04: 0.4710
+  manifesto hc step 0.02: 0.4710
+  manifesto hc step 0.01: 0.4723
+  manifesto hc step 0.005: 0.4725
+[140236] manifesto HC from joint_x12_from_oracle: 0.4710->0.4725; re-searched fresh mean 0.4753 max 0.4816; 1035s
+[140236] MAX E any attack/stream 0.4818 by joint_search_alternation/search; max vote share 0.4823; best mean search 0.4753; 1077s

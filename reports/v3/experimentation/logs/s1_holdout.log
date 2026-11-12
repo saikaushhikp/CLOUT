@@ -1,0 +1,5 @@
+[s1] device cuda:0, seeds 14000..14099, N 10000, arms ['bayes', 'smart']
+[s1] bayes        E 0.6496 win 0.95 game 2.0s
+[s1] smart        E 0.6792 win 0.98 Δ +0.0296 [+0.0264, +0.0329] game 6.6s
+[s1] reproduction vs x6: {"x6_bayes_expected_mean_same_seeds": null, "s1_bayes_expected_mean": 0.6496053239703179, "seeds_compared": 0, "max_abs_diff": null, "identical_within_1e-6": 0}
+[s1] done in 5.1 min

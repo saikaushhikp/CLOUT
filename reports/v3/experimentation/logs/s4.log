@@ -1,0 +1,67 @@
+[s4 test] arms ['smart', 'bayes', 'playbook', 'adaptive', 'top3', 'budget_playbook', 'budget_playbook_single'] × cells ['base', 'n1000', 'n2000', 'n5000', 'b1000', 'b2500', 'b10000', 'b100000']; seeds 14000..14099 (100) for base, 50 for the other cells; budget playbook dials ({'survey_regions': 4, 'survey_set': 'AI', 'manifesto_rule': 'all', 'media_order': 'size', 'schedule': [{'budget': 500.0, 'arm': 'M5f0.0', 'media_rounds': 5, 'worker_frac': 0.0}, {'budget': 1000.0, 'arm': 'M5f0.0', 'media_rounds': 5, 'worker_frac': 0.0}, {'budget': 2500.0, 'arm': 'M5f0.05', 'media_rounds': 5, 'worker_frac': 0.05}, {'budget': 10000.0, 'arm': 'M5f0.01', 'media_rounds': 5, 'worker_frac': 0.01}, {'budget': 100000.0, 'arm': 'M5f0.0', 'media_rounds': 5, 'worker_frac': 0.0}]}, {'survey_regions': 4, 'survey_set': 'AI', 'manifesto_rule': 'all', 'media_order': 'size', 'media_rounds': 5, 'worker_frac': 0.0})
+[s4 test] base (100 seeds, 306s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.6792 win 0.98 Δbayes +0.0296 [+0.0264, +0.0329] Δplaybook +0.0116 [+0.0075, +0.0158] spent 0.986 left ₫6.8 by-r2 0.889 workers/round [4.3, 1.1, 0.2, 0.0, 0.0] rej 0 6.4s/game
+   bayes            E 0.6496 win 0.95 Δplaybook -0.0180 [-0.0221, -0.0139] spent 0.983 left ₫8.3 by-r2 0.434 workers/round [5.5, 2.8, 1.9, 0.3, 0.3] rej 0 1.8s/game
+   playbook         E 0.6676 win 0.96 Δbayes +0.0180 [+0.0139, +0.0221] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.1s/game
+   adaptive         E 0.6676 win 0.96 Δbayes +0.0180 [+0.0139, +0.0221] Δplaybook +0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.1s/game
+   top3             E 0.6116 win 0.87 Δbayes -0.0380 [-0.0448, -0.0313] Δplaybook -0.0560 [-0.0626, -0.0495] spent 0.982 left ₫8.9 by-r2 0.362 workers/round [2.1, 2.6, 2.8, 2.8, 3.0] rej 0 0.1s/game
+   budget_playbook  E 0.6676 win 0.96 Δbayes +0.0180 [+0.0139, +0.0221] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.1s/game
+   budget_playbook_single E 0.6676 win 0.96 Δbayes +0.0180 [+0.0139, +0.0221] Δplaybook +0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.1s/game
+[s4 test] n1000 (50 seeds, 114s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.6771 win 1.00 Δbayes +0.0272 [+0.0207, +0.0336] Δplaybook +0.0180 [+0.0114, +0.0246] spent 0.988 left ₫6.1 by-r2 0.811 workers/round [1.5, 1.0, 0.5, 0.1, 0.0] rej 0 4.6s/game
+   bayes            E 0.6499 win 0.92 Δplaybook -0.0092 [-0.0188, +0.0004] spent 0.983 left ₫8.4 by-r2 0.362 workers/round [0.5, 2.1, 1.5, 1.4, 1.1] rej 0 1.3s/game
+   playbook         E 0.6591 win 1.00 Δbayes +0.0092 [-0.0004, +0.0188] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.1s/game
+   adaptive         E 0.6544 win 0.98 Δbayes +0.0045 [-0.0069, +0.0158] Δplaybook -0.0047 [-0.0109, +0.0016] spent 1.000 left ₫0.0 by-r2 0.960 workers/round [2.0, 0.0, 0.0, 0.0, 1.0] rej 0 0.1s/game
+   top3             E 0.6180 win 0.94 Δbayes -0.0319 [-0.0399, -0.0238] Δplaybook -0.0411 [-0.0509, -0.0313] spent 0.982 left ₫9.2 by-r2 0.362 workers/round [2.2, 2.6, 2.8, 2.9, 3.0] rej 0 0.1s/game
+   budget_playbook  E 0.6591 win 1.00 Δbayes +0.0092 [-0.0004, +0.0188] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.0s/game
+   budget_playbook_single E 0.6591 win 1.00 Δbayes +0.0092 [-0.0004, +0.0188] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.0s/game
+[s4 test] n2000 (50 seeds, 168s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.6769 win 1.00 Δbayes +0.0274 [+0.0205, +0.0343] Δplaybook +0.0110 [+0.0041, +0.0179] spent 0.989 left ₫5.5 by-r2 0.867 workers/round [2.5, 1.2, 0.3, 0.0, 0.0] rej 0 5.8s/game
+   bayes            E 0.6495 win 0.94 Δplaybook -0.0164 [-0.0246, -0.0082] spent 0.983 left ₫8.4 by-r2 0.388 workers/round [1.4, 2.2, 1.8, 1.3, 0.5] rej 0 2.7s/game
+   playbook         E 0.6659 win 0.94 Δbayes +0.0164 [+0.0082, +0.0246] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.1s/game
+   adaptive         E 0.6659 win 0.94 Δbayes +0.0164 [+0.0082, +0.0246] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.2s/game
+   top3             E 0.6182 win 0.92 Δbayes -0.0313 [-0.0386, -0.0239] Δplaybook -0.0477 [-0.0575, -0.0379] spent 0.981 left ₫9.4 by-r2 0.362 workers/round [2.1, 2.6, 2.8, 2.8, 3.0] rej 0 0.1s/game
+   budget_playbook  E 0.6659 win 0.94 Δbayes +0.0164 [+0.0082, +0.0246] Δplaybook -0.0000 [-0.0000, -0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.2s/game
+   budget_playbook_single E 0.6659 win 0.94 Δbayes +0.0164 [+0.0082, +0.0246] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.2s/game
+[s4 test] n5000 (50 seeds, 187s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.6734 win 1.00 Δbayes +0.0304 [+0.0243, +0.0366] Δplaybook +0.0124 [+0.0058, +0.0191] spent 0.987 left ₫6.4 by-r2 0.858 workers/round [4.0, 1.0, 0.3, 0.0, 0.0] rej 0 6.5s/game
+   bayes            E 0.6430 win 0.92 Δplaybook -0.0180 [-0.0259, -0.0101] spent 0.981 left ₫9.7 by-r2 0.403 workers/round [3.8, 2.2, 1.3, 0.6, 0.4] rej 0 2.9s/game
+   playbook         E 0.6610 win 0.94 Δbayes +0.0180 [+0.0101, +0.0259] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.2s/game
+   adaptive         E 0.6610 win 0.94 Δbayes +0.0180 [+0.0101, +0.0259] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.3s/game
+   top3             E 0.6107 win 0.86 Δbayes -0.0323 [-0.0400, -0.0246] Δplaybook -0.0503 [-0.0606, -0.0400] spent 0.983 left ₫8.6 by-r2 0.360 workers/round [2.1, 2.5, 2.8, 2.8, 3.1] rej 0 0.1s/game
+   budget_playbook  E 0.6610 win 0.94 Δbayes +0.0180 [+0.0101, +0.0259] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.3s/game
+   budget_playbook_single E 0.6610 win 0.94 Δbayes +0.0180 [+0.0101, +0.0259] Δplaybook -0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 1.000 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 0 0.1s/game
+[s4 test] b1000 (50 seeds, 220s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.7038 win 1.00 Δbayes +0.0274 [+0.0214, +0.0333] Δplaybook +0.0154 [+0.0091, +0.0217] spent 0.992 left ₫7.9 by-r2 0.508 workers/round [4.6, 1.9, 0.4, 0.2, 0.1] rej 0 8.2s/game
+   bayes            E 0.6764 win 0.96 Δplaybook -0.0120 [-0.0192, -0.0048] spent 0.994 left ₫5.6 by-r2 0.381 workers/round [6.8, 2.4, 0.6, 0.4, 1.8] rej 0 2.8s/game
+   playbook         E 0.6884 win 1.00 Δbayes +0.0120 [+0.0048, +0.0192] spent 0.987 left ₫12.5 by-r2 0.500 workers/round [3.0, 0.0, 0.0, 0.0, 1.1] rej 0 0.2s/game
+   adaptive         E 0.6884 win 1.00 Δbayes +0.0120 [+0.0048, +0.0192] Δplaybook +0.0000 [-0.0000, +0.0000] spent 0.987 left ₫12.5 by-r2 0.500 workers/round [3.0, 0.0, 0.0, 0.0, 1.1] rej 0 0.2s/game
+   top3             E 0.6475 win 0.98 Δbayes -0.0289 [-0.0347, -0.0231] Δplaybook -0.0409 [-0.0482, -0.0336] spent 0.990 left ₫9.7 by-r2 0.384 workers/round [5.7, 5.1, 5.3, 5.3, 5.5] rej 0 0.2s/game
+   budget_playbook  E 0.6904 win 1.00 Δbayes +0.0140 [+0.0068, +0.0212] Δplaybook +0.0020 [+0.0017, +0.0023] spent 0.990 left ₫10.4 by-r2 0.500 workers/round [3.0, 0.0, 0.0, 0.0, 0.7] rej 0 0.2s/game
+   budget_playbook_single E 0.6904 win 1.00 Δbayes +0.0140 [+0.0068, +0.0212] Δplaybook +0.0020 [+0.0017, +0.0023] spent 0.990 left ₫10.4 by-r2 0.500 workers/round [3.0, 0.0, 0.0, 0.0, 0.7] rej 0 0.2s/game
+[s4 test] b2500 (50 seeds, 222s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.7142 win 1.00 Δbayes +0.0162 [+0.0091, +0.0233] Δplaybook +0.0160 [+0.0093, +0.0227] spent 0.999 left ₫2.9 by-r2 0.280 workers/round [8.5, 5.6, 9.2, 11.6, 39.0] rej 0 8.1s/game
+   bayes            E 0.6981 win 1.00 Δplaybook -0.0002 [-0.0071, +0.0067] spent 0.999 left ₫3.2 by-r2 0.326 workers/round [3.4, 16.5, 14.1, 10.7, 29.5] rej 0 2.9s/game
+   playbook         E 0.6983 win 1.00 Δbayes +0.0002 [-0.0067, +0.0071] spent 1.000 left ₫0.0 by-r2 0.200 workers/round [3.0, 0.0, 0.0, 0.0, 70.0] rej 0 0.2s/game
+   adaptive         E 0.6983 win 1.00 Δbayes +0.0002 [-0.0067, +0.0071] Δplaybook +0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 0.200 workers/round [3.0, 0.0, 0.0, 0.0, 70.0] rej 0 0.3s/game
+   top3             E 0.6901 win 1.00 Δbayes -0.0079 [-0.0152, -0.0007] Δplaybook -0.0082 [-0.0157, -0.0006] spent 1.000 left ₫0.0 by-r2 0.400 workers/round [15.0, 15.0, 15.0, 15.0, 15.0] rej 0 0.1s/game
+   budget_playbook  E 0.7097 win 1.00 Δbayes +0.0116 [+0.0053, +0.0180] Δplaybook +0.0114 [+0.0063, +0.0165] spent 1.000 left ₫0.0 by-r2 0.224 workers/round [6.0, 0.0, 0.0, 0.0, 67.0] rej 0 0.3s/game
+   budget_playbook_single E 0.6994 win 1.00 Δbayes +0.0013 [-0.0055, +0.0082] Δplaybook +0.0011 [+0.0008, +0.0014] spent 1.000 left ₫0.0 by-r2 0.200 workers/round [3.0, 0.0, 0.0, 0.0, 70.0] rej 0 0.1s/game
+[s4 test] b10000 (50 seeds, 224s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.7261 win 1.00 Δbayes +0.0137 [+0.0076, +0.0197] Δplaybook +0.0177 [+0.0137, +0.0216] spent 0.999 left ₫5.9 by-r2 0.075 workers/round [4.5, 11.9, 39.6, 147.6, 249.6] rej 0 8.4s/game
+   bayes            E 0.7124 win 1.00 Δplaybook +0.0040 [-0.0023, +0.0102] spent 0.999 left ₫6.2 by-r2 0.042 workers/round [0.0, 0.0, 144.2, 108.4, 201.8] rej 0 2.9s/game
+   playbook         E 0.7084 win 1.00 Δbayes -0.0040 [-0.0102, +0.0023] spent 1.000 left ₫0.0 by-r2 0.050 workers/round [3.0, 0.0, 0.0, 0.0, 445.0] rej 0 0.2s/game
+   adaptive         E 0.7084 win 1.00 Δbayes -0.0040 [-0.0102, +0.0023] Δplaybook +0.0000 [-0.0000, +0.0000] spent 1.000 left ₫0.0 by-r2 0.050 workers/round [3.0, 0.0, 0.0, 0.0, 445.0] rej 0 0.3s/game
+   top3             E 0.6896 win 1.00 Δbayes -0.0228 [-0.0293, -0.0163] Δplaybook -0.0188 [-0.0244, -0.0133] spent 1.000 left ₫0.0 by-r2 0.400 workers/round [90.0, 90.0, 90.0, 90.0, 90.0] rej 0 0.1s/game
+   budget_playbook  E 0.7211 win 1.00 Δbayes +0.0087 [+0.0029, +0.0144] Δplaybook +0.0126 [+0.0096, +0.0156] spent 1.000 left ₫0.0 by-r2 0.054 workers/round [5.0, 0.0, 0.0, 0.0, 443.0] rej 0 0.3s/game
+   budget_playbook_single E 0.7172 win 1.00 Δbayes +0.0047 [-0.0010, +0.0105] Δplaybook +0.0087 [+0.0073, +0.0101] spent 1.000 left ₫0.0 by-r2 0.050 workers/round [3.0, 0.0, 0.0, 0.0, 445.0] rej 0 0.1s/game
+[s4 test] b100000 (50 seeds, 175s, errors {'smart': 0, 'bayes': 0, 'playbook': 0, 'adaptive': 0, 'top3': 0, 'budget_playbook': 0, 'budget_playbook_single': 0}):
+   smart            E 0.8466 win 1.00 Δbayes +0.0050 [-0.0034, +0.0135] Δplaybook +0.1588 [+0.1459, +0.1718] spent 0.982 left ₫1770.5 by-r2 0.178 workers/round [279.6, 593.3, 916.7, 826.0, 2260.1] rej 5 7.4s/game
+   bayes            E 0.8416 win 1.00 Δplaybook +0.1538 [+0.1374, +0.1702] spent 0.928 left ₫7199.1 by-r2 0.390 workers/round [957.5, 986.9, 928.1, 853.2, 892.9] rej 19 1.6s/game
+   playbook         E 0.6878 win 0.98 Δbayes -0.1538 [-0.1702, -0.1374] spent 0.009 left ₫99100.0 by-r2 0.005 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 50 0.0s/game
+   adaptive         E 0.6878 win 0.98 Δbayes -0.1538 [-0.1702, -0.1374] Δplaybook -0.0000 [-0.0000, +0.0000] spent 0.009 left ₫99100.0 by-r2 0.005 workers/round [3.0, 0.0, 0.0, 0.0, 0.0] rej 50 0.0s/game
+   top3             E 0.8121 win 1.00 Δbayes -0.0295 [-0.0377, -0.0213] Δplaybook +0.1243 [+0.1107, +0.1380] spent 1.000 left ₫0.0 by-r2 0.400 workers/round [990.0, 990.0, 990.0, 990.0, 990.0] rej 0 0.0s/game
+   budget_playbook  E 0.8345 win 1.00 Δbayes -0.0071 [-0.0155, +0.0012] Δplaybook +0.1467 [+0.1327, +0.1607] spent 1.000 left ₫0.0 by-r2 0.005 workers/round [3.0, 0.0, 0.0, 0.0, 4945.0] rej 0 0.0s/game
+   budget_playbook_single E 0.8345 win 1.00 Δbayes -0.0071 [-0.0155, +0.0012] Δplaybook +0.1467 [+0.1327, +0.1607] spent 1.000 left ₫0.0 by-r2 0.005 workers/round [3.0, 0.0, 0.0, 0.0, 4945.0] rej 0 0.0s/game
+[s4 test] reproduction vs raw/s1_holdout.jsonl: {'smart': {'seeds_compared': 100, 'max_abs_dE': 1.1920928955078125e-07}, 'bayes': {'seeds_compared': 100, 'max_abs_dE': 3.8743019104003906e-07}}
+[s4] done in 26.9 min

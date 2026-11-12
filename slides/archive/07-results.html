@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Results</title>
+<style>
+  .stats { margin-top: 40px; }
+  .stats .panel { padding: 30px 30px 26px; }
+  .stat-value { font-size: 92px; }
+  .stat-sub { font-size: 23px; }
+  .stat-sub b { color: var(--ink); }
+
+  .players { display: grid; grid-template-columns: 1fr 520px; gap: 40px; margin-top: 36px; align-items: center; }
+  .bars { display: flex; flex-direction: column; gap: 14px; }
+  .pb { display: grid; grid-template-columns: 330px 1fr 92px; gap: 18px; align-items: center; font-size: 23px; }
+  .pb .track { height: 34px; border-radius: 9px; background: var(--surface-2); position: relative; overflow: hidden; }
+  .pb .fill { position: absolute; inset: 0 auto 0 0; border-radius: 9px; background: var(--ink-3); }
+  .pb.me .fill { background: var(--accent); }
+  .pb .v { font-family: var(--font-mono); font-size: 22px; text-align: right; }
+  .pb .who small { display: block; font-size: 17px; color: var(--ink-3); }
+  .half { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--ink); opacity: 0.5; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+    <nav class="phase-track"></nav>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Results · 100 worlds each</p>
+    <h1>What wins an election in Clout</h1>
+
+    <div class="stats" style="--cols: 3">
+      <div class="panel stat">
+        <span class="stat-label">Manifesto alone</span>
+        <span class="stat-value">0.37</span>
+        <span class="stat-sub">Best possible vote share on day one. <b>No manifesto wins without a campaign.</b></span>
+      </div>
+      <div class="panel stat">
+        <span class="stat-label">One worker</span>
+        <span class="stat-value">62<small>%</small></span>
+        <span class="stat-sub">of the maximum gain. Five workers give 93%: <b>buy a few, early.</b></span>
+      </div>
+      <div class="panel stat">
+        <span class="stat-label">When vs where</span>
+        <span class="stat-value">~10<small>×</small></span>
+        <span class="stat-sub">Timing (round 1 vs 5) beats placement: <b>cascades cross regions.</b></span>
+      </div>
+    </div>
+
+    <div class="players">
+      <div class="bars" aria-label="Expected vote share by player">
+        <div class="pb"><span class="who">Best plan found by search<small>sees everything</small></span><div class="track"><div class="fill" style="width:67.2%"></div><span class="half" style="left:50%"></span></div><span class="v">0.672</span></div>
+        <div class="pb me"><span class="who"><b>Smart player</b><small>sees only what you see</small></span><div class="track"><div class="fill" style="width:63.9%"></div><span class="half" style="left:50%"></span></div><span class="v"><b>0.639</b></span></div>
+        <div class="pb"><span class="who">Oracle, greedy<small>sees everything</small></span><div class="track"><div class="fill" style="width:62.8%"></div><span class="half" style="left:50%"></span></div><span class="v">0.628</span></div>
+        <div class="pb"><span class="who">No campaign</span><div class="track"><div class="fill" style="width:38.9%"></div><span class="half" style="left:50%"></span></div><span class="v">0.389</span></div>
+      </div>
+      <div class="panel accent col gap-s" style="color:var(--ink)">
+        <span class="stat-label" style="color:var(--accent)">Planning beats seeing</span>
+        <p class="small">The smart player sees <b>less</b> than the Oracle but wins <b>98%</b> of games by looking ahead.</p>
+        <p class="tiny muted">Line marks a 0.5 vote share.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

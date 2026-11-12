@@ -1,0 +1,9 @@
+[media_vs_workers] device=cuda:0 seeds=14000..14049 N=2500
+[media_vs_workers] airing price ₫200.00, M = ₫600.00, worker fee ₫20.00 → 30 workers, leftover ₫0.00
+[media_vs_workers] No campaign  spent ['0.00'] r0=27.99 r1=28.46 r2=28.86 r3=29.17
+[media_vs_workers] All media    spent ['600.00'] r0=27.99 r1=32.76 r2=36.04 r3=38.54
+[media_vs_workers] All workers  spent ['600.00'] r0=27.99 r1=31.33 r2=37.23 r3=42.70
+[media_vs_workers] round-3 workers − media = 4.17 pp, CI 1.79..6.54, head-to-head {'workers_higher': 31, 'media_higher': 19, 'ties': 0}, victories {'No campaign': 5, 'All media': 6, 'All workers': 12}
+[media_vs_workers] single-region split: region {'N': 12, 'S': 15, 'E': 13, 'W': 10} archetype {'A1 Industrial belt': 13, 'A0 Agrarian heartland': 12, 'A2 Green urban': 5, 'A4 Knowledge hub': 8, 'A3 Welfare-reliant': 7, 'A5 Balanced middle': 5} personality {'P0': 11, 'P3': 16, 'P1': 11, 'P2': 12}
+[media_vs_workers] saved /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/expRes_for_slides/media_vs_workers.json (3.4s)
+saved /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/expRes_for_slides/media_vs_workers.png/.svg

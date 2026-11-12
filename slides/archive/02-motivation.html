@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Motivation</title>
+<style>
+  .main { display: grid; grid-template-columns: 1fr 560px; gap: 72px; margin-top: 48px; margin-bottom: 40px; align-items: stretch; }
+
+  .rows { display: flex; flex-direction: column; justify-content: space-between; }
+  .row-item { display: grid; grid-template-columns: 64px 1fr; column-gap: 28px; align-items: start; padding: 22px 0; border-top: 1.5px solid var(--line); }
+  .row-item:last-child { border-bottom: 1.5px solid var(--line); }
+  .row-item .n {
+    width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent); font: 700 28px var(--font-mono);
+  }
+  .row-item .t { display: flex; align-items: baseline; gap: 20px; }
+  .row-item h3 { font-size: 42px; letter-spacing: -0.02em; }
+  .row-item p { font-size: 28px; color: var(--ink-2); margin-top: 6px; }
+  .row-item .model { font-size: 18px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+
+  .hook { display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 44px 48px; }
+  .hook .stat-value { font-size: 104px; letter-spacing: -0.05em; white-space: nowrap; }
+  .hook .stat-value small { font-size: 0.4em; }
+  .hook p { font-size: 30px; line-height: 1.35; color: var(--ink-2); }
+  .hook .src { font-size: 18px; color: var(--ink-3); margin-top: 8px; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+    <nav class="phase-track"></nav>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Motivation</p>
+    <h1 style="font-size:64px; white-space:nowrap">Campaigns spend big to move opinions they can't see</h1>
+
+    <div class="main grow">
+      <div class="rows">
+        <div class="row-item">
+          <span class="n">1</span>
+          <div><div class="t"><h3>Opinions drift</h3><span class="model">DeGroot consensus</span></div><p>People slowly come to think like their friends.</p></div>
+        </div>
+        <div class="row-item">
+          <span class="n">2</span>
+          <div><div class="t"><h3>Influence spreads</h3><span class="model">Independent Cascade</span></div><p>A message passed on can die out or take off.</p></div>
+        </div>
+        <div class="row-item">
+          <span class="n">3</span>
+          <div><div class="t"><h3>Campaigns work blind</h3><span class="model">Epistemic logic</span></div><p>A party never knows exactly what voters want.</p></div>
+        </div>
+      </div>
+
+      <aside class="panel hook">
+        <span class="stat-label">India, 2019 election</span>
+        <span class="stat-value accent">₹60,000<small> cr</small></span>
+        <p>spent on one general election, mostly to change what people think.</p>
+        <span class="src">Centre for Media Studies</span>
+      </aside>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

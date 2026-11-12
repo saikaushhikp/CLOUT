@@ -1,0 +1,6 @@
+[s2 tune] stage A: 54 arms × 4 seeds
+[s2 tune] A best human: pb|later=front,manifesto_rule=all,media1=4,media2=4,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=friendly,workers=3 E=0.6491
+[s2 tune] stage B: 684 arms × 4 seeds
+[s2 tune] B best: pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4 E=0.6513
+[s2 tune] C best (chosen): pb|later=even,manifesto_rule=all,media1=4,media2=2,media_order=size,survey_regions=4,survey_set=WA+IE,worker_place=size,workers=4 E=0.6513
+[s2_tune_smoke] done in 2.1 min

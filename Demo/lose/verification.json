@@ -1,0 +1,970 @@
+{
+ "seed": 250288,
+ "how": "python Demo/lose/replay_lose.py --device <dev> --json ... (FastAPI TestClient on create_app(device=...), POST /api/games {num_voters:100000, seed, rounds:5, budget:'850.00'}, then query/commit/allocate as p0 until DONE, GET debrief)",
+ "cuda2_equals_cuda0": true,
+ "all_lose": true,
+ "results": {
+  "cuda:2": {
+   "best_effort": {
+    "game_id": "dd27f588d30a",
+    "result": {
+     "votes": 46375,
+     "num_voters": 100000,
+     "vote_share": 0.46375,
+     "victory": false,
+     "expected_share": 0.46299296617507935
+    },
+    "treasury_left": "7.16",
+    "polls": [
+     {
+      "round": 1,
+      "estimate": 0.24,
+      "moe": 0.0419
+     },
+     {
+      "round": 2,
+      "estimate": 0.2825,
+      "moe": 0.0441
+     },
+     {
+      "round": 3,
+      "estimate": 0.315,
+      "moe": 0.0455
+     },
+     {
+      "round": 4,
+      "estimate": 0.3525,
+      "moe": 0.0468
+     },
+     {
+      "round": 5,
+      "estimate": 0.42,
+      "moe": 0.0484
+     },
+     {
+      "round": 6,
+      "estimate": 0.4625,
+      "moe": 0.0489
+     }
+    ],
+    "true_expected_share_trajectory": [
+     0.240322,
+     0.290491,
+     0.32801,
+     0.3586,
+     0.398924,
+     0.462993
+    ],
+    "debrief_regions": [
+     {
+      "id": "N",
+      "archetype": "Welfare-reliant",
+      "personality": "Socially driven",
+      "zealots": 1036,
+      "final_expected_share": 0.798,
+      "initial_expected_share": 0.4399
+     },
+     {
+      "id": "S",
+      "archetype": "Industrial belt",
+      "personality": "Independent",
+      "zealots": 1679,
+      "final_expected_share": 0.0821,
+      "initial_expected_share": 0.0783
+     },
+     {
+      "id": "E",
+      "archetype": "Green urban",
+      "personality": "Receptive to canvassing",
+      "zealots": 840,
+      "final_expected_share": 0.3683,
+      "initial_expected_share": 0.0976
+     },
+     {
+      "id": "W",
+      "archetype": "Agrarian heartland",
+      "personality": "Media-savvy",
+      "zealots": 1350,
+      "final_expected_share": 0.7221,
+      "initial_expected_share": 0.3686
+     }
+    ],
+    "oracle_no_campaign_share": 0.325211,
+    "actions": [
+     {
+      "type": "query",
+      "question": "Agri over Welfare in W",
+      "pct_b_over_a": 97.88,
+      "moe": 0.52
+     },
+     {
+      "type": "query",
+      "question": "Env over Welfare in E",
+      "pct_b_over_a": 100.0,
+      "moe": 0.11
+     },
+     {
+      "type": "commit",
+      "manifesto_pct": [
+       18,
+       28,
+       21,
+       14,
+       19
+      ]
+     },
+     {
+      "type": "allocate",
+      "round": 1,
+      "cost": "512.65",
+      "converted": 69,
+      "spreaders": 19,
+      "media_exposed": 39832
+     },
+     {
+      "type": "allocate",
+      "round": 2,
+      "cost": "132.65",
+      "converted": 269,
+      "spreaders": 69,
+      "media_exposed": 39619
+     },
+     {
+      "type": "allocate",
+      "round": 3,
+      "cost": "88.77",
+      "converted": 1253,
+      "spreaders": 269,
+      "media_exposed": 26647
+     },
+     {
+      "type": "allocate",
+      "round": 4,
+      "cost": "88.77",
+      "converted": 5770,
+      "spreaders": 1253,
+      "media_exposed": 26632
+     },
+     {
+      "type": "allocate",
+      "round": 5,
+      "cost": "0.00",
+      "converted": 17978,
+      "spreaders": 5770,
+      "media_exposed": 0
+     }
+    ],
+    "epistemic": {
+     "headline": "From round 1 no plan won in any world you considered possible. You lost with 46.4% of the vote.",
+     "rounds": [
+      {
+       "round": 1,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 2,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 3,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 4,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 5,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      }
+     ]
+    },
+    "seconds": 15.3,
+    "votes_short_of_majority": 3626
+   },
+   "no_campaign": {
+    "game_id": "b804f0b2c4a5",
+    "result": {
+     "votes": 30794,
+     "num_voters": 100000,
+     "vote_share": 0.30794,
+     "victory": false,
+     "expected_share": 0.3069439232349396
+    },
+    "treasury_left": "850.00",
+    "polls": [
+     {
+      "round": 1,
+      "estimate": 0.24,
+      "moe": 0.0419
+     },
+     {
+      "round": 2,
+      "estimate": 0.235,
+      "moe": 0.0416
+     },
+     {
+      "round": 3,
+      "estimate": 0.25,
+      "moe": 0.0424
+     },
+     {
+      "round": 4,
+      "estimate": 0.29,
+      "moe": 0.0445
+     },
+     {
+      "round": 5,
+      "estimate": 0.3,
+      "moe": 0.0449
+     },
+     {
+      "round": 6,
+      "estimate": 0.28,
+      "moe": 0.044
+     }
+    ],
+    "true_expected_share_trajectory": [
+     0.240322,
+     0.254648,
+     0.268642,
+     0.282116,
+     0.29491,
+     0.306944
+    ],
+    "debrief_regions": [
+     {
+      "id": "N",
+      "archetype": "Welfare-reliant",
+      "personality": "Socially driven",
+      "zealots": 1036,
+      "final_expected_share": 0.6318,
+      "initial_expected_share": 0.4399
+     },
+     {
+      "id": "S",
+      "archetype": "Industrial belt",
+      "personality": "Independent",
+      "zealots": 1679,
+      "final_expected_share": 0.079,
+      "initial_expected_share": 0.0783
+     },
+     {
+      "id": "E",
+      "archetype": "Green urban",
+      "personality": "Receptive to canvassing",
+      "zealots": 840,
+      "final_expected_share": 0.1408,
+      "initial_expected_share": 0.0976
+     },
+     {
+      "id": "W",
+      "archetype": "Agrarian heartland",
+      "personality": "Media-savvy",
+      "zealots": 1350,
+      "final_expected_share": 0.4304,
+      "initial_expected_share": 0.3686
+     }
+    ],
+    "oracle_no_campaign_share": 0.325211,
+    "actions": [
+     {
+      "type": "commit",
+      "manifesto_pct": [
+       18,
+       28,
+       21,
+       14,
+       19
+      ]
+     },
+     {
+      "type": "allocate",
+      "round": 1,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 2,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 3,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 4,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 5,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     }
+    ],
+    "epistemic": {
+     "headline": "From round 1 no plan won in any world you considered possible. You lost with 30.8% of the vote.",
+     "rounds": [
+      {
+       "round": 1,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 2,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 3,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 4,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      },
+      {
+       "round": 5,
+       "possible_victory": false,
+       "inevitable_defeat": true,
+       "truth_victory_possible": false,
+       "knows_win_exists": false
+      }
+     ]
+    },
+    "seconds": 11.82,
+    "votes_short_of_majority": 19207
+   }
+  },
+  "cuda:0": {
+   "best_effort": {
+    "game_id": "54e966c7afa1",
+    "result": {
+     "votes": 46375,
+     "num_voters": 100000,
+     "vote_share": 0.46375,
+     "victory": false,
+     "expected_share": 0.46299296617507935
+    },
+    "treasury_left": "7.16",
+    "polls": [
+     {
+      "round": 1,
+      "estimate": 0.24,
+      "moe": 0.0419
+     },
+     {
+      "round": 2,
+      "estimate": 0.2825,
+      "moe": 0.0441
+     },
+     {
+      "round": 3,
+      "estimate": 0.315,
+      "moe": 0.0455
+     },
+     {
+      "round": 4,
+      "estimate": 0.3525,
+      "moe": 0.0468
+     },
+     {
+      "round": 5,
+      "estimate": 0.42,
+      "moe": 0.0484
+     },
+     {
+      "round": 6,
+      "estimate": 0.4625,
+      "moe": 0.0489
+     }
+    ],
+    "true_expected_share_trajectory": [
+     0.240322,
+     0.290491,
+     0.32801,
+     0.3586,
+     0.398924,
+     0.462993
+    ],
+    "debrief_regions": [
+     {
+      "id": "N",
+      "archetype": "Welfare-reliant",
+      "personality": "Socially driven",
+      "zealots": 1036,
+      "final_expected_share": 0.798,
+      "initial_expected_share": 0.4399
+     },
+     {
+      "id": "S",
+      "archetype": "Industrial belt",
+      "personality": "Independent",
+      "zealots": 1679,
+      "final_expected_share": 0.0821,
+      "initial_expected_share": 0.0783
+     },
+     {
+      "id": "E",
+      "archetype": "Green urban",
+      "personality": "Receptive to canvassing",
+      "zealots": 840,
+      "final_expected_share": 0.3683,
+      "initial_expected_share": 0.0976
+     },
+     {
+      "id": "W",
+      "archetype": "Agrarian heartland",
+      "personality": "Media-savvy",
+      "zealots": 1350,
+      "final_expected_share": 0.7221,
+      "initial_expected_share": 0.3686
+     }
+    ],
+    "oracle_no_campaign_share": 0.325211,
+    "actions": [
+     {
+      "type": "query",
+      "question": "Agri over Welfare in W",
+      "pct_b_over_a": 97.88,
+      "moe": 0.52
+     },
+     {
+      "type": "query",
+      "question": "Env over Welfare in E",
+      "pct_b_over_a": 100.0,
+      "moe": 0.11
+     },
+     {
+      "type": "commit",
+      "manifesto_pct": [
+       18,
+       28,
+       21,
+       14,
+       19
+      ]
+     },
+     {
+      "type": "allocate",
+      "round": 1,
+      "cost": "512.65",
+      "converted": 69,
+      "spreaders": 19,
+      "media_exposed": 39832
+     },
+     {
+      "type": "allocate",
+      "round": 2,
+      "cost": "132.65",
+      "converted": 269,
+      "spreaders": 69,
+      "media_exposed": 39619
+     },
+     {
+      "type": "allocate",
+      "round": 3,
+      "cost": "88.77",
+      "converted": 1253,
+      "spreaders": 269,
+      "media_exposed": 26647
+     },
+     {
+      "type": "allocate",
+      "round": 4,
+      "cost": "88.77",
+      "converted": 5770,
+      "spreaders": 1253,
+      "media_exposed": 26632
+     },
+     {
+      "type": "allocate",
+      "round": 5,
+      "cost": "0.00",
+      "converted": 17978,
+      "spreaders": 5770,
+      "media_exposed": 0
+     }
+    ],
+    "seconds": 1.45,
+    "votes_short_of_majority": 3626
+   },
+   "no_campaign": {
+    "game_id": "d711c960e228",
+    "result": {
+     "votes": 30794,
+     "num_voters": 100000,
+     "vote_share": 0.30794,
+     "victory": false,
+     "expected_share": 0.3069439232349396
+    },
+    "treasury_left": "850.00",
+    "polls": [
+     {
+      "round": 1,
+      "estimate": 0.24,
+      "moe": 0.0419
+     },
+     {
+      "round": 2,
+      "estimate": 0.235,
+      "moe": 0.0416
+     },
+     {
+      "round": 3,
+      "estimate": 0.25,
+      "moe": 0.0424
+     },
+     {
+      "round": 4,
+      "estimate": 0.29,
+      "moe": 0.0445
+     },
+     {
+      "round": 5,
+      "estimate": 0.3,
+      "moe": 0.0449
+     },
+     {
+      "round": 6,
+      "estimate": 0.28,
+      "moe": 0.044
+     }
+    ],
+    "true_expected_share_trajectory": [
+     0.240322,
+     0.254648,
+     0.268642,
+     0.282116,
+     0.29491,
+     0.306944
+    ],
+    "debrief_regions": [
+     {
+      "id": "N",
+      "archetype": "Welfare-reliant",
+      "personality": "Socially driven",
+      "zealots": 1036,
+      "final_expected_share": 0.6318,
+      "initial_expected_share": 0.4399
+     },
+     {
+      "id": "S",
+      "archetype": "Industrial belt",
+      "personality": "Independent",
+      "zealots": 1679,
+      "final_expected_share": 0.079,
+      "initial_expected_share": 0.0783
+     },
+     {
+      "id": "E",
+      "archetype": "Green urban",
+      "personality": "Receptive to canvassing",
+      "zealots": 840,
+      "final_expected_share": 0.1408,
+      "initial_expected_share": 0.0976
+     },
+     {
+      "id": "W",
+      "archetype": "Agrarian heartland",
+      "personality": "Media-savvy",
+      "zealots": 1350,
+      "final_expected_share": 0.4304,
+      "initial_expected_share": 0.3686
+     }
+    ],
+    "oracle_no_campaign_share": 0.325211,
+    "actions": [
+     {
+      "type": "commit",
+      "manifesto_pct": [
+       18,
+       28,
+       21,
+       14,
+       19
+      ]
+     },
+     {
+      "type": "allocate",
+      "round": 1,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 2,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 3,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 4,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 5,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     }
+    ],
+    "seconds": 0.94,
+    "votes_short_of_majority": 19207
+   }
+  },
+  "cpu": {
+   "best_effort": {
+    "game_id": "6e403bf16185",
+    "result": {
+     "votes": 44870,
+     "num_voters": 100000,
+     "vote_share": 0.4487,
+     "victory": false,
+     "expected_share": 0.4489654004573822
+    },
+    "treasury_left": "7.16",
+    "polls": [
+     {
+      "round": 1,
+      "estimate": 0.2525,
+      "moe": 0.0426
+     },
+     {
+      "round": 2,
+      "estimate": 0.2825,
+      "moe": 0.0441
+     },
+     {
+      "round": 3,
+      "estimate": 0.3525,
+      "moe": 0.0468
+     },
+     {
+      "round": 4,
+      "estimate": 0.3475,
+      "moe": 0.0467
+     },
+     {
+      "round": 5,
+      "estimate": 0.42,
+      "moe": 0.0484
+     },
+     {
+      "round": 6,
+      "estimate": 0.4525,
+      "moe": 0.0488
+     }
+    ],
+    "true_expected_share_trajectory": [
+     0.240322,
+     0.290611,
+     0.327764,
+     0.356951,
+     0.392208,
+     0.448965
+    ],
+    "debrief_regions": [
+     {
+      "id": "N",
+      "archetype": "Welfare-reliant",
+      "personality": "Socially driven",
+      "zealots": 1036,
+      "final_expected_share": 0.7774,
+      "initial_expected_share": 0.4399
+     },
+     {
+      "id": "S",
+      "archetype": "Industrial belt",
+      "personality": "Independent",
+      "zealots": 1679,
+      "final_expected_share": 0.0811,
+      "initial_expected_share": 0.0783
+     },
+     {
+      "id": "E",
+      "archetype": "Green urban",
+      "personality": "Receptive to canvassing",
+      "zealots": 840,
+      "final_expected_share": 0.3379,
+      "initial_expected_share": 0.0976
+     },
+     {
+      "id": "W",
+      "archetype": "Agrarian heartland",
+      "personality": "Media-savvy",
+      "zealots": 1350,
+      "final_expected_share": 0.7075,
+      "initial_expected_share": 0.3686
+     }
+    ],
+    "oracle_no_campaign_share": 0.325211,
+    "actions": [
+     {
+      "type": "query",
+      "question": "Agri over Welfare in W",
+      "pct_b_over_a": 97.92,
+      "moe": 0.51
+     },
+     {
+      "type": "query",
+      "question": "Env over Welfare in E",
+      "pct_b_over_a": 100.0,
+      "moe": 0.11
+     },
+     {
+      "type": "commit",
+      "manifesto_pct": [
+       18,
+       28,
+       21,
+       14,
+       19
+      ]
+     },
+     {
+      "type": "allocate",
+      "round": 1,
+      "cost": "512.65",
+      "converted": 48,
+      "spreaders": 19,
+      "media_exposed": 39929
+     },
+     {
+      "type": "allocate",
+      "round": 2,
+      "cost": "132.65",
+      "converted": 187,
+      "spreaders": 48,
+      "media_exposed": 39726
+     },
+     {
+      "type": "allocate",
+      "round": 3,
+      "cost": "88.77",
+      "converted": 862,
+      "spreaders": 187,
+      "media_exposed": 26503
+     },
+     {
+      "type": "allocate",
+      "round": 4,
+      "cost": "88.77",
+      "converted": 4075,
+      "spreaders": 862,
+      "media_exposed": 26781
+     },
+     {
+      "type": "allocate",
+      "round": 5,
+      "cost": "0.00",
+      "converted": 15299,
+      "spreaders": 4075,
+      "media_exposed": 0
+     }
+    ],
+    "seconds": 3.42,
+    "votes_short_of_majority": 5131
+   },
+   "no_campaign": {
+    "game_id": "b1e5277ebbb9",
+    "result": {
+     "votes": 30505,
+     "num_voters": 100000,
+     "vote_share": 0.30505,
+     "victory": false,
+     "expected_share": 0.30694395303726196
+    },
+    "treasury_left": "850.00",
+    "polls": [
+     {
+      "round": 1,
+      "estimate": 0.2525,
+      "moe": 0.0426
+     },
+     {
+      "round": 2,
+      "estimate": 0.25,
+      "moe": 0.0424
+     },
+     {
+      "round": 3,
+      "estimate": 0.2825,
+      "moe": 0.0441
+     },
+     {
+      "round": 4,
+      "estimate": 0.2675,
+      "moe": 0.0434
+     },
+     {
+      "round": 5,
+      "estimate": 0.33,
+      "moe": 0.0461
+     },
+     {
+      "round": 6,
+      "estimate": 0.32,
+      "moe": 0.0457
+     }
+    ],
+    "true_expected_share_trajectory": [
+     0.240322,
+     0.254648,
+     0.268642,
+     0.282116,
+     0.29491,
+     0.306944
+    ],
+    "debrief_regions": [
+     {
+      "id": "N",
+      "archetype": "Welfare-reliant",
+      "personality": "Socially driven",
+      "zealots": 1036,
+      "final_expected_share": 0.6318,
+      "initial_expected_share": 0.4399
+     },
+     {
+      "id": "S",
+      "archetype": "Industrial belt",
+      "personality": "Independent",
+      "zealots": 1679,
+      "final_expected_share": 0.079,
+      "initial_expected_share": 0.0783
+     },
+     {
+      "id": "E",
+      "archetype": "Green urban",
+      "personality": "Receptive to canvassing",
+      "zealots": 840,
+      "final_expected_share": 0.1408,
+      "initial_expected_share": 0.0976
+     },
+     {
+      "id": "W",
+      "archetype": "Agrarian heartland",
+      "personality": "Media-savvy",
+      "zealots": 1350,
+      "final_expected_share": 0.4304,
+      "initial_expected_share": 0.3686
+     }
+    ],
+    "oracle_no_campaign_share": 0.325211,
+    "actions": [
+     {
+      "type": "commit",
+      "manifesto_pct": [
+       18,
+       28,
+       21,
+       14,
+       19
+      ]
+     },
+     {
+      "type": "allocate",
+      "round": 1,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 2,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 3,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 4,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     },
+     {
+      "type": "allocate",
+      "round": 5,
+      "cost": "0.00",
+      "converted": 0,
+      "spreaders": 0,
+      "media_exposed": 0
+     }
+    ],
+    "seconds": 3.33,
+    "votes_short_of_majority": 19496
+   }
+  }
+ }
+}

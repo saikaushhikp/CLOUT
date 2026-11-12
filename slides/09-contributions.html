@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Contributions</title>
+<style>
+  .people { list-style: none; margin: 32px 0 16px; padding: 0; display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
+  .people li { position: relative; display: grid; grid-template-columns: 460px 1fr; gap: 32px; align-items: baseline; padding: 16px 0 16px 40px; border-top: 1.5px solid var(--line); }
+  .people li:last-child { border-bottom: 1.5px solid var(--line); }
+  .people li::before { content: ""; position: absolute; left: 4px; top: 30px; width: 13px; height: 13px; border-radius: 3px; background: var(--accent); }
+  .people .who b { display: block; font-size: 28px; font-weight: 700; }
+  .people .who span { font-family: var(--font-mono); font-size: 18px; color: var(--ink-3); }
+  .people p { font-size: 27px; color: var(--ink-2); line-height: 1.35; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Team Dumbocracy</p>
+    <h1>Individual contributions</h1>
+
+    <ul class="people">
+      <li><div class="who"><b>G. Madhava Asrith Murthy</b><span>AI23BTECH11007</span></div><p>Built the smart player (surveys, manifesto, planning) and ran the strategy experiments.</p></li>
+      <li><div class="who"><b>B. U. Deekshith Patel</b><span>AI23BTECH11003</span></div><p>Built the electorate: regions, friendship network, preferences, zealots, drift and voting.</p></li>
+      <li><div class="who"><b>Vuppula Hemanth Reddy</b><span>AI23BTECH11033</span></div><p>Designed what the player sees and buys: polls, surveys, workers, media and their prices.</p></li>
+      <li><div class="who"><b>Pakki Sai Kaushik</b><span>AI23BTECH11017</span></div><p>Built logic specifications, the game engine and the GPU experiment harness.</p></li>
+      <li><div class="who"><b>Vishank Singh</b><span>AI23BTECH11032</span></div><p>Built the web game: its screens, visualisations, debrief timeline and web API.</p></li>
+    </ul>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

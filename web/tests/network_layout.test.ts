@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import Graph from "graphology";
-import { reelInOutliers, settleIsolated } from "@/components/NetworkView";
+import { placeRegionClusters, reelInOutliers, settleIsolated } from "@/components/NetworkView";
 import { ALIGNMENT_HEX, ALIGNMENT_LABELS } from "@/lib/constants";
 
 // Regression (found by the e2e walkthrough): ForceAtlas2 flings nodes without a tie in the sample far away, so the
@@ -46,5 +46,35 @@ describe("alignment legend", () => {
     expect(ALIGNMENT_LABELS).toHaveLength(ALIGNMENT_HEX.length);
     expect(ALIGNMENT_LABELS.join(" ")).toMatch(/<10%.*40–60%.*>90%/);
     expect(ALIGNMENT_LABELS.some((l) => /aligned|close/i.test(l))).toBe(false);
+  });
+});
+
+// The four regions are drawn as separate clusters at their map positions (N top, E right, S bottom, W left).
+describe("placeRegionClusters", () => {
+  // all four regions laid out on top of each other (as one global layout would), with very different sizes
+  const sizes: Record<string, number> = { N: 400, S: 300, E: 200, W: 100 };
+  const pts = Object.entries(sizes).flatMap(([region, n]) =>
+    Array.from({ length: n }, (_, i) => ({ region, x: 50 + Math.cos(i) * (i % 17), y: -20 + Math.sin(i) * (i % 17) })),
+  );
+  pts.push({ region: "W", x: 5000, y: 5000 }); // a far straggler
+  const out = placeRegionClusters(pts);
+  const cloud = (r: string) => out.filter((_, k) => pts[k].region === r);
+  const centre = (ps: { x: number; y: number }[]) => [ps.reduce((s, p) => s + p.x, 0) / ps.length, ps.reduce((s, p) => s + p.y, 0) / ps.length];
+  const radius = (ps: { x: number; y: number }[]) => { const [cx, cy] = centre(ps); return Math.max(...ps.map((p) => Math.hypot(p.x - cx, p.y - cy))); };
+
+  it("centres each region at its map position", () => {
+    const want: Record<string, [number, number]> = { N: [0, 1], E: [1, 0], S: [0, -1], W: [-1, 0] };
+    for (const [r, [x, y]] of Object.entries(want)) {
+      const [cx, cy] = centre(cloud(r));
+      expect(Math.hypot(cx - x, cy - y)).toBeLessThan(0.1);
+    }
+  });
+
+  it("sizes clusters by their share of voters and keeps them apart, stragglers included", () => {
+    expect(radius(cloud("N"))).toBeGreaterThan(radius(cloud("W")));
+    const [nx, ny] = centre(cloud("N"));
+    const [ex, ey] = centre(cloud("E"));
+    expect(radius(cloud("N")) + radius(cloud("E"))).toBeLessThan(Math.hypot(nx - ex, ny - ey));
+    expect(radius(cloud("W"))).toBeLessThan(0.7); // the straggler was pulled in
   });
 });

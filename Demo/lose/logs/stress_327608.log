@@ -1,0 +1,16 @@
+[327608] 121 manifestos, 21 patterns; 19s
+[327608] phase A done 38s; top: joint_x12_from_oracle=0.4557, dirichlet5_5=0.4501, r0_blend_R2R3R4=0.4406, eday_blend_R2R3R4=0.4404, eday_blend_R1R3R4=0.4215, eday_blend_R2R3=0.4212, r0_blend_R1R3R4=0.4204, uniform=0.4167
+[327608] search oracle: hc 0.4400, fresh mean 0.4379 max 0.4575 (planner max 0.4191); 94s
+[327608] search round0_opt: hc 0.4074, fresh mean 0.4058 max 0.4185 (planner max 0.3827); 163s
+[327608] search joint_x12_from_oracle: hc 0.4825, fresh mean 0.4793 max 0.4866 (planner max 0.4629); 217s
+[327608] search joint_x12_from_bestA: hc 0.4839, fresh mean 0.4776 max 0.4899 (planner max 0.4639); 295s
+[327608] search dirichlet5_5: hc 0.4731, fresh mean 0.4737 max 0.4805 (planner max 0.4605); 402s
+[327608] search r0_blend_R2R3R4: hc 0.4555, fresh mean 0.4563 max 0.4637 (planner max 0.4475); 505s
+[327608] search eday_blend_R2R3R4: hc 0.4576, fresh mean 0.4583 max 0.4654 (planner max 0.4479); 608s
+[327608] joint alternation from joint_x12_from_oracle: EV 0.5546->0.5675; fresh mean 0.4753 max 0.4870
+  manifesto hc step 0.04: 0.4763
+  manifesto hc step 0.02: 0.4763
+  manifesto hc step 0.01: 0.4781
+  manifesto hc step 0.005: 0.4786
+[327608] manifesto HC from joint_x12_from_oracle: 0.4763->0.4786; re-searched fresh mean 0.4805 max 0.4893; 855s
+[327608] MAX E any attack/stream 0.4899 by joint_x12_from_bestA/search; max vote share 0.4889; best mean search 0.4805; 1050s

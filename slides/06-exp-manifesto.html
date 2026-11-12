@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Experiment 2</title>
+<style>
+  .main { display: grid; grid-template-columns: 930px 1fr; gap: 56px; margin-top: 28px; align-items: center; }
+  .fig { padding: 16px; background: #fff; }
+  .fig img { width: 100%; height: auto; display: block; }
+  .side { display: flex; flex-direction: column; gap: 26px; }
+  .side ul.points { gap: 24px; font-size: 26px; color: var(--ink-2); }
+  .side ul.points b { color: var(--ink); }
+  .side .setup { font-size: 20px; color: var(--ink-3); line-height: 1.4; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Experiment 2 · fixed manifestos, no campaign · 50 worlds</p>
+    <h1>Blend more regions, win more votes</h1>
+
+    <div class="main">
+      <div class="panel fig"><img src="assets/exp/manifesto_no_campaign.png" alt="Expected vote share over 5 rounds for five fixed manifestos with no campaign"></div>
+      <div class="side">
+        <ul class="points">
+          <li><b>No manifesto wins alone within the round allocation for the game (5 rounds).</b> The blends do cross the threshold when extrapolated after the game duration.</li>
+          <li><b>The 4-region blend leads:</b> 44.9% at round 5 vs 37.3% for one region and when rolled out, it still performs better in a no-campaign environment.</li>
+          <li><b>A flat 20% split starts worst</b> (31%) and stays below every blend.</li>
+        </ul>
+        <p class="setup">10,000 voters · no workers, media or surveys · manifestos built from archetype blends.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

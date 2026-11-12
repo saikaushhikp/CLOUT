@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"> 
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Experiment 1</title>
+<style>
+  h1 { font-size: 56px; white-space: nowrap; }
+  .figs { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 18px; }
+  .fig { padding: 10px; background: #fff; }
+  .fig img { width: 100%; height: auto; display: block; }
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 16px; }
+  .note { border-top: 3px solid var(--accent); padding-top: 14px; }
+  .note b { display: block; font-size: 26px; color: var(--ink); line-height: 1.25; }
+  .note span { display: block; font-size: 20px; color: var(--ink-2); margin-top: 6px; line-height: 1.35; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Experiment 1 · workers bought in round 1 only · 10,000 voters</p>
+    <h1>A few early workers reach almost everyone</h1>
+
+    <div class="figs">
+      <div class="panel fig"><img src="assets/exp/worker_spread_touched_converted.png" alt="Voters touched and converted per round for 5, 10 and 20 workers"></div>
+      <div class="panel fig"><img src="assets/exp/worker_spread_vote_share.png" alt="Expected vote share per round for 0, 5, 10 and 20 workers"></div>
+    </div>
+
+    <div class="notes">
+      <div class="note"><b>45% (no workers) → 58% (5 workers) vote share:</b><span>The cascade touches ~9,000 voters and converts ~3,200.</span></div>
+      <div class="note"><b>More workers: sooner, not bigger</b><span>20 workers add only ~1 point over 5 by round 5; they mainly bring the gain forward.</span></div>
+      <div class="note"><b>The spread crosses regions</b><span>By round 5, about 30–37% of every region is converted.</span></div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

@@ -1,0 +1,6 @@
+[s5] k= 0: 0.3s | touched by round [0, 0, 0, 0, 0, 0] | converted [0, 0, 0, 0, 0, 0] | E% [34.58, 36.7, 38.8, 40.89, 42.94, 44.93]
+[s5] k= 5: 0.2s | touched by round [0, 142, 712, 2985, 6793, 8954] | converted [0, 20, 129, 724, 2147, 3237] | E% [34.58, 36.81, 39.34, 43.57, 51.42, 58.38]
+[s5] k=10: 0.1s | touched by round [0, 275, 1330, 4611, 8169, 9328] | converted [0, 39, 245, 1186, 2695, 3411] | E% [34.58, 36.93, 39.85, 45.48, 54.11, 59.42]
+[s5] k=20: 0.1s | touched by round [0, 549, 2437, 6481, 8976, 9433] | converted [0, 78, 477, 1819, 3087, 3423] | E% [34.58, 37.17, 40.83, 48.28, 56.18, 59.63]
+saved /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/expRes_for_slides/worker_spread.json
+[s5] done in 22.7s; wrote /data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/expRes_for_slides/worker_spread.json and 4 figure files

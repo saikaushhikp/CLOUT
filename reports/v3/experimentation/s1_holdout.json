@@ -1,0 +1,641 @@
+{
+ "experiment": "S1",
+ "question": "Smart player (BayesPlanner) touch-ups of strategies.md Method 4, ablated on the X6 tournament worlds",
+ "seeds": {
+  "first": 14000,
+  "count": 100,
+  "list": [
+   14000,
+   14001,
+   14002,
+   14003,
+   14004,
+   14005,
+   14006,
+   14007,
+   14008,
+   14009,
+   14010,
+   14011,
+   14012,
+   14013,
+   14014,
+   14015,
+   14016,
+   14017,
+   14018,
+   14019,
+   14020,
+   14021,
+   14022,
+   14023,
+   14024,
+   14025,
+   14026,
+   14027,
+   14028,
+   14029,
+   14030,
+   14031,
+   14032,
+   14033,
+   14034,
+   14035,
+   14036,
+   14037,
+   14038,
+   14039,
+   14040,
+   14041,
+   14042,
+   14043,
+   14044,
+   14045,
+   14046,
+   14047,
+   14048,
+   14049,
+   14050,
+   14051,
+   14052,
+   14053,
+   14054,
+   14055,
+   14056,
+   14057,
+   14058,
+   14059,
+   14060,
+   14061,
+   14062,
+   14063,
+   14064,
+   14065,
+   14066,
+   14067,
+   14068,
+   14069,
+   14070,
+   14071,
+   14072,
+   14073,
+   14074,
+   14075,
+   14076,
+   14077,
+   14078,
+   14079,
+   14080,
+   14081,
+   14082,
+   14083,
+   14084,
+   14085,
+   14086,
+   14087,
+   14088,
+   14089,
+   14090,
+   14091,
+   14092,
+   14093,
+   14094,
+   14095,
+   14096,
+   14097,
+   14098,
+   14099
+  ],
+  "paired": true
+ },
+ "n": 10000,
+ "rounds": 5,
+ "treasury": "500.00",
+ "arm_options": {
+  "bayes": "BayesPlanner defaults",
+  "smart": {
+   "front_candidates": true,
+   "rollout": "taper",
+   "plan_world_fraction": 0.4,
+   "manifesto_method": "admm"
+  }
+ },
+ "definitions": {
+  "expected": "result.expected_share of the engine game (true E at the election)",
+  "scenario": "divided if TV(archetype means of the two largest regions) >= 0.35 (r1_manifesto_round0.tv_two_largest), else aligned",
+  "gap_to_x13_bound": "X13 full-information plan search (mean E over 20 fresh streams) \u2212 arm",
+  "plan_world_fraction": "planning worlds use max(1600, ceil(0.4 N)) voters (capped at N)"
+ },
+ "arms": {
+  "bayes": {
+   "options": "BayesPlanner defaults",
+   "expected": {
+    "mean": 0.6496053239703179,
+    "ci95": [
+     0.6356791668091822,
+     0.6635314811314535
+    ],
+    "sd": 0.07018464966747437,
+    "n": 100
+   },
+   "win": {
+    "rate": 0.95,
+    "k": 95,
+    "n": 100,
+    "ci95": [
+     0.8882480347279118,
+     0.9784566385436864
+    ]
+   },
+   "static_share_anticipated": {
+    "mean": 0.4784928497672081,
+    "ci95": [
+     0.46597729748829214,
+     0.491008402046124
+    ],
+    "sd": 0.06307552341446102,
+    "n": 100
+   },
+   "spend": {
+    "workers": {
+     "mean": 217.4,
+     "ci95": [
+      207.81689836618858,
+      226.98310163381143
+     ],
+     "sd": 48.296642290801714,
+     "n": 100
+    },
+    "media": {
+     "mean": 254.4002,
+     "ci95": [
+      245.0154781010138,
+      263.7849218989862
+     ],
+     "sd": 47.296853761293384,
+     "n": 100
+    },
+    "queries": {
+     "mean": 19.9,
+     "ci95": [
+      18.789848253748865,
+      21.010151746251132
+     ],
+     "sd": 5.594911107696913,
+     "n": 100
+    },
+    "total": {
+     "mean": 491.7002,
+     "ci95": [
+      490.6762238829221,
+      492.7241761170779
+     ],
+     "sd": 5.160605629637522,
+     "n": 100
+    }
+   },
+   "mean_queries": 1.99,
+   "shape": {
+    "workers_by_round": [
+     5.52,
+     2.8,
+     1.88,
+     0.32,
+     0.35
+    ],
+    "airings_by_round": [
+     0.06,
+     0.55,
+     0.96,
+     2.4,
+     1.4
+    ],
+    "early_spend_share_rounds_1_2": {
+     "mean": 0.4176983423071359,
+     "ci95": [
+      0.40583814334938667,
+      0.4295585412648851
+     ],
+     "sd": 0.05977269243802589,
+     "n": 100
+    }
+   },
+   "rejected_actions": 0,
+   "game_seconds": {
+    "mean": 2.0018631795048716,
+    "ci95": [
+     1.947289915155004,
+     2.056436443854739
+    ],
+    "sd": 0.2750367811656643,
+    "n": 100
+   },
+   "decision_seconds": {
+    "mean": 0.23966979551653836,
+    "ci95": [
+     0.23265578136131615,
+     0.24668380967176057
+    ],
+    "sd": 0.03534902849012749,
+    "n": 100
+   },
+   "candidates_per_decision": {
+    "mean": 17.596,
+    "ci95": [
+     17.38198605237538,
+     17.81001394762462
+    ],
+    "sd": 2.4357030399039195,
+    "n": 500
+   },
+   "by_scenario": {
+    "aligned": {
+     "n": 51,
+     "expected": {
+      "mean": 0.6811692223829382,
+      "ci95": [
+       0.6671318772968883,
+       0.6952065674689881
+      ],
+      "sd": 0.04990975603099602,
+      "n": 51
+     },
+     "win": {
+      "rate": 1.0,
+      "k": 51,
+      "n": 51,
+      "ci95": [
+       0.9299509861127319,
+       0.9999999999999999
+      ]
+     }
+    },
+    "divided": {
+     "n": 49,
+     "expected": {
+      "mean": 0.616753103173509,
+      "ci95": [
+       0.5956369194753395,
+       0.6378692868716784
+      ],
+      "sd": 0.07351573194817483,
+      "n": 49
+     },
+     "win": {
+      "rate": 0.8979591836734694,
+      "k": 44,
+      "n": 49,
+      "ci95": [
+       0.7824337583502992,
+       0.9556211075129601
+      ]
+     }
+    }
+   }
+  },
+  "smart": {
+   "options": {
+    "front_candidates": true,
+    "rollout": "taper",
+    "plan_world_fraction": 0.4,
+    "manifesto_method": "admm"
+   },
+   "expected": {
+    "mean": 0.6792392578721046,
+    "ci95": [
+     0.6668541965738259,
+     0.6916243191703833
+    ],
+    "sd": 0.06241787869202801,
+    "n": 100
+   },
+   "win": {
+    "rate": 0.98,
+    "k": 98,
+    "n": 100,
+    "ci95": [
+     0.9299868370580063,
+     0.9944981477650318
+    ]
+   },
+   "static_share_anticipated": {
+    "mean": 0.4731831035017967,
+    "ci95": [
+     0.4597836530239662,
+     0.48658255397962724
+    ],
+    "sd": 0.06753016834735436,
+    "n": 100
+   },
+   "spend": {
+    "workers": {
+     "mean": 113.2,
+     "ci95": [
+      106.54470414354783,
+      119.85529585645217
+     ],
+     "sd": 33.541170239127034,
+     "n": 100
+    },
+    "media": {
+     "mean": 360.0668,
+     "ci95": [
+      353.39190467947947,
+      366.74169532052053
+     ],
+     "sd": 33.63994705913513,
+     "n": 100
+    },
+    "queries": {
+     "mean": 19.9,
+     "ci95": [
+      18.789848253748865,
+      21.010151746251132
+     ],
+     "sd": 5.594911107696913,
+     "n": 100
+    },
+    "total": {
+     "mean": 493.1668,
+     "ci95": [
+      491.968189722319,
+      494.36541027768106
+     ],
+     "sd": 6.04072189143789,
+     "n": 100
+    }
+   },
+   "mean_queries": 1.99,
+   "shape": {
+    "workers_by_round": [
+     4.32,
+     1.15,
+     0.18,
+     0.01,
+     0.0
+    ],
+    "airings_by_round": [
+     3.19,
+     3.15,
+     0.85,
+     0.16,
+     0.02
+    ],
+    "early_spend_share_rounds_1_2": {
+     "mean": 0.8975177692638756,
+     "ci95": [
+      0.8754607244322229,
+      0.9195748140955283
+     ],
+     "sd": 0.11116246544521081,
+     "n": 100
+    }
+   },
+   "rejected_actions": 0,
+   "game_seconds": {
+    "mean": 6.624339843019843,
+    "ci95": [
+     6.251726045788826,
+     6.996953640250861
+    ],
+    "sd": 1.8778883878252608,
+    "n": 100
+   },
+   "decision_seconds": {
+    "mean": 0.8206052884279145,
+    "ci95": [
+     0.7734601644836449,
+     0.8677504123721841
+    ],
+    "sd": 0.23760065101034542,
+    "n": 100
+   },
+   "candidates_per_decision": {
+    "mean": 21.116,
+    "ci95": [
+     19.251275480604907,
+     22.980724519395093
+    ],
+    "sd": 21.222519517468672,
+    "n": 500
+   },
+   "by_scenario": {
+    "aligned": {
+     "n": 51,
+     "expected": {
+      "mean": 0.7074326148220137,
+      "ci95": [
+       0.6946714665393069,
+       0.7201937631047205
+      ],
+      "sd": 0.04537224051706237,
+      "n": 51
+     },
+     "win": {
+      "rate": 1.0,
+      "k": 51,
+      "n": 51,
+      "ci95": [
+       0.9299509861127319,
+       0.9999999999999999
+      ]
+     },
+     "vs_bayes": {
+      "mean": 0.026263392439075543,
+      "ci95": [
+       0.02309150293720828,
+       0.029435281940942807
+      ],
+      "sd": 0.011277647605372114,
+      "n": 51,
+      "wilcoxon_p": 5.461520578031993e-10,
+      "a_better": 50
+     }
+    },
+    "divided": {
+     "n": 49,
+     "expected": {
+      "mean": 0.649895151658934,
+      "ci95": [
+       0.6313524400827608,
+       0.6684378632351071
+      ],
+      "sd": 0.06455622063680157,
+      "n": 49
+     },
+     "win": {
+      "rate": 0.9591836734693877,
+      "k": 47,
+      "n": 49,
+      "ci95": [
+       0.8628671652316889,
+       0.9887346030720717
+      ]
+     },
+     "vs_bayes": {
+      "mean": 0.033142048485425055,
+      "ci95": [
+       0.027478634092750857,
+       0.03880546287809925
+      ],
+      "sd": 0.019717107047111156,
+      "n": 49,
+      "wilcoxon_p": 7.105427357601002e-15,
+      "a_better": 48
+     }
+    }
+   },
+   "vs_bayes": {
+    "expected": {
+     "mean": 0.029633933901786803,
+     "ci95": [
+      0.026405871555537447,
+      0.03286199624803616
+     ],
+     "sd": 0.0162686965438354,
+     "n": 100,
+     "wilcoxon_p": 4.2663227307182344e-18,
+     "a_better": 98,
+     "holm_p": 4.2663227307182344e-18
+    },
+    "mcnemar_wins": {
+     "a_only": 3,
+     "b_only": 0,
+     "p": 0.25
+    }
+   }
+  }
+ },
+ "tests_note": "vs_bayes = arm \u2212 bayes, paired over seeds (t CI, Wilcoxon; Holm over the 1 arms); McNemar exact on wins",
+ "scenario_counts": {
+  "aligned": 51,
+  "divided": 49
+ },
+ "comparisons": {},
+ "reproduction_vs_x6": {
+  "x6_bayes_expected_mean_same_seeds": null,
+  "s1_bayes_expected_mean": 0.6496053239703179,
+  "seeds_compared": 0,
+  "max_abs_diff": null,
+  "identical_within_1e-6": 0
+ },
+ "ranking_by_mean_E": [
+  "smart",
+  "bayes"
+ ],
+ "per_seed_seconds": {
+  "mean": 9.151752413585783,
+  "ci95": [
+   8.764526216428454,
+   9.538978610743111
+  ],
+  "sd": 1.95153154420808,
+  "n": 100
+ },
+ "config": {
+  "seed": 20261107,
+  "rounds": 5,
+  "budget": "500.00",
+  "device": "cuda:0",
+  "dtype": "float32",
+  "generation": "cpu",
+  "electorate": {
+   "num_voters": 10000,
+   "min_region_fraction": 0.15,
+   "region_dirichlet_a": 2.0,
+   "mean_degree": 30.0,
+   "intra_prob_range": [
+    0.5,
+    0.9
+   ],
+   "inter_prob_range": [
+    0.01,
+    0.2
+   ],
+   "dirichlet_concentration": 60.0,
+   "zealot_fraction": 0.05
+  },
+  "dynamics": {
+   "social_step": 0.15,
+   "social_rule": "degroot",
+   "wmsr_trim": 1
+  },
+  "workers": {
+   "worker_cost": "20.00",
+   "min_degree": 3,
+   "attempt_cap": 3,
+   "conversion_rule": "gamma_p"
+  },
+  "media": {
+   "base_cost": "50.00",
+   "exposure_prob": 0.6,
+   "strength": 0.25,
+   "decay": 0.5
+  },
+  "voting": {
+   "sensitivity": 20.0,
+   "threshold": 0.825
+  },
+  "survey": {
+   "query_cost": "10.00",
+   "query_sample_fraction": 0.1,
+   "poll_size": 400,
+   "consistency_tolerance": 0.02
+  }
+ },
+ "provenance": {
+  "git": "e43333f+uncommitted",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8",
+  "python": "3.12.15",
+  "device": "cuda:0",
+  "gpu": "NVIDIA RTX A5000",
+  "workers": 3,
+  "threads_per_worker": 4,
+  "seconds": 308.83274222537875,
+  "args": {
+   "seeds": 100,
+   "first_seed": 14000,
+   "n": 10000,
+   "device": "cuda:0",
+   "workers": 3,
+   "arms": "bayes,smart",
+   "out": "/data/ai23btech11017/MAS/CLOUT/reports/v3/experimentation/s1_holdout.json",
+   "tag": "holdout"
+  },
+  "command": "python experiments/s1_smart_player.py --seeds 100 --first-seed 14000 --device cuda:0 --arms bayes,smart --tag holdout",
+  "compute": {
+   "device": "cuda:0",
+   "batch_sizes": {
+    "bayes_planner_num_worlds": 8,
+    "bayes_world_voters": 1600,
+    "smart_plan_world_voters": 4000
+   },
+   "wall_seconds": 308.83274222537875,
+   "free_bytes_at_start": 22817013760,
+   "peak_bytes": 0,
+   "grad_mode": "no_grad",
+   "dtype": "float32",
+   "device_name": "NVIDIA RTX A5000",
+   "gpu_util_mean": 96.25333333333333,
+   "gpu_util_max": 99,
+   "samples": 150,
+   "gpu_mem_used_mib_max": 4759,
+   "interval_s": 2.0,
+   "device_selection": {
+    "requested": "cuda:0",
+    "need_bytes": 4294967296,
+    "free_bytes": {
+     "0": 23030923264,
+     "1": 137363456,
+     "2": 844103680
+    },
+    "chosen": "cuda:0"
+   }
+  },
+  "child_peak_bytes_max": 373047296,
+  "env": {
+   "OMP_NUM_THREADS": "4"
+  }
+ }
+}

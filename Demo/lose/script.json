@@ -1,0 +1,153 @@
+{
+ "settings": {
+  "num_voters": 100000,
+  "seed": 250288,
+  "rounds": 5,
+  "budget": "850.00",
+  "player_id": "p0"
+ },
+ "description": "Best-effort play for the 'can never win' demo: 2 survey questions (\u20ab20), an integer-percent manifesto, then the X13-searched campaign plan (CEM + hill climb with full information) for the remaining \u20ab830.",
+ "actions": [
+  {
+   "type": "query",
+   "sector_a": "Welfare",
+   "sector_b": "Agri",
+   "region": "W",
+   "why": "highest expected information gain (0.5571 nats) about which archetype lives where"
+  },
+  {
+   "type": "query",
+   "sector_a": "Welfare",
+   "sector_b": "Env",
+   "region": "E",
+   "why": "highest expected information gain (0.0099 nats) about which archetype lives where"
+  },
+  {
+   "type": "commit",
+   "manifesto_pct": [
+    18,
+    28,
+    21,
+    14,
+    19
+   ],
+   "sectors": [
+    "Edu",
+    "Welfare",
+    "Agri",
+    "Industry",
+    "Env"
+   ]
+  },
+  {
+   "type": "allocate",
+   "round": 1,
+   "hires_by_region": [
+    12,
+    0,
+    0,
+    7
+   ],
+   "media_regions": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "regions": [
+    "N",
+    "S",
+    "E",
+    "W"
+   ]
+  },
+  {
+   "type": "allocate",
+   "round": 2,
+   "hires_by_region": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media_regions": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "regions": [
+    "N",
+    "S",
+    "E",
+    "W"
+   ]
+  },
+  {
+   "type": "allocate",
+   "round": 3,
+   "hires_by_region": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media_regions": [
+    false,
+    false,
+    true,
+    true
+   ],
+   "regions": [
+    "N",
+    "S",
+    "E",
+    "W"
+   ]
+  },
+  {
+   "type": "allocate",
+   "round": 4,
+   "hires_by_region": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media_regions": [
+    false,
+    false,
+    true,
+    true
+   ],
+   "regions": [
+    "N",
+    "S",
+    "E",
+    "W"
+   ]
+  },
+  {
+   "type": "allocate",
+   "round": 5,
+   "hires_by_region": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "media_regions": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "regions": [
+    "N",
+    "S",
+    "E",
+    "W"
+   ]
+  }
+ ]
+}

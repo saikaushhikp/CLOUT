@@ -1,0 +1,2126 @@
+{
+ "settings": {
+  "num_voters": 100000,
+  "rounds": 5,
+  "budget": "850.00",
+  "campaign_budget_after_2_queries": "830.00",
+  "player_id": "p0"
+ },
+ "requirement": "Win with the scripted campaign (as large a share as possible) AND lose with no campaign (same questions and manifesto, empty plans); strong version: even the best possible no-campaign manifesto loses (target <= 0.46 expected share).",
+ "seeds_screened": 4060,
+ "seed_sources": {
+  "contiguous": "1..4000",
+  "from_Demo_lose_screening": "60 seeds with oracle_no_campaign <= 0.46 and the highest best_found in Demo/lose/screening.jsonl (read only)"
+ },
+ "stage1_screen": {
+  "script": "Demo/win/search/screen.py",
+  "gate": "ORACLE manifesto no-campaign expected share (continuous) > 0.47 -> skipped",
+  "passed_gate": 1752,
+  "no_campaign_oracle_share_quantiles_0_5_25_50": [
+   0.304579496383667,
+   0.3587941721081734,
+   0.42288798093795776,
+   0.4823535531759262
+  ],
+  "share_with_nocamp_le_0.46": 0.38571428571428573,
+  "campaign_proxy_E_best_among_nocamp_le_0.46": {
+   "max": 0.701382,
+   "p90": 0.656334
+  },
+  "best_screening_plan_counts": {
+   "w11_m123": 1093,
+   "w21_m12": 483,
+   "w6w5_m123": 27,
+   "w1_m1234": 76,
+   "planner": 73
+  },
+  "top25_nocamp_le_0.46": [
+   {
+    "seed": 100826,
+    "E_best": 0.701382,
+    "best_template": "w11_m123",
+    "E_planner": 0.679495,
+    "E_none_oracle": 0.45376867055892944,
+    "sizes": [
+     17339,
+     26000,
+     23579,
+     33082
+    ],
+    "sigma": [
+     3,
+     0,
+     5,
+     4
+    ]
+   },
+   {
+    "seed": 3336,
+    "E_best": 0.700531,
+    "best_template": "w11_m123",
+    "E_planner": 0.665838,
+    "E_none_oracle": 0.4556618630886078,
+    "sizes": [
+     19657,
+     20072,
+     26454,
+     33817
+    ],
+    "sigma": [
+     2,
+     5,
+     1,
+     3
+    ]
+   },
+   {
+    "seed": 3685,
+    "E_best": 0.699628,
+    "best_template": "planner",
+    "E_planner": 0.699628,
+    "E_none_oracle": 0.45531904697418213,
+    "sizes": [
+     19923,
+     23941,
+     15869,
+     40267
+    ],
+    "sigma": [
+     4,
+     1,
+     5,
+     3
+    ]
+   },
+   {
+    "seed": 104549,
+    "E_best": 0.699085,
+    "best_template": "w21_m12",
+    "E_planner": 0.663722,
+    "E_none_oracle": 0.4512166380882263,
+    "sizes": [
+     18721,
+     34197,
+     20738,
+     26344
+    ],
+    "sigma": [
+     4,
+     0,
+     5,
+     2
+    ]
+   },
+   {
+    "seed": 105769,
+    "E_best": 0.696751,
+    "best_template": "w21_m12",
+    "E_planner": 0.678363,
+    "E_none_oracle": 0.4568869471549988,
+    "sizes": [
+     23923,
+     28646,
+     17915,
+     29516
+    ],
+    "sigma": [
+     2,
+     0,
+     5,
+     1
+    ]
+   },
+   {
+    "seed": 1892,
+    "E_best": 0.695517,
+    "best_template": "w11_m123",
+    "E_planner": 0.667423,
+    "E_none_oracle": 0.45877960324287415,
+    "sizes": [
+     24029,
+     31172,
+     27346,
+     17453
+    ],
+    "sigma": [
+     1,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "seed": 2873,
+    "E_best": 0.694926,
+    "best_template": "w11_m123",
+    "E_planner": 0.668239,
+    "E_none_oracle": 0.45327749848365784,
+    "sizes": [
+     19428,
+     33899,
+     23444,
+     23229
+    ],
+    "sigma": [
+     5,
+     4,
+     0,
+     3
+    ]
+   },
+   {
+    "seed": 1315,
+    "E_best": 0.693853,
+    "best_template": "w11_m123",
+    "E_planner": 0.667107,
+    "E_none_oracle": 0.4515179693698883,
+    "sizes": [
+     34325,
+     20901,
+     18193,
+     26581
+    ],
+    "sigma": [
+     1,
+     3,
+     5,
+     0
+    ]
+   },
+   {
+    "seed": 102767,
+    "E_best": 0.693042,
+    "best_template": "w11_m123",
+    "E_planner": 0.669368,
+    "E_none_oracle": 0.4530130624771118,
+    "sizes": [
+     19987,
+     19122,
+     34573,
+     26318
+    ],
+    "sigma": [
+     2,
+     5,
+     0,
+     4
+    ]
+   },
+   {
+    "seed": 2233,
+    "E_best": 0.692419,
+    "best_template": "planner",
+    "E_planner": 0.692419,
+    "E_none_oracle": 0.45921847224235535,
+    "sizes": [
+     19650,
+     29549,
+     34373,
+     16428
+    ],
+    "sigma": [
+     5,
+     2,
+     3,
+     1
+    ]
+   },
+   {
+    "seed": 1234,
+    "E_best": 0.690711,
+    "best_template": "w11_m123",
+    "E_planner": 0.666487,
+    "E_none_oracle": 0.4573771357536316,
+    "sizes": [
+     27921,
+     28287,
+     22240,
+     21552
+    ],
+    "sigma": [
+     3,
+     2,
+     1,
+     5
+    ]
+   },
+   {
+    "seed": 457,
+    "E_best": 0.690008,
+    "best_template": "w21_m12",
+    "E_planner": 0.683045,
+    "E_none_oracle": 0.4550378918647766,
+    "sizes": [
+     32011,
+     24029,
+     22335,
+     21625
+    ],
+    "sigma": [
+     4,
+     0,
+     3,
+     5
+    ]
+   },
+   {
+    "seed": 2016,
+    "E_best": 0.688673,
+    "best_template": "w11_m123",
+    "E_planner": 0.6483,
+    "E_none_oracle": 0.4599989056587219,
+    "sizes": [
+     26316,
+     21756,
+     32324,
+     19604
+    ],
+    "sigma": [
+     4,
+     2,
+     1,
+     0
+    ]
+   },
+   {
+    "seed": 62,
+    "E_best": 0.687937,
+    "best_template": "w11_m123",
+    "E_planner": 0.664286,
+    "E_none_oracle": 0.4486040472984314,
+    "sizes": [
+     19289,
+     32953,
+     26669,
+     21089
+    ],
+    "sigma": [
+     5,
+     4,
+     3,
+     0
+    ]
+   },
+   {
+    "seed": 2622,
+    "E_best": 0.687738,
+    "best_template": "w11_m123",
+    "E_planner": 0.663103,
+    "E_none_oracle": 0.4599343538284302,
+    "sizes": [
+     26684,
+     18531,
+     28674,
+     26111
+    ],
+    "sigma": [
+     4,
+     5,
+     0,
+     3
+    ]
+   },
+   {
+    "seed": 104778,
+    "E_best": 0.687295,
+    "best_template": "w11_m123",
+    "E_planner": 0.653067,
+    "E_none_oracle": 0.4492988884449005,
+    "sizes": [
+     19192,
+     27891,
+     19423,
+     33494
+    ],
+    "sigma": [
+     4,
+     2,
+     3,
+     1
+    ]
+   },
+   {
+    "seed": 104407,
+    "E_best": 0.686239,
+    "best_template": "w11_m123",
+    "E_planner": 0.6663,
+    "E_none_oracle": 0.4582914710044861,
+    "sizes": [
+     31216,
+     25828,
+     24229,
+     18727
+    ],
+    "sigma": [
+     3,
+     2,
+     5,
+     1
+    ]
+   },
+   {
+    "seed": 104433,
+    "E_best": 0.68589,
+    "best_template": "w11_m123",
+    "E_planner": 0.666637,
+    "E_none_oracle": 0.4591902494430542,
+    "sizes": [
+     21118,
+     31399,
+     26782,
+     20701
+    ],
+    "sigma": [
+     5,
+     3,
+     4,
+     0
+    ]
+   },
+   {
+    "seed": 3527,
+    "E_best": 0.685795,
+    "best_template": "w11_m123",
+    "E_planner": 0.667645,
+    "E_none_oracle": 0.4539929926395416,
+    "sizes": [
+     26981,
+     21521,
+     25931,
+     25567
+    ],
+    "sigma": [
+     2,
+     1,
+     0,
+     5
+    ]
+   },
+   {
+    "seed": 101861,
+    "E_best": 0.685513,
+    "best_template": "w11_m123",
+    "E_planner": 0.668359,
+    "E_none_oracle": 0.45494386553764343,
+    "sizes": [
+     20714,
+     25698,
+     23273,
+     30315
+    ],
+    "sigma": [
+     3,
+     2,
+     5,
+     1
+    ]
+   },
+   {
+    "seed": 103740,
+    "E_best": 0.685034,
+    "best_template": "w11_m123",
+    "E_planner": 0.641485,
+    "E_none_oracle": 0.45419541001319885,
+    "sizes": [
+     24721,
+     28551,
+     26207,
+     20521
+    ],
+    "sigma": [
+     3,
+     1,
+     2,
+     5
+    ]
+   },
+   {
+    "seed": 460,
+    "E_best": 0.684553,
+    "best_template": "w11_m123",
+    "E_planner": 0.659394,
+    "E_none_oracle": 0.4509635865688324,
+    "sizes": [
+     24373,
+     22925,
+     34154,
+     18548
+    ],
+    "sigma": [
+     2,
+     4,
+     3,
+     5
+    ]
+   },
+   {
+    "seed": 197,
+    "E_best": 0.684369,
+    "best_template": "w11_m123",
+    "E_planner": 0.662594,
+    "E_none_oracle": 0.4511851966381073,
+    "sizes": [
+     27244,
+     29535,
+     20024,
+     23197
+    ],
+    "sigma": [
+     5,
+     3,
+     2,
+     1
+    ]
+   },
+   {
+    "seed": 227,
+    "E_best": 0.683148,
+    "best_template": "w21_m12",
+    "E_planner": 0.666973,
+    "E_none_oracle": 0.456002414226532,
+    "sizes": [
+     33127,
+     19160,
+     21504,
+     26209
+    ],
+    "sigma": [
+     3,
+     1,
+     5,
+     2
+    ]
+   },
+   {
+    "seed": 103395,
+    "E_best": 0.682368,
+    "best_template": "w11_m123",
+    "E_planner": 0.658823,
+    "E_none_oracle": 0.4512932598590851,
+    "sizes": [
+     19464,
+     33401,
+     26635,
+     20500
+    ],
+    "sigma": [
+     0,
+     2,
+     1,
+     5
+    ]
+   }
+  ]
+ },
+ "stage1b_best_no_campaign_manifesto": {
+  "script": "Demo/win/search/nocamp_check.py",
+  "rows": [
+   {
+    "seed": 100826,
+    "E_best": 0.701382,
+    "E_none_oracle_cont": 0.45376867055892944,
+    "continuous_manifesto": [
+     0.226481,
+     0.204034,
+     0.214608,
+     0.189461,
+     0.165416
+    ],
+    "continuous_share": 0.45381441712379456,
+    "starts": 78,
+    "integer_pct": [
+     23,
+     20,
+     21,
+     19,
+     17
+    ],
+    "integer_share": 0.4533339738845825,
+    "best_share_any": 0.45381441712379456,
+    "seconds": 8.029041528701782
+   },
+   {
+    "seed": 3336,
+    "E_best": 0.700531,
+    "E_none_oracle_cont": 0.4556618630886078,
+    "continuous_manifesto": [
+     0.180437,
+     0.285206,
+     0.147378,
+     0.201515,
+     0.185464
+    ],
+    "continuous_share": 0.4556618630886078,
+    "starts": 78,
+    "integer_pct": [
+     18,
+     29,
+     15,
+     20,
+     18
+    ],
+    "integer_share": 0.45532041788101196,
+    "best_share_any": 0.4556618630886078,
+    "seconds": 7.476289749145508
+   },
+   {
+    "seed": 3685,
+    "E_best": 0.699628,
+    "E_none_oracle_cont": 0.45531904697418213,
+    "continuous_manifesto": [
+     0.187236,
+     0.288595,
+     0.139712,
+     0.223826,
+     0.160631
+    ],
+    "continuous_share": 0.45531904697418213,
+    "starts": 78,
+    "integer_pct": [
+     19,
+     29,
+     14,
+     22,
+     16
+    ],
+    "integer_share": 0.45518308877944946,
+    "best_share_any": 0.45531904697418213,
+    "seconds": 7.490089416503906
+   },
+   {
+    "seed": 104549,
+    "E_best": 0.699085,
+    "E_none_oracle_cont": 0.4512166380882263,
+    "continuous_manifesto": [
+     0.243665,
+     0.166591,
+     0.208648,
+     0.173831,
+     0.207265
+    ],
+    "continuous_share": 0.45121657848358154,
+    "starts": 78,
+    "integer_pct": [
+     24,
+     17,
+     22,
+     17,
+     20
+    ],
+    "integer_share": 0.45094385743141174,
+    "best_share_any": 0.4512166380882263,
+    "seconds": 7.5666234493255615
+   },
+   {
+    "seed": 105769,
+    "E_best": 0.696751,
+    "E_none_oracle_cont": 0.4568869471549988,
+    "continuous_manifesto": [
+     0.188549,
+     0.175258,
+     0.199251,
+     0.239263,
+     0.197679
+    ],
+    "continuous_share": 0.4568869471549988,
+    "starts": 78,
+    "integer_pct": [
+     19,
+     17,
+     20,
+     24,
+     20
+    ],
+    "integer_share": 0.4564177095890045,
+    "best_share_any": 0.4568869471549988,
+    "seconds": 6.0657384395599365
+   },
+   {
+    "seed": 1892,
+    "E_best": 0.695517,
+    "E_none_oracle_cont": 0.45877960324287415,
+    "continuous_manifesto": [
+     0.227768,
+     0.204058,
+     0.136454,
+     0.264972,
+     0.166747
+    ],
+    "continuous_share": 0.45877960324287415,
+    "starts": 78,
+    "integer_pct": [
+     23,
+     20,
+     14,
+     26,
+     17
+    ],
+    "integer_share": 0.4582432806491852,
+    "best_share_any": 0.45877960324287415,
+    "seconds": 7.554687738418579
+   },
+   {
+    "seed": 2873,
+    "E_best": 0.694926,
+    "E_none_oracle_cont": 0.45327749848365784,
+    "continuous_manifesto": [
+     0.258395,
+     0.199344,
+     0.179641,
+     0.198635,
+     0.163985
+    ],
+    "continuous_share": 0.45327749848365784,
+    "starts": 78,
+    "integer_pct": [
+     26,
+     20,
+     18,
+     20,
+     16
+    ],
+    "integer_share": 0.45292869210243225,
+    "best_share_any": 0.45327749848365784,
+    "seconds": 7.4231178760528564
+   },
+   {
+    "seed": 1315,
+    "E_best": 0.693853,
+    "E_none_oracle_cont": 0.4515179693698883,
+    "continuous_manifesto": [
+     0.163582,
+     0.215868,
+     0.190308,
+     0.266798,
+     0.163444
+    ],
+    "continuous_share": 0.4515179693698883,
+    "starts": 78,
+    "integer_pct": [
+     16,
+     22,
+     19,
+     27,
+     16
+    ],
+    "integer_share": 0.45078444480895996,
+    "best_share_any": 0.4515179693698883,
+    "seconds": 7.2982399463653564
+   },
+   {
+    "seed": 102767,
+    "E_best": 0.693042,
+    "E_none_oracle_cont": 0.4530130624771118,
+    "continuous_manifesto": [
+     0.262966,
+     0.160783,
+     0.1962,
+     0.18766,
+     0.192391
+    ],
+    "continuous_share": 0.4530131220817566,
+    "starts": 78,
+    "integer_pct": [
+     27,
+     16,
+     19,
+     19,
+     19
+    ],
+    "integer_share": 0.4528723359107971,
+    "best_share_any": 0.4530131220817566,
+    "seconds": 7.249556541442871
+   },
+   {
+    "seed": 2233,
+    "E_best": 0.692419,
+    "E_none_oracle_cont": 0.45921847224235535,
+    "continuous_manifesto": [
+     0.207299,
+     0.240334,
+     0.142759,
+     0.172312,
+     0.237296
+    ],
+    "continuous_share": 0.4592183828353882,
+    "starts": 78,
+    "integer_pct": [
+     21,
+     24,
+     14,
+     17,
+     24
+    ],
+    "integer_share": 0.45897120237350464,
+    "best_share_any": 0.45921847224235535,
+    "seconds": 7.2607102394104
+   },
+   {
+    "seed": 1234,
+    "E_best": 0.690711,
+    "E_none_oracle_cont": 0.4573771357536316,
+    "continuous_manifesto": [
+     0.206348,
+     0.225987,
+     0.144041,
+     0.188554,
+     0.235069
+    ],
+    "continuous_share": 0.4573771059513092,
+    "starts": 78,
+    "integer_pct": [
+     21,
+     22,
+     14,
+     19,
+     24
+    ],
+    "integer_share": 0.4569675624370575,
+    "best_share_any": 0.4573771357536316,
+    "seconds": 7.398714780807495
+   },
+   {
+    "seed": 457,
+    "E_best": 0.690008,
+    "E_none_oracle_cont": 0.4550378918647766,
+    "continuous_manifesto": [
+     0.242635,
+     0.20813,
+     0.186194,
+     0.197189,
+     0.165853
+    ],
+    "continuous_share": 0.4550378918647766,
+    "starts": 78,
+    "integer_pct": [
+     24,
+     21,
+     19,
+     19,
+     17
+    ],
+    "integer_share": 0.4544411599636078,
+    "best_share_any": 0.4550378918647766,
+    "seconds": 7.271653652191162
+   },
+   {
+    "seed": 2016,
+    "E_best": 0.688673,
+    "E_none_oracle_cont": 0.4599989056587219,
+    "continuous_manifesto": [
+     0.248972,
+     0.139358,
+     0.119781,
+     0.305359,
+     0.18653
+    ],
+    "continuous_share": 0.4599989056587219,
+    "starts": 78,
+    "integer_pct": [
+     25,
+     14,
+     12,
+     30,
+     19
+    ],
+    "integer_share": 0.45970165729522705,
+    "best_share_any": 0.4599989056587219,
+    "seconds": 5.699897527694702
+   },
+   {
+    "seed": 62,
+    "E_best": 0.687937,
+    "E_none_oracle_cont": 0.4486040472984314,
+    "continuous_manifesto": [
+     0.25032,
+     0.218697,
+     0.173437,
+     0.193917,
+     0.163629
+    ],
+    "continuous_share": 0.4486040472984314,
+    "starts": 78,
+    "integer_pct": [
+     26,
+     21,
+     17,
+     20,
+     16
+    ],
+    "integer_share": 0.44812074303627014,
+    "best_share_any": 0.4486040472984314,
+    "seconds": 7.359196186065674
+   },
+   {
+    "seed": 2622,
+    "E_best": 0.687738,
+    "E_none_oracle_cont": 0.4599343538284302,
+    "continuous_manifesto": [
+     0.195838,
+     0.253988,
+     0.233781,
+     0.148543,
+     0.16785
+    ],
+    "continuous_share": 0.45993441343307495,
+    "starts": 78,
+    "integer_pct": [
+     20,
+     25,
+     23,
+     15,
+     17
+    ],
+    "integer_share": 0.4596228003501892,
+    "best_share_any": 0.45993441343307495,
+    "seconds": 7.613194465637207
+   },
+   {
+    "seed": 104778,
+    "E_best": 0.687295,
+    "E_none_oracle_cont": 0.4492988884449005,
+    "continuous_manifesto": [
+     0.241554,
+     0.142339,
+     0.107821,
+     0.3064,
+     0.201886
+    ],
+    "continuous_share": 0.4492988884449005,
+    "starts": 78,
+    "integer_pct": [
+     24,
+     14,
+     11,
+     31,
+     20
+    ],
+    "integer_share": 0.4491053521633148,
+    "best_share_any": 0.4492988884449005,
+    "seconds": 7.3068320751190186
+   },
+   {
+    "seed": 104407,
+    "E_best": 0.686239,
+    "E_none_oracle_cont": 0.4582914710044861,
+    "continuous_manifesto": [
+     0.19938,
+     0.264213,
+     0.148933,
+     0.171976,
+     0.215499
+    ],
+    "continuous_share": 0.4582914710044861,
+    "starts": 78,
+    "integer_pct": [
+     20,
+     26,
+     15,
+     17,
+     22
+    ],
+    "integer_share": 0.45814159512519836,
+    "best_share_any": 0.4582914710044861,
+    "seconds": 7.292383432388306
+   },
+   {
+    "seed": 104433,
+    "E_best": 0.68589,
+    "E_none_oracle_cont": 0.4591902494430542,
+    "continuous_manifesto": [
+     0.196007,
+     0.28485,
+     0.198062,
+     0.153282,
+     0.167798
+    ],
+    "continuous_share": 0.4591902494430542,
+    "starts": 78,
+    "integer_pct": [
+     19,
+     29,
+     20,
+     15,
+     17
+    ],
+    "integer_share": 0.4589020311832428,
+    "best_share_any": 0.4591902494430542,
+    "seconds": 7.3089354038238525
+   },
+   {
+    "seed": 3527,
+    "E_best": 0.685795,
+    "E_none_oracle_cont": 0.4539929926395416,
+    "continuous_manifesto": [
+     0.204653,
+     0.174897,
+     0.199495,
+     0.195881,
+     0.225074
+    ],
+    "continuous_share": 0.4539929926395416,
+    "starts": 78,
+    "integer_pct": [
+     20,
+     18,
+     20,
+     20,
+     22
+    ],
+    "integer_share": 0.45358341932296753,
+    "best_share_any": 0.4539929926395416,
+    "seconds": 5.23433780670166
+   },
+   {
+    "seed": 101861,
+    "E_best": 0.685513,
+    "E_none_oracle_cont": 0.45494386553764343,
+    "continuous_manifesto": [
+     0.20396,
+     0.182993,
+     0.13589,
+     0.25342,
+     0.223737
+    ],
+    "continuous_share": 0.45494380593299866,
+    "starts": 78,
+    "integer_pct": [
+     20,
+     18,
+     14,
+     26,
+     22
+    ],
+    "integer_share": 0.4545493721961975,
+    "best_share_any": 0.45494386553764343,
+    "seconds": 7.28749418258667
+   }
+  ]
+ },
+ "stage2_plan_search": {
+  "script": "Demo/win/search/search.py",
+  "seeds": [
+   {
+    "seed": 100826,
+    "search_score": 0.7207101881504059,
+    "start": "w11_m123",
+    "pct": [
+     25,
+     21,
+     19,
+     19,
+     16
+    ],
+    "hires": [
+     [
+      0,
+      1,
+      7,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      0,
+      1,
+      0,
+      0
+     ]
+    ],
+    "cost": 823.36,
+    "E_canonical": 0.7201659083366394,
+    "E_fresh_mean": 0.7198230266571045,
+    "E_fresh_min": 0.7182115316390991,
+    "screen_E_best": 0.701382,
+    "nocamp_best_share": 0.45376867055892944,
+    "seconds": 253.6814968585968,
+    "world_evals": 27011,
+    "device": "cuda:0",
+    "search_rank_key": 0.7198230266571045
+   },
+   {
+    "seed": 3336,
+    "search_score": 0.7280373275279999,
+    "start": "w11_m123",
+    "pct": [
+     19,
+     26,
+     14,
+     22,
+     19
+    ],
+    "hires": [
+     [
+      0,
+      0,
+      0,
+      8
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      0,
+      1,
+      1
+     ],
+     [
+      1,
+      0,
+      1,
+      1
+     ],
+     [
+      1,
+      0,
+      1,
+      0
+     ],
+     [
+      1,
+      0,
+      0,
+      0
+     ]
+    ],
+    "cost": 811.22,
+    "E_canonical": 0.7268192768096924,
+    "E_fresh_mean": 0.7275681436061859,
+    "E_fresh_min": 0.7252724766731262,
+    "screen_E_best": 0.700531,
+    "nocamp_best_share": 0.4556618630886078,
+    "seconds": 340.38042974472046,
+    "world_evals": 34491,
+    "device": "cuda:2",
+    "search_rank_key": 0.7275681436061859
+   },
+   {
+    "seed": 3685,
+    "search_score": 0.7378686368465424,
+    "start": "w11_m123",
+    "pct": [
+     19,
+     28,
+     14,
+     23,
+     16
+    ],
+    "hires": [
+     [
+      0,
+      0,
+      0,
+      10
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      0,
+      1,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "cost": 816.14,
+    "E_canonical": 0.738460898399353,
+    "E_fresh_mean": 0.7363239228725433,
+    "E_fresh_min": 0.7295088171958923,
+    "screen_E_best": 0.699628,
+    "nocamp_best_share": 0.45531904697418213,
+    "seconds": 274.2301743030548,
+    "world_evals": 29731,
+    "device": "cuda:0",
+    "search_rank_key": 0.7363239228725433
+   },
+   {
+    "seed": 104549,
+    "search_score": 0.7222578972578049,
+    "start": "w21_m12",
+    "pct": [
+     24,
+     17,
+     22,
+     17,
+     20
+    ],
+    "hires": [
+     [
+      0,
+      6,
+      9,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "cost": 828.25,
+    "E_canonical": 0.7182992100715637,
+    "E_fresh_mean": 0.7207815110683441,
+    "E_fresh_min": 0.7145616412162781,
+    "screen_E_best": 0.699085,
+    "nocamp_best_share": 0.4512166380882263,
+    "seconds": 209.62581944465637,
+    "world_evals": 29711,
+    "device": "cuda:2",
+    "search_rank_key": 0.7207815110683441
+   },
+   {
+    "seed": 1892,
+    "search_score": 0.7151992917060852,
+    "start": "w11_m123",
+    "pct": [
+     21,
+     22,
+     14,
+     27,
+     16
+    ],
+    "hires": [
+     [
+      0,
+      0,
+      2,
+      9
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      1,
+      1,
+      0
+     ],
+     [
+      0,
+      1,
+      1,
+      0
+     ],
+     [
+      0,
+      1,
+      0,
+      0
+     ],
+     [
+      0,
+      1,
+      0,
+      0
+     ]
+    ],
+    "cost": 826.8,
+    "E_canonical": 0.7145918607711792,
+    "E_fresh_mean": 0.7127883076667786,
+    "E_fresh_min": 0.7097960114479065,
+    "screen_E_best": 0.695517,
+    "nocamp_best_share": 0.45877960324287415,
+    "seconds": 199.56803250312805,
+    "world_evals": 26771,
+    "device": "cuda:2",
+    "search_rank_key": 0.7127883076667786
+   },
+   {
+    "seed": 105769,
+    "search_score": 0.7144614905118942,
+    "start": "w11_m123",
+    "pct": [
+     19,
+     18,
+     20,
+     24,
+     19
+    ],
+    "hires": [
+     [
+      1,
+      0,
+      11,
+      5
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "cost": 821.33,
+    "E_canonical": 0.7134267091751099,
+    "E_fresh_mean": 0.7075294137001038,
+    "E_fresh_min": 0.6985090970993042,
+    "screen_E_best": 0.696751,
+    "nocamp_best_share": 0.4568869471549988,
+    "seconds": 257.5412940979004,
+    "world_evals": 28659,
+    "device": "cuda:0",
+    "search_rank_key": 0.7075294137001038
+   },
+   {
+    "seed": 2873,
+    "search_score": 0.7042211294174194,
+    "start": "w11_m124",
+    "pct": [
+     24,
+     22,
+     18,
+     20,
+     16
+    ],
+    "hires": [
+     [
+      12,
+      3,
+      1,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      0,
+      1,
+      1,
+      1
+     ],
+     [
+      0,
+      1,
+      1,
+      1
+     ],
+     [
+      0,
+      0,
+      1,
+      1
+     ],
+     [
+      0,
+      0,
+      1,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "cost": 829.0,
+    "E_canonical": 0.708307147026062,
+    "E_fresh_mean": 0.7017066955566407,
+    "E_fresh_min": 0.6954135894775391,
+    "screen_E_best": 0.694926,
+    "nocamp_best_share": 0.45327749848365784,
+    "seconds": 112.27844023704529,
+    "world_evals": 15615,
+    "device": "cuda:2",
+    "search_rank_key": 0.7017066955566407
+   },
+   {
+    "seed": 1315,
+    "search_score": 0.7076811194419861,
+    "start": "w11_m123",
+    "pct": [
+     16,
+     23,
+     19,
+     26,
+     16
+    ],
+    "hires": [
+     [
+      8,
+      0,
+      3,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      1
+     ]
+    ],
+    "cost": 817.15,
+    "E_canonical": 0.703713595867157,
+    "E_fresh_mean": 0.7073645114898681,
+    "E_fresh_min": 0.7045184373855591,
+    "screen_E_best": 0.693853,
+    "nocamp_best_share": 0.4515179693698883,
+    "seconds": 163.9346628189087,
+    "world_evals": 23395,
+    "device": "cuda:2",
+    "search_rank_key": 0.7073645114898681
+   },
+   {
+    "seed": 102767,
+    "search_score": 0.7095502018928528,
+    "start": "w11_m123",
+    "pct": [
+     26,
+     16,
+     21,
+     18,
+     19
+    ],
+    "hires": [
+     [
+      0,
+      5,
+      0,
+      5
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      0,
+      1,
+      1
+     ],
+     [
+      1,
+      0,
+      1,
+      1
+     ],
+     [
+      1,
+      0,
+      1,
+      1
+     ],
+     [
+      0,
+      0,
+      1,
+      0
+     ],
+     [
+      0,
+      0,
+      1,
+      0
+     ]
+    ],
+    "cost": 823.58,
+    "E_canonical": 0.7084032893180847,
+    "E_fresh_mean": 0.7068539917469024,
+    "E_fresh_min": 0.7052501440048218,
+    "screen_E_best": 0.693042,
+    "nocamp_best_share": 0.4530130624771118,
+    "seconds": 141.78314852714539,
+    "world_evals": 20499,
+    "device": "cuda:2",
+    "search_rank_key": 0.7068539917469024
+   },
+   {
+    "seed": 2233,
+    "search_score": 0.7280787229537964,
+    "start": "planner",
+    "pct": [
+     21,
+     25,
+     14,
+     17,
+     23
+    ],
+    "hires": [
+     [
+      1,
+      0,
+      9,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      0,
+      1,
+      1,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      1
+     ]
+    ],
+    "cost": 826.45,
+    "E_canonical": 0.7292845249176025,
+    "E_fresh_mean": 0.7261591792106629,
+    "E_fresh_min": 0.7232286334037781,
+    "screen_E_best": 0.692419,
+    "nocamp_best_share": 0.45921847224235535,
+    "seconds": 147.61745023727417,
+    "world_evals": 21007,
+    "device": "cuda:2",
+    "search_rank_key": 0.7261591792106629
+   },
+   {
+    "seed": 1234,
+    "search_score": 0.7154776751995087,
+    "start": "w11_m123",
+    "pct": [
+     20,
+     23,
+     14,
+     19,
+     24
+    ],
+    "hires": [
+     [
+      0,
+      13,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      1,
+      0
+     ],
+     [
+      1,
+      1,
+      1,
+      0
+     ],
+     [
+      1,
+      1,
+      1,
+      0
+     ],
+     [
+      0,
+      0,
+      1,
+      0
+     ],
+     [
+      0,
+      0,
+      1,
+      0
+     ]
+    ],
+    "cost": 819.63,
+    "E_canonical": 0.7157554626464844,
+    "E_fresh_mean": 0.7157811045646667,
+    "E_fresh_min": 0.7104400396347046,
+    "screen_E_best": 0.690711,
+    "nocamp_best_share": 0.4573771357536316,
+    "seconds": 170.7907199859619,
+    "world_evals": 24619,
+    "device": "cuda:2",
+    "search_rank_key": 0.7157811045646667
+   },
+   {
+    "seed": 457,
+    "search_score": 0.7203121781349182,
+    "start": "w21_m12",
+    "pct": [
+     25,
+     22,
+     18,
+     19,
+     16
+    ],
+    "hires": [
+     [
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      1,
+      0
+     ],
+     [
+      1,
+      1,
+      1,
+      0
+     ],
+     [
+      1,
+      1,
+      1,
+      0
+     ],
+     [
+      0,
+      1,
+      0,
+      0
+     ],
+     [
+      0,
+      1,
+      0,
+      0
+     ]
+    ],
+    "cost": 826.37,
+    "E_canonical": 0.722552478313446,
+    "E_fresh_mean": 0.7203101456165314,
+    "E_fresh_min": 0.7186682820320129,
+    "screen_E_best": 0.690008,
+    "nocamp_best_share": 0.4550378918647766,
+    "seconds": 128.70992136001587,
+    "world_evals": 18367,
+    "device": "cuda:2",
+    "search_rank_key": 0.7203101456165314
+   },
+   {
+    "seed": 2016,
+    "search_score": 0.7078838795423508,
+    "start": "w11_m123",
+    "pct": [
+     25,
+     15,
+     14,
+     28,
+     18
+    ],
+    "hires": [
+     [
+      0,
+      0,
+      6,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "media": [
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      1,
+      0,
+      1
+     ],
+     [
+      0,
+      1,
+      0,
+      1
+     ],
+     [
+      0,
+      1,
+      0,
+      1
+     ]
+    ],
+    "cost": 820.79,
+    "E_canonical": 0.7084020376205444,
+    "E_fresh_mean": 0.7064499437808991,
+    "E_fresh_min": 0.7029052972793579,
+    "screen_E_best": 0.688673,
+    "nocamp_best_share": 0.4599989056587219,
+    "seconds": 167.38687419891357,
+    "world_evals": 23959,
+    "device": "cuda:2",
+    "search_rank_key": 0.7064499437808991
+   }
+  ]
+ },
+ "chosen_seed": 3685,
+ "why": "Screened 4,060 seeds (1-4000 plus 60 low-no-campaign seeds from Demo/lose's screen). 1,566 had an ORACLE no-campaign share <= 0.46. The 13 best by campaign proxy got the joint plan + manifesto search (the 14th, seed 62, was not finished). Seed 3685 gave the largest campaign share (0.738 on the CUDA engine, 0.737 on CPU, 0.730-0.742 on 10 alternative streams, 10/10 wins). With no campaign it loses: 45.4% with its own manifesto. Even the best possible no-campaign manifesto (ORACLE election-day optimum = 78-start PG optimum, 0.455) loses on every engine and every stream: 0/10, at most 45.6% of the vote, a 4.5-point margin below 50%. The gap of +28 points is the largest found.",
+ "previous_choice": "Seed 298 (first version of this demo) was replaced: its manifesto alone wins with ~57% without any campaign, which the new requirement forbids."
+}

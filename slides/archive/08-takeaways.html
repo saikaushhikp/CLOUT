@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Takeaways</title>
+<style>
+  .main { display: grid; grid-template-columns: 1fr 640px; gap: 72px; margin-top: 48px; flex: 1; min-height: 0; }
+  ol.points { gap: 0; }
+  ol.points > li { padding: 30px 0 30px 84px; border-top: 1.5px solid var(--line); }
+  ol.points > li:last-child { border-bottom: 1.5px solid var(--line); }
+  ol.points > li::before { top: 30px; width: 56px; height: 56px; font-size: 26px; border-radius: 16px; }
+  ol.points h3 { font-size: 42px; }
+  ol.points p { font-size: 26px; color: var(--ink-2); margin-top: 6px; }
+
+  .demo { display: flex; flex-direction: column; justify-content: center; gap: 28px; padding: 52px 56px; background: var(--ink); color: var(--bg); border: 0; }
+  .demo .stat-label { color: var(--accent); }
+  .demo h2 { color: var(--bg); font-size: 72px; letter-spacing: -0.03em; }
+  .demo .steps { display: flex; flex-wrap: nowrap; gap: 8px; align-items: center; font-size: 21px; white-space: nowrap; }
+  .demo .steps span.s { padding: 7px 14px; border-radius: 999px; border: 1.5px solid color-mix(in srgb, var(--bg) 30%, transparent); }
+  .demo .steps .a { color: color-mix(in srgb, var(--bg) 50%, transparent); }
+  .demo p { font-size: 24px; color: color-mix(in srgb, var(--bg) 70%, transparent); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+    <nav class="phase-track"></nav>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Takeaways</p>
+    <h1>Three lessons from 23 experiments</h1>
+
+    <div class="main">
+      <ol class="points">
+        <li><h3>Aim for election day</h3><p>Drift alone adds ~0.11 to a manifesto built for the final voters.</p></li>
+        <li><h3>A few workers, then media</h3><p>Workers saturate fast; early media is the better buy after that.</p></li>
+        <li><h3>Planning beats seeing</h3><p>Looking ahead matters more than seeing the hidden world.</p></li>
+      </ol>
+
+      <div class="panel demo">
+        <span class="stat-label">Up next</span>
+        <h2>Live demo<span class="accent">.</span></h2>
+        <div class="steps">
+          <span class="s">Setup</span><span class="a">→</span>
+          <span class="s">Survey</span><span class="a">→</span>
+          <span class="s">Campaign</span><span class="a">→</span>
+          <span class="s">Debrief</span>
+        </div>
+        <p>Next.js client · FastAPI engine · PyTorch simulator</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

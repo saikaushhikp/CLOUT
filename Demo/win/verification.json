@@ -1,0 +1,2465 @@
+{
+ "seed": 3685,
+ "settings": {
+  "num_voters": 100000,
+  "seed": 3685,
+  "rounds": 5,
+  "budget": "850.00"
+ },
+ "script": "Demo/win/script.json",
+ "headline": "Without campaigning: 45.4% (defeat). With this campaign: 73.8% (victory). CUDA engine; CPU: 45.3% vs 73.6%.",
+ "campaign_api": {
+  "cuda:0": {
+   "engine_device": "cuda:0",
+   "result": {
+    "votes": 73821,
+    "num_voters": 100000,
+    "vote_share": 0.73821,
+    "victory": true,
+    "expected_share": 0.738460898399353
+   },
+   "answers": [
+    {
+     "sector_a": "Industry",
+     "sector_b": "Env",
+     "region": "N",
+     "pct_b_over_a": 10.090361445783133,
+     "moe": 1.2570910231557242,
+     "sample_size": 1992,
+     "cost": "10.00"
+    },
+    {
+     "sector_a": "Agri",
+     "sector_b": "Industry",
+     "region": "S",
+     "pct_b_over_a": 99.95822890559732,
+     "moe": 0.10975279483010589,
+     "sample_size": 2394,
+     "cost": "10.00"
+    }
+   ],
+   "manifesto_pct": [
+    19,
+    28,
+    14,
+    23,
+    16
+   ],
+   "expected_share_at_commit": 0.3351685106754303,
+   "poll_round1_start": 0.335,
+   "rounds": [
+    {
+     "round": 1,
+     "workers": [
+      0,
+      0,
+      0,
+      10
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "cost": "400.00",
+     "treasury_left": "430.00",
+     "expected_share_after_round": 0.4100501537322998,
+     "poll_after_round": {
+      "estimate": 0.37,
+      "moe": 0.04731482220192738
+     },
+     "converted": 78,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 2,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "cost": "200.00",
+     "treasury_left": "230.00",
+     "expected_share_after_round": 0.47048303484916687,
+     "poll_after_round": {
+      "estimate": 0.475,
+      "moe": 0.04893871167082353
+     },
+     "converted": 594,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 3,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      false,
+      true
+     ],
+     "cost": "168.26",
+     "treasury_left": "61.74",
+     "expected_share_after_round": 0.5367030501365662,
+     "poll_after_round": {
+      "estimate": 0.545,
+      "moe": 0.048801146502925524
+     },
+     "converted": 4973,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 4,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      true,
+      false,
+      false
+     ],
+     "cost": "47.88",
+     "treasury_left": "13.86",
+     "expected_share_after_round": 0.658161997795105,
+     "poll_after_round": {
+      "estimate": 0.6125,
+      "moe": 0.04774357941126744
+     },
+     "converted": 26967,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 5,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "13.86",
+     "expected_share_after_round": 0.738460898399353,
+     "poll_after_round": {
+      "estimate": 0.735,
+      "moe": 0.043250654330310424
+     },
+     "converted": 23164,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    }
+   ],
+   "regions_debrief": [
+    {
+     "id": "N",
+     "archetype": "Knowledge hub",
+     "personality": "Socially driven",
+     "zealots": 922,
+     "final_expected_share": 0.6760911520079028,
+     "initial_expected_share": 0.1876397414020949
+    },
+    {
+     "id": "S",
+     "archetype": "Industrial belt",
+     "personality": "Media-savvy",
+     "zealots": 1188,
+     "final_expected_share": 0.6519899933829734,
+     "initial_expected_share": 0.24615754444982024
+    },
+    {
+     "id": "E",
+     "archetype": "Balanced middle",
+     "personality": "Independent",
+     "zealots": 737,
+     "final_expected_share": 0.7850661276517417,
+     "initial_expected_share": 0.626220203208484
+    },
+    {
+     "id": "W",
+     "archetype": "Welfare-reliant",
+     "personality": "Receptive to canvassing",
+     "zealots": 2001,
+     "final_expected_share": 0.802364925068088,
+     "initial_expected_share": 0.34638192855821026
+    }
+   ],
+   "oracle_debrief": {
+    "manifesto": [
+     0.1872359812259674,
+     0.28859344124794006,
+     0.1397123634815216,
+     0.223826602101326,
+     0.16063156723976135
+    ],
+    "expected_share_no_campaign": 0.45531904697418213,
+    "note": "ORACLE: full-information benchmark"
+   },
+   "wall_seconds": 1.1615266799926758
+  },
+  "cuda:2": {
+   "engine_device": "cuda:2",
+   "result": {
+    "votes": 73821,
+    "num_voters": 100000,
+    "vote_share": 0.73821,
+    "victory": true,
+    "expected_share": 0.738460898399353
+   },
+   "answers": [
+    {
+     "sector_a": "Industry",
+     "sector_b": "Env",
+     "region": "N",
+     "pct_b_over_a": 10.090361445783133,
+     "moe": 1.2570910231557242,
+     "sample_size": 1992,
+     "cost": "10.00"
+    },
+    {
+     "sector_a": "Agri",
+     "sector_b": "Industry",
+     "region": "S",
+     "pct_b_over_a": 99.95822890559732,
+     "moe": 0.10975279483010589,
+     "sample_size": 2394,
+     "cost": "10.00"
+    }
+   ],
+   "manifesto_pct": [
+    19,
+    28,
+    14,
+    23,
+    16
+   ],
+   "expected_share_at_commit": 0.3351685106754303,
+   "poll_round1_start": 0.335,
+   "rounds": [
+    {
+     "round": 1,
+     "workers": [
+      0,
+      0,
+      0,
+      10
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "cost": "400.00",
+     "treasury_left": "430.00",
+     "expected_share_after_round": 0.4100501537322998,
+     "poll_after_round": {
+      "estimate": 0.37,
+      "moe": 0.04731482220192738
+     },
+     "converted": 78,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 2,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "cost": "200.00",
+     "treasury_left": "230.00",
+     "expected_share_after_round": 0.47048303484916687,
+     "poll_after_round": {
+      "estimate": 0.475,
+      "moe": 0.04893871167082353
+     },
+     "converted": 594,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 3,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      false,
+      true
+     ],
+     "cost": "168.26",
+     "treasury_left": "61.74",
+     "expected_share_after_round": 0.5367030501365662,
+     "poll_after_round": {
+      "estimate": 0.545,
+      "moe": 0.048801146502925524
+     },
+     "converted": 4973,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 4,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      true,
+      false,
+      false
+     ],
+     "cost": "47.88",
+     "treasury_left": "13.86",
+     "expected_share_after_round": 0.658161997795105,
+     "poll_after_round": {
+      "estimate": 0.6125,
+      "moe": 0.04774357941126744
+     },
+     "converted": 26967,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 5,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "13.86",
+     "expected_share_after_round": 0.738460898399353,
+     "poll_after_round": {
+      "estimate": 0.735,
+      "moe": 0.043250654330310424
+     },
+     "converted": 23164,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    }
+   ],
+   "regions_debrief": [
+    {
+     "id": "N",
+     "archetype": "Knowledge hub",
+     "personality": "Socially driven",
+     "zealots": 922,
+     "final_expected_share": 0.6760911513665463,
+     "initial_expected_share": 0.1876397414020949
+    },
+    {
+     "id": "S",
+     "archetype": "Industrial belt",
+     "personality": "Media-savvy",
+     "zealots": 1188,
+     "final_expected_share": 0.6519899936401851,
+     "initial_expected_share": 0.24615754444982024
+    },
+    {
+     "id": "E",
+     "archetype": "Balanced middle",
+     "personality": "Independent",
+     "zealots": 737,
+     "final_expected_share": 0.7850661277522158,
+     "initial_expected_share": 0.626220203208484
+    },
+    {
+     "id": "W",
+     "archetype": "Welfare-reliant",
+     "personality": "Receptive to canvassing",
+     "zealots": 2001,
+     "final_expected_share": 0.8023649249280207,
+     "initial_expected_share": 0.34638192855821026
+    }
+   ],
+   "oracle_debrief": {
+    "manifesto": [
+     0.18723584711551666,
+     0.28859400749206543,
+     0.13971233367919922,
+     0.22382622957229614,
+     0.16063150763511658
+    ],
+    "expected_share_no_campaign": 0.45531904697418213,
+    "note": "ORACLE: full-information benchmark"
+   },
+   "wall_seconds": 1.557919979095459
+  },
+  "cpu": {
+   "engine_device": "cpu",
+   "result": {
+    "votes": 73565,
+    "num_voters": 100000,
+    "vote_share": 0.73565,
+    "victory": true,
+    "expected_share": 0.7372466921806335
+   },
+   "answers": [
+    {
+     "sector_a": "Industry",
+     "sector_b": "Env",
+     "region": "N",
+     "pct_b_over_a": 9.939759036144578,
+     "moe": 1.2487652428011857,
+     "sample_size": 1992,
+     "cost": "10.00"
+    },
+    {
+     "sector_a": "Agri",
+     "sector_b": "Industry",
+     "region": "S",
+     "pct_b_over_a": 100.0,
+     "moe": 0.0776231524214955,
+     "sample_size": 2394,
+     "cost": "10.00"
+    }
+   ],
+   "manifesto_pct": [
+    19,
+    28,
+    14,
+    23,
+    16
+   ],
+   "expected_share_at_commit": 0.3351685404777527,
+   "poll_round1_start": 0.325,
+   "rounds": [
+    {
+     "round": 1,
+     "workers": [
+      0,
+      0,
+      0,
+      10
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "cost": "400.00",
+     "treasury_left": "430.00",
+     "expected_share_after_round": 0.41023969650268555,
+     "poll_after_round": {
+      "estimate": 0.405,
+      "moe": 0.048107420425543494
+     },
+     "converted": 76,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 2,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "cost": "200.00",
+     "treasury_left": "230.00",
+     "expected_share_after_round": 0.470560222864151,
+     "poll_after_round": {
+      "estimate": 0.495,
+      "moe": 0.04899754993874694
+     },
+     "converted": 588,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 3,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      false,
+      true
+     ],
+     "cost": "168.26",
+     "treasury_left": "61.74",
+     "expected_share_after_round": 0.536996066570282,
+     "poll_after_round": {
+      "estimate": 0.5075,
+      "moe": 0.048994487189886984
+     },
+     "converted": 5046,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 4,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      true,
+      false,
+      false
+     ],
+     "cost": "47.88",
+     "treasury_left": "13.86",
+     "expected_share_after_round": 0.658293604850769,
+     "poll_after_round": {
+      "estimate": 0.685,
+      "moe": 0.045522555947573935
+     },
+     "converted": 26930,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    },
+    {
+     "round": 5,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "13.86",
+     "expected_share_after_round": 0.7372466921806335,
+     "poll_after_round": {
+      "estimate": 0.765,
+      "moe": 0.041551884433801554
+     },
+     "converted": 22616,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      10
+     ]
+    }
+   ],
+   "regions_debrief": [
+    {
+     "id": "N",
+     "archetype": "Knowledge hub",
+     "personality": "Socially driven",
+     "zealots": 922,
+     "final_expected_share": 0.6733587135962874,
+     "initial_expected_share": 0.18763974255277355
+    },
+    {
+     "id": "S",
+     "archetype": "Industrial belt",
+     "personality": "Media-savvy",
+     "zealots": 1188,
+     "final_expected_share": 0.6506009317218662,
+     "initial_expected_share": 0.24615754508038176
+    },
+    {
+     "id": "E",
+     "archetype": "Balanced middle",
+     "personality": "Independent",
+     "zealots": 737,
+     "final_expected_share": 0.7854350151801553,
+     "initial_expected_share": 0.6262202045880082
+    },
+    {
+     "id": "W",
+     "archetype": "Welfare-reliant",
+     "personality": "Receptive to canvassing",
+     "zealots": 2001,
+     "final_expected_share": 0.8013819759949571,
+     "initial_expected_share": 0.3463819297524597
+    }
+   ],
+   "oracle_debrief": {
+    "manifesto": [
+     0.18723586201667786,
+     0.28859400749206543,
+     0.1397123485803604,
+     0.22382624447345734,
+     0.16063152253627777
+    ],
+    "expected_share_no_campaign": 0.45531901717185974,
+    "note": "ORACLE: full-information benchmark"
+   },
+   "wall_seconds": 2.9667608737945557
+  }
+ },
+ "no_campaign_api": {
+  "cuda:0": {
+   "engine_device": "cuda:0",
+   "result": {
+    "votes": 45439,
+    "num_voters": 100000,
+    "vote_share": 0.45439,
+    "victory": false,
+    "expected_share": 0.45505857467651367
+   },
+   "answers": [
+    {
+     "sector_a": "Industry",
+     "sector_b": "Env",
+     "region": "N",
+     "pct_b_over_a": 10.090361445783133,
+     "moe": 1.2570910231557242,
+     "sample_size": 1992,
+     "cost": "10.00"
+    },
+    {
+     "sector_a": "Agri",
+     "sector_b": "Industry",
+     "region": "S",
+     "pct_b_over_a": 99.95822890559732,
+     "moe": 0.10975279483010589,
+     "sample_size": 2394,
+     "cost": "10.00"
+    }
+   ],
+   "manifesto_pct": [
+    19,
+    28,
+    14,
+    23,
+    16
+   ],
+   "expected_share_at_commit": 0.3351685106754303,
+   "poll_round1_start": 0.335,
+   "rounds": [
+    {
+     "round": 1,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.3582285940647125,
+     "poll_after_round": {
+      "estimate": 0.325,
+      "moe": 0.04590073528822823
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 2,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.38218820095062256,
+     "poll_after_round": {
+      "estimate": 0.385,
+      "moe": 0.04768634081159929
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 3,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.40661802887916565,
+     "poll_after_round": {
+      "estimate": 0.4,
+      "moe": 0.048009998958550286
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 4,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.43105319142341614,
+     "poll_after_round": {
+      "estimate": 0.395,
+      "moe": 0.04790736790933102
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 5,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.45505857467651367,
+     "poll_after_round": {
+      "estimate": 0.47,
+      "moe": 0.048911720476793694
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ],
+   "regions_debrief": [
+    {
+     "id": "N",
+     "archetype": "Knowledge hub",
+     "personality": "Socially driven",
+     "zealots": 922,
+     "final_expected_share": 0.4225688956144354,
+     "initial_expected_share": 0.1876397414020949
+    },
+    {
+     "id": "S",
+     "archetype": "Industrial belt",
+     "personality": "Media-savvy",
+     "zealots": 1188,
+     "final_expected_share": 0.3463823148752934,
+     "initial_expected_share": 0.24615754444982024
+    },
+    {
+     "id": "E",
+     "archetype": "Balanced middle",
+     "personality": "Independent",
+     "zealots": 737,
+     "final_expected_share": 0.6896811726481535,
+     "initial_expected_share": 0.626220203208484
+    },
+    {
+     "id": "W",
+     "archetype": "Welfare-reliant",
+     "personality": "Receptive to canvassing",
+     "zealots": 2001,
+     "final_expected_share": 0.44328436384927056,
+     "initial_expected_share": 0.34638192855821026
+    }
+   ],
+   "oracle_debrief": {
+    "manifesto": [
+     0.1872359812259674,
+     0.28859344124794006,
+     0.1397123634815216,
+     0.223826602101326,
+     0.16063156723976135
+    ],
+    "expected_share_no_campaign": 0.45531904697418213,
+    "note": "ORACLE: full-information benchmark"
+   }
+  },
+  "cuda:2": {
+   "engine_device": "cuda:2",
+   "result": {
+    "votes": 45439,
+    "num_voters": 100000,
+    "vote_share": 0.45439,
+    "victory": false,
+    "expected_share": 0.45505857467651367
+   },
+   "answers": [
+    {
+     "sector_a": "Industry",
+     "sector_b": "Env",
+     "region": "N",
+     "pct_b_over_a": 10.090361445783133,
+     "moe": 1.2570910231557242,
+     "sample_size": 1992,
+     "cost": "10.00"
+    },
+    {
+     "sector_a": "Agri",
+     "sector_b": "Industry",
+     "region": "S",
+     "pct_b_over_a": 99.95822890559732,
+     "moe": 0.10975279483010589,
+     "sample_size": 2394,
+     "cost": "10.00"
+    }
+   ],
+   "manifesto_pct": [
+    19,
+    28,
+    14,
+    23,
+    16
+   ],
+   "expected_share_at_commit": 0.3351685106754303,
+   "poll_round1_start": 0.335,
+   "rounds": [
+    {
+     "round": 1,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.3582285940647125,
+     "poll_after_round": {
+      "estimate": 0.325,
+      "moe": 0.04590073528822823
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 2,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.38218820095062256,
+     "poll_after_round": {
+      "estimate": 0.385,
+      "moe": 0.04768634081159929
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 3,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.40661802887916565,
+     "poll_after_round": {
+      "estimate": 0.4,
+      "moe": 0.048009998958550286
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 4,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.43105319142341614,
+     "poll_after_round": {
+      "estimate": 0.395,
+      "moe": 0.04790736790933102
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 5,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.45505857467651367,
+     "poll_after_round": {
+      "estimate": 0.47,
+      "moe": 0.048911720476793694
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ],
+   "regions_debrief": [
+    {
+     "id": "N",
+     "archetype": "Knowledge hub",
+     "personality": "Socially driven",
+     "zealots": 922,
+     "final_expected_share": 0.42256889670848113,
+     "initial_expected_share": 0.1876397414020949
+    },
+    {
+     "id": "S",
+     "archetype": "Industrial belt",
+     "personality": "Media-savvy",
+     "zealots": 1188,
+     "final_expected_share": 0.3463823142168595,
+     "initial_expected_share": 0.24615754444982024
+    },
+    {
+     "id": "E",
+     "archetype": "Balanced middle",
+     "personality": "Independent",
+     "zealots": 737,
+     "final_expected_share": 0.6896811732059259,
+     "initial_expected_share": 0.626220203208484
+    },
+    {
+     "id": "W",
+     "archetype": "Welfare-reliant",
+     "personality": "Receptive to canvassing",
+     "zealots": 2001,
+     "final_expected_share": 0.4432843640480847,
+     "initial_expected_share": 0.34638192855821026
+    }
+   ],
+   "oracle_debrief": {
+    "manifesto": [
+     0.18723584711551666,
+     0.28859400749206543,
+     0.13971233367919922,
+     0.22382622957229614,
+     0.16063150763511658
+    ],
+    "expected_share_no_campaign": 0.45531904697418213,
+    "note": "ORACLE: full-information benchmark"
+   }
+  },
+  "cpu": {
+   "engine_device": "cpu",
+   "result": {
+    "votes": 45283,
+    "num_voters": 100000,
+    "vote_share": 0.45283,
+    "victory": false,
+    "expected_share": 0.45505860447883606
+   },
+   "answers": [
+    {
+     "sector_a": "Industry",
+     "sector_b": "Env",
+     "region": "N",
+     "pct_b_over_a": 9.939759036144578,
+     "moe": 1.2487652428011857,
+     "sample_size": 1992,
+     "cost": "10.00"
+    },
+    {
+     "sector_a": "Agri",
+     "sector_b": "Industry",
+     "region": "S",
+     "pct_b_over_a": 100.0,
+     "moe": 0.0776231524214955,
+     "sample_size": 2394,
+     "cost": "10.00"
+    }
+   ],
+   "manifesto_pct": [
+    19,
+    28,
+    14,
+    23,
+    16
+   ],
+   "expected_share_at_commit": 0.3351685404777527,
+   "poll_round1_start": 0.325,
+   "rounds": [
+    {
+     "round": 1,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.3582285940647125,
+     "poll_after_round": {
+      "estimate": 0.3375,
+      "moe": 0.04633998678247546
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 2,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.38218820095062256,
+     "poll_after_round": {
+      "estimate": 0.4025,
+      "moe": 0.048059358870047364
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 3,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.40661805868148804,
+     "poll_after_round": {
+      "estimate": 0.3825,
+      "moe": 0.047627773147607896
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 4,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.4310532510280609,
+     "poll_after_round": {
+      "estimate": 0.455,
+      "moe": 0.048801146502925524
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "round": 5,
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "cost": "0.00",
+     "treasury_left": "830.00",
+     "expected_share_after_round": 0.45505860447883606,
+     "poll_after_round": {
+      "estimate": 0.4725,
+      "moe": 0.048925831367489306
+     },
+     "converted": 0,
+     "team_by_region": [
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ],
+   "regions_debrief": [
+    {
+     "id": "N",
+     "archetype": "Knowledge hub",
+     "personality": "Socially driven",
+     "zealots": 922,
+     "final_expected_share": 0.4225689010616183,
+     "initial_expected_share": 0.18763974255277355
+    },
+    {
+     "id": "S",
+     "archetype": "Industrial belt",
+     "personality": "Media-savvy",
+     "zealots": 1188,
+     "final_expected_share": 0.3463823149011235,
+     "initial_expected_share": 0.24615754508038176
+    },
+    {
+     "id": "E",
+     "archetype": "Balanced middle",
+     "personality": "Independent",
+     "zealots": 737,
+     "final_expected_share": 0.6896811762452689,
+     "initial_expected_share": 0.6262202045880082
+    },
+    {
+     "id": "W",
+     "archetype": "Welfare-reliant",
+     "personality": "Receptive to canvassing",
+     "zealots": 2001,
+     "final_expected_share": 0.4432843711661674,
+     "initial_expected_share": 0.3463819297524597
+    }
+   ],
+   "oracle_debrief": {
+    "manifesto": [
+     0.18723586201667786,
+     0.28859400749206543,
+     0.1397123485803604,
+     0.22382624447345734,
+     0.16063152253627777
+    ],
+    "expected_share_no_campaign": 0.45531901717185974,
+    "note": "ORACLE: full-information benchmark"
+   }
+  }
+ },
+ "cuda0_equals_cuda2": true,
+ "best_no_campaign_manifesto": {
+  "oracle_manifesto": [
+   0.187236,
+   0.288594,
+   0.139712,
+   0.223826,
+   0.160632
+  ],
+  "oracle_manifesto_share": 0.45531904697418213,
+  "oracle_manifesto_pct": [
+   19,
+   29,
+   14,
+   22,
+   16
+  ],
+  "pg_multistart": {
+   "continuous_manifesto": [
+    0.187236,
+    0.288595,
+    0.139712,
+    0.223826,
+    0.160631
+   ],
+   "continuous_share": 0.45531904697418213,
+   "starts": 78,
+   "integer_pct": [
+    19,
+    29,
+    14,
+    22,
+    16
+   ],
+   "integer_share": 0.45518308877944946
+  },
+  "best_share_any_manifesto": 0.45531904697418213,
+  "method": "With zero spending the electorate on election day is the 5-round social-only forecast v_T (oracle.anticipate), which does not depend on the manifesto; the best no-campaign share is max_b E(v_T, b), found by oracle_manifesto and by multi-start projected gradient (optimise_manifesto, 77 starts incl. 64 random) plus whole-percent hill climb.",
+  "api_no_campaign_plays": {
+   "cuda:0": {
+    "oracle_manifesto_int": {
+     "result": {
+      "votes": 45427,
+      "num_voters": 100000,
+      "vote_share": 0.45427,
+      "victory": false,
+      "expected_share": 0.45518308877944946
+     },
+     "expected_share_by_round": [
+      0.33855992555618286,
+      0.36099302768707275,
+      0.3842610716819763,
+      0.40799105167388916,
+      0.4317677319049835,
+      0.45518308877944946
+     ],
+     "manifesto_pct": [
+      19,
+      29,
+      14,
+      22,
+      16
+     ],
+     "polls_after_round": [
+      0.3425,
+      0.385,
+      0.415,
+      0.4075,
+      0.48
+     ],
+     "spent": "20.00"
+    },
+    "pg_best_int": {
+     "result": {
+      "votes": 45427,
+      "num_voters": 100000,
+      "vote_share": 0.45427,
+      "victory": false,
+      "expected_share": 0.45518308877944946
+     },
+     "expected_share_by_round": [
+      0.33855992555618286,
+      0.36099302768707275,
+      0.3842610716819763,
+      0.40799108147621155,
+      0.4317677319049835,
+      0.45518308877944946
+     ],
+     "manifesto_pct": [
+      19,
+      29,
+      14,
+      22,
+      16
+     ],
+     "polls_after_round": [
+      0.3425,
+      0.385,
+      0.415,
+      0.4075,
+      0.48
+     ],
+     "spent": "20.00"
+    }
+   },
+   "cuda:2": {
+    "oracle_manifesto_int": {
+     "result": {
+      "votes": 45427,
+      "num_voters": 100000,
+      "vote_share": 0.45427,
+      "victory": false,
+      "expected_share": 0.45518308877944946
+     },
+     "expected_share_by_round": [
+      0.33855992555618286,
+      0.36099302768707275,
+      0.3842610716819763,
+      0.40799105167388916,
+      0.4317677319049835,
+      0.45518308877944946
+     ],
+     "manifesto_pct": [
+      19,
+      29,
+      14,
+      22,
+      16
+     ],
+     "polls_after_round": [
+      0.3425,
+      0.385,
+      0.415,
+      0.4075,
+      0.48
+     ],
+     "spent": "20.00"
+    },
+    "pg_best_int": {
+     "result": {
+      "votes": 45427,
+      "num_voters": 100000,
+      "vote_share": 0.45427,
+      "victory": false,
+      "expected_share": 0.45518308877944946
+     },
+     "expected_share_by_round": [
+      0.33855992555618286,
+      0.36099302768707275,
+      0.3842610716819763,
+      0.40799108147621155,
+      0.4317677319049835,
+      0.45518308877944946
+     ],
+     "manifesto_pct": [
+      19,
+      29,
+      14,
+      22,
+      16
+     ],
+     "polls_after_round": [
+      0.3425,
+      0.385,
+      0.415,
+      0.4075,
+      0.48
+     ],
+     "spent": "20.00"
+    }
+   },
+   "cpu": {
+    "oracle_manifesto_int": {
+     "result": {
+      "votes": 45372,
+      "num_voters": 100000,
+      "vote_share": 0.45372,
+      "victory": false,
+      "expected_share": 0.45518311858177185
+     },
+     "expected_share_by_round": [
+      0.33855992555618286,
+      0.36099305748939514,
+      0.3842611014842987,
+      0.40799105167388916,
+      0.4317677617073059,
+      0.45518311858177185
+     ],
+     "manifesto_pct": [
+      19,
+      29,
+      14,
+      22,
+      16
+     ],
+     "polls_after_round": [
+      0.3525,
+      0.4075,
+      0.3775,
+      0.46,
+      0.4625
+     ],
+     "spent": "20.00"
+    },
+    "pg_best_int": {
+     "result": {
+      "votes": 45372,
+      "num_voters": 100000,
+      "vote_share": 0.45372,
+      "victory": false,
+      "expected_share": 0.45518311858177185
+     },
+     "expected_share_by_round": [
+      0.33855992555618286,
+      0.36099305748939514,
+      0.3842611014842987,
+      0.40799105167388916,
+      0.4317677617073059,
+      0.45518311858177185
+     ],
+     "manifesto_pct": [
+      19,
+      29,
+      14,
+      22,
+      16
+     ],
+     "polls_after_round": [
+      0.3525,
+      0.4075,
+      0.3775,
+      0.46,
+      0.4625
+     ],
+     "spent": "20.00"
+    }
+   }
+  },
+  "strong_condition_holds": true,
+  "margin_below_half": 0.04468095302581787
+ },
+ "survey_question_choice": {
+  "method": "BayesPlanner(seed=0)._maybe_query on the live observation (information gain I(sigma;Y), survey phase), cuda:0 engine",
+  "questions": [
+   {
+    "query": {
+     "sector_a": "Industry",
+     "sector_b": "Env",
+     "region": "N"
+    },
+    "expected_info_gain_nats": 0.9268620101424543,
+    "posterior_entropy_before": 1.096013043031422,
+    "picked_by": "BayesPlanner._maybe_query",
+    "answer_pct_b_over_a": 10.090361445783133,
+    "moe": 1.2570910231557242
+   },
+   {
+    "query": {
+     "sector_a": "Agri",
+     "sector_b": "Industry",
+     "region": "S"
+    },
+    "expected_info_gain_nats": 0.07434075411219193,
+    "posterior_entropy_before": 0.07435447743179369,
+    "picked_by": "expected_information_gain ranked[0]",
+    "answer_pct_b_over_a": 99.95822890559732,
+    "moe": 0.10975279483010589
+   }
+  ],
+  "posterior_entropy_after": 1.0093033006977188e-08,
+  "posterior_top3": [
+   [
+    0.9999999995617892,
+    [
+     4,
+     1,
+     5,
+     3
+    ]
+   ],
+   [
+    3.557147925376195e-10,
+    [
+     1,
+     4,
+     5,
+     3
+    ]
+   ],
+   [
+    8.247943483026961e-11,
+    [
+     4,
+     1,
+     0,
+     3
+    ]
+   ]
+  ]
+ },
+ "search": {
+  "search_score": 0.7378686368465424,
+  "start": "w11_m123",
+  "E_canonical": 0.738460898399353,
+  "E_fresh_mean": 0.7363239228725433,
+  "E_fresh_min": 0.7295088171958923,
+  "screen_E_best": 0.699628,
+  "cost": 816.14,
+  "seconds": 274.2301743030548,
+  "world_evals": 29731
+ },
+ "robustness_alt_streams": {
+  "streams": "SaltedStreams(seed, salt k on workers/cascade/media/election), k = 1..10 (never searched)",
+  "campaign": {
+   "expected_share": [
+    0.7368667125701904,
+    0.7295088768005371,
+    0.7378918528556824,
+    0.7368494272232056,
+    0.7329401969909668,
+    0.7344614863395691,
+    0.7385879755020142,
+    0.737133800983429,
+    0.7374465465545654,
+    0.7415524125099182
+   ],
+   "vote_share": [
+    0.73696,
+    0.73107,
+    0.73586,
+    0.73761,
+    0.73408,
+    0.73323,
+    0.73795,
+    0.73839,
+    0.73604,
+    0.74283
+   ],
+   "wins": 10,
+   "n": 10,
+   "E_min": 0.7295088768005371,
+   "E_mean": 0.7363239288330078,
+   "E_max": 0.7415524125099182,
+   "share_min": 0.73107,
+   "share_max": 0.74283
+  },
+  "no_campaign_same_manifesto": {
+   "expected_share": [
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367,
+    0.45505857467651367
+   ],
+   "vote_share": [
+    0.45468,
+    0.45459,
+    0.45196,
+    0.45465,
+    0.45523,
+    0.45532,
+    0.45497,
+    0.45581,
+    0.45162,
+    0.45423
+   ],
+   "wins": 0,
+   "n": 10,
+   "E_min": 0.45505857467651367,
+   "E_mean": 0.45505857467651367,
+   "E_max": 0.45505857467651367,
+   "share_min": 0.45162,
+   "share_max": 0.45581
+  },
+  "no_campaign_best_int_manifesto": {
+   "expected_share": [
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946,
+    0.45518308877944946
+   ],
+   "vote_share": [
+    0.45513,
+    0.45611,
+    0.45212,
+    0.45554,
+    0.45588,
+    0.45535,
+    0.45396,
+    0.45517,
+    0.45152,
+    0.45409
+   ],
+   "wins": 0,
+   "n": 10,
+   "E_min": 0.45518308877944946,
+   "E_mean": 0.45518308877944946,
+   "E_max": 0.45518308877944946,
+   "share_min": 0.45152,
+   "share_max": 0.45611
+  }
+ },
+ "comparison_plays": {
+  "even_20pct_no_campaign": {
+   "manifesto_pct": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "allocations": [
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    }
+   ],
+   "cuda:0": {
+    "result": {
+     "votes": 37206,
+     "num_voters": 100000,
+     "vote_share": 0.37206,
+     "victory": false,
+     "expected_share": 0.37279921770095825
+    },
+    "expected_share_by_round": [
+     0.2900782823562622,
+     0.306292325258255,
+     0.3229142129421234,
+     0.33969542384147644,
+     0.3563944697380066,
+     0.37279921770095825
+    ],
+    "manifesto_pct": [
+     20,
+     20,
+     20,
+     20,
+     20
+    ],
+    "polls_after_round": [
+     0.27,
+     0.2975,
+     0.315,
+     0.3425,
+     0.385
+    ],
+    "spent": "20.00"
+   },
+   "cpu": {
+    "result": {
+     "votes": 37222,
+     "num_voters": 100000,
+     "vote_share": 0.37222,
+     "victory": false,
+     "expected_share": 0.37279921770095825
+    },
+    "expected_share_by_round": [
+     0.2900783121585846,
+     0.3062923550605774,
+     0.3229142129421234,
+     0.33969542384147644,
+     0.356394499540329,
+     0.37279921770095825
+    ],
+    "manifesto_pct": [
+     20,
+     20,
+     20,
+     20,
+     20
+    ],
+    "polls_after_round": [
+     0.3025,
+     0.3325,
+     0.32,
+     0.38,
+     0.34
+    ],
+    "spent": "20.00"
+   }
+  },
+  "even_20pct_same_campaign": {
+   "manifesto_pct": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "allocations": [
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      10
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      false,
+      true
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      true,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    }
+   ],
+   "cuda:0": {
+    "result": {
+     "votes": 62858,
+     "num_voters": 100000,
+     "vote_share": 0.62858,
+     "victory": true,
+     "expected_share": 0.6281120181083679
+    },
+    "expected_share_by_round": [
+     0.2900782823562622,
+     0.35294175148010254,
+     0.40362292528152466,
+     0.4505842328071594,
+     0.5100670456886292,
+     0.6281120181083679
+    ],
+    "manifesto_pct": [
+     20,
+     20,
+     20,
+     20,
+     20
+    ],
+    "polls_after_round": [
+     0.3175,
+     0.38,
+     0.4475,
+     0.475,
+     0.64
+    ],
+    "spent": "836.14"
+   },
+   "cpu": {
+    "result": {
+     "votes": 62028,
+     "num_voters": 100000,
+     "vote_share": 0.62028,
+     "victory": true,
+     "expected_share": 0.6208559274673462
+    },
+    "expected_share_by_round": [
+     0.2900783121585846,
+     0.35322168469429016,
+     0.4037160575389862,
+     0.4502231180667877,
+     0.5068210363388062,
+     0.6208559274673462
+    ],
+    "manifesto_pct": [
+     20,
+     20,
+     20,
+     20,
+     20
+    ],
+    "polls_after_round": [
+     0.3575,
+     0.4325,
+     0.435,
+     0.5175,
+     0.6475
+    ],
+    "spent": "836.14"
+   }
+  },
+  "demo_manifesto_all_spent_in_round5": {
+   "manifesto_pct": [
+    19,
+    28,
+    14,
+    23,
+    16
+   ],
+   "allocations": [
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      31
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      true
+     ]
+    }
+   ],
+   "cuda:0": {
+    "result": {
+     "votes": 50806,
+     "num_voters": 100000,
+     "vote_share": 0.50806,
+     "victory": true,
+     "expected_share": 0.508323609828949
+    },
+    "expected_share_by_round": [
+     0.3351685106754303,
+     0.3582285940647125,
+     0.38218820095062256,
+     0.40661802887916565,
+     0.43105319142341614,
+     0.508323609828949
+    ],
+    "manifesto_pct": [
+     19,
+     28,
+     14,
+     23,
+     16
+    ],
+    "polls_after_round": [
+     0.325,
+     0.385,
+     0.4,
+     0.395,
+     0.5275
+    ],
+    "spent": "840.00"
+   },
+   "cpu": {
+    "result": {
+     "votes": 50549,
+     "num_voters": 100000,
+     "vote_share": 0.50549,
+     "victory": true,
+     "expected_share": 0.5080690979957581
+    },
+    "expected_share_by_round": [
+     0.3351685404777527,
+     0.3582285940647125,
+     0.38218820095062256,
+     0.40661805868148804,
+     0.4310532510280609,
+     0.5080690979957581
+    ],
+    "manifesto_pct": [
+     19,
+     28,
+     14,
+     23,
+     16
+    ],
+    "polls_after_round": [
+     0.3375,
+     0.4025,
+     0.3825,
+     0.455,
+     0.5425
+    ],
+    "spent": "840.00"
+   }
+  },
+  "oracle_manifesto_oracle_greedy_planner": {
+   "manifesto_pct": [
+    19,
+    29,
+    14,
+    22,
+    16
+   ],
+   "allocations": [
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      8
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      8
+     ],
+     "media": [
+      false,
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      2
+     ],
+     "media": [
+      false,
+      true,
+      false,
+      true
+     ]
+    },
+    {
+     "workers": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "media": [
+      true,
+      true,
+      false,
+      true
+     ]
+    },
+    {
+     "workers": [
+      1,
+      0,
+      0,
+      1
+     ],
+     "media": [
+      true,
+      true,
+      true,
+      false
+     ]
+    }
+   ],
+   "cuda:0": {
+    "result": {
+     "votes": 69904,
+     "num_voters": 100000,
+     "vote_share": 0.69904,
+     "victory": true,
+     "expected_share": 0.6996276378631592
+    },
+    "expected_share_by_round": [
+     0.33855992555618286,
+     0.36138758063316345,
+     0.3873271346092224,
+     0.4695214629173279,
+     0.6032723784446716,
+     0.6996276378631592
+    ],
+    "manifesto_pct": [
+     19,
+     29,
+     14,
+     22,
+     16
+    ],
+    "polls_after_round": [
+     0.3425,
+     0.39,
+     0.4675,
+     0.5425,
+     0.7025
+    ],
+    "spent": "836.14"
+   },
+   "cpu": {
+    "result": {
+     "votes": 69570,
+     "num_voters": 100000,
+     "vote_share": 0.6957,
+     "victory": true,
+     "expected_share": 0.6982130408287048
+    },
+    "expected_share_by_round": [
+     0.33855992555618286,
+     0.3613681197166443,
+     0.3872486650943756,
+     0.46862339973449707,
+     0.6010284423828125,
+     0.6982130408287048
+    ],
+    "manifesto_pct": [
+     19,
+     29,
+     14,
+     22,
+     16
+    ],
+    "polls_after_round": [
+     0.355,
+     0.4075,
+     0.4425,
+     0.6475,
+     0.7375
+    ],
+    "spent": "836.14"
+   }
+  }
+ },
+ "provenance": {
+  "git_rev": "e43333f36b727efb9f8e53eabf639f58489e7b7b",
+  "git_branch": "frontend-de-ai-hehe",
+  "git_status_outside_Demo": [
+   "M reports/v3/experimentation/strategies.md",
+   " M src/dumbocracy/strategies/planner.py",
+   "?? experiments/s1_smart_player.py",
+   "?? experiments/s2_playbook.py",
+   "?? experiments/s3_adaptive.py",
+   "?? experiments/s4_generalisation.py",
+   "?? experiments/x_playbook.py",
+   "?? experiments/x_playbook_budget.py",
+   "?? reports/v3/experimentation/logs/s1.log",
+   "?? reports/v3/experimentation/logs/s1_holdout.log",
+   "?? reports/v3/experimentation/logs/s2.log",
+   "?? reports/v3/experimentation/logs/s2_tune.log",
+   "?? reports/v3/experimentation/logs/s2_tune_smoke.log",
+   "?? reports/v3/experimentation/logs/s3.log",
+   "?? reports/v3/experimentation/logs/s3_tune.log",
+   "?? reports/v3/experimentation/logs/s4.log",
+   "?? reports/v3/experimentation/logs/s4_tune.log",
+   "?? reports/v3/experimentation/raw/s1.jsonl",
+   "?? reports/v3/experimentation/raw/s1_holdout.jsonl",
+   "?? reports/v3/experimentation/raw/s2.jsonl",
+   "?? reports/v3/experimentation/raw/s2_tune.jsonl",
+   "?? reports/v3/experimentation/raw/s3.jsonl",
+   "?? reports/v3/experimentation/raw/s3_tune.jsonl",
+   "?? reports/v3/experimentation/raw/s4.jsonl",
+   "?? reports/v3/experimentation/raw/s4_tune.jsonl",
+   "?? reports/v3/experimentation/s1.json",
+   "?? reports/v3/experimentation/s1_holdout.json",
+   "?? reports/v3/experimentation/s2.json",
+   "?? reports/v3/experimentation/s2_tune.json",
+   "?? reports/v3/experimentation/s2_tune_smoke.json",
+   "?? reports/v3/experimentation/s3.json",
+   "?? reports/v3/experimentation/s3_tune.json",
+   "?? reports/v3/experimentation/s4.json",
+   "?? reports/v3/experimentation/s4_tune.json",
+   "?? scripts/advisor.py",
+   "?? slides/",
+   "?? src/dumbocracy/strategies/smart.py",
+   "?? tests/unit/test_advisor.py",
+   "?? tests/unit/test_playbook.py",
+   "?? tests/unit/test_smart_player.py"
+  ],
+  "devices": [
+   "cuda:0",
+   "cuda:2",
+   "cpu"
+  ],
+  "device_selection_cuda0": {
+   "requested": "cuda:0",
+   "need_bytes": 2147483648,
+   "free_bytes": {
+    "0": 23066574848,
+    "1": 137363456,
+    "2": 12609126400
+   },
+   "chosen": "cuda:0"
+  },
+  "gpu_name": "NVIDIA RTX A5000",
+  "torch": "2.7.1+cu118",
+  "wall_seconds_finalize": 44.406771183013916,
+  "runner": "fastapi.testclient.TestClient(create_app(device=...)), the routes the web game calls",
+  "scripts": "Demo/win/search/{screen,search,finalize,summary}.py"
+ }
+}

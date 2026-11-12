@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Limitations</title>
+<style>
+  .main { display: grid; grid-template-columns: 1fr; gap: 72px; margin-top: 44px; margin-bottom: 24px; flex: 1; min-height: 0; }
+  .rows { display: flex; flex-direction: column; justify-content: space-between; }
+  .r { display: grid; grid-template-columns: 420px 1fr; gap: 32px; align-items: baseline; padding: 22px 0; border-top: 1.5px solid var(--line); }
+  .r:last-child { border-bottom: 1.5px solid var(--line); }
+  .r h3 { font-size: 36px; white-space: nowrap; }
+  .r p { font-size: 28px; color: var(--ink-2); }
+
+  .next { display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 44px 46px; }
+  .next ul.points { gap: 18px; font-size: 27px; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+    <nav class="phase-track"></nav>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Limitations</p>
+    <h1>What our results do not tell you</h1>
+
+    <div class="main">
+      <div class="rows">
+        <div class="r"><h3>Synthetic voters</h3><p>Tuned so the game is playable, not fitted to a real electorate.</p></div>
+        <div class="r"><h3>One party</h3><p>No opponent, the manifesto is fixed, friendships never change.</p></div>
+        <div class="r"><h3>Heuristic baselines</h3><p>The Oracle and the plan search are strong, but not proven optimal.</p></div>
+        <div class="r"><h3>Sampled knowledge</h3><p>Logic verdicts come from a finite sample of smaller worlds.</p></div>
+        <div class="r"><h3>No human data</h3><p>Every result comes from computer players; the playtest was dropped.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>

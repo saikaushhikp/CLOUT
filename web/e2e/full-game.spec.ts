@@ -64,7 +64,8 @@ test("full game: setup → survey → manifesto → 5 rounds (look-back) → res
     }
     timings.query_ms_max = Math.max(...qTimes);
     // answers open per region in a dialog (latest answer on top, then every answer)
-    await expect(page.locator(".answer-flash")).toHaveCount(0);
+    // the last answer is highlighted under the question (the last ask was the pooled North repeat)
+    await expect(page.getByTestId("qb-sample")).toContainText(/Pooled over 2 samples/);
     await page.getByRole("button", { name: "North 2 responses" }).click();
     const answers = page.getByRole("dialog", { name: "Responses from North" });
     const flash = answers.locator(".answer-flash").first(); // one summary box per question; North has one (pooled)

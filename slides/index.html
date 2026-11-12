@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clout · Slides</title>
+<script src="manifest.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: system-ui, sans-serif; }
+  #stage { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  #hud {
+    position: fixed; right: 16px; bottom: 14px; padding: 6px 12px; border-radius: 999px;
+    background: rgba(0,0,0,.55); color: #ddd; font: 600 13px/1.4 ui-monospace, monospace;
+    opacity: 0; transition: opacity .3s; pointer-events: none;
+  }
+  body:hover #hud { opacity: 1; }
+  #grid {
+    position: fixed; inset: 0; overflow: auto; background: #111; padding: 32px;
+    display: none; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; align-content: start;
+  }
+  body.overview #grid { display: grid; }
+  .thumb { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; outline: 2px solid transparent; cursor: pointer; }
+  .thumb.is-current { outline-color: #ff5a3c; }
+  .thumb iframe { width: 100%; height: 100%; border: 0; pointer-events: none; }
+  .thumb span { position: absolute; left: 8px; bottom: 6px; color: #fff; font: 700 12px ui-monospace, monospace; text-shadow: 0 1px 3px #000; }
+  /* print: every slide 1:1, one per page (used by render.mjs for the PDF) */
+  html.print, html.print body { height: auto; overflow: visible; background: transparent; }
+  html.print #stage, html.print #hud, html.print #grid { display: none; }
+  .page { width: 1920px; height: 1080px; border: 0; display: block; break-after: page; }
+  @page { size: 1920px 1080px; margin: 0; }
+</style>
+</head>
+<body>
+<iframe id="stage" title="slide"></iframe>
+<div id="hud"></div>
+<div id="grid"></div>
+<script>
+  // Keys: ←/→ (or space, PgUp/PgDn) step · Home/End · G overview · D dark/light · F fullscreen
+  const q = new URLSearchParams(location.search);
+  // ?only=01,02 limits the deck to slides whose file name starts with one of the prefixes
+  const only = (q.get("only") || "").split(",").filter(Boolean);
+  const slides = only.length ? DECK.slides.filter((s) => only.some((p) => s.file.startsWith(p))) : DECK.slides;
+  let theme = q.get("theme") === "dark" ? "dark" : "light";
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  const stage = document.getElementById("stage");
+  const hud = document.getElementById("hud");
+  const grid = document.getElementById("grid");
+  const src = (s, extra = "") => `${s.file}?theme=${theme}${extra}`;
+
+  function show() {
+    stage.src = src(slides[i]);
+    hud.textContent = `${i + 1} / ${slides.length} · ${slides[i].file} · ${theme}`;
+    history.replaceState(null, "", `?theme=${theme}#${i + 1}`);
+    grid.querySelectorAll(".thumb").forEach((t, k) => t.classList.toggle("is-current", k === i));
+  }
+  function buildGrid() {
+    grid.innerHTML = "";
+    slides.forEach((s, k) => {
+      const t = document.createElement("div");
+      t.className = "thumb";
+      t.innerHTML = `<iframe loading="lazy" src="${src(s)}"></iframe><span>${k + 1} · ${s.file}</span>`;
+      t.onclick = () => { i = k; document.body.classList.remove("overview"); show(); };
+      grid.appendChild(t);
+    });
+  }
+
+  if (q.has("print")) {
+    document.documentElement.classList.add("print");
+    slides.forEach((s) => {
+      const f = document.createElement("iframe");
+      f.className = "page";
+      f.src = src(s, "&print");
+      document.body.appendChild(f);
+    });
+  } else {
+    show();
+    buildGrid();
+    const onKey = (e) => {
+      const k = e.key;
+      if (["ArrowRight", "PageDown", " "].includes(k)) i = Math.min(slides.length - 1, i + 1);
+      else if (["ArrowLeft", "PageUp"].includes(k)) i = Math.max(0, i - 1);
+      else if (k === "Home") i = 0;
+      else if (k === "End") i = slides.length - 1;
+      else if (k === "g" || k === "G" || (k === "Escape" && document.body.classList.contains("overview"))) { document.body.classList.toggle("overview"); }
+      else if (k === "d" || k === "D") { theme = theme === "dark" ? "light" : "dark"; buildGrid(); }
+      else if (k === "f" || k === "F") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); return; }
+      else return;
+      e.preventDefault();
+      show();
+    };
+    addEventListener("keydown", onKey);
+    // keys still work after clicking into the slide
+    stage.addEventListener("load", () => { try { stage.contentWindow.addEventListener("keydown", onKey); } catch (_) {} });
+  }
+</script>
+</body>
+</html>

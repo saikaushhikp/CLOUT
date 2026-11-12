@@ -28,8 +28,8 @@ from ..sectors import NUM_REGIONS, REGIONS
 from .worlds import BatchWorkers, WorldBatch, public_sizes
 
 __all__ = ["allocation_cost", "candidate_allocations", "default_allocation", "front_allocation", "plan_round",
-           "round_cap",
-           "split_by_weight", "workers_for"]
+           "region_values", "round_cap",
+           "split_by_weight", "taper_allocation", "workers_for"]
 
 CENT = Decimal("0.01")
 NO_MEDIA = (False,) * NUM_REGIONS
@@ -128,6 +128,23 @@ def front_allocation(sizes: Sequence[int], budget: Decimal, left: int, airings: 
     return _with_workers(sizes, media, money, [float(s) for s in sizes], config)
 
 
+def taper_allocation(sizes: Sequence[int], budget: Decimal, left: int, airings: Sequence[int], config: GameConfig,
+                     *, ratio: float = 0.6) -> Allocation:
+    """The "taper" continuation (optional, S1; the default rollout stays "even"): the shape of the X13 best plans
+    after round 1 — no new workers, media front-loaded with geometrically falling spend.
+
+    This round's media money is ``budget / Σ_{j<left} ratio^j`` (all of it when ``left == 1``), aired on the
+    least-aired regions first (then larger ones) while it fits. In the last round (``left == 1``) whatever the
+    airings cannot use buys new workers by region size (the money would otherwise be lost)."""
+    left = max(1, int(left))
+    share = Decimal(str(1.0 / sum(float(ratio) ** j for j in range(left))))
+    money = min(budget, (budget * share).quantize(CENT, rounding=ROUND_FLOOR))
+    media = _media_set(sizes, _media_order(sizes, airings), NUM_REGIONS, money, config.media.base_cost)
+    if left == 1:
+        return _with_workers(sizes, media, budget, [float(s) for s in sizes], config)
+    return Allocation((0, 0, 0, 0), media)  # type: ignore[arg-type]
+
+
 def candidate_allocations(observation: dict[str, Any], config: GameConfig) -> list[Allocation]:
     """A compact, diverse candidate set (≤ 20), every member valid and affordable.
 
@@ -176,19 +193,11 @@ def candidate_allocations(observation: dict[str, Any], config: GameConfig) -> li
     return unique[:20]
 
 
-def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, current: torch.Tensor,
-                            manifesto: Sequence[float] | torch.Tensor, config: GameConfig,
-                            multipliers: Sequence[str] = ("0.5", "1", "1.5")) -> list[Allocation]:
-    """Candidates from first-order marginal values estimated on the player's *own* sampled worlds.
-
-    Computed on synthetic worlds replayed to the current round (beliefs, not the true state). Media: an
-    airing in r is worth ``p_m η_m(n_r) Σ_r β dP/dc`` with ``dP_i/dc_i = β_v P_i (1 − P_i)(1 − S_i)``. Workers
-    (P8): a worker in r seeds a cascade with per-attempt chance ``a = E_r[γP]`` and mean degree k̄_r, so it
-    reaches ≈ ``k̄_r a Σ_{h<L} (k̄_r a)^h`` voters over the L remaining hops (capped at half the region), each
-    gaining ``E_r[γP (P_b − P)] / a`` in vote probability (P_b = P at similarity 1). Media is bought where its
-    value per unit cost beats the best worker's; the rest of the money buys workers concentrated (∝ value²)
-    on the best regions. Values are per TRUE-sized world (media scaled by N/n).
-    """
+def region_values(observation: dict[str, Any], batch: WorldBatch, current: torch.Tensor,
+                  manifesto: Sequence[float] | torch.Tensor, config: GameConfig) -> tuple[list[float], list[float]]:
+    """First-order value per region of one new worker and of one airing, in votes of the TRUE electorate,
+    estimated on the player's own sampled worlds replayed to the current round (see
+    :func:`value_guided_candidates`, which uses exactly these values). Returns ``(worker_value, media_value)``."""
     from ..voting import similarity, vote_probability
     vote = config.voting
     b = batch.manifesto_tensor(manifesto)
@@ -214,6 +223,25 @@ def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, curr
         worker_value.append(reach * per_convert)
         eta = config.media.strength / (1 + config.media.decay * airings[r])
         media_value.append(up * float(config.media.exposure_prob * eta * (batch.media[mask] * gain[mask]).sum()) / batch.num_worlds)
+    return worker_value, media_value
+
+
+def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, current: torch.Tensor,
+                            manifesto: Sequence[float] | torch.Tensor, config: GameConfig,
+                            multipliers: Sequence[str] = ("0.5", "1", "1.5")) -> list[Allocation]:
+    """Candidates from first-order marginal values estimated on the player's *own* sampled worlds.
+
+    Computed on synthetic worlds replayed to the current round (beliefs, not the true state). Media: an
+    airing in r is worth ``p_m η_m(n_r) Σ_r β dP/dc`` with ``dP_i/dc_i = β_v P_i (1 − P_i)(1 − S_i)``. Workers
+    (P8): a worker in r seeds a cascade with per-attempt chance ``a = E_r[γP]`` and mean degree k̄_r, so it
+    reaches ≈ ``k̄_r a Σ_{h<L} (k̄_r a)^h`` voters over the L remaining hops (capped at half the region), each
+    gaining ``E_r[γP (P_b − P)] / a`` in vote probability (P_b = P at similarity 1). Media is bought where its
+    value per unit cost beats the best worker's; the rest of the money buys workers concentrated (∝ value²)
+    on the best regions. Values are per TRUE-sized world (media scaled by N/n).
+    """
+    worker_value, media_value = region_values(observation, batch, current, manifesto, config)
+    sizes_true = public_sizes(observation)
+    hops = rounds_left(observation)
     treasury = _money(observation["treasury"])
     cap0 = round_cap(treasury, hops)
     cost_w = config.workers.worker_cost
@@ -242,7 +270,7 @@ def value_guided_candidates(observation: dict[str, Any], batch: WorldBatch, curr
 def plan_round(observation: dict[str, Any], worlds: WorldBatch | Sequence, manifesto: Sequence[float] | torch.Tensor,
                config: GameConfig, *, rollout: str = "even", seed: int = 0, current: torch.Tensor | None = None,
                current_workers: BatchWorkers | None = None, candidates: list[Allocation] | None = None,
-               value_guided: bool = True) -> tuple[Allocation, dict[str, Any]]:
+               value_guided: bool = True, taper_ratio: float = 0.6) -> tuple[Allocation, dict[str, Any]]:
     """Pick the candidate allocation with the highest mean expected election share over ``worlds``.
 
     ``worlds`` is a :class:`WorldBatch` or a list of electorates; ``current`` (``[B·n, 5]``) and
@@ -251,10 +279,11 @@ def plan_round(observation: dict[str, Any], worlds: WorldBatch | Sequence, manif
     :func:`value_guided_candidates` (computed on the same worlds) to the candidate set. ``rollout="even"``
     continues every candidate with :func:`default_allocation`; ``"none"`` continues with no spending (the
     workers already bought keep their cascades going); ``"front"`` (optional, X14) spends the remaining worker
-    money in the next round and media only afterwards (:func:`front_allocation`).
+    money in the next round and media only afterwards (:func:`front_allocation`); ``"taper"`` (optional, S1)
+    buys no more workers and spends front-loaded media (:func:`taper_allocation` with ``taper_ratio``).
     """
-    if rollout not in ("even", "none", "front"):
-        raise ValueError("rollout must be 'even', 'none' or 'front'")
+    if rollout not in ("even", "none", "front", "taper"):
+        raise ValueError("rollout must be 'even', 'none', 'front' or 'taper'")
     start = time.perf_counter()
     batch = worlds if isinstance(worlds, WorldBatch) else WorldBatch(list(worlds), config)
     if current is None:
@@ -290,6 +319,9 @@ def plan_round(observation: dict[str, Any], worlds: WorldBatch | Sequence, manif
                 elif rollout == "front":
                     a = front_allocation(sizes_true, budgets[c], remaining, airings[c].tolist(), config,
                                          first=(step == 0))
+                elif rollout == "taper":
+                    a = taper_allocation(sizes_true, budgets[c], remaining, airings[c].tolist(), config,
+                                         ratio=taper_ratio)
                 else:
                     a = Allocation()
                 budgets[c] -= allocation_cost(a, sizes_true, config)

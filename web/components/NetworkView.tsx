@@ -29,6 +29,35 @@ function h01(n: number, salt: number): number {
   return (x >>> 0) / 4294967296;
 }
 
+const REGION_KEYS = Object.keys(CENTERS) as RegionId[];
+
+/**
+ * Moves each region's laid-out cloud to its own spot (N top, E right, S bottom, W left, as on the campaign map),
+ * scaled so its 95th-percentile radius matches its share of voters; the few points beyond that are pulled in to the
+ * cloud's edge. Clusters never overlap: the largest possible radius (0.6) is below half the gap between spots.
+ */
+export function placeRegionClusters(points: { region: string; x: number; y: number }[]): { x: number; y: number }[] {
+  const out = points.map(() => ({ x: 0, y: 0 }));
+  const total = points.length || 1;
+  const byRegion = new Map<string, number[]>();
+  points.forEach((p, k) => byRegion.set(p.region, [...(byRegion.get(p.region) ?? []), k]));
+  for (const [region, idx] of byRegion) {
+    const [ax, ay] = CENTERS[region as RegionId] ?? [0, 0];
+    // median centre: a few stragglers must not drag the cluster off its spot
+    const med = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+    const mx = med(idx.map((k) => points[k].x));
+    const my = med(idx.map((k) => points[k].y));
+    const d = idx.map((k) => Math.hypot(points[k].x - mx, points[k].y - my));
+    const p95 = [...d].sort((a, b) => a - b)[Math.floor(0.95 * (d.length - 1))] || 1;
+    const target = Math.min(0.6, 0.85 * Math.sqrt(idx.length / total));
+    idx.forEach((k, j) => {
+      const f = (target / p95) * Math.min(1, (1.08 * p95) / (d[j] || 1));
+      out[k] = { x: ax + (points[k].x - mx) * f, y: ay + (points[k].y - my) * f };
+    });
+  }
+  return out;
+}
+
 export function computeLayout(sample: GraphSample): { x: number; y: number }[] {
   const counts: Record<string, number> = {};
   sample.nodes.forEach((n) => (counts[n.region] = (counts[n.region] ?? 0) + 1));
@@ -164,17 +193,35 @@ type Camera = { zoomIn: (o?: { duration?: number }) => Promise<void>; zoomOut: (
             region: n.region,
           });
         });
+        // Ties inside a region are drawn normally; ties between regions are fainter so the four clusters read clearly.
         sample.edges.forEach(([a, b]) => {
           const s = String(a);
           const t = String(b);
-          if (a !== b && graph.hasNode(s) && graph.hasNode(t) && !graph.hasEdge(s, t)) graph.addEdge(s, t, { size: 0.5, color: "rgba(140,140,150,0.22)" });
+          if (a === b || !graph.hasNode(s) || !graph.hasNode(t) || graph.hasEdge(s, t)) return;
+          const local = sample.nodes[a]?.region === sample.nodes[b]?.region;
+          graph.addEdge(s, t, { size: 0.5, color: local ? "rgba(140,140,150,0.22)" : "rgba(140,140,150,0.07)" });
         });
         const fa2 = (fa2mod as unknown as { default: { assign: (g: unknown, p: unknown) => void } }).default;
-        fa2.assign(graph, {
-          iterations: sample.nodes.length > 2000 ? 40 : 80,
-          settings: { gravity: 1.5, scalingRatio: 6, barnesHutOptimize: sample.nodes.length > 800, slowDown: 4, strongGravityMode: false },
-        });
-        settleIsolated(graph);
+        // Lay out each region on its own (only its internal ties), then place the four clusters where the regions sit
+        // on the campaign map. One global layout let the many cross-region ties pull everything into one blob.
+        const pts: { node: string; region: string; x: number; y: number }[] = [];
+        for (const region of REGION_KEYS) {
+          const sub = new Graph({ type: "undirected", multi: false, allowSelfLoops: false });
+          sample.nodes.forEach((n, i) => {
+            if (n.region === region) sub.addNode(String(i), { x: layout[i].x, y: layout[i].y, region });
+          });
+          if (!sub.order) continue;
+          graph.forEachEdge((_e, _attrs, s, t) => {
+            if (sub.hasNode(s) && sub.hasNode(t) && !sub.hasEdge(s, t)) sub.addEdge(s, t);
+          });
+          fa2.assign(sub, {
+            iterations: sub.order > 2000 ? 40 : 80,
+            settings: { gravity: 1.5, scalingRatio: 6, barnesHutOptimize: sub.order > 800, slowDown: 4, strongGravityMode: false },
+          });
+          settleIsolated(sub);
+          sub.forEachNode((node, a) => pts.push({ node, region, x: Number(a.x), y: Number(a.y) }));
+        }
+        placeRegionClusters(pts).forEach((p, k) => graph.mergeNodeAttributes(pts[k].node, p));
         if (cancelled) return;
         const renderer = new Sigma(graph, el, {
           settings: {

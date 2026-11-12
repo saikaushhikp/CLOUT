@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="theme.css">
+<script src="manifest.js"></script>
+<script src="deck.js"></script>
+<title>Clout · Experiment 3</title>
+<style>
+  .main { display: grid; grid-template-columns: 930px 1fr; gap: 56px; margin-top: 28px; align-items: center; }
+  .fig { padding: 16px; background: #fff; }
+  .fig img { width: 100%; height: auto; display: block; }
+  .side { display: flex; flex-direction: column; gap: 26px; }
+  .side ul.points { gap: 24px; font-size: 26px; color: var(--ink-2); }
+  .side ul.points b { color: var(--ink); }
+  .side .setup { font-size: 20px; color: var(--ink-3); line-height: 1.4; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Clout</div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="body">
+    <p class="eyebrow">Experiment 3 · all media vs all workers · same ₫600 · 50 worlds</p>
+    <h1>Same money: workers overtake media</h1>
+
+    <div class="main">
+      <div class="panel fig"><img src="assets/exp/media_vs_workers.png" alt="Expected vote share over 3 rounds: no campaign, all media, all workers"></div>
+      <div class="side">
+        <ul class="points">
+          <li><b>World building:</b> 2,500 voters in one region · 3 rounds · 20% manifesto · ₫600 = 3 airings = 30 round-1 workers.</li>
+          <li><b>Media leads after round 1,</b> but the worker cascade overtakes it from round 2.</li>
+          <li><b>Worker influence pulls ahead by round 3</b>: and they stay ahead in 30 of the 50 tested worlds.</li>
+          <li><b>Both investments beat doing nothing</b>.</li>
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><span data-deck="footer"></span><span class="pageno"></span></footer>
+</section>
+</body>
+</html>
