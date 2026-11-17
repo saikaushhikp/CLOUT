@@ -1,19 +1,31 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "clout"
 version = "2.0.0.dev0"
-description = "Dumbocracy v2 - an election-campaign game on a GPU-simulated multi-agent electorate"
+description = "Clout: an election game on a GPU-simulated multi-agent electorate"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
-dependencies = ["numpy>=1.24", "torch>=2.1"]
+# Compatible ranges, kept in step with requirements.txt. Upper bounds stop the next major release of a
+# dependency from breaking an install; lower bounds are the oldest versions the code supports.
+dependencies = [
+    "numpy>=1.24,<3",
+    "torch>=2.1,<3",
+]
 
 [project.optional-dependencies]
-web = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]
-analysis = ["matplotlib>=3.7", "scipy>=1.10"]
-test = ["pytest>=8", "httpx>=0.27"]
+web = ["fastapi>=0.110,<1", "pydantic>=2,<3", "uvicorn[standard]>=0.27,<1"]
+analysis = ["matplotlib>=3.7,<4", "scipy>=1.10,<2"]
+test = ["pytest>=8,<10", "httpx>=0.27,<1"]
 llm = ["litellm>=1.40"]
+
+[project.urls]
+Homepage = "https://github.com/saikaushhikp/CLOUT"
+Issues = "https://github.com/saikaushhikp/CLOUT/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -27,8 +39,8 @@ markers = [
     "slow: long-running statistical or scale test",
 ]
 
-# The browser app has its own npm manifest under web/ (React 19 + Vite).
+# The browser game has its own npm manifest under web/ (Next.js + React). Versions match web/package.json.
 [tool.clout.frontend]
 directory = "web"
-node = ">=22.12.0"
+node = ">=20.9.0"
 npm = ">=10.0.0"

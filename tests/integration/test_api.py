@@ -90,7 +90,7 @@ def test_full_flow_through_the_api(client, finished):
 
 
 @pytest.mark.parametrize("budget,expected", [("500.00", "500.00"), ("1000.00", "1000.00"), ("750.5", "750.50"),
-                                             ("1000", "1000.00")])
+                                             ("1000", "1000.00"), ("1000000.00", "1000000.00")])
 def test_budget_choice_accepted(client, budget, expected):
     game = new_game(client, budget=budget)
     obs = game["observation"]
@@ -104,7 +104,7 @@ def test_budget_choice_accepted(client, budget, expected):
     client.delete(f"/api/games/{game['game_id']}")
 
 
-@pytest.mark.parametrize("budget", ["499.99", "1000.01", "abc", "", "500.001", "NaN", "Infinity", 500, 750.0, "-600"])
+@pytest.mark.parametrize("budget", ["499.99", "1000000.01", "abc", "", "500.001", "NaN", "Infinity", 500, 750.0, "-600"])
 def test_budget_out_of_range_or_malformed_is_422(client, budget):
     response = client.post("/api/games", json={"num_voters": N, "seed": 42, "rounds": ROUNDS, "budget": budget})
     assert response.status_code == 422, response.text
