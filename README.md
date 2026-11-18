@@ -10,6 +10,11 @@ Clout is also a research tool. One PyTorch code path simulates a single game in 
 GPU. That let us test the game against multi-agent systems theory: opinion dynamics, contagion, optimisation, and
 epistemic and temporal logic.
 
+
+<p align="center">
+  <img src="slides/assets/network-title.png" width="440" alt="A 1,000-voter Clout electorate: four regions of voters, coloured by region">
+</p>
+
 Built by **Team Dumbocracy** as a Multi-Agent Systems course project at IIT Hyderabad.
 
 ---
