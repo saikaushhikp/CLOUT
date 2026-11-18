@@ -1,4 +1,4 @@
-"""X23 — Worker-rule ablations (plan ``docs/v2/plans/implementation_plan.md`` §3 X23).
+"""X23 — Worker-rule ablations.
 
 Command (reproduces reports/v3/x23.json, reports/v3/raw/x23.jsonl and reports/v3/logs/x23.log):
   OMP_NUM_THREADS=4 python experiments/x23_worker_rules.py --seeds 50 --first-seed 10000 --device cuda:0 \

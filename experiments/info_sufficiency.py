@@ -10,7 +10,7 @@ the actual win rate and P(win | guaranteed at round 1) vs P(win | not guaranteed
 
 Usage:
   python experiments/info_sufficiency.py --seeds 40 --n 10000 --workers 4
-Outputs reports/v2/info_sufficiency.json and reports/v2/figures/info_sufficiency.png.
+Writes a JSON summary and a figure to paths supplied on the command line.
 """
 from __future__ import annotations
 
@@ -126,8 +126,8 @@ def main() -> None:
     parser.add_argument("--policies", default="gain,random")
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--threads", type=int, default=4)
-    parser.add_argument("--out", default="reports/v2/info_sufficiency.json")
-    parser.add_argument("--fig", default="reports/v2/figures/info_sufficiency.png")
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--fig", required=True)
     args = parser.parse_args()
     ks = [int(k) for k in args.ks.split(",")]
     tasks = [(f"forced-{k}:{p}", s, args.n, args.worlds) for s in range(args.first_seed, args.first_seed + args.seeds)

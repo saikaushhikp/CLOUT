@@ -1,7 +1,7 @@
 /**
- * Typed wrappers for every route of docs/v2/web_api_v2.md.
+ * Typed wrappers for every route of HTTP/JSON API contract.
  * In the browser all calls go to same-origin `/api/...`; Next rewrites them to the FastAPI engine.
- * With NEXT_PUBLIC_DUMBOCRACY_MOCK=1 the in-browser mock engine (lib/mockApi.ts) is used instead.
+ * With NEXT_PUBLIC_CLOUT_MOCK=1 the in-browser mock engine (lib/mockApi.ts) is used instead.
  */
 import type {
   ActionResponse,
@@ -102,11 +102,11 @@ export function createHttpClient(base = "", fetchImpl?: FetchLike): DumbocracyCl
   };
 }
 
-export const isMockMode = (): boolean => process.env.NEXT_PUBLIC_DUMBOCRACY_MOCK === "1";
+export const isMockMode = (): boolean => process.env.NEXT_PUBLIC_CLOUT_MOCK === "1";
 
 let singleton: DumbocracyClient | null = null;
 
-/** The app-wide client: mock engine when NEXT_PUBLIC_DUMBOCRACY_MOCK=1, otherwise same-origin HTTP. */
+/** The app-wide client: mock engine when NEXT_PUBLIC_CLOUT_MOCK=1, otherwise same-origin HTTP. */
 export function getClient(): DumbocracyClient {
   if (!singleton) {
     const demo = typeof window !== "undefined" && /[?&]demo=/.test(window.location.search);

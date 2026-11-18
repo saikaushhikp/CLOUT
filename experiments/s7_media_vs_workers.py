@@ -2,7 +2,6 @@
 
 Command (reproduces reports/v3/experimentation/expRes_for_slides/media_vs_workers.{json,png,svg} and the log):
   OMP_NUM_THREADS=4 python experiments/s7_media_vs_workers.py --seeds 50 --first-seed 14000 --device cuda:0 \
-      2>&1 | tee reports/v3/experimentation/expRes_for_slides/logs/media_vs_workers.log
 
 Single region without touching library code: the engine always has 4 regions (``sectors.NUM_REGIONS``), but region
 sizes come from ``ElectorateConfig``: with ``min_region_fraction = 0`` (no 15% floor) and a vanishing Dirichlet

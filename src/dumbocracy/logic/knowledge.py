@@ -1,6 +1,6 @@
 """The player's knowledge log K_p at an earlier decision point (spec §6.5, §10.1; P5).
 
-The epistemic timeline (web_api_v2.md "Epistemic timeline (P5)") asks, for every round t, what the
+The epistemic timeline (web_api_v3.md "Epistemic timeline (P5)") asks, for every round t, what the
 player knew *at that moment*. The final contract ``Observation`` already holds the whole knowledge log
 with round tags, so the observation at an earlier time is a pure filter of it — no hidden state is read.
 

@@ -2,7 +2,6 @@
 
 Command (reproduces reports/v3/experimentation/expRes_for_slides/worker_spread*.{json,png,svg} and logs/worker_spread.log):
   OMP_NUM_THREADS=4 python experiments/s5_worker_spread.py --seeds 50 --first-seed 14000 --device cuda:0 \
-      2>&1 | tee reports/v3/experimentation/expRes_for_slides/logs/worker_spread.log
 
 Design: N = 10⁴, T = 5, default rules/prices/network/zealots; 50 held-out worlds (seeds 14000–14049), one game per
 (world, k) on the world's own random streams (``x_batch.run_batch``, full game dynamics, one batched GPU call per k).

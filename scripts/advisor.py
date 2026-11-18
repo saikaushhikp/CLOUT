@@ -13,7 +13,7 @@ Usage (engine started by scripts/run_game.sh on port 61008):
   python scripts/advisor.py --game-id <id> --player bayes            # the plain BayesPlanner instead
 
 Finding the game id: the web app keeps it in the browser tab's session storage. In the browser's developer console
-on the game page run   JSON.parse(sessionStorage["dumbocracy.v2.session"]).g
+on the game page run   JSON.parse(sessionStorage["dumbocracy.v3.session"]).g
 (or look at any /api/games/<id>/... request in the Network tab).
 
 Run it again after every action you take: the advice is for the next single step.

@@ -1,4 +1,4 @@
-"""X19 — Manifesto geometry and a third optimiser (plan ``docs/v2/plans/implementation_plan.md`` §5 X19).
+"""X19 — Manifesto geometry and a third optimiser.
 
 Command (reproduces reports/v3/x19.json, reports/v3/raw/x19.jsonl and reports/v3/logs/x19.log):
   OMP_NUM_THREADS=4 python experiments/x19_manifesto.py --seeds 100 --first-seed 12000 --device cuda:0 \

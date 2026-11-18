@@ -5,7 +5,7 @@
  *
  * The specs drive the REAL engine (N = 10,000, fixed seeds) through the Next.js proxy, so both
  * `next start` (or `next dev`) and the FastAPI engine must be running (scripts/run_game.sh).
- * Screenshots of every screen are written to ../reports/v2/screenshots/.
+ * Screenshots of every screen are written to test-results/screenshots/.
  *
  * Ubuntu 20.04 hosts: Playwright no longer ships Chromium for focal; `npm run e2e` sets
  * PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu22.04-x64 there (the jammy headless shell runs fine on glibc 2.31).

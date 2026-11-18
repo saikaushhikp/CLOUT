@@ -1,9 +1,9 @@
-"""FastAPI engine server implementing ``docs/v2/web_api_v2.md`` (the binding HTTP/JSON contract).
+"""FastAPI engine server implementing the binding HTTP/JSON contract.
 
 Run: ``uvicorn dumbocracy.api.app:app --host 127.0.0.1 --port 61008``. Games live in memory
 (``max_games`` sessions, the oldest idle one is evicted). Route handlers are synchronous, so
 FastAPI runs them in its threadpool; every engine call on a game holds that game's lock.
-Device: ``DUMBOCRACY_DEVICE`` (default ``auto`` = freest CUDA device, else CPU), resolved lazily.
+Device: ``CLOUT_DEVICE`` (default ``auto`` = freest CUDA device, else CPU), resolved lazily.
 """
 from __future__ import annotations
 
@@ -193,10 +193,10 @@ def build_debrief(state: GameState, player_id: str) -> dict[str, Any]:
 # --------------------------------------------------------------------------------------- app
 
 def create_app(device: str | None = None, max_games: int = DEFAULT_MAX_GAMES) -> FastAPI:
-    """Build the API. ``device`` defaults to ``$DUMBOCRACY_DEVICE`` or ``auto`` (resolved lazily)."""
-    app = FastAPI(title="Dumbocracy v2 engine", version="2.0")
+    """Build the API. ``device`` defaults to ``$CLOUT_DEVICE`` or ``auto`` (resolved lazily)."""
+    app = FastAPI(title="Clout v3 engine", version="2.0")
     store = GameStore(max_games)
-    requested = device or os.environ.get("DUMBOCRACY_DEVICE", "auto")
+    requested = device or os.environ.get("CLOUT_DEVICE", "auto")
     resolved: dict[str, torch.device] = {}
     device_lock = threading.Lock()
 

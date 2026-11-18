@@ -1,4 +1,4 @@
-"""Post-game epistemic timeline for the web debrief and the research layer (R14; web_api_v2.md "Epistemic timeline (P5)").
+"""Post-game epistemic timeline for the web debrief and the research layer (R14; web_api_v3.md "Epistemic timeline (P5)").
 
 For each decision point t = 1..T (round t, after that round's poll and the player's round-t queries —
 :func:`.knowledge.observation_at` with ``stage="decision"``) the timeline evaluates, over a finite sample
@@ -107,7 +107,7 @@ def headline(rows: list[dict[str, Any]], actual: dict[str, Any]) -> str:
 
 def epistemic_timeline(state, player_id: str, *, worlds: int = 16, world_voters: int = 1600, seed: int = 0,
                        device=None, max_policies: int | None = None) -> dict:
-    """``EpistemicTimeline`` (web_api_v2.md) for ``player_id`` of a finished game (raises ``ValueError``
+    """``EpistemicTimeline`` (web_api_v3.md) for ``player_id`` of a finished game (raises ``ValueError``
     before DONE and ``KeyError`` for an unknown player). ``device`` is used for the synthetic worlds
     (default CPU); the true-world rollouts run on the electorate's own device."""
     return timeline_with_diagnostics(state, player_id, worlds=worlds, world_voters=world_voters, seed=seed,

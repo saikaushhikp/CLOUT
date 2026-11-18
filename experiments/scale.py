@@ -1,6 +1,6 @@
 """P1 scale report: electorate generation time, memory and graph diagnostics at several N.
 
-Usage: python experiments/scale.py --n 10000 100000 1000000 --device cuda:2 --out reports/v2/scale_electorate.json
+Usage: python experiments/scale.py --n 10000 100000 1000000 --device cuda:2 --out <output.json>
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def main() -> None:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--seed", type=int, default=20261107)
     parser.add_argument("--repeats", type=int, default=3)
-    parser.add_argument("--out", default="reports/v2/scale_electorate.json")
+    parser.add_argument("--out", required=True)
     args = parser.parse_args()
     device = resolve_device(args.device)
     cuda = device.type == "cuda"

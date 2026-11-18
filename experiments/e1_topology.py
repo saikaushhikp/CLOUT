@@ -21,7 +21,7 @@ Per seed and cell:
    manifesto with the three fixed paid patterns (best pattern frequency); BayesPlanner and Top3Player through
    the player-facing GameEngine (observations only).
 
-Usage: python experiments/e1_topology.py --seeds 200 --n 10000 --device auto --workers 6 --out reports/v2/e1_topology.json
+Usage: python experiments/e1_topology.py --seeds 200 --n 10000 --device auto --workers 6 --out <output.json>
 """
 from __future__ import annotations
 
@@ -280,7 +280,7 @@ def main():
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--tail-seeds", type=int, default=60, help="seeds that also run the 4000-round heterogeneous tail")
     ap.add_argument("--kbars", default=",".join(map(str, KBARS)))
-    ap.add_argument("--out", default="reports/v2/e1_topology.json")
+    ap.add_argument("--out", required=True)
     args = ap.parse_args()
     device = pc.pick_device(args.device)
     kbars = [int(k) for k in args.kbars.split(",")]

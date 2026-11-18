@@ -1,7 +1,7 @@
 """Shared helpers for the P7 experiments (E1–E7): device choice, statistics with 95% CIs, paired tests,
 provenance and a small deterministic process pool.
 
-Every experiment script: ``python experiments/e{n}_*.py --seeds S --n N --device D --out reports/v2/e{n}_*.json``.
+Every experiment script accepts an explicit output path with ``--out``.
 Results depend only on (seed, cell); the pool returns results in task order, so the output is identical
 for any ``--workers``.
 """

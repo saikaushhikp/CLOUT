@@ -9,15 +9,15 @@ Every player plays full games through the player-facing ``GameEngine`` (observat
 plus the ORACLE reference (labelled, never mixed with players): oracle manifesto (true v, anticipated) +
 the oracle marginal-value planner of ``experiments/balance.py`` via ``simulate_world`` (true state).
 
-Queries follow R12 (sampled 10% surveys, repeats allowed and pooled); ``reports/v2/strategies.json`` holds the
-earlier exact-query run (same seeds) — ``--compare`` adds paired by-seed tests against it.
+Queries follow R12 (sampled 10% surveys, repeats allowed and pooled). Use ``--compare`` to add paired
+by-seed tests against another results file.
 
 Usage:
-  python experiments/strategies.py --seeds 200 --n 10000 --device cpu --out reports/v2/strategies_r12.json \
-      --compare reports/v2/strategies.json
-  python experiments/strategies.py --seeds 20 --out reports/v2/strategies_quick.json
-  python experiments/strategies.py --info-curve 0,1,2,4,8,12 --seeds 60 --out reports/v2/info_curve_r12.json
-Then: python experiments/plot_strategies.py --in reports/v2/strategies_r12.json --suffix _r12
+  python experiments/strategies.py --seeds 200 --n 10000 --device cpu --out output.json \
+      --compare earlier-results.json
+  python experiments/strategies.py --seeds 20 --out output.json
+  python experiments/strategies.py --info-curve 0,1,2,4,8,12 --seeds 60 --out output.json
+Then: python experiments/plot_strategies.py --in input.json --suffix _r12
 """
 from __future__ import annotations
 
@@ -273,7 +273,7 @@ def main() -> None:
     parser.add_argument("--n", type=int, default=10_000)
     parser.add_argument("--device", default="auto", help="auto = cuda:2 if idle enough, else cpu")
     parser.add_argument("--players", default=",".join(PLAYERS))
-    parser.add_argument("--out", default="reports/v2/strategies_r12.json")
+    parser.add_argument("--out", required=True)
     parser.add_argument("--compare", default=None, help="earlier report to compare against, paired by seed")
     parser.add_argument("--info-curve", default=None, help="comma-separated k values: forced-query BayesPlanner curve")
     args = parser.parse_args()

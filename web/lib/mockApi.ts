@@ -1,12 +1,12 @@
 /**
- * In-browser MOCK of the Dumbocracy v2 engine, faithful to docs/v2/web_api_v2.md.
+ * In-browser MOCK of the Dumbocracy v3 engine, faithful to HTTP/JSON API contract.
  *
  * It is a tiny fake engine, not the real model: each region is represented by a few hundred
  * "representative voters" (Dirichlet preferences around a hidden archetype, Beta susceptibilities
  * from a hidden personality, 5% zealots). Rules, costs, phases, rejection codes, polls, round
  * resolution, the election, the debrief, the epistemic timeline (a cheap heuristic stand-in for the
  * P5 possible-worlds computation) and the graph sample follow the contract so the UI can be
- * built and tested without the Python backend. Enabled with NEXT_PUBLIC_DUMBOCRACY_MOCK=1.
+ * built and tested without the Python backend. Enabled with NEXT_PUBLIC_CLOUT_MOCK=1.
  */
 import type { DumbocracyClient } from "./api";
 import { ApiError } from "./errors";

@@ -1,4 +1,4 @@
-"""X20 — Luck vs skill: variance decomposition (plan ``docs/v2/plans/implementation_plan.md`` §7 X20).
+"""X20 — Luck vs skill: variance decomposition.
 
 Command (reproduces reports/v3/x20.json, reports/v3/raw/x20.jsonl, reports/v3/logs/x20.log and the figures):
   OMP_NUM_THREADS=4 python experiments/x20_luck_skill.py --seeds 50 --first-seed 14000 --salts 20 --device cuda:2 \

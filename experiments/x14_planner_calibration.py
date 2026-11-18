@@ -1,4 +1,4 @@
-"""X14 — Planner calibration: prediction vs reality (plan ``docs/v2/plans/implementation_plan.md`` §5 X14).
+"""X14 — Planner calibration: prediction vs reality.
 
 Command (reproduces reports/v3/x14.json, reports/v3/raw/x14.jsonl and reports/v3/logs/x14.log):
   OMP_NUM_THREADS=4 python experiments/x14_planner_calibration.py --seeds 50 --first-seed 12000 --device cuda:0 \

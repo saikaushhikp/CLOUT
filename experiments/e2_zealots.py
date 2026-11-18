@@ -21,7 +21,7 @@ Per seed and cell (default N = 10 000, k̄ = 30):
   (F+1)-robust necessary, ≤ F adversarial neighbours per normal node): fraction of normal nodes with > F
   zealot neighbours.
 
-Usage: python experiments/e2_zealots.py --seeds 200 --n 10000 --device auto --workers 6 --out reports/v2/e2_zealots.json
+Usage: python experiments/e2_zealots.py --seeds 200 --n 10000 --device auto --workers 6 --out <output.json>
 """
 from __future__ import annotations
 
@@ -196,7 +196,7 @@ def main():
     ap.add_argument("--n", type=int, default=10_000)
     ap.add_argument("--device", default="auto")
     ap.add_argument("--workers", type=int, default=6)
-    ap.add_argument("--out", default="reports/v2/e2_zealots.json")
+    ap.add_argument("--out", required=True)
     args = ap.parse_args()
     device = pc.pick_device(args.device)
     tasks = [(s, z, args.n, device, z == 0.0) for s in range(args.first_seed, args.first_seed + args.seeds) for z in ZETAS]

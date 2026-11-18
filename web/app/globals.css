@@ -1824,7 +1824,7 @@ input[type="range"] {
   }
 }
 
-/* ------------------------------------------------------------------ v2 UI revamp (R16–R20) */
+/* ------------------------------------------------------------------ v3 UI revamp (R16–R20) */
 /* round tracker: past rounds are buttons (look-back), the current one returns to planning */
 .round-dots > li {
   display: contents;

@@ -580,7 +580,7 @@ state. It prints:
 **How to use it**
 1. Start the game server as usual with `scripts/run_game.sh` (port 61008).
 2. Find the game id. The UI does not show it. Either:
-   - in the browser console, run `JSON.parse(sessionStorage["dumbocracy.v2.session"]).g`; or
+   - in the browser console, run `JSON.parse(sessionStorage["dumbocracy.v3.session"]).g`; or
    - copy it from any `/api/games/<id>/…` request in the Network tab.
 3. Run `conda run -n mas python scripts/advisor.py --game-id <id>`.
    - Optional flags: `--device cuda:0` (faster), `--player bayes` (the default planner), `--api <url>`, `--json`.

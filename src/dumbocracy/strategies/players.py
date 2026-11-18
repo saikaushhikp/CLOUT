@@ -2,7 +2,7 @@
 
 Every player implements :class:`dumbocracy.players.base.Player`: ``act(observation) -> action dict`` in the
 JSON body format accepted by :func:`dumbocracy.game.actions.action_from_dict`. Players receive *only* the
-allowlisted contract ``Observation`` dict (web_api_v2.md) — never the engine state — and use the public
+allowlisted contract ``Observation`` dict (web_api_v3.md) — never the engine state — and use the public
 rules (a :class:`GameConfig` with default parameters; its seed is never used to regenerate the world).
 
 * :class:`UniformPlayer` — no queries, uniform manifesto, never spends (P8: no free workers, so no campaign).

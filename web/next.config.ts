@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_ORIGIN = process.env.DUMBOCRACY_API ?? "http://127.0.0.1:61008";
+const API_ORIGIN = process.env.CLOUT_API ?? "http://127.0.0.1:61008";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

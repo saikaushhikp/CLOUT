@@ -1,4 +1,4 @@
-"""X3 — Worker cascade threshold and reach (plan ``docs/v2/plans/implementation_plan.md`` §4 X3; P9 X3).
+"""X3 — Worker cascade threshold and reach.
 
 Command (reproduces reports/v3/x3.json, reports/v3/raw/x3.jsonl and reports/v3/logs/x3.log):
   OMP_NUM_THREADS=4 python experiments/x3_cascade.py --seeds 50 --first-seed 11000 --device cuda:2 \

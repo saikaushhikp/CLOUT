@@ -1,4 +1,4 @@
-"""X1 — Network structure and consensus speed (plan ``docs/v2/plans/implementation_plan.md`` §4 X1; port of E1).
+"""X1 — Network structure and consensus speed.
 
 Command (reproduces reports/v3/x1.json, reports/v3/raw/x1.jsonl and reports/v3/logs/x1.log):
   OMP_NUM_THREADS=4 python experiments/x1_topology.py --seeds 50 --first-seed 11000 --device cuda:2 \

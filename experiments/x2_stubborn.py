@@ -1,4 +1,4 @@
-"""X2 — Stubborn agents, zealots, W-MSR (+ polarisation metric) (plan ``docs/v2/plans/implementation_plan.md`` §4 X2).
+"""X2 — Stubborn agents, zealots, W-MSR (+ polarisation metric).
 
 Command (reproduces reports/v3/x2.json, reports/v3/raw/x2.jsonl and reports/v3/logs/x2.log):
   OMP_NUM_THREADS=4 python experiments/x2_stubborn.py --seeds 50 --first-seed 11000 --device cuda:2 \

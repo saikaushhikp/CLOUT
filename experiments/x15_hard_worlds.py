@@ -1,4 +1,4 @@
-"""X15 — Which elections are unwinnable? (plan ``docs/v2/plans/implementation_plan.md`` §7 X15).
+"""X15 — Which elections are unwinnable?.
 
 Command (reproduces reports/v3/x15.json, reports/v3/raw/x15.jsonl and reports/v3/logs/x15.log; CPU, minutes):
   OMP_NUM_THREADS=4 python experiments/x15_hard_worlds.py --out reports/v3/x15.json 2>&1 | tee reports/v3/logs/x15.log

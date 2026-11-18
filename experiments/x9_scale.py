@@ -1,4 +1,4 @@
-"""X9 — Scale and GPU performance (plan ``docs/v2/plans/implementation_plan.md`` §8 X9; port of E7).
+"""X9 — Scale and GPU performance.
 
 Command (reproduces reports/v3/x9.json, reports/v3/raw/x9.jsonl and reports/v3/logs/x9.log):
   OMP_NUM_THREADS=4 python experiments/x9_scale.py --device cuda:2 --repeats 3 --out reports/v3/x9.json \

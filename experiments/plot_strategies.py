@@ -1,6 +1,6 @@
 """Plots for the P4 strategy comparison, from the saved JSON only (no simulation).
 
-Usage: python experiments/plot_strategies.py [--in reports/v2/strategies.json] [--out-dir reports/v2/figures] [--suffix _r12]
+Usage: python experiments/plot_strategies.py --in input.json --out-dir figures [--suffix _r12]
 """
 from __future__ import annotations
 
@@ -113,8 +113,8 @@ def spend(report: dict, out: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--in", dest="path", default="reports/v2/strategies.json")
-    parser.add_argument("--out-dir", default="reports/v2/figures")
+    parser.add_argument("--in", dest="path", required=True)
+    parser.add_argument("--out-dir", required=True)
     parser.add_argument("--suffix", default="", help="appended to every figure file name, e.g. _r12")
     args = parser.parse_args()
     SUFFIX[0] = args.suffix

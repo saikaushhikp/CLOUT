@@ -1,4 +1,4 @@
-"""X4 — Worker timing and placement, plus the pick-rule ablation (plan ``docs/v2/plans/implementation_plan.md`` §4 X4).
+"""X4 — Worker timing and placement, plus the pick-rule ablation.
 
 Command (reproduces reports/v3/x4.json, reports/v3/raw/x4.jsonl and reports/v3/logs/x4.log):
   OMP_NUM_THREADS=4 python experiments/x4_timing_placement.py --seeds 50 --first-seed 11000 --device cuda:2 \

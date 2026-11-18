@@ -1,4 +1,4 @@
-"""Epistemic properties over sampled worlds × a finite policy set (spec §10.2; P5; web_api_v2.md "Epistemic timeline").
+"""Epistemic properties over sampled worlds × a finite policy set (spec §10.2; P5; web_api_v3.md "Epistemic timeline").
 
 Setting (lecture "Epistemic logic"): W_t is a finite sample of the player's information set at round t
 (:mod:`.worlds`), Π_t a finite, declared set of campaign plans for the remaining rounds. The outcome matrix

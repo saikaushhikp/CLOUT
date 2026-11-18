@@ -4,7 +4,7 @@ Every policy is a pure function of the ``RoundContext`` (no hidden state between
 function or a frozen dataclass whose fields are its explicit parameters. They are used by ``simulate_world``
 and by the batched runner ``x_batch.run_batch`` (which hands each world its own TRUE context).
 
-From ``balance.py`` (the same function objects, so X0 reproduces the v2 gate code exactly):
+From ``balance.py`` (the same function objects, so X0 reproduces the v3 gate code exactly):
   ``none``, ``pay_workers`` (even), ``front_workers``, ``pay_media``, ``pay_split``, ``planner`` (ORACLE).
 New (§2; X4, X6, X11, X17):
   :class:`WorkerTiming`    fixed total of workers bought front / even / late, placed largest / proportional /

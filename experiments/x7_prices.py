@@ -1,5 +1,4 @@
-"""X7 — Budget and price sensitivity (plan ``docs/v2/plans/implementation_plan.md`` §3 X7; sensitivity study only,
-the game keeps ₫20 workers / ₫10 queries, D5).
+"""X7 — Budget and price sensitivity.
 
 Command (reproduces reports/v3/x7.json, reports/v3/raw/x7.jsonl and reports/v3/logs/x7.log):
   OMP_NUM_THREADS=4 python experiments/x7_prices.py --seeds 50 --first-seed 10000 --device cuda:0 \

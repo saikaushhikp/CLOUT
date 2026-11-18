@@ -1,6 +1,6 @@
 """P7 figures, generated ONLY from the saved JSON reports (no simulation here).
 
-Usage: python experiments/plot_p7.py [--reports reports/v2] [--figs reports/v2/figures] [--only e1,e2,...]
+Usage: python experiments/plot_p7.py --reports <results-dir> --figs figures [--only e1,e2,...]
 """
 from __future__ import annotations
 
@@ -429,8 +429,8 @@ def plot_e6(strat, figs: Path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--reports", default="reports/v2")
-    ap.add_argument("--figs", default="reports/v2/figures")
+    ap.add_argument("--reports", required=True)
+    ap.add_argument("--figs", required=True)
     ap.add_argument("--only", default="e1,e2,e3,e4,e5,e6,e7")
     args = ap.parse_args()
     rep, figs = Path(args.reports), Path(args.figs)

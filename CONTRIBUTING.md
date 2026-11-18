@@ -28,6 +28,8 @@ For anything larger than a small fix, **open an issue first** to agree on the ap
 
 ## Set up your environment
 
+**Linux and macOS (Terminal):**
+
 ```bash
 git clone https://github.com/saikaushhikp/CLOUT.git
 cd CLOUT
@@ -36,6 +38,18 @@ conda env create -f environment.yml      # the "mas" environment: Python, Node.j
 conda activate mas                        # and an editable install of the dumbocracy package
 
 cd web && npm ci && cd ..                 # web game dependencies
+```
+
+**Windows (PowerShell):**
+
+```powershell
+git clone https://github.com/saikaushhikp/CLOUT.git
+Set-Location CLOUT
+conda env create -f environment.yml
+conda activate mas
+Set-Location web
+npm ci
+Set-Location ..
 ```
 
 Python packages come from `requirements.txt`, which lists only direct dependencies with compatible version ranges.
@@ -47,11 +61,14 @@ Check that everything works:
 
 ```bash
 python -m pytest -q -m "not slow and not gpu"   # about a minute
-scripts/run_game.sh                             # then open http://127.0.0.1:61007
 ```
 
-**On a shared machine,** limit CPU threads, or electorate generation can slow down sharply:
-`export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4`.
+The game launcher `scripts/run_game.sh` requires Bash and works on Linux/macOS. On Windows, start the engine and
+web app in two PowerShell windows using the commands in [README: Play](README.md#3-play).
+
+**On a shared machine,** limit CPU threads, or electorate generation can slow down sharply. Linux/macOS:
+`export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4`. Windows PowerShell:
+`$env:OMP_NUM_THREADS = "4"; $env:MKL_NUM_THREADS = "4"`.
 
 ## Project tour
 
@@ -69,7 +86,6 @@ scripts/run_game.sh                             # then open http://127.0.0.1:610
 | `web/` | Next.js web game | `lib/api.ts`, `components/GameApp.tsx` |
 | `tests/` | `unit/`, `integration/` and `gpu/` tests | `conftest.py` |
 | `experiments/` | Experiment scripts and shared helpers | `p7_common.py` |
-| `docs/v2/` | Technical spec, decisions, API contract | `technical_spec_v2.md` |
 
 ## Ground rules
 
@@ -114,23 +130,28 @@ seeds, not single exact numbers.
 cd web
 npm test                 # unit tests (Vitest)
 npm run typecheck        # TypeScript
-npm run e2e              # browser tests (Playwright); needs scripts/run_game.sh running
+npm run e2e              # browser tests (Playwright); needs engine and web app running
 ```
+
+These Python and npm commands also work in Windows PowerShell after activating `mas`. For the browser tests,
+start the engine and web app in separate PowerShell windows as shown in the README before running `npm run e2e`.
 
 ## Working on the web game
 
-- Start the engine and the dev server together with `scripts/run_game.sh dev`. The web app proxies `/api/...` to the
-  engine; set `DUMBOCRACY_API` to point it elsewhere.
+- On Linux/macOS, start the engine and dev server together with `./scripts/run_game.sh dev`. On Windows, use the two
+  PowerShell windows described in the README. The web app proxies `/api/...` to the engine; set `CLOUT_API` to point
+  it elsewhere.
 - To work on the UI without Python, use the in-browser mock engine:
-  `NEXT_PUBLIC_DUMBOCRACY_MOCK=1 npm run dev`.
-- The API contract is [docs/v2/web_api_v2.md](docs/v2/web_api_v2.md). If you change a route, update that file, the
-  types in `web/lib/types.ts`, and the mock in `web/lib/mockApi.ts` together.
+  `NEXT_PUBLIC_CLOUT_MOCK=1 npm run dev` in Linux/macOS; in Windows PowerShell run
+  `$env:NEXT_PUBLIC_CLOUT_MOCK = "1"` and then `npm run dev`.
+- If you change an API route, update the types in `web/lib/types.ts` and the mock in
+  `web/lib/mockApi.ts` together.
 - The app uses a recent Next.js with breaking changes. Read `web/AGENTS.md` before changing framework code.
 - Check new screens in both light and dark themes and at phone width.
 
 ## Adding or changing an experiment
 
-1. **Write down what you expect before running it.** Add a line to `reports/v3/predictions.md`.
+1. **Write down what you expect before running it.** Record the prediction with the experiment results.
 2. **Use the shared helpers** in `experiments/p7_common.py` for device choice, 95% confidence intervals, paired tests
    and provenance.
 3. **Compare arms on the same worlds.** Use the same seeds and common random numbers. Use a seed block that no other
@@ -140,6 +161,36 @@ npm run e2e              # browser tests (Playwright); needs scripts/run_game.sh
 5. **Run a short CPU-vs-GPU parity check** (three seeds) before the main GPU run.
 6. **Report honestly.** Give means with confidence intervals, say which differences are significant after correction,
    and list the caveats.
+
+### Run commands by operating system
+
+The following command runs the same bounded example with the CPU/GPU available on each system. Use `--device cpu`
+for portable runs on macOS or Windows; this project does not select Apple's MPS backend. On Linux with CUDA, use a
+specific GPU index. Replace the seed and arguments with those recorded for the result you are reproducing.
+
+Linux with CUDA:
+
+```bash
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 python experiments/s5_worker_spread.py --seeds 50 --first-seed 14000 --device cuda:0
+```
+
+macOS (CPU):
+
+```bash
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 python experiments/s5_worker_spread.py --seeds 50 --first-seed 14000 --device cpu
+```
+
+Windows PowerShell (CPU):
+
+```powershell
+$env:OMP_NUM_THREADS = "4"
+$env:MKL_NUM_THREADS = "4"
+python experiments/s5_worker_spread.py --seeds 50 --first-seed 14000 --device cpu
+```
+
+Each run records its command, seed settings, device, and software versions in the output. CPU and CUDA use different
+random streams, so cross-device runs are not expected to match bit for bit. To reproduce a reported result, use its
+recorded device as well as its seeds and other arguments.
 
 ## Coding style
 

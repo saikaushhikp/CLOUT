@@ -1,4 +1,4 @@
-"""X5 — Value of information at ₫10 (plan ``docs/v2/plans/implementation_plan.md`` §6 X5).
+"""X5 — Value of information at ₫10.
 
 Command (reproduces reports/v3/x5.json, reports/v3/raw/x5.jsonl and reports/v3/logs/x5.log):
   OMP_NUM_THREADS=4 python experiments/x5_info_value.py --seeds 50 --first-seed 13000 --device cuda:2 \
@@ -86,7 +86,7 @@ def pinned_device(requested: str) -> tuple[torch.device, dict]:
 # ============================================================================== players
 class RandomQueryPlanner(BayesPlanner):
     """BayesPlanner whose survey queries are uniformly random (pair of sectors, region), keyed by the player seed
-    and the query index (same count and same later play as the information-gain player). Ported from the v2
+    and the query index (same count and same later play as the information-gain player). Ported from the v3
     ``scenario_table.RandomQueryPlanner``."""
 
     def _maybe_query(self, observation, posterior, survey):
@@ -463,7 +463,7 @@ def main() -> None:
         **summary, "tests": test, "seed_info": infos,
         "deviations": [
             "Budget fix applied as planned: survey_budget = k × price and num_queries = k per arm (recorded in arms.*).",
-            "No in-round queries (round_query_gain=None) in every arm, as in the v2 info-sufficiency design, so the "
+            "No in-round queries (round_query_gain=None) in every arm, as in the v3 info-sufficiency design, so the "
             "survey is the only paid information.",
             "The ₫5 comparison uses both selection rules (11 arms), like ₫10.",
             "Games are played one at a time (sequential decisions); the GPU batches worlds × plans × voters inside "

@@ -1,4 +1,4 @@
-"""X18 — Submodularity of the worker value curve (plan ``docs/v2/plans/implementation_plan.md`` §4 X18; new, N9).
+"""X18 — Submodularity of the worker value curve.
 
 Command (reproduces reports/v3/x18.json, reports/v3/raw/x18.jsonl and reports/v3/logs/x18.log):
   OMP_NUM_THREADS=4 python experiments/x18_submodularity.py --seeds 50 --first-seed 11000 --device cuda:2 \

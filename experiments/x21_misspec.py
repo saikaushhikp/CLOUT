@@ -1,4 +1,4 @@
-"""X21 — Robustness to model misspecification (plan ``docs/v2/plans/implementation_plan.md`` §7 X21).
+"""X21 — Robustness to model misspecification.
 
 Command (reproduces reports/v3/x21.json, reports/v3/raw/x21.jsonl, reports/v3/logs/x21.log and the figures):
   OMP_NUM_THREADS=4 python experiments/x21_misspec.py --seeds 50 --first-seed 14000 --device cuda:2 \

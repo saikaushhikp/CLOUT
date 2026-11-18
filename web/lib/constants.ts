@@ -59,7 +59,7 @@ export const BUDGET_PRESETS = [1000, 10000, 100000, 1000000] as const;
 /** Blend picker (R20): how many regions may be blended. */
 export const BLEND_MIN = 2;
 export const BLEND_MAX = 4;
-/** Dirichlet concentration κ of the voter preference draw (spec §14, v2.1). Public rule. */
+/** Dirichlet concentration κ of the voter preference draw (spec §14, v3.1). Public rule. */
 export const KAPPA = 60;
 /** Fraction of a region's voters surveyed by one paid query (spec §6.3, R12). Public rule. */
 export const QUERY_SAMPLE_FRACTION = 0.1;

@@ -219,7 +219,7 @@ def posterior_from_observation(observation: Mapping[str, Any], model: AnswerMode
                                slack_pp: float = 1.5, drift_pp_per_round: float = 3.0,
                                use_free_stats: str = "first", hard_z: float | None = 8.0,
                                sample_fraction: float = 0.10) -> Posterior:
-    """Posterior over σ from a contract ``Observation`` dict (web_api_v2.md; spec §6.2, §6.3, §10.1).
+    """Posterior over σ from a contract ``Observation`` dict (web_api_v3.md; spec §6.2, §6.3, §10.1).
 
     Reads only public fields: ``regions[].{id, voters}``, ``free_stats[]`` and ``queries[]``.
     ``use_free_stats``: ``"first"`` (the round-0 / earliest entry — later ones reflect campaign-driven

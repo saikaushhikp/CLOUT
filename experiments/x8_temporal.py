@@ -1,4 +1,4 @@
-"""X8 — Temporal properties of campaigns (plan ``docs/v2/plans/implementation_plan.md`` §6 X8).
+"""X8 — Temporal properties of campaigns.
 
 Command (reproduces reports/v3/x8.json, reports/v3/raw/x8.jsonl and reports/v3/logs/x8.log; run after X6):
   OMP_NUM_THREADS=4 python experiments/x8_temporal.py --device cuda:0 --out reports/v3/x8.json \
@@ -9,7 +9,7 @@ Post-hoc on the X6 traces (reports/v3/raw/x6.jsonl: 100 seeds 12000–12099 × 9
 **Linear-time part (``logic.temporal``, per game).** The trace has T + 2 = 7 states: s_k = the state after k
 campaign rounds (k = 0 is after the manifesto commit, before round 1; k = 1..T after each round), then the
 election-day state s_{T+1}. Two views:
-  * ``poll`` (the player's view, as ``logic.temporal.game_trace`` and v2): margin_k = poll_{k+1} − 0.5 (the poll
+  * ``poll`` (the player's view, as ``logic.temporal.game_trace`` and v3): margin_k = poll_{k+1} − 0.5 (the poll
     published at the decision point / before the election), election-day margin = official vote share − 0.5;
   * ``true`` (hidden): margin_k = true expected share E_k − 0.5.
 ``Lead`` = margin > 0; ``Victory`` = official result (election-day state only). Formulas (positions from 0):
@@ -455,7 +455,7 @@ def main() -> None:
         "definitions": {
             "states": "s_0 = after the manifesto commit, s_k = after k campaign rounds (k=1..T), s_{T+1} = election day",
             "views": {"poll": "margin_k = poll published at decision point k+1 (k=T: last pre-election poll) − 0.5; "
-                              "as logic.temporal.game_trace and v2", "true": "margin_k = true expected share E_k − 0.5"},
+                              "as logic.temporal.game_trace and v3", "true": "margin_k = true expected share E_k − 0.5"},
             "Lead": "margin > 0 (election day: Victory)", "Victory": "official result, election-day state only",
             "ev_lead": "F[<=T] Lead from s_0 (led at some campaign state before election day)",
             "always_lead": "G Lead", "never_far": f"G (margin > -{DELTA})",

@@ -4,5 +4,5 @@
 * :mod:`.worlds`    — sampled information sets I(K_p) (``consistent_worlds``);
 * :mod:`.epistemic` — K / M operators, policy set Π_t, outcome matrix and knowledge properties;
 * :mod:`.temporal`  — bounded LTL, STL robustness, CTL-style helpers over traces / outcome trees;
-* :mod:`.report`    — the post-game ``epistemic_timeline`` (web_api_v2.md, R14).
+* :mod:`.report`    — the post-game ``epistemic_timeline`` (web_api_v3.md, R14).
 """

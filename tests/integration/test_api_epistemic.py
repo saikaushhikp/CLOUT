@@ -1,4 +1,4 @@
-"""``GET /api/games/{g}/players/{p}/epistemic`` (P5, decision R14; web_api_v2.md "Epistemic timeline").
+"""``GET /api/games/{g}/players/{p}/epistemic`` (P5, decision R14; web_api_v3.md "Epistemic timeline").
 
 The logic module is replaced by a fake so these tests exercise only the route contract
 (404/409/200, per-session caching, single computation under concurrency, device propagation, privacy).

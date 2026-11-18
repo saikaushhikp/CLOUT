@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 export const N = 10_000;
-export const SHOT_DIR = path.resolve(__dirname, "../../reports/v2/screenshots");
+export const SHOT_DIR = path.resolve(__dirname, "../../web/test-results/screenshots");
 
 /* ------------------------------------------------------------------ console / network diagnostics */
 export type Diagnostics = {
@@ -191,7 +191,7 @@ export const ALIGNMENT_HEX = ["#e34948", "#f0a3a0", "#9a9993", "#86b6ef", "#2a78
 /* ------------------------------------------------------------------ privacy scan */
 export type Recorded = { url: string; status: number; body: unknown };
 
-/** Keys that must never appear in any payload during play (spec §6.6, web_api_v2.md "Semantics"). */
+/** Keys that must never appear in any payload during play (spec §6.6, web_api_v3.md "Semantics"). */
 const FORBIDDEN_KEYS = new Set([
   "preferences", "preference", "pref", "prefs", "v", "v_i", "values",
   "susceptibility", "susceptibilities", "alpha", "beta", "gamma",

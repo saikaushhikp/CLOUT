@@ -10,7 +10,7 @@ Per seed and B:
 Theory: the marginal value of money is decreasing (media has diminishing returns η_m0/(1 + λn); worker cascades
 compound multiplicatively), so P(Victory | B) should be concave in log B with diminishing gains per doubling.
 
-Usage: python experiments/e5_budget.py --seeds 200 --n 10000 --device auto --workers 6 --out reports/v2/e5_budget.json
+Usage: python experiments/e5_budget.py --seeds 200 --n 10000 --device auto --workers 6 --out <output.json>
 """
 from __future__ import annotations
 
@@ -91,7 +91,7 @@ def main():
     ap.add_argument("--n", type=int, default=10_000)
     ap.add_argument("--device", default="auto")
     ap.add_argument("--workers", type=int, default=6)
-    ap.add_argument("--out", default="reports/v2/e5_budget.json")
+    ap.add_argument("--out", required=True)
     args = ap.parse_args()
     device = pc.pick_device(args.device)
     tasks = [(s, args.n, device) for s in range(args.first_seed, args.first_seed + args.seeds)]

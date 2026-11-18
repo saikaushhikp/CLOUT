@@ -1,4 +1,4 @@
-"""X6 — Strategy tournament (plan ``docs/v2/plans/implementation_plan.md`` §5 X6).
+"""X6 — Strategy tournament.
 
 Command (reproduces reports/v3/x6.json, reports/v3/raw/x6.jsonl and reports/v3/logs/x6.log; run after X13):
   OMP_NUM_THREADS=4 python experiments/x6_tournament.py --seeds 100 --first-seed 12000 --device cuda:0 \

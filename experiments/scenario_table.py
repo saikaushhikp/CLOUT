@@ -12,7 +12,7 @@ the actual outcome.
 
 Usage:
   python experiments/scenario_table.py --seeds 60 --n 10000 --workers 3
-Outputs reports/v2/scenario_table.json and reports/v2/scenario_table.md.
+Writes JSON and Markdown outputs to paths supplied on the command line.
 """
 from __future__ import annotations
 
@@ -244,8 +244,8 @@ def main() -> None:
     parser.add_argument("--players", default="bayes,top3")
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--threads", type=int, default=4)
-    parser.add_argument("--out", default="reports/v2/scenario_table.json")
-    parser.add_argument("--md", default="reports/v2/scenario_table.md")
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--md", required=True)
     args = parser.parse_args()
     tasks = [(p, s, args.n, args.worlds) for s in range(args.first_seed, args.first_seed + args.seeds)
              for p in args.players.split(",")]

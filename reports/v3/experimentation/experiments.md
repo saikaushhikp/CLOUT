@@ -1,6 +1,6 @@
 # Experiments
 
-This section answers six questions about how an election campaign plays out in our game, *Dumbocracy*:
+This section answers six questions about how an election campaign plays out in our game, *Clout*:
 
 | # | Question | In one line |
 |---|---|---|

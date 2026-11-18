@@ -1,4 +1,4 @@
-"""P5/R14: the post-game epistemic timeline on a full engine game (web_api_v2.md "Epistemic timeline (P5)")."""
+"""P5/R14: the post-game epistemic timeline on a full engine game (web_api_v3.md "Epistemic timeline (P5)")."""
 import json
 import time
 

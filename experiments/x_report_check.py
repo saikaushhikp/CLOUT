@@ -1,8 +1,8 @@
-"""Number check for reports/v3/report.md (implementation plan §14.5).
+"""Check numeric claims in a supplied experiment report.
 
 For every number in the report, look for it (after rounding) among the numeric values of the JSON
 files cited in the same line, falling back to the JSON files cited anywhere in the enclosing
-experiment section (### X<k>). Unmatched numbers are listed in reports/v3/report_check.txt.
+experiment section (### X<k>). The report lists any unmatched numbers.
 
 A number "matches" a JSON value v when, at the number's printed precision d (decimals),
 |x − c·v| ≤ 0.5·10^−d for one of the conversions c·v below (percent, GB, GiB, minutes, ms, ...),
@@ -12,9 +12,9 @@ spans, links or image paths are skipped (they are labels, arm sizes or keys, not
 
 Sources recognised in a line: the v3 summaries (x<k>.json, gpu_benchmarks.json), the v3 raw files
 (raw/x<k>.jsonl: every number in every row, plus the row count; only on the line that cites it,
-never as a section default, because its many values would match almost anything) and the v2
+never as a section default, because its many values would match almost anything) and the v3
 results cited for the
-v2 comparison (v2/<name>.json, read from reports/v2/).
+other JSON result files cited in the report.
 
 Documented derivations. Some printed numbers are computed from JSON values rather than copied
 (a difference, a ratio, a sum, an sd from a variance, a seed × arm product, a mean over raw rows).
@@ -23,7 +23,7 @@ numbers listed in a separate "Documented derivations" section of the output inst
 "Unmatched". The other numbers on such a line are still checked as usual, and every derivation
 stays visible in the output for a reviewer to recompute.
 
-usage: python experiments/x_report_check.py [--report reports/v3/report.md] [--out reports/v3/report_check.txt]
+usage: python experiments/x_report_check.py --report report.md --out results.txt
 """
 from __future__ import annotations
 
@@ -35,10 +35,9 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-V3 = ROOT / "reports" / "v3"
 
 NUM = re.compile(r"(?<![\w.\-/])-?\d{1,3}(?:,\d{3})+(?:\.\d+)?%?(?![\w])|(?<![\w.\-/])-?\d+(?:\.\d+)?(?:e-?\d+)?%?(?![\w])")
-JSON_REF = re.compile(r"\b((?:raw/)?x[\w]*\.json|raw/x\d+\.jsonl|gpu_benchmarks\.json|v2/[\w.]+?\.json)\b")
+JSON_REF = re.compile(r"\b((?:raw/)?x[\w]*\.json|raw/x\d+\.jsonl|gpu_benchmarks\.json|v3/[\w.]+?\.json)\b")
 DERIVED = re.compile(r"\bderived\b", re.IGNORECASE)
 STRIP = [
     re.compile(r"`[^`]*`"),                      # code spans (keys, commands)
@@ -78,7 +77,7 @@ _cache: dict[str, list[float]] = {}
 
 def values_of(name: str) -> list[float]:
     if name not in _cache:
-        path = (V3.parent / name) if name.startswith("v2/") else (V3 / name)
+        path = (V3.parent / name) if name.startswith("v3/") else (V3 / name)
         vals: list[float] = []
         if path.suffix == ".jsonl" and path.exists():  # cited raw file: every row, plus the row count
             n = 0
@@ -122,8 +121,8 @@ def parse(tok: str) -> tuple[float, int]:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--report", default=str(V3 / "report.md"))
-    ap.add_argument("--out", default=str(V3 / "report_check.txt"))
+    ap.add_argument("--report", required=True)
+    ap.add_argument("--out", required=True)
     a = ap.parse_args()
     lines = Path(a.report).read_text().split("\n")
 

@@ -1,53 +1,4 @@
-# Dumbocracy v3: experiment results
-
-Results document of the v3 experiment suite (plan: [`docs/v2/plans/implementation_plan.md`](../../docs/v2/plans/implementation_plan.md), §14).
-The v2 record stays in [`reports/v2/final_report.md`](../v2/final_report.md) (D4).
-
-## 1. Status
-
-- **Git revision:** `d8d9c4e+uncommitted` for every run (each JSON's `provenance` block). The owner commits; nothing in v3 is committed yet.
-- **Date:** 2026-11-10 (Phase 0); 2026-11-11 (Phases 1–6: all 23 experiments; Phase 8: this consolidation).
-- **Status:** 23 experiments done (X0–X23), with the planned seed counts and no seed reductions; X24 dropped (D8); X25 deferred (D1).
-- **Prices:** worker ₫20, survey query ₫10 (D5); treasury ₫500 (default), ₫500 / 750 / 1000 tested in X0 and X7 (D6).
-- **Allowed (N, T) range:** N ∈ [10³, 10⁶]; web game T ∈ [3, 5], engine and experiments T ∈ [1, 10] (R31 / D11, after X10).
-- **Compute summary:** every experiment ran on one NVIDIA RTX A5000 (cuda:2 or cuda:0, never GPU 1), except X15, a post-hoc CPU fit. The
-  wall times in the table add up to about 7.6 h (derived: sum of the Wall time column). The longest runs were X5
-  (74.7 min), X16 (64.2 min) and X12 (60.3 min) (x5.json, x16.json, x12.json → `provenance.compute`). Every experiment passed
-  its CPU↔GPU parity check (each JSON's `provenance.parity`).
-- **Compute:** GPU first (D10, plan §1.1). Phase 0 benchmarks on an RTX A5000 (cuda:2), all from [`gpu_benchmarks.json`](gpu_benchmarks.json):
-  - batched true-world runner `x_batch.run_batch`, policy `pay_split`: 3 ms per game at N = 10⁴ (B = 64) vs 42 ms for CPU `simulate_world` (×12.9); 7 ms per game at N = 10⁵ (B = 32–64) vs 382 ms (×53); peak 6.9 GiB above the inputs at N = 10⁵, B = 64 (`x_batch[*].policies.pay_split.batched`). With the ORACLE planner policy the Python decision code dominates: ×3.9 at 10⁴, ×22 at 10⁵ (`…planner.batched`);
-  - parity: 20/20 worlds bit-identical to `simulate_world` on the CPU; 20/20 with identical discrete outcomes on the GPU, floats within 6·10⁻⁸ (`parity`);
-  - BayesPlanner: the rollout planning step is 5–29× faster on the GPU, but the whole decision (world sampling, posterior, surveys) only 1.2–1.4× (`bayes_planner`); logic timeline: GPU 1.2–1.3× faster (`logic`); spectra: SciPy faster at 10⁴, GPU `lobpcg` faster at 10⁵ (`spectra`).
-
-| ID | Name | Status | Seeds | Device | Batch size | Peak GPU memory | Mean GPU util. | Wall time | Data file |
-|---|---|---|---|---|---|---|---|---|---|
-| X0 | Balance gate at the new prices | done | 100 per treasury (10000–10099) | cuda:2 | 100 | 1.74 GB | 19% | 289 s | [x0.json](x0.json) |
-| X10 | Balance across the player-chosen N and T | done | 50 per (N, T) cell (10000…) | cuda:2 | 50 (N ≤ 10⁵), 8 (10⁶) | 14.2 GB | 34% | 1,058 s | [x10.json](x10.json) |
-| X7 | Budget and price sensitivity | done | 50 per cell (10000…) | cuda:0 (deviation) | ORACLE batched; BayesPlanner 2 procs | 80 MB per proc | 6% | 16.5 min | [x7.json](x7.json) |
-| X23 | Worker-rule ablations | done | 50 per arm (10000…) | cuda:0 (deviation) | 50 | 0.95 GB | 12% | 104 s | [x23.json](x23.json) |
-| X1 | Network structure and consensus speed | done | 50 per cell (11000…) | cuda:2 | 50 | 1.2 GB | 15% | 21.6 min | [x1.json](x1.json) |
-| X2 | Stubborn agents, zealots, W-MSR | done | 50 per cell (11000…) | cuda:2 | 50 | 3.5 GB | 60% | 286 s | [x2.json](x2.json) |
-| X3 | Worker cascade threshold and reach | done | 50 worlds × 9 × 4, 10 trials + 8 extension points (11000…) | cuda:2 | 500 | 6.3 GB | 60% | 156 s | [x3.json](x3.json) |
-| X4 | Worker timing and placement | done | 50 per arm (11000…) | cuda:2 | 50 | 0.9 GB | 45% | 48 s | [x4.json](x4.json) |
-| X11 | Worker × media interaction | done | 100 (11000…) | cuda:2 | 400 | 5.2 GB | 38% | 76 s | [x11.json](x11.json) |
-| X18 | Submodularity of the worker value curve | done | 50; CELF 10 (11000…) | cuda:2 | 200 / 1024 (CELF) | 12.5 GB | 48% | 9.6 min | [x18.json](x18.json) |
-| X6 | Strategy tournament | done | 100 per player (12000…) | cuda:0 | ORACLE 100; Bayes 8 worlds | 0.07 GB | 31% | 8.9 min | [x6.json](x6.json) |
-| X12 | Broad vs narrow ("viral") manifesto | done | 50 per λ; 100 joint (12000…) | cuda:0 | manifestos × 20 streams per seed, chunked | 2.8 GB | 95% | 60.3 min | [x12.json](x12.json) |
-| X13 | ORACLE optimality: open-loop plan search | done | 100 (12000…) | cuda:0 | C = 256 plans × K = 4 | 0.3 GB | 92% | 12.0 min | [x13.json](x13.json) |
-| X14 | Planner calibration | done | 50 per arm, 18 arms (12000…) | cuda:0 | 4–32 worlds × 800–N voters | 0.07 GB | 9% | 30.6 min | [x14.json](x14.json) |
-| X19 | Manifesto geometry and a third optimiser | done | 100 (12000…) | cuda:0 | 8 starts; 64 Dirichlet starts | 0.3 GB | 21% | 9.7 min | [x19.json](x19.json) |
-| X5 | Value of information at ₫10 | done | 50 per cell, 22 arms (13000…) | cuda:2 | 1 game; 8 planner + 16 timeline worlds per decision | 0.13 GB | 17% | 74.7 min | [x5.json](x5.json) |
-| X17 | Learning personalities by probing | done | 50 per arm, 3 arms (13000…) | cuda:2 | 512 candidate worlds per game | 1.6 GB | 1% | 42.2 min | [x17.json](x17.json) |
-| X16 | Reliability and calibration of epistemic verdicts | done | 50 per player, 36 cells (13000…) | cuda:0 | worlds × up to 21 plans per decision; search 256 × 4 | 2.0 GB | 46% | 64.2 min | [x16.json](x16.json) |
-| X8 | Temporal properties of campaigns | done | reuses X6 (1,000 games) + 64 futures per (game, round) | cuda:0 | 160 (calibrated 640, OOM back-off) | 3.9 GB | 37% | 23.9 min | [x8.json](x8.json) |
-| X15 | Which elections are unwinnable? | done | reuses X0 + X6 + X10 (200 worlds) | CPU | — | — | — | 131 s | [x15.json](x15.json) |
-| X20 | Luck vs skill: variance decomposition | done | 50 worlds × 3 policies × 8 streams × 21 draws (14000…) | cuda:2 | 250 (in-game) / 100 (world draws) | 3.4 GB | 27% | 793 s | [x20.json](x20.json) |
-| X21 | Robustness to model misspecification | done | 50 per arm, 16 arms (14000…) | cuda:2 | ORACLE 50; Bayes 4 threads | 1.4 GB | 24% | 1,132 s | [x21.json](x21.json) |
-| X22 | Global sensitivity analysis of the design | done | 50 per point, r = 10, 110 points (14000…) | cuda:2 | 250 | 4.1 GB | 32% | 743 s | [x22.json](x22.json) |
-| X9 | Scale and GPU performance | done | 1 canonical × 3 repeats (20261107) | cuda:2 | 1 / 8 / 16 / 32 | 17.9 GB (B = 16 at 10⁶) | 7% | 2.1 min | [x9.json](x9.json) |
-| XC | Consensus towards the manifesto (descriptive) | done | 50 (10000–10049) | cuda:2 | 1 world × 5 campaigns | — | — | 36 s | [x_consensus.json](x_consensus.json) |
-| X24 | Human playtest (+ LLM player) | dropped (D8) | — | — | — | — | — | — | — |
-| X25 | Two-party meta-game and manifesto convergence | deferred (D1) | — | — | — | — | — | — | — |
+# Clout v3: experiment results
 
 ## 2. Summary
 
@@ -103,7 +54,7 @@ most of the outcome before the first move (X20).
 
 ### 3.1 The model
 
-Rules under test: spec v2.1 plus the post-v2.1 changes R16–R31 ([`technical_spec_v2.md`](../../docs/v2/technical_spec_v2.md), [`decisions_v2.md`](../../docs/v2/decisions_v2.md), and the party-worker rules R21–R28 in [`P8_party_workers_ic.md`](../../docs/v2/plans/P8_party_workers_ic.md)). The v2 final report (§3) gives the full equations; this is the one-page version. Default values are from x0.json → `config`.
+Rules under test: spec v3.1 plus the post-v3.1 changes R16–R31, including party-worker rules R21–R28. This is a one-page summary of the model. Default values are from x0.json → `config`.
 
 - **Electorate.** N voters (default 10,000) in 4 regions, each region at least 15% of the voters. Each voter holds a
   preference v_i on the simplex of 5 policy sectors. A hidden map σ gives each region one of 6 public archetypes;
@@ -155,7 +106,7 @@ Owner decisions taken on the Phase 1 evidence:
 
 **Question.** At the D5 prices (worker ₫20, query ₫10), do the five §12 balance-gate criteria hold at treasuries ₫500, ₫750 and ₫1000?
 
-**Prediction (pre-registered).** Copied unchanged from `reports/v3/predictions.md`:
+**Prediction.**
 > - **Predict:** at ₫20, "split" wins ≥ 80% (gate 4a fails), as the P8 price check found at ₫10–₫50.
 
 **Setup.**
@@ -238,9 +189,9 @@ Zealot sweep, oracle/planner at ₫500 on 40 seeds (`zealot_sweep_oracle_planner
 | 0.30 | 0.75 | 0.183 [0.174, 0.193] |
 
 Figures:
-- ![X0 win rates](..figures/x0_win_rates.png)
-- ![X0 gate](..figures/x0_gate.png)
-- ![X0 best pattern](..figures/x0_best_pattern.png)
+- ![X0 win rates](figures/x0_win_rates.png)
+- ![X0 gate](figures/x0_gate.png)
+- ![X0 best pattern](figures/x0_best_pattern.png)
 
 **Theory vs observation: confirmed.**
 - **Split reaches 80%:** "split" wins 88% [80.2, 93.0] at ₫500 and ₫750 and 95% [88.8, 97.8] at ₫1000. Gate 4a fails at every treasury (`reports/v3/x0.json` → `per_treasury.<t>.max_paid_pattern`).
@@ -265,7 +216,7 @@ Figures:
 
 **Question.** The API lets a player choose N ∈ [10³, 10⁶] and T ∈ [1, 10]. Does the §12 gate hold across that range? How do the two channels (workers and media) scale with N and T?
 
-**Prediction (pre-registered).** Copied unchanged from `reports/v3/predictions.md`:
+**Prediction.**
 > - **Predict:**
 >   - Δshare per worker ∝ 1/N (log–log slope ≈ −1), while media's Δshare per ₫ is flat in N.
 >   - Workers dominate at N = 10³ (the "one worker converts most voters" problem) and are near-worthless at 10⁶.
@@ -353,9 +304,9 @@ Converts per worker in absolute voters, mean [95% CI] (`cells.<N|T>.channels.con
 Media Δshare per ₫ is about 1.8e-4 at T = 1 and about 0.9e-4 at T = 10, at every N.
 
 Figures:
-- ![X10 gate map](..figures/x10_gate_map.png)
-- ![X10 channel dominance](..figures/x10_channel_dominance.png)
-- ![X10 scaling](..figures/x10_scaling.png)
+- ![X10 gate map](figures/x10_gate_map.png)
+- ![X10 channel dominance](figures/x10_channel_dominance.png)
+- ![X10 scaling](figures/x10_scaling.png)
 
 **Theory vs observation: partial.**
 1. **"Δshare per worker ∝ 1/N (slope ≈ −1), media Δshare per ₫ flat in N": partial.**
@@ -392,7 +343,7 @@ Figures:
 prices of workers and survey queries? Does money have diminishing returns, and at what worker fee do workers stop
 being worth it compared with media? This is a sensitivity study only: the game keeps ₫20 workers and ₫10 queries (D5).
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > money has diminishing returns; workers stop being worth it relative to media somewhere between
 > ₫50 and ₫100 at N = 10⁴ (P8 table).
 
@@ -489,9 +440,9 @@ Its win rate differs by at most 0.02 (`cells.BayesPlanner`).
   - No win-rate difference survives Holm (all McNemar Holm p ≥ 0.42).
 
 Figures:
-- ![X7 win rates](..figures/x7_win_rates.png)
-- ![X7 spend mix](..figures/x7_spend_mix.png)
-- ![X7 workers vs media](..figures/x7_workers_vs_media.png)
+- ![X7 win rates](figures/x7_win_rates.png)
+- ![X7 spend mix](figures/x7_spend_mix.png)
+- ![X7 workers vs media](figures/x7_workers_vs_media.png)
 
 **Theory vs observation. Partial.**
 - **Diminishing returns: partly confirmed.** For the ORACLE, the second ₫250 buys less than the first at ₫20 and ₫50
@@ -528,7 +479,7 @@ Figures:
 - R22: min degree 3;
 - R25: conversion chance γ·P.
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > cap ∞ and rule γ bring back cascade saturation (the manifesto stops mattering, as P8 saw with γ
 > alone). A cap of 1 makes workers subcritical.
 
@@ -617,9 +568,9 @@ uniform/none (0.10) are identical in every arm, as they must be.
   and the smallest degree in 50 worlds is 4 (`provenance.degree_check`).
 
 Figures:
-- ![X23 reach](..figures/x23_reach.png)
-- ![X23 win rates](..figures/x23_win_rates.png)
-- ![X23 cap binding](..figures/x23_cap_binding.png)
+- ![X23 reach](figures/x23_reach.png)
+- ![X23 win rates](figures/x23_win_rates.png)
+- ![X23 cap binding](figures/x23_cap_binding.png)
 
 **Theory vs observation. Partial.**
 - **Rule γ brings back saturation: confirmed.**
@@ -680,12 +631,12 @@ the mean TV distance of voters from the population mean (consensus drives it to 
 | split (half / half) | 0.783 → 0.873 [0.866, 0.881] | 0.343 → 0.641 [0.615, 0.668] | 0.217 → 0.136 | 0.88 |
 | ORACLE planner | 0.783 → 0.875 [0.868, 0.882] | 0.343 → 0.651 [0.624, 0.678] | 0.217 → 0.133 | 0.92 |
 
-![Consensus towards the manifesto over the rounds](..figures/xc_consensus_rounds.png)
+![Consensus towards the manifesto over the rounds](figures/xc_consensus_rounds.png)
 
 *Mean agreement with b (left), share of voters won over with a majority line (middle), and disagreement (right), by
 round; 50 seeds, mean and 95% CI (x_consensus.json).*
 
-![One world: agreement before and after, and voters moving towards b](..figures/xc_consensus_example.png)
+![One world: agreement before and after, and voters moving towards b](figures/xc_consensus_example.png)
 
 *Seed 10000 under the ORACLE planner (x_consensus.json → `example`).*
 - **Left:** distribution of agreement with b at round 0, at round 5 with no campaign (outline) and at round 5 with
@@ -716,7 +667,7 @@ round; 50 seeds, mean and 95% CI (x_consensus.json).*
 - Do well-connected countries reward a single nationwide manifesto, while fragmented ones reward region-targeted
   play?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > the decay follows ā(1 − μ₂(D⁻¹A)), not λ₂(L)/k̄ (as E1 found). Under the P8 rules, high p_g raises
 > the wins of a single nationwide manifesto.
 
@@ -795,8 +746,8 @@ high − low p_g, Holm over 12):
     at k̄ = 30.
 
 Figures:
-- ![X1 mixing and wins](..figures/x1_mixing_and_wins.png)
-- ![X1 regional mixing](..figures/x1_regional_mixing.png)
+- ![X1 mixing and wins](figures/x1_mixing_and_wins.png)
+- ![X1 regional mixing](figures/x1_regional_mixing.png)
 
 **Theory vs observation. Confirmed.**
 - **"The decay follows ā(1 − μ₂(D⁻¹A)), not λ₂(L)/k̄": confirmed.** It holds near-exactly for a uniform step
@@ -832,7 +783,7 @@ runs), log reports/v3/logs/x1.log. Command:
 - Does W-MSR (voters ignore their F most extreme friends) protect voters from *your* workers?
 - Do pinned agents stop consensus, and does the Friedkin–Johnsen (FJ) solve predict the long-run state?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > - The worker anchor value is a sizeable share of the worker value: Arm B Δshare / full-cascade Δshare is
 >   between 0.2 and 0.6, to be measured.
 > - Pinned agents stop consensus (disagreement does not decay to 0).
@@ -940,8 +891,8 @@ runs), log reports/v3/logs/x1.log. Command:
 - So W-MSR's guarantee fails against the zealots, but its threat model is satisfied by the workers.
 
 Figures:
-- ![X2 anchor vs cascade](..figures/x2_anchor.png)
-- ![X2 long runs](..figures/x2_long_runs.png)
+- ![X2 anchor vs cascade](figures/x2_anchor.png)
+- ![X2 long runs](figures/x2_long_runs.png)
 
 **Theory vs observation. Two predictions refuted, one confirmed with a qualification.**
 - **"Anchor share between 0.2 and 0.6": refuted.**
@@ -982,7 +933,7 @@ Figures:
 with q_j = γ_j·P_j(b), rather than by the naive estimates k̄·E[γP] or λ_max(A)·E[γP]? How far does a cascade reach,
 how often does the 3-attempt cap bind, and do converts drift back?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > growth crosses 1 near λ_max(A D_q) ≈ 1, more sharply than the naive estimates; the cap binds
 > mainly above threshold.
 
@@ -1085,8 +1036,8 @@ how often does the 3-attempt cap bind, and do converts drift back?
 - **Cross-region spread:** 85% of the converts lie outside the target region at θ = 0, and 30% at θ = 1.
 
 Figures:
-- ![X3 threshold](..figures/x3_threshold.png)
-- ![X3 sweep](..figures/x3_sweep.png)
+- ![X3 threshold](figures/x3_threshold.png)
+- ![X3 sweep](figures/x3_sweep.png)
 
 **Theory vs observation. Confirmed (with one qualification).**
 - **"Growth crosses 1 near λ_max(A D_q) ≈ 1": confirmed.**
@@ -1126,7 +1077,7 @@ log reports/v3/logs/x3.log. Command:
 number of workers? Would picking workers by degree centrality, as in the source document, change outcomes? If it
 did, the random pick in force would hide an important skill.
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > buying early is worth more (more hops); centrality picking gives a modest gain under k̄ = 30 ER
 > blocks (low degree variance).
 
@@ -1182,8 +1133,8 @@ did, the random pick in force would hide an important skill.
     changes a single win after Holm (McNemar Holm p = 1).
 
 Figures:
-- ![X4 timing × placement](..figures/x4_timing_placement.png)
-- ![X4 pick rule](..figures/x4_pick_rule.png)
+- ![X4 timing × placement](figures/x4_timing_placement.png)
+- ![X4 pick rule](figures/x4_pick_rule.png)
 
 **Theory vs observation. Confirmed.**
 - **"Buying early is worth more": confirmed, and the effect is large.** All workers in round 1 beat the even
@@ -1214,7 +1165,7 @@ Figures:
 - media raises S, so P and then the next round's conversion chance γP go up;
 - pinned workers raise their friends' P, which helps media turn them into votes.
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > the interaction is positive, and larger in canvassing-receptive regions; "media first, then
 > workers" beats the reverse.
 
@@ -1276,8 +1227,8 @@ Sources: `interaction.<fee>` and `tests.interaction`.
   buying the workers one round later costs a whole cascade hop: converts fall from 3,240 to 2,123 (`arms.*.converts_total`).
 
 Figures:
-- ![X11 interaction](..figures/x11_interaction.png)
-- ![X11 sequencing](..figures/x11_sequencing.png)
+- ![X11 interaction](figures/x11_interaction.png)
+- ![X11 sequencing](figures/x11_sequencing.png)
 
 **Theory vs observation. Partial.**
 - **"The interaction is positive": confirmed, but it is tiny.** I = +0.0011 at ₫20 and +0.0016 at ₫100. Both are
@@ -1311,7 +1262,7 @@ Figures:
 stubborn workers and a conversion chance that depends on b could break that. Is the worker value curve
 submodular in k? How far is the game's random pick from a node-level greedy (CELF) reference?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > roughly submodular in k, with possible early *super*-modularity in regions near threshold.
 
 **Setup.**
@@ -1384,8 +1335,8 @@ submodular in k? How far is the game's random pick from a node-level greedy (CEL
   neighbourhoods convert well.
 
 Figures:
-- ![X18 curve](..figures/x18_curve.png)
-- ![X18 CELF](..figures/x18_celf.png)
+- ![X18 curve](figures/x18_curve.png)
+- ![X18 CELF](figures/x18_celf.png)
 
 **Theory vs observation. Partial: submodular confirmed, early supermodularity refuted.**
 - **"Roughly submodular in k": confirmed, strongly.** Marginal gains fall by more than three orders of magnitude
@@ -1420,7 +1371,7 @@ reports/v3/logs/x18.log. Command:
 player sees only its observation? The personas are I People Pleaser, II Balanced (BayesPlanner) and III
 Strong-Arm, against the baselines. How far is the best player from the ORACLE and from the X13 upper bound?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > II > I > III; the price of not knowing is ≤ 0.015 E.
 
 **Setup.**
@@ -1515,8 +1466,8 @@ Mean decision latency (`decision_seconds`):
   - Against the X13 bound: bound − II = +0.0328 [0.0304, 0.0352].
 
 Figures:
-- ![X6 tournament](..figures/x6_tournament.png)
-- ![X6 ADMM residuals](..figures/x6_admm_residuals.png)
+- ![X6 tournament](figures/x6_tournament.png)
+- ![X6 ADMM residuals](figures/x6_admm_residuals.png)
 
 **Theory vs observation. Partial.**
 - **II > I > III: confirmed.** II − I = +0.079, I − III = +0.47 in E, both on 100/100 seeds (Holm p ≤ 1e-17).
@@ -1555,7 +1506,7 @@ reports/v3/logs/x6.log. Command:
 cascades grow on their own, while a broad manifesto pleases many voters a little. Which wins? And should b be
 chosen together with the campaign plan, rather than first?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > the best λ > 0 on seeds where some coalition region is canvassing-receptive. Joint optimisation
 > gains a measurable +0.005–0.02 E over "b first, then plan" (to be measured).
 
@@ -1658,8 +1609,8 @@ The sources are `oracle_arm_best_coalition_by_lambda`, `oracle_arm_all_coalition
   all-or-nothing conversions.
 
 Figures:
-- ![X12 interpolation](..figures/x12_lambda.png)
-- ![X12 joint](..figures/x12_joint.png)
+- ![X12 interpolation](figures/x12_lambda.png)
+- ![X12 joint](figures/x12_joint.png)
 
 **Theory vs observation. Partial.**
 - **"Best λ > 0 on receptive seeds": partial.**
@@ -1699,7 +1650,7 @@ reports/v3/logs/x12.log. Command:
 **Question.** How far is the greedy ORACLE planner from the best plan we can find with full information? The
 answer gives a true upper bound for X6.
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > the search beats the ORACLE planner by ≤ 0.01 E on average, with a long tail of seeds where front-loading
 > or concentration beats greedy by more.
 
@@ -1799,8 +1750,8 @@ A standardised OLS on five feature differences explains R² = 0.08 (`gap_ols`). 
 rule picks the wrong channel and timing everywhere), not a tail of special seeds.
 
 Figures:
-- ![X13 gap distribution](..figures/x13_gap.png)
-- ![X13 plan features](..figures/x13_features.png)
+- ![X13 gap distribution](figures/x13_gap.png)
+- ![X13 plan features](figures/x13_features.png)
 
 **Theory vs observation. Refuted.**
 - The search beats the ORACLE planner by 0.044 E on average [0.043, 0.046], more than four times the predicted
@@ -1842,7 +1793,7 @@ outcomes), log reports/v3/logs/x13.log. Command:
 much do the world size, the world count and the rollout continuation matter, and does the scaled hire count round
 to zero at large N?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > positive bias (over-optimism) that shrinks with world size; "even" undervalues front-loaded worker
 > buys.
 
@@ -1917,8 +1868,8 @@ to zero at large N?
   already buys them in round 2.
 
 Figures:
-- ![X14 bias by arm](..figures/x14_bias.png)
-- ![X14 bias by round](..figures/x14_bias_by_round.png)
+- ![X14 bias by arm](figures/x14_bias.png)
+- ![X14 bias by round](figures/x14_bias_by_round.png)
 
 **Theory vs observation. Refuted on the sign; partly confirmed otherwise.**
 - **"Positive bias (over-optimism)": refuted.** The planner is **pessimistic** in every arm at both N: −0.010 to
@@ -1964,7 +1915,7 @@ latencies), log reports/v3/logs/x14.log. Command:
 - How many regions does it carry (a minimum-winning-coalition analogue)?
 - How do projected gradient, consensus-ADMM, mirror descent and Frank–Wolfe compare?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > b* is closer to a 2–3-region coalition blend than to the mean or median; there are several local
 > optima (multi-start matters); mirror descent converges in fewer iterations than PG on interior optima.
 
@@ -2060,7 +2011,7 @@ E\* = 0.4690 [0.4560, 0.4820]. b\* alone, with no campaign, has E > 0.5 on 39/10
   - The carried regions hold 50.4% of voters on average. On 43 seeds they hold ≤ 50%.
   - The carried set is a minimal winning coalition on 44% [35%, 54%] of seeds.
 
-Figure: ![X19 optimisers and geometry](..figures/x19_optimisers_geometry.png)
+Figure: ![X19 optimisers and geometry](figures/x19_optimisers_geometry.png)
 
 **Theory vs observation. Partial (one part partly confirmed, two refuted).**
 - **"b\* is closer to a 2–3-region coalition blend than to the mean or median": partly confirmed.**
@@ -2105,7 +2056,7 @@ regions carried), log reports/v3/logs/x19.log. Command:
 **Question.** How many survey queries are worth buying now that a query costs ₫10? Does it matter whether
 they are chosen by expected information gain or at random? How does ₫10 compare with the old price of ₫5?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > about 2 questions are still enough; beyond that every question is a net loss, larger than at ₫5.
 
 **Setup.**
@@ -2199,9 +2150,9 @@ arm = `p10_k2_gain` and so on. The best k by mean E is 2 at ₫10 (gain) and 4 a
     k = 2; `arms.*.["P(win | guaranteed at round 1)"]`). With a 100% win rate this is not a strong test.
 
 Figures:
-- ![X5 curve](..figures/x5_curve.png)
-- ![X5 marginal value and posterior](..figures/x5_marginal.png)
-- ![X5 verdicts by round](..figures/x5_verdicts.png)
+- ![X5 curve](figures/x5_curve.png)
+- ![X5 marginal value and posterior](figures/x5_marginal.png)
+- ![X5 verdicts by round](figures/x5_verdicts.png)
 
 **Theory vs observation. Partial (direction confirmed everywhere; one clause not significant after Holm).**
 - **"About 2 questions are still enough": confirmed.**
@@ -2234,7 +2185,7 @@ Figures: `python experiments/plot_v3_phase4a.py --only x5`.
 **Question.** Surveys reveal nothing about the personalities τ (R13), and polls are national. Can a deliberate
 single-region probe in round 1 make τ learnable from the polls? Is the exploration worth its price?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > probing lowers τ entropy measurably, but the 400-voter national poll (SE ≈ 2.4 pp) limits it.
 > The net win-rate effect is ≈ 0 or negative.
 
@@ -2321,8 +2272,8 @@ Sources: `arms.<arm>.expected`, `win_rate`, `round1_spend`, `tau_by_round.<metri
     (`arms.*.truth_possible_by_round`).
 
 Figures:
-- ![X17 τ entropy](..figures/x17_entropy.png)
-- ![X17 outcome](..figures/x17_outcome.png)
+- ![X17 τ entropy](figures/x17_entropy.png)
+- ![X17 outcome](figures/x17_outcome.png)
 
 **Theory vs observation. Partial.**
 - **"Probing lowers τ entropy measurably": refuted for the plan's metric, confirmed only for the soft one.**
@@ -2358,7 +2309,7 @@ evaluated over a *sample* of worlds (16 worlds of 1,600 voters by default) and a
 plans. How often are they wrong? How do they depend on the number of worlds W, the world size n and |Π|? And is the
 graded belief p̂ calibrated?
 
-**Prediction (pre-registered).** Copied unchanged from reports/v3/predictions.md:
+**Prediction.**
 > "guaranteed" becomes rarer and more reliable as the world count grows; p̂ is over-confident at 16
 > worlds.
 
@@ -2479,9 +2430,9 @@ graded belief p̂ calibrated?
   reliability is 0.016 and resolution 0.031, against an uncertainty of 0.048.
 
 Figures:
-- ![X16 guaranteed vs worlds](..figures/x16_guaranteed_vs_worlds.png)
-- ![X16 reliability of p̂](..figures/x16_reliability.png)
-- ![X16 verdict errors](..figures/x16_verdict_errors.png)
+- ![X16 guaranteed vs worlds](figures/x16_guaranteed_vs_worlds.png)
+- ![X16 reliability of p̂](figures/x16_reliability.png)
+- ![X16 verdict errors](figures/x16_verdict_errors.png)
 
 **Theory vs observation. Partial.**
 - **"Guaranteed becomes rarer as the world count grows": confirmed.** It falls from 0.772 to 0.616 between 8 and 64
@@ -2535,8 +2486,8 @@ Library change (approved, D2): `max_policies` in `logic/epistemic.policy_set`, t
 - From which round is a lost game really lost? This is the point of no return, read off the branching futures
   (CTL-style EF / AF Victory).
 
-**Prediction (pre-registered).** Copied unchanged from `reports/v3/predictions.md`:
-> - **Predict:** most winners come from behind (as v2 found); the point of no return is round 2–3 for weak strategies.
+**Prediction.**
+> - **Predict:** most winners come from behind (as v3 found); the point of no return is round 2–3 for weak strategies.
 
 **Setup.**
 - **Data:** the X6 traces (`raw/x6.jsonl`): seeds 12000–12099, 9 players + ORACLE = 1,000 games. N = 10⁴, T = 5,
@@ -2546,7 +2497,7 @@ Library change (approved, D2): `max_policies` in `logic/epistemic.policy_set`, t
   - s₁…s₅: after each round;
   - s₆: election day.
 - **Two views of the margin:**
-  - **poll** (the player's view, as `game_trace` and v2): the poll published at that point − 0.5;
+  - **poll** (the player's view, as `game_trace` and v3): the poll published at that point − 0.5;
   - **true:** E − 0.5.
   - `Lead` = margin > 0. On election day, `Lead` = `Victory` (the official result).
   - The ORACLE has no polls, so it has only the true view.
@@ -2669,13 +2620,13 @@ wins on all 8 salts.
   before round 2 (raw/x8.jsonl).
 
 Figures:
-- ![X8 viability](..figures/x8_viability.png)
-- ![X8 point of no return](..figures/x8_point_of_no_return.png)
-- ![X8 LTL properties](..figures/x8_ltl.png)
+- ![X8 viability](figures/x8_viability.png)
+- ![X8 point of no return](figures/x8_point_of_no_return.png)
+- ![X8 LTL properties](figures/x8_ltl.png)
 
 **Theory vs observation. Partial.**
 - **"Most winners come from behind": confirmed, in the strongest form.** All 548 winners (453 in the poll view)
-  trailed at s₀. As in v2, □Lead never holds (0/1,000). Every player's commit-time share is below 50%, and the
+  trailed at s₀. As in v3, □Lead never holds (0/1,000). Every player's commit-time share is below 50%, and the
   lead is made by the campaign, typically after round 3–4.
 - **"The point of no return is round 2–3 for weak strategies": refuted.**
   - For weak *manifestos* (Strong-Arm, random b, and most People Pleaser and blend losses) the game is already
@@ -2713,7 +2664,7 @@ EF/AF/strategy, p_best and per-plan win rates per round; PNR; replay check), log
 and for the best observation-only player (BayesPlanner)? Can a simple model predict the loss, and what is a short
 "why you lost" story?
 
-**Prediction (pre-registered).** Copied unchanged from `reports/v3/predictions.md`:
+**Prediction.**
 > - **Predict:** losses concentrate where the two largest regions have distant archetypes and a fragmented network
 >   (low p_g); the largest region's personality decides the best channel.
 
@@ -2827,10 +2778,10 @@ and for the best observation-only player (BayesPlanner)? Can a simple model pred
   - 12086: E 0.494 is a close call, in a world the ORACLE won (E 0.533).
 
 Figures:
-- ![X15 coefficients](..figures/x15_coefficients.png)
-- ![X15 PDP ORACLE loss](..figures/x15_pdp_oracle_loss.png)
-- ![X15 PDP ORACLE margin](..figures/x15_pdp_oracle_margin.png)
-- ![X15 channel by personality](..figures/x15_channel_by_personality.png)
+- ![X15 coefficients](figures/x15_coefficients.png)
+- ![X15 PDP ORACLE loss](figures/x15_pdp_oracle_loss.png)
+- ![X15 PDP ORACLE margin](figures/x15_pdp_oracle_margin.png)
+- ![X15 channel by personality](figures/x15_channel_by_personality.png)
 
 **Theory vs observation. Partial.**
 - **"Losses concentrate where the two largest regions have distant archetypes": confirmed, and strongly.** All 11
@@ -2885,7 +2836,7 @@ features reports/v3/raw/features_<seed>.json, log reports/v3/logs/x15.log. Comma
 **Question.** How much of the outcome is decided by the player's decisions, and how much by randomness? Which random
 source matters most?
 
-**Prediction (pre-registered).** Copied unchanged from `reports/v3/predictions.md`:
+**Prediction.**
 > - **Predict:** world draw > worker picks > cascade > media ≈ election at N = 10⁴. Election-day noise is tiny
 >   (sd ≈ 0.005).
 
@@ -2959,8 +2910,8 @@ V shares (`components.E`).
   and 0.467.
 
 Figures:
-- ![X20 components](..figures/x20_components.png)
-- ![X20 shares](..figures/x20_shares.png)
+- ![X20 components](figures/x20_components.png)
+- ![X20 shares](figures/x20_shares.png)
 
 **Theory vs observation. Partial.**
 - **"World draw first": confirmed, by a wide margin.** The world draw gives 99.4% of Var(V) for the planner and
@@ -3002,7 +2953,7 @@ Figures:
 **Question.** BayesPlanner models the world with the public default parameters (`players.public_config` =
 `GameConfig()` defaults, except N, T and the treasury). How badly does it do when the true world differs?
 
-**Prediction (pre-registered).** Copied unchanged from `reports/v3/predictions.md`:
+**Prediction.**
 > - **Predict:** the planner is most sensitive to z and β_v (they define who votes); the least sensitive is κ.
 
 **Setup.**
@@ -3086,8 +3037,8 @@ t-CI and the Holm p.
   first-order heuristic, so a Δgap partly measures how the heuristic ORACLE reacts to the parameter.
 
 Figures:
-- ![X21 sensitivity](..figures/x21_sensitivity.png)
-- ![X21 win rates](..figures/x21_win_rates.png)
+- ![X21 sensitivity](figures/x21_sensitivity.png)
+- ![X21 win rates](figures/x21_win_rates.png)
 
 **Theory vs observation. Partial.**
 - **"Most sensitive to z": confirmed** on both measures (Δgap −0.034, misspecification cost −0.025, Holm p < 1e-4).
@@ -3124,8 +3075,7 @@ Figures:
 **Question.** Which parameters is the game's balance most sensitive to? This backs the "synthetic calibration"
 limitation in the report.
 
-**Prediction (pre-registered).** None. `reports/v3/predictions.md`: "The plan gives no 'Predict' line for this
-experiment; none is registered."
+**Prediction.** None was registered for this experiment.
 
 **Setup.**
 - **Seeds:** 14000–14049 (`seed_block("X22", 50)`). The same 50 seeds are used at every design point (common random
@@ -3194,8 +3144,8 @@ output also lists the factors whose μ* CI lower bound is above 2 × the noise f
   has σ ≈ μ*, which points to non-linear effects and interactions.
 
 Figures:
-- ![X22 Morris](..figures/x22_morris.png): μ* vs σ per output.
-- ![X22 direction](..figures/x22_direction.png): signed μ.
+- ![X22 Morris](figures/x22_morris.png): μ* vs σ per output.
+- ![X22 direction](figures/x22_direction.png): signed μ.
 
 **Theory vs observation.** No prediction was registered. The result agrees with X21:
 - the vote threshold z is by far the most influential parameter;
@@ -3206,7 +3156,7 @@ Figures:
 - **For the game design:**
   - The balance hinges on the voting rule. A step of 0.07 in z (2/3 of the box, i.e. 40% of the margin 1 − z) moves the
     ORACLE's win rate by about 0.6 on average (μ* 0.88 × Δ = 2/3).
-  - z, ω and κ were "v2.1 calibrated" on synthetic targets. They are the parameters whose calibration most deserves
+  - z, ω and κ were "v3.1 calibrated" on synthetic targets. They are the parameters whose calibration most deserves
     the "synthetic calibration" caveat in the report.
   - Workers being the best channel is a matter of the network and the voting rule:
     - a denser network (k̄ ↑), an easier vote (z margin ↑), a steeper vote (β_v ↑) and wider media exposure (p_m ↑)
@@ -3230,8 +3180,7 @@ Command: `OMP_NUM_THREADS=4 python experiments/x22_sensitivity.py --seeds 50 --f
 How do round time and memory scale with N and with batching over worlds, what is the CPU→GPU speed-up, and does
 the cascade hop stay O(edges)?
 
-**Prediction (pre-registered).** The plan gives no "Predict" line for this experiment; none is registered
-(reports/v3/predictions.md).
+**Prediction.** None was registered for this experiment.
 
 **Setup.**
 - **Seeds:** canonical seed 20261107; 3 timed repeats after one warm-up. The minimum is reported.
@@ -3281,7 +3230,7 @@ the cascade hop stay O(edges)?
 - **Batching:** at 10⁴ the GPU is latency-bound, so batching 32 worlds cuts the cost per world-round by 4×.
   At 10⁶ a single world already fills the GPU (11.1 ms, flat in B).
 
-Figure: ![X9 scaling](..figures/x9_scaling.png)
+Figure: ![X9 scaling](figures/x9_scaling.png)
 
 **Theory vs observation.** No prediction was registered. Descriptively:
 - the cascade hop and the whole round are at most linear in the number of edges, as the sparse
@@ -3314,11 +3263,11 @@ An empirical game-theoretic analysis of two scripted parties ({I, II, III, Top-3
 
 ## 11. Prediction scorecard
 
-Every prediction in [`predictions.md`](predictions.md) has one row; the prediction cell is copied unchanged. Of the 22
+Each row summarizes the prediction recorded with its experiment and compares it with observed results. Of the 22
 experiments with a prediction, 4 are confirmed, 1 refuted and 17 partly confirmed (derived: count of the Verdict column).
-X22 and X9 had no prediction in the plan; X24 and X25 were not run.
+X22 and X9 had no prediction recorded; X24 and X25 were not run.
 
-| ID | Prediction (from `predictions.md`) | Key measured number (95% CI) | Verdict | Data file |
+| ID | Prediction | Key measured number (95% CI) | Verdict | Data file |
 |---|---|---|---|---|
 | X0 | at ₫20, "split" wins ≥ 80% (gate 4a fails), as the P8 price check found at ₫10–₫50. | split wins 0.88 [0.80, 0.93] / 0.88 / 0.95 [0.89, 0.98] at ₫500/750/1000; 4a and 4b fail at all three | confirmed | [x0.json](x0.json) |
 | X10 | Δshare per worker ∝ 1/N (log–log slope ≈ −1), while media's Δshare per ₫ is flat in N. Workers dominate at N = 10³ (the "one worker converts most voters" problem) and are near-worthless at 10⁶. T = 1 favours media, because a cascade gets only 1 hop. | slope Δshare/worker vs N: −0.990 [−0.999, −0.982] at T=1, −0.237 [−0.275, −0.205] at T=5, +0.016 [0.008, 0.023] at T=10; media slopes CI ∋ 0; workers dominate at N=10³ and at T=10 | partial | [x10.json](x10.json) |
@@ -3338,34 +3287,33 @@ X22 and X9 had no prediction in the plan; X24 and X25 were not run.
 | X5 | about 2 questions are still enough; beyond that every question is a net loss, larger than at ₫5. | E by k (₫10, info gain): k0 0.6542, k2 0.6579, k12 0.6447; k12 − k2 = −0.0132 [−0.0176, −0.0087] (Holm p 6e-7); ₫10 vs ₫5 contrast −0.0071 [−0.0122, −0.0020] (Holm p 0.084); best k: 2 at ₫10, 4 at ₫5; win rates at ceiling | partial (≈ 2 questions and net loss beyond confirmed; ‘larger than at ₫5’ not significant) | [x5.json](x5.json) |
 | X17 | probing lowers τ entropy measurably, but the 400-voter national poll (SE ≈ 2.4 pp) limits it. The net win-rate effect is ≈ 0 or negative. | hard-filter τ entropy at round 5: probe +0.019 higher (Holm p 2e-5); soft-likelihood entropy −0.030 at round 2 (Holm p 3e-9), gone by round 5; probe − planner E −0.0127 [−0.0195, −0.0059] (Holm p 0.007), 3 games lost, 0 gained | partial (entropy drop refuted on plan metric; poll limit and ≤ 0 net effect confirmed) | [x17.json](x17.json) |
 | X16 | "guaranteed" becomes rarer and more reliable as the world count grows; p̂ is over-confident at 16 worlds. | P(guaranteed) 0.772 → 0.616 for W = 8 → 64 (W64 − W8 −0.156 [−0.200, −0.110], Holm p 8e-23); 0 false asserts in all 36 cells; missed truths 0.21 → 0.37; default cell Brier 0.032, OC −0.024 [−0.050, 0.007], slope 1.44 | partial (rarer confirmed; reliability untestable at 0 errors; over-confidence refuted) | [x16.json](x16.json) |
-| X8 | most winners come from behind (as v2 found); the point of no return is round 2–3 for weak strategies. | winners trailed at s₀: 548/548 true, 453/453 poll [0.993, 1]; weak-loss PNR round 1 in 77% [0.73, 0.81], round 2–3 in 6.5% [0.046, 0.092]; P(win \| a plan wins all sampled futures at round 1) 0.89 vs 0.023 | partial (from behind confirmed, structural; PNR 2–3 refuted) | [x8.json](x8.json) |
+| X8 | most winners come from behind (as v3 found); the point of no return is round 2–3 for weak strategies. | winners trailed at s₀: 548/548 true, 453/453 poll [0.993, 1]; weak-loss PNR round 1 in 77% [0.73, 0.81], round 2–3 in 6.5% [0.046, 0.092]; P(win \| a plan wins all sampled futures at round 1) 0.89 vs 0.023 | partial (from behind confirmed, structural; PNR 2–3 refuted) | [x8.json](x8.json) |
 | X15 | losses concentrate where the two largest regions have distant archetypes and a fragmented network (low p_g); the largest region's personality decides the best channel. | ORACLE losses 11/100 at archetype TV ≥ 0.35 vs 0/100 below (Fisher p 0.0004); CV AUC 0.91 logistic / 0.76 tree; Holm p: H1 0.011, H2 (p_g) 0.032 but coefficient CI ∋ 0, H3 Cramér's V 0.31 yet split best in 92/100 | partial (distant archetypes confirmed; fragmentation weak; personality → channel refuted) | [x15.json](x15.json) |
 | X20 | world draw > worker picks > cascade > media ≈ election at N = 10⁴. Election-day noise is tiny (sd ≈ 0.005). | world draw = 99.4% of Var(V) for planner, 97.2% for split (mostly preferences, 0.92); within-world sd of V: cascade 0.0035 ≈ election 0.0034 > worker picks 0.0028 ≫ media 0.0011; skill share on E 0.50 [0.48, 0.52] (planner vs split only 0.002) | partial (world first and small election noise confirmed; picks > cascade and media ≈ election refuted) | [x20.json](x20.json) |
 | X21 | the planner is most sensitive to z and β_v (they define who votes); the least sensitive is κ. | Δgap ranking z 0.034 > k̄ 0.014 > β_v 0.011 > ω 0.008 > p_m 0.005 > κ 0.004 > ζ 0.0004; misspecification cost z 0.025 > ω 0.009 > β_v 0.005; no win-rate change survives Holm; leak check passed | partial (z confirmed; least-sensitive κ refuted: ζ is least) | [x21.json](x21.json) |
-| X22 | (no prediction in the plan) | ORACLE-win μ*: z 0.88 [0.61, 1.16] ≫ ω 0.087 > κ 0.051 > k̄ 0.042 (noise floor 0.023); worker-best share led by k̄ 0.27 > z 0.22 > β_v 0.17; worker fee at the noise floor | not tested (no prediction) | [x22.json](x22.json) |
-| X9 | (no prediction in the plan) | GPU vs CPU ×2.8 / ×28 / ×69 (one world) and ×11 / ×49 / ×69 (batched) at 10⁴ / 10⁵ / 10⁶; 11 ms per round at 10⁶; B = 32 at 10⁶ is OOM; cascade hop ≤ linear in edges | not tested (no prediction) | [x9.json](x9.json) |
+| X22 | (no prediction recorded) | ORACLE-win μ*: z 0.88 [0.61, 1.16] ≫ ω 0.087 > κ 0.051 > k̄ 0.042 (noise floor 0.023); worker-best share led by k̄ 0.27 > z 0.22 > β_v 0.17; worker fee at the noise floor | not tested (no prediction) | [x22.json](x22.json) |
+| X9 | (no prediction recorded) | GPU vs CPU ×2.8 / ×28 / ×69 (one world) and ×11 / ×49 / ×69 (batched) at 10⁴ / 10⁵ / 10⁶; 11 ms per round at 10⁶; B = 32 at 10⁶ is OOM; cascade hop ≤ linear in edges | not tested (no prediction) | [x9.json](x9.json) |
 | X24 | (dropped under D8; no prediction registered) | not run | not tested (not run) | — |
 | X25 | (deferred under D1; no prediction registered) | not run | not tested (not run) | — |
 
-## 12. What changed since v2
+## 12. What changed since v3
 
-v2 numbers are from [`reports/v2/final_report.md`](../v2/final_report.md) and its JSONs (`reports/v2/`); v3 numbers from
-the v3 JSONs. The main rule changes between the two (§3.1): in v2 each round brought 10 free workers (extras ₫4) whose
+v3 numbers are from the v3 JSON results; v3 numbers are from the v3 JSON results. The main rule changes between the two (§3.1): in v3 each round brought 10 free workers (extras ₫4) whose
 contacts started an SIR word-of-mouth cascade with a fixed chance τ_c per edge, and a query cost ₫5. In v3 every worker
 is bought for ₫20, is permanent and pinned at b (R21–R23, R30), the cascade is an Independent Cascade of one hop per
 round with chance γ·P and at most 3 attempts per voter (R24–R27), and a query costs ₫10 (R30). v3 also uses fewer seeds
-per cell (50 or 100, D3) than v2 (200 in most cells).
+per cell (50 or 100, D3) than v3 (200 in most cells).
 
-| v2 → v3 | v2 finding | v3 finding | Rule change that explains the difference |
+| v3 → v3 | v3 finding | v3 finding | Rule change that explains the difference |
 |---|---|---|---|
-| E1 → X1 | Contraction follows ā(1 − μ₂): Spearman 0.995; the λ₂(L)/k̄ form is worse (0.67) (v2/e1_topology.json) | Same: Spearman 0.997; λ₂(L)/k̄ ρ 0.62 (x1.json) | None for the result: the DeGroot dynamics did not change. The small differences are seed noise (50 vs 200 seeds per cell). |
-| E2 → X2 | Zealots cut the ORACLE win rate from 0.955 to 0.720 as ζ goes 0 → 0.30; W-MSR does not slow persuasion (v2/e2_zealots.json) | Zealots cut the planner's win rate from 0.92 to 0.80 and its persuasion from 0.162 to 0.107 E; W-MSR slightly *raises* the worker value (+0.001 to +0.004); pinned workers add almost nothing on their own (anchor share 0.002–0.009) (x2.json) | The campaign channel changed (R21–R27): workers are pinned stubborn agents and converts jump to b. The direction of the zealot effect is the same; its size is not comparable across the two campaign rules. |
-| E3 → X3 | SIR growth crosses 1 at x_rr ≈ 0.87, with x_rr = τ_c λ_max(A_rr)/ρ (v2/e3_cascades.json) | IC growth crosses 1 at λ_max(A D_q) ≈ 0.94, where D_q holds the per-voter conversion chances γ·P (x3.json) | R24–R25: the per-edge chance is γ_j·P_j instead of a constant τ_c, so the threshold operator is weighted by how much each voter likes b. Both thresholds sit just below 1, as theory predicts. |
-| E4 → X5 | At ₫5: two queries +0.0027 E against none (p 0.05); twelve −0.0034 E (p 0.003) (v2/info_curve_r12.json) | At ₫10: two queries +0.0036 [−0.0008, +0.0081] E against none (Holm p 1); twelve −0.0095 [−0.0135, −0.0055] E (Holm p 6e-5) (x5.json) | R30 doubled the query price, and money now buys permanent workers, so each question costs more campaign. Two questions remain enough; extra questions now cost about 3 times as much. |
-| E5 → X7 | ORACLE wins 0.835 / 0.960 / 1.000 at treasury ₫250 / ₫500 / ₫1000; the BayesPlanner shifts from media to workers as money grows (v2/e5_budget.json) | At the ₫20 fee, ORACLE wins 0.92 / 0.96 / 0.98 at ₫500 / ₫750 / ₫1000; the BayesPlanner's worker share of spend *falls* from 0.46 to 0.22 as money grows (x7.json) | R21–R27: workers are permanent and each voter can be targeted only 3 times, so extra workers soon hit used-up targets (X18: strongly submodular). Extra money goes to media instead. ₫250 is outside the R17 range and was not tested. |
-| E6 → X6 | BayesPlanner wins 0.910 [0.862, 0.942], E 0.590; ORACLE 0.960, E 0.601; ORACLE − BayesPlanner = +0.011 E (v2/strategies_r12.json) | BayesPlanner wins 0.98 [0.93, 0.99], E 0.639; ORACLE 0.95 [0.89, 0.98], E 0.628; ORACLE − BayesPlanner = −0.011 [−0.014, −0.009] E (x6.json) | Under the new worker rules the ORACLE's greedy planner over-buys workers late (X13), while the BayesPlanner's rollouts value the rules directly. The ORACLE is no longer a ceiling; X13's search is the reference. |
-| E7 → X9 | At 10⁶ voters a GPU round takes 28 ms vs 2.06 s on the CPU (about 74×) (v2/e7_scale.json) | At 10⁶ voters a round takes 11 ms on the GPU, ×69 over the CPU for one world (x9.json) | The cascade code changed (IC instead of SIR, R24–R27), and so did the per-round work; same GPU model (RTX A5000). The speed-up over the CPU is similar. |
-| balance gate → X0 | All five criteria pass; the best fixed pattern wins 77.5% (< 80%); ORACLE wins 0.900 (v2/balance_gate_v2.1.json) | Criteria 4a and 4b fail at every treasury: "split" wins 0.88–0.95; ORACLE wins 0.94–0.99 (x0.json) | R21–R30: a bought, permanent ₫20 worker with an IC cascade is a much stronger channel than v2's workers. The P8 price check had found ₫100 passing and ₫50 failing (R29); the owner fixed ₫20 (R30) and kept it after X0 (D5). |
+| E1 → X1 | Contraction follows ā(1 − μ₂): Spearman 0.995; the λ₂(L)/k̄ form is worse (0.67) (v3/e1_topology.json) | Same: Spearman 0.997; λ₂(L)/k̄ ρ 0.62 (x1.json) | None for the result: the DeGroot dynamics did not change. The small differences are seed noise (50 vs 200 seeds per cell). |
+| E2 → X2 | Zealots cut the ORACLE win rate from 0.955 to 0.720 as ζ goes 0 → 0.30; W-MSR does not slow persuasion (v3/e2_zealots.json) | Zealots cut the planner's win rate from 0.92 to 0.80 and its persuasion from 0.162 to 0.107 E; W-MSR slightly *raises* the worker value (+0.001 to +0.004); pinned workers add almost nothing on their own (anchor share 0.002–0.009) (x2.json) | The campaign channel changed (R21–R27): workers are pinned stubborn agents and converts jump to b. The direction of the zealot effect is the same; its size is not comparable across the two campaign rules. |
+| E3 → X3 | SIR growth crosses 1 at x_rr ≈ 0.87, with x_rr = τ_c λ_max(A_rr)/ρ (v3/e3_cascades.json) | IC growth crosses 1 at λ_max(A D_q) ≈ 0.94, where D_q holds the per-voter conversion chances γ·P (x3.json) | R24–R25: the per-edge chance is γ_j·P_j instead of a constant τ_c, so the threshold operator is weighted by how much each voter likes b. Both thresholds sit just below 1, as theory predicts. |
+| E4 → X5 | At ₫5: two queries +0.0027 E against none (p 0.05); twelve −0.0034 E (p 0.003) (v3/info_curve_r12.json) | At ₫10: two queries +0.0036 [−0.0008, +0.0081] E against none (Holm p 1); twelve −0.0095 [−0.0135, −0.0055] E (Holm p 6e-5) (x5.json) | R30 doubled the query price, and money now buys permanent workers, so each question costs more campaign. Two questions remain enough; extra questions now cost about 3 times as much. |
+| E5 → X7 | ORACLE wins 0.835 / 0.960 / 1.000 at treasury ₫250 / ₫500 / ₫1000; the BayesPlanner shifts from media to workers as money grows (v3/e5_budget.json) | At the ₫20 fee, ORACLE wins 0.92 / 0.96 / 0.98 at ₫500 / ₫750 / ₫1000; the BayesPlanner's worker share of spend *falls* from 0.46 to 0.22 as money grows (x7.json) | R21–R27: workers are permanent and each voter can be targeted only 3 times, so extra workers soon hit used-up targets (X18: strongly submodular). Extra money goes to media instead. ₫250 is outside the R17 range and was not tested. |
+| E6 → X6 | BayesPlanner wins 0.910 [0.862, 0.942], E 0.590; ORACLE 0.960, E 0.601; ORACLE − BayesPlanner = +0.011 E (v3/strategies_r12.json) | BayesPlanner wins 0.98 [0.93, 0.99], E 0.639; ORACLE 0.95 [0.89, 0.98], E 0.628; ORACLE − BayesPlanner = −0.011 [−0.014, −0.009] E (x6.json) | Under the new worker rules the ORACLE's greedy planner over-buys workers late (X13), while the BayesPlanner's rollouts value the rules directly. The ORACLE is no longer a ceiling; X13's search is the reference. |
+| E7 → X9 | At 10⁶ voters a GPU round takes 28 ms vs 2.06 s on the CPU (about 74×) (v3/e7_scale.json) | At 10⁶ voters a round takes 11 ms on the GPU, ×69 over the CPU for one world (x9.json) | The cascade code changed (IC instead of SIR, R24–R27), and so did the per-round work; same GPU model (RTX A5000). The speed-up over the CPU is similar. |
+| balance gate → X0 | All five criteria pass; the best fixed pattern wins 77.5% (< 80%); ORACLE wins 0.900 (v3/balance_gate_v3.1.json) | Criteria 4a and 4b fail at every treasury: "split" wins 0.88–0.95; ORACLE wins 0.94–0.99 (x0.json) | R21–R30: a bought, permanent ₫20 worker with an IC cascade is a much stronger channel than v3's workers. The P8 price check had found ₫100 passing and ₫50 failing (R29); the owner fixed ₫20 (R30) and kept it after X0 (D5). |
 
 ## 13. Limitations and threats to validity
 
@@ -3377,7 +3325,7 @@ per cell (50 or 100, D3) than v2 (200 in most cells).
   round-1 estimate is pessimistic and the bias depends on world size. The epistemic verdicts (X16) are over sampled
   worlds and a plan set of at most 21 plans; the temporal properties (X8) are over 64 sampled futures, not all plans
   and all randomness. A "guaranteed" or "inevitable" verdict is a statement about those samples.
-- **Synthetic calibration.** z, ω and κ were calibrated in v2.1 on synthetic targets, not on real electorates. X21
+- **Synthetic calibration.** z, ω and κ were calibrated in v3.1 on synthetic targets, not on real electorates. X21
   and X22 show the outcome is most sensitive to exactly z. No human played the v3 rules (X24 dropped, D8), so the
   player advice in §2 comes from scripted and planning players only.
 - **Statistical power.** Sweep cells have 50 seeds (D3): a paired win-rate difference below about 8–10 points is not
@@ -3402,7 +3350,7 @@ per cell (50 or 100, D3) than v2 (200 in most cells).
 - **The number check is permissive.** `x_report_check.py` accepts a number when it appears, after rounding, anywhere
   in a cited JSON. A match shows the number exists in the source, not that it is the right key. 13 numbers are
   documented derivations (differences, ratios, products, a square root, means over raw rows); the checker lists them
-  for a reviewer (`reports/v3/report_check.txt`).
+  for a reviewer.
 
 ## 14. Deviations from the plan
 
@@ -3423,10 +3371,6 @@ with the planned seed counts; no seed count was reduced.
   subclass that kept the manifesto worlds on the CPU.
 
 **Not approved / not scheduled:** the LLM player (X24) and the softmax-voting two-player engine (X25).
-
-**Phase 0.**
-- The v2 reports were not moved to `reports/archive/v2.1/`: `reports/v2/final_report.md` (kept as the v2 record, D4)
-  links to `reports/v2/*.json` and `..figures/`. The move is offered to the owner in `handoff_owner.md`.
 
 **Device.** The plan's default device is cuda:2. X6, X7, X8, X12, X13, X14, X16, X19 and X23 ran on cuda:0 because
 cuda:2 was in use by other runs. X15 ran on the CPU (a §1.1 exception for model fitting).
@@ -3455,7 +3399,7 @@ cuda:2 was in use by other runs. X15 ran on the CPU (a §1.1 exception for model
 - **X14** (`x14.json` → `deviations`): a one-factor-at-a-time design around the default (9 arms per N) instead of the full 4 × 4 × 3 factorial.
 - **X19** (`x19.json` → `deviations`): a first run with a uniform Frank–Wolfe line-search grid stalled near the optimum; the grid was made
   log-spaced and the whole experiment rerun; only the rerun is reported.
-- **X5** (`x5.json` → `deviations`): queries are budgeted as k × price and there are no in-round queries (as in v2); the ₫5 comparison uses both
+- **X5** (`x5.json` → `deviations`): queries are budgeted as k × price and there are no in-round queries (as in v3); the ₫5 comparison uses both
   selection rules; games run one at a time, with worlds × plans × voters batched inside each decision.
 - **X17** (`x17.json` → `deviations`): an extra control arm poll_planner; τ learning measured with 512 candidate worlds per game replayed once;
   the probe score is a discriminability ratio; world micro-states drawn on the CPU and moved to the GPU.
@@ -3477,7 +3421,7 @@ cuda:2 was in use by other runs. X15 ran on the CPU (a §1.1 exception for model
   early pilot fell back to cuda:0 for about 20 s, after which every script refuses to fall back.
 
 **Number check (Phase 8).** `x_report_check.py` reports 0 unmatched numbers. It now also reads the raw JSONL files
-and the v2 JSONs when a line cites them, skips section references (§1.4), and lists numbers on lines marked "derived"
+and the v3 JSONs when a line cites them, skips section references (§1.4), and lists numbers on lines marked "derived"
 separately (docstring of `experiments/x_report_check.py`). Text corrected in Phase 8 to match the JSON
 (old text in code spans):
 - X1, uniform manifesto + planner gain: `+0.089` → +0.088 (x1.json `nationwide[11].expected_high_minus_low.mean` = 0.0885);
@@ -3524,7 +3468,7 @@ Order matters for five of them: X13 before X6 and X12 (they read `x13.json`), X6
 | X9 | `OMP_NUM_THREADS=4 python experiments/x9_scale.py --device cuda:2 --repeats 3 --out reports/v3/x9.json` |
 | XC | `OMP_NUM_THREADS=4 python experiments/x_consensus.py --seeds 50 --first-seed 10000 --device cuda:2` |
 | figures (all 57) | `python experiments/plot_v3.py` |
-| number check | `python experiments/x_report_check.py` (writes `reports/v3/report_check.txt`) |
+| number check | `python experiments/x_report_check.py --report <report.md> --out <results.txt>` |
 | tests | `OMP_NUM_THREADS=4 python -m pytest tests -q` |
 
 The device flags record where each run was made; any free GPU gives the same discrete results (parity checks), with

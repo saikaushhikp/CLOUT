@@ -1,6 +1,6 @@
 """Validated, immutable game configuration, named seed streams and device selection (spec §9).
 
-Every default marked ⚙ in ``docs/v2/technical_spec_v2.md`` lives here and nowhere else.
+Configuration defaults for the simulation live here.
 """
 from __future__ import annotations
 

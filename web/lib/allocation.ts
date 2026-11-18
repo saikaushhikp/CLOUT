@@ -49,7 +49,7 @@ export function allocationCostCents(obs: CostView, draft: AllocationDraft): numb
 }
 
 /**
- * Mirrors the engine's validation (web_api_v2.md "Semantics", P8): pure, never throws.
+ * Mirrors the engine's validation (web_api_v3.md "Semantics", P8): pure, never throws.
  * cost = Σ hires × worker + Σ aired media ≤ treasury. (Eligible-voter shortage is only known to the engine.)
  */
 export function checkAllocation(obs: CostView, draft: AllocationDraft): AllocationCheck {

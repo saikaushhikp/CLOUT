@@ -11,7 +11,7 @@ host peak = ru_maxrss of that subprocess. Per (N, device):
 * full games through play_game: Top3Player and BayesPlanner (posterior worlds of 1 600 voters, so its cost is
   mostly independent of N).
 
-Usage: python experiments/e7_scale.py --n 10000 100000 1000000 --device cuda:2 --cpu-too --out reports/v2/e7_scale.json
+Usage: python experiments/e7_scale.py --n 10000 100000 1000000 --device cuda:2 --cpu-too --out <output.json>
 """
 from __future__ import annotations
 
@@ -115,7 +115,7 @@ def main():
     ap.add_argument("--seeds", type=int, default=1, help="(unused; one canonical seed — CLI uniformity)")
     ap.add_argument("--no-bayes", action="store_true")
     ap.add_argument("--child", default=None)
-    ap.add_argument("--out", default="reports/v2/e7_scale.json")
+    ap.add_argument("--out", required=True)
     args = ap.parse_args()
     if args.child:
         n, device = args.child.split("@")

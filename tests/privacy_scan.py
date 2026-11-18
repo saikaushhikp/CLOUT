@@ -1,4 +1,4 @@
-"""Recursive leak scanner for player-facing payloads (spec §6.6, web_api_v2.md privacy rules)."""
+"""Recursive leak scanner for player-facing payloads (spec §6.6, web_api_v3.md privacy rules)."""
 from __future__ import annotations
 
 from typing import Any

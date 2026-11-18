@@ -1,4 +1,4 @@
-"""X13 — ORACLE optimality: open-loop plan search (plan ``docs/v2/plans/implementation_plan.md`` §5 X13).
+"""X13 — ORACLE optimality: open-loop plan search.
 
 Command (reproduces reports/v3/x13.json, reports/v3/raw/x13.jsonl and reports/v3/logs/x13.log):
   OMP_NUM_THREADS=4 python experiments/x13_plan_search.py --seeds 100 --first-seed 12000 --device cuda:0 \

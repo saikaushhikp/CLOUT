@@ -1,4 +1,4 @@
-# Dumbocracy demo: one election you win, one you can't
+# Clout demo: one election you win, one you can't
 
 Two fixed games for live demos. Both use the owner's settings: **100,000 voters, a treasury of ₫850, 5 rounds**.
 
@@ -17,23 +17,40 @@ independently with the replay scripts below.
 
 ## How to run a demo
 
-1. Start the game: `scripts/run_game.sh` (engine on :61008, web game on :61007).
+1. Start the game. On Linux/macOS run `./scripts/run_game.sh` (engine on :61008, web game on :61007). On Windows,
+   follow the two-PowerShell-window steps in [README: Play](../README.md#3-play).
 2. On the setup screen enter the seed, **100000** voters, **5** rounds and treasury **850.00**.
 3. Follow the walkthrough for that demo. It lists the survey questions to ask, the manifesto to enter (whole
    percentages) and what to buy each round, with the expected poll after every round.
 
-**Replaying without the browser** (plays the script through the API and checks the result):
+**Replaying without the browser** (plays the script through the API and checks the result). Activate the `mas`
+environment first. Use these commands for the device available on your system:
+
+Linux with CUDA:
 
 ```bash
-conda activate mas
 python Demo/win/replay_win.py   --device cuda:0    # asserts the no-campaign play loses AND the campaign wins
 python Demo/lose/replay_lose.py --device cuda:2    # asserts every play loses (--play best|none|both, --epistemic)
+```
+
+macOS or CPU-only Linux:
+
+```bash
+python Demo/win/replay_win.py   --device cpu
+python Demo/lose/replay_lose.py --device cpu
+```
+
+Windows PowerShell:
+
+```powershell
+python Demo/win/replay_win.py   --device cpu
+python Demo/lose/replay_lose.py --device cpu
 ```
 
 **GPU vs CPU engine.**
 - The starting electorate is identical everywhere.
 - The random events during play (survey samples, worker picks, cascades, polls, the vote) are drawn on the engine's
-  device. The walkthroughs' exact numbers are for a **CUDA (GPU) engine**; any two GPUs give identical results.
+  device. The walkthroughs' exact numbers are for a **CUDA (GPU) engine**.
 - On a CPU engine the numbers differ slightly, but the story is the same:
 
   | Demo | GPU engine | CPU engine |

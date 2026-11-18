@@ -1,4 +1,4 @@
-"""Allowlisted, JSON-safe per-player observation (spec §6.1–§6.6, §8; web_api_v2.md ``Observation``).
+"""Allowlisted, JSON-safe per-player observation (spec §6.1–§6.6, §8; web_api_v3.md ``Observation``).
 
 Built ONLY from public fields: config costs/rules, the public census, the public libraries and the
 player's own knowledge log / ledger / allocations. Nothing hidden (per-voter values, σ/τ, zealots,

@@ -1,5 +1,5 @@
 /**
- * Types of the binding HTTP/JSON contract (docs/v2/web_api_v2.md).
+ * Types of the binding HTTP/JSON contract (HTTP/JSON API contract).
  * Keep these 1:1 with the contract; UI-only types live elsewhere.
  */
 

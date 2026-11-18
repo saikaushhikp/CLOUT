@@ -10,10 +10,6 @@ Clout is also a research tool. One PyTorch code path simulates a single game in 
 GPU. That let us test the game against multi-agent systems theory: opinion dynamics, contagion, optimisation, and
 epistemic and temporal logic.
 
-<p align="center">
-  <img src="slides/assets/network-title.png" width="440" alt="A 1,000-voter Clout electorate: four regions of voters, coloured by region">
-</p>
-
 Built by **Team Dumbocracy** as a Multi-Agent Systems course project at IIT Hyderabad.
 
 ---
@@ -48,11 +44,13 @@ Built by **Team Dumbocracy** as a Multi-Agent Systems course project at IIT Hyde
 
 ### 1. Requirements
 
-- **Linux or macOS** with [conda](https://docs.conda.io/) (Miniconda is enough)
+- **Linux, macOS, or Windows** with [conda](https://docs.conda.io/) (Miniconda is enough)
 - **Python 3.11 or newer** and **Node.js 20.9 or newer**. The conda environment below installs both.
-- **Optional:** an NVIDIA GPU with CUDA. Everything also runs on CPU.
+- **Optional:** an NVIDIA GPU with CUDA. The game and experiments also run on CPU.
 
 ### 2. Install
+
+**Linux and macOS (Terminal):**
 
 ```bash
 git clone https://github.com/saikaushhikp/CLOUT.git
@@ -64,6 +62,20 @@ conda activate mas
 cd web && npm ci && cd ..                   # the web game's dependencies
 ```
 
+**Windows (PowerShell):**
+
+```powershell
+git clone https://github.com/saikaushhikp/CLOUT.git
+Set-Location CLOUT
+
+conda env create -f environment.yml
+conda activate mas
+
+Set-Location web
+npm ci
+Set-Location ..
+```
+
 PyTorch comes as the default build for your platform. For a specific CUDA version, or CPU only, run the install
 command from [pytorch.org](https://pytorch.org/get-started/locally/) inside the environment afterwards.
 
@@ -72,16 +84,41 @@ the packages Clout imports, with compatible version ranges. You will also need N
 
 ### 3. Play
 
+**Linux and macOS:** the launcher uses Bash and starts both services:
+
 ```bash
-scripts/run_game.sh            # starts the engine (port 61008) and the web game (port 61007)
+./scripts/run_game.sh            # production mode
+./scripts/run_game.sh dev        # development mode with hot reload
 ```
+
+**Windows (PowerShell):** run the engine and web app in separate PowerShell windows. In the first window, from
+the repository root:
+
+```powershell
+conda activate mas
+$env:OMP_NUM_THREADS = "4"
+$env:MKL_NUM_THREADS = "4"
+python -m uvicorn dumbocracy.api.app:app --host 127.0.0.1 --port 61008 --log-level warning
+```
+
+In a second window, from the repository root:
+
+```powershell
+conda activate mas
+$env:CLOUT_API = "http://127.0.0.1:61008"
+Set-Location web
+npm run dev
+```
+
+For production mode, run `npm run build` once in `web/`, then use `npm run start` in the second window.
 
 Open **http://127.0.0.1:61007** and press **Start campaign**. The first run builds the web app, which takes a minute.
 
-- **Developing the frontend?** Use `scripts/run_game.sh dev` for hot reload.
+- **Developing the frontend?** On Linux/macOS use `./scripts/run_game.sh dev`; on Windows use `npm run dev` as above.
 - **On a remote server?** Forward the port first: `ssh -L 61007:127.0.0.1:61007 <user>@<host>`.
-- **No Python at all?** Run the web game against a built-in mock engine:
-  `cd web && NEXT_PUBLIC_DUMBOCRACY_MOCK=1 npm run dev`.
+- **No Python at all?** Run the web game against a built-in mock engine. On Linux/macOS: `cd web &&
+  NEXT_PUBLIC_CLOUT_MOCK=1 npm run dev`. On Windows PowerShell:
+  `Set-Location web; $env:NEXT_PUBLIC_CLOUT_MOCK = "1"; npm run dev`.
 
 New to the game? Read **[HOW_TO_PLAY.md](HOW_TO_PLAY.md)**. It takes five minutes.
 
@@ -102,7 +139,7 @@ New to the game? Read **[HOW_TO_PLAY.md](HOW_TO_PLAY.md)**. It takes five minute
 | **Media** | Reaches 60% of a region at once and gives a temporary pull, which weakens with each repeat airing. |
 | **Voting** | A voter supports you with a probability that rises steeply once their agreement with your manifesto passes 82.5%. |
 
-The full model, with every equation and default value, is in the [report](reports/v3/latex/main.pdf).
+The full project report is available as [DumbocracyReport.pdf](reports/DumbocracyReport.pdf).
 
 ## Using the engine from Python
 
@@ -136,11 +173,31 @@ never changes the state; it comes back with `accepted=False` and an error code s
 ## Experiments
 
 Each script in `experiments/` writes raw per-game rows and a JSON summary with its seeds, device and git revision.
-Every arm of an experiment runs on the same worlds, so comparisons are paired. For example:
+Every arm of an experiment runs on the same worlds, so comparisons are paired. To run the same example on each OS,
+use the device available on that machine:
+
+**Linux with an NVIDIA GPU:**
 
 ```bash
 OMP_NUM_THREADS=4 python experiments/s5_worker_spread.py --seeds 50 --first-seed 14000 --device cuda:0
 ```
+
+**macOS or CPU-only Linux:**
+
+```bash
+OMP_NUM_THREADS=4 python experiments/s5_worker_spread.py --seeds 50 --first-seed 14000 --device cpu
+```
+
+**Windows (PowerShell, CPU):**
+
+```powershell
+$env:OMP_NUM_THREADS = "4"
+python experiments/s5_worker_spread.py --seeds 50 --first-seed 14000 --device cpu
+```
+
+For a published result, use the seed, arguments, and device recorded for that run. CPU and CUDA runs use different
+random streams, so results are reproducible on the same device and settings but are not expected to match bit for bit
+across devices. This engine does not select Apple's MPS backend; use `--device cpu` on macOS.
 
 The results and the figures behind the slides are in [`reports/v3/`](reports/v3/). Some headline findings:
 
@@ -169,7 +226,7 @@ CLOUT/
 ├── tests/               pytest suite (unit, integration, GPU)
 ├── experiments/         experiment scripts
 ├── reports/             results, figures and the project report
-├── docs/                design spec, decisions, API contract, plans
+├── docs/                project documentation
 ├── Demo/                two scripted games for live demos (one win, one loss)
 ├── slides/              presentation slides (HTML, rendered to PDF)
 └── scripts/             run_game.sh and the smart-player advisor
@@ -180,10 +237,8 @@ CLOUT/
 | Document | What's in it |
 |---|---|
 | [HOW_TO_PLAY.md](HOW_TO_PLAY.md) | A guide for first-time players |
-| [reports/v3/latex/main.pdf](reports/v3/latex/main.pdf) | The project report: model, algorithms, logic, experiments |
-| [reports/v3/report.md](reports/v3/report.md) | The full experiment record |
-| [docs/v2/technical_spec_v2.md](docs/v2/technical_spec_v2.md) | The technical specification |
-| [docs/v2/web_api_v2.md](docs/v2/web_api_v2.md) | The HTTP API between the web game and the engine |
+| [DumbocracyReport.pdf](reports/DumbocracyReport.pdf) | The project report: model, algorithms, logic, experiments |
+| [DumbocracySlides_Project-CLOUT.pdf](slides/out/DumbocracySlides_Project-CLOUT.pdf) | Project presentation |
 | [Demo/README.md](Demo/README.md) | Two fixed games for live demos |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to set up, test and contribute |
 

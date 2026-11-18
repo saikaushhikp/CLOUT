@@ -1,4 +1,4 @@
-"""X16 — Reliability and calibration of epistemic verdicts (plan ``docs/v2/plans/implementation_plan.md`` §6 X16).
+"""X16 — Reliability and calibration of epistemic verdicts.
 
 Command (reproduces reports/v3/x16.json, reports/v3/raw/x16.jsonl, reports/v3/logs/x16.log and the figures):
   OMP_NUM_THREADS=4 python experiments/x16_verdicts.py --seeds 50 --first-seed 13000 --device cuda:0 \

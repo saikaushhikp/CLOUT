@@ -2,11 +2,9 @@
 
 Command (reproduces reports/v3/experimentation/expRes_for_slides/manifesto_no_campaign.{json,png,svg} and the log):
   OMP_NUM_THREADS=4 python experiments/s6_manifesto_no_campaign.py --seeds 50 --first-seed 14000 --device cuda:0 \
-      2>&1 | tee reports/v3/experimentation/expRes_for_slides/logs/manifesto_no_campaign.log
 10-round variant (writes manifesto_no_campaign_10r.* instead; same seeds):
   OMP_NUM_THREADS=4 python experiments/s6_manifesto_no_campaign.py --seeds 50 --first-seed 14000 --device cuda:0 \
       --rounds 10 --tag manifesto_no_campaign_10r \
-      2>&1 | tee reports/v3/experimentation/expRes_for_slides/logs/manifesto_no_campaign_10r.log
 
 Design: N = 2,500 voters, default 4 regions / rules / zealots (5%), no workers, no media, no surveys; held-out seeds
 14000–14049. Five FIXED manifestos per world, committed at round 0 and never changed, built from the TRUE archetype

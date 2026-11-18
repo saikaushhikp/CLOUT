@@ -12,10 +12,10 @@ script only keeps a runnable, minimal measurement so the P7 pipeline still impor
 * Outcomes (``simulate_world``): ORACLE manifesto + oracle planner; informed manifesto with pay_workers /
   front_workers / pay_media / pay_split (balance.py).
 
-The P7 results in reports/v2/e3_cascades.json were produced by the SIR mechanism and are NOT reproducible with
+The P7 results in earlier results were produced by the SIR mechanism and are NOT reproducible with
 this script. Do not re-run E3 without the owner's go-ahead.
 
-Usage: python experiments/e3_cascades.py --seeds 200 --n 10000 --device auto --workers 6 --out reports/v2/e3_cascades.json
+Usage: python experiments/e3_cascades.py --seeds 200 --n 10000 --device auto --workers 6 --out <output.json>
 """
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ def main():
     ap.add_argument("--n", type=int, default=10_000)
     ap.add_argument("--device", default="auto")
     ap.add_argument("--workers", type=int, default=6)
-    ap.add_argument("--out", default="reports/v2/e3_cascades.json")
+    ap.add_argument("--out", required=True)
     args = ap.parse_args()
     device = pc.pick_device(args.device)
     tasks = [(s, args.n, device) for s in range(args.first_seed, args.first_seed + args.seeds)]

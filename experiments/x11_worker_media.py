@@ -1,4 +1,4 @@
-"""X11 — Worker × media interaction (plan ``docs/v2/plans/implementation_plan.md`` §4 X11; new, N2).
+"""X11 — Worker × media interaction.
 
 Command (reproduces reports/v3/x11.json, reports/v3/raw/x11.jsonl and reports/v3/logs/x11.log):
   OMP_NUM_THREADS=4 python experiments/x11_worker_media.py --seeds 100 --first-seed 11000 --device cuda:2 \

@@ -1,4 +1,4 @@
-"""X12 — Broad vs narrow ("viral") manifesto (plan ``docs/v2/plans/implementation_plan.md`` §5 X12).
+"""X12 — Broad vs narrow ("viral") manifesto.
 
 Command (reproduces reports/v3/x12.json, reports/v3/raw/x12.jsonl and reports/v3/logs/x12.log; run after X13):
   OMP_NUM_THREADS=4 python experiments/x12_viral_manifesto.py --seeds 50 --joint-seeds 100 --first-seed 12000 \

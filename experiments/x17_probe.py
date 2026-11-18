@@ -1,4 +1,4 @@
-"""X17 — Learning personalities by probing (plan ``docs/v2/plans/implementation_plan.md`` §6 X17).
+"""X17 — Learning personalities by probing.
 
 Command (reproduces reports/v3/x17.json, reports/v3/raw/x17.jsonl and reports/v3/logs/x17.log):
   OMP_NUM_THREADS=4 python experiments/x17_probe.py --seeds 50 --first-seed 13000 --device cuda:2 \

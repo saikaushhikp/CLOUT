@@ -2,7 +2,7 @@
 
 Prompt / observation contract for a future implementation
 ---------------------------------------------------------
-* Input: exactly the allowlisted ``Observation`` dict of ``docs/v2/web_api_v2.md`` for this player
+* Input: exactly the allowlisted ``Observation`` dict for this player
   (never the engine state). It is serialised to JSON and placed in the user message, together with
   ``observation["legal_actions"]`` and the public rules (costs are already inside ``costs``).
 * System prompt: the game rules of spec §3–§7 in prose, the sector/region ids, and the instruction

@@ -1,4 +1,4 @@
-"""Shared helpers for the v3 experiment suite (plan ``docs/v2/plans/implementation_plan.md`` §1–§2).
+"""Shared helpers for the v3 experiment suite.
 
 * statistics: re-exports ``p7_common`` (``wilson``, ``rate``, ``mean_ci``, ``paired``, ``mcnemar``, ``spearman``)
   and adds :func:`holm` and :func:`power_paired_binary` (§1.3);

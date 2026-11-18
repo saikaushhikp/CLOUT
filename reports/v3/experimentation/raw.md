@@ -1,4 +1,4 @@
-# Dumbocracy: five questions about how the game works
+# Clout: five questions about how the game works
 
 **Consolidated experiment report. Date:** 2026-11-11.
 **Sources:**

@@ -1,5 +1,5 @@
 """Campaign mechanisms: permanent party workers + round-by-round Independent Cascade, media, costs
-(spec §3; P8 rules R21–R28 in ``docs/v2/plans/P8_party_workers_ic.md``).
+
 
 Party workers (P8) are real voter nodes bought in a region, pinned at the manifesto for the whole game.
 Influence spreads as an Independent Cascade, ONE hop per campaign round: the spreaders of round t are the
